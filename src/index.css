@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f4f6f8;
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center; /* This forces the App to the dead center */
+  margin: 0;
+  padding: 0;
+  max-width: none; /* This kills the Vite default that forces left-alignment! */
+}

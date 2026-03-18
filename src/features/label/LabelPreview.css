@@ -1,0 +1,53 @@
+.label-preview-container {
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  border: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  padding: 6px;
+  box-sizing: border-box;
+  gap: 4px;
+}
+
+.label-preview-title {
+  font-weight: 700;
+  text-align: center;
+  color: black;
+  line-height: 1;
+}
+
+.label-preview-box {
+  width: 92%;
+  border: 1.5px solid black;
+  border-radius: 6px;
+  padding: 3px 5px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.05;
+  color: black;
+  gap: 2px;
+}
+
+.label-preview-section-label {
+  font-weight: 700;
+  color: #444;
+  margin-bottom: 1px;
+  letter-spacing: 0.5px;
+}
+
+.label-preview-section-text {
+  font-weight: 500;
+  color: black;
+  line-height: 1.05;
+}
+
+.label-preview-section-emphasis {
+  font-weight: 600;
+  color: black;
+  line-height: 1.05;
+}
