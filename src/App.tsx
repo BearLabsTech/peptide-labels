@@ -32,13 +32,13 @@ export default function App() {
   }
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      width: '100%', 
-      maxWidth: '1280px', 
-      height: '100vh', 
+    <div style={{
+      display: 'flex',
+      width: '100%',
+      maxWidth: '1280px',
+      height: '100vh',
       backgroundColor: 'white',
-      boxShadow: '0 0 20px rgba(0,0,0,0.05)' 
+      boxShadow: '0 0 20px rgba(0,0,0,0.05)'
     }}>
       <ControlSidebar
         input={input}
@@ -60,8 +60,8 @@ function initialInput(todayPicker: string): LabelModelInput {
     reconstitutionAmount: '2ml',
     reconstitutionType: 'BAC',
     concentration: '1mg per 10 units',
-    doseUnits: '40 units',
-    doseAmount: '4mg',
+    protocolUnits: '40 units', 
+    protocolAmount: '4mg',     
     protocolFrequency: 'Weekly',
     reconstitutionDate: formatDate(todayPicker)
   }

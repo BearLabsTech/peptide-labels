@@ -1,4 +1,3 @@
-import { forwardRef } from 'react'
 import type { LabelModelInput } from './labelModel'
 
 export interface ControlSidebarProps {
