@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { pxToCqw } from './scaling'
+import { pxToCqw } from './Scaling'
 
 describe('Scaling Utilities', () => {
     it('converts absolute layout pixels to container query width percentages', () => {

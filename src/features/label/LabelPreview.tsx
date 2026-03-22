@@ -1,6 +1,6 @@
 import { forwardRef } from 'react'
 import type { LabelRenderModel } from './LabelComposer'
-import { pxToCqw } from './scaling'
+import { pxToCqw } from './Scaling'
 import './LabelPreview.css'
 
 export interface LabelPreviewProps {
