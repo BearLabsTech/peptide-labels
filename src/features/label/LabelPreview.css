@@ -1,4 +1,6 @@
 .label-preview-container {
+  container-type: inline-size;
+  /* This is the magic line */
   width: 100%;
   aspect-ratio: 2 / 1;
   border: 1px solid #ccc;
@@ -7,9 +9,11 @@
   justify-content: center;
   align-items: center;
   background-color: white;
-  padding: 6px;
+  padding: 1.875cqw;
+  /* Was 6px */
   box-sizing: border-box;
-  gap: 4px;
+  gap: 1.25cqw;
+  /* Was 4px */
 }
 
 .label-preview-title {
@@ -22,15 +26,19 @@
 .label-preview-box {
   width: 92%;
   border: 1.5px solid black;
-  border-radius: 6px;
-  padding: 3px 5px;
+  /* We keep borders as px so they stay crisp */
+  border-radius: 1.875cqw;
+  /* Was 6px */
+  padding: 0.9cqw 1.5cqw;
+  /* Was 3px 5px */
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
   line-height: 1.05;
   color: black;
-  gap: 2px;
+  gap: 0.6cqw;
+  /* Was 2px */
 }
 
 .label-preview-section-label {

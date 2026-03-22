@@ -6,36 +6,35 @@ import type { LabelRenderModel } from './LabelComposer'
 export interface LabelStageProps {
     model: LabelRenderModel
     compoundName?: string
+    isExampleMode?: boolean
 }
 
-export function LabelStage({ model, compoundName }: LabelStageProps) {
-    const previewRef = useRef<HTMLDivElement>(null)
-
-    const stageStyle: React.CSSProperties = {
-        flex: 1, display: 'flex', flexDirection: 'column',
-        justifyContent: 'center', alignItems: 'center',
-        backgroundColor: '#f0f2f5', padding: '40px'
-    }
-
-    const wrapperStyle: React.CSSProperties = {
-        width: '100%', maxWidth: '500px', backgroundColor: 'white',
-        boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)'
-    }
+export function LabelStage({ model, compoundName, isExampleMode }: LabelStageProps) {
+    // We attach the ref to the wrapper so the PNG generator captures the bounding box
+    const stageRef = useRef<HTMLDivElement>(null)
 
     async function downloadLabel() {
-        if (!previewRef.current) return
-        const dataUrl = await toPng(previewRef.current, {
+        if (!stageRef.current || isExampleMode) return
+        const dataUrl = await toPng(stageRef.current, {
             canvasWidth: 472, canvasHeight: 236, pixelRatio: 1, backgroundColor: 'white'
         })
         triggerDownload(dataUrl, compoundName)
     }
 
     return (
-        <div style={stageStyle}>
-            <div style={wrapperStyle}>
-                <LabelPreview ref={previewRef} model={model} />
+        <div className="stage-panel">
+            <div
+                className="stage-wrapper"
+                ref={stageRef}
+                style={{
+                    opacity: isExampleMode ? 0.4 : 1,
+                    transition: 'opacity 0.3s ease',
+                    pointerEvents: isExampleMode ? 'none' : 'auto'
+                }}
+            >
+                <LabelPreview model={model} />
             </div>
-            <DownloadButton onClick={downloadLabel} />
+            <DownloadButton onClick={downloadLabel} disabled={isExampleMode} />
         </div>
     )
 }
@@ -47,14 +46,18 @@ function triggerDownload(dataUrl: string, name?: string) {
     link.click()
 }
 
-function DownloadButton({ onClick }: { onClick: () => void }) {
+function DownloadButton({ onClick, disabled }: { onClick: () => void, disabled?: boolean }) {
     return (
         <button
             onClick={onClick}
+            disabled={disabled}
             style={{
-                marginTop: 40, padding: '12px 24px', backgroundColor: '#0f172a',
+                marginTop: 40, padding: '12px 24px',
+                backgroundColor: disabled ? '#94a3b8' : '#0f172a',
                 color: 'white', border: 'none', borderRadius: '6px', fontSize: '1rem',
-                fontWeight: 600, cursor: 'pointer', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
+                fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer',
+                boxShadow: disabled ? 'none' : '0 4px 6px -1px rgba(0,0,0,0.1)',
+                transition: 'all 0.2s ease'
             }}
         >
             Download Label PNG
