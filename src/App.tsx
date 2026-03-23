@@ -3,6 +3,7 @@ import { LabelComposer } from './features/label/LabelComposer'
 import type { LabelModelInput } from './features/label/labelModel'
 import { ControlSidebar } from './features/label/ControlSidebar'
 import { LabelStage } from './features/label/LabelStage'
+import { calculateDrawVolume } from './features/label/peptideMath'
 import './App.css'
 
 function getTodayPickerDate(): string {
@@ -13,33 +14,33 @@ function formatDate(value: string): string {
   return value.replaceAll('-', '')
 }
 
-// The Ghost Data
 function getExampleInput(todayPicker: string): LabelModelInput {
   return {
     compoundName: 'Tirzepatide',
     compoundAmount: '20mg',
     reconstitutionAmount: '2ml',
-    reconstitutionType: 'BAC',
-    concentration: '1mg per 10 units',
-    protocolUnits: '40 units',
-    protocolAmount: '4mg',
+    reconstitutionType: 'BAC Water',
+    concentration: '10mg per ml',
+    protocolUnits: '25 units',
+    protocolAmount: '5mg',
     protocolFrequency: 'Weekly',
-    reconstitutionDate: formatDate(todayPicker)
+    reconstitutionDate: formatDate(todayPicker),
+    doseUnit: 'mg'
   }
 }
 
-// The Real Data: Now 100% empty, including the date
 function getEmptyInput(): LabelModelInput {
   return {
     compoundName: '',
     compoundAmount: '',
     reconstitutionAmount: '',
-    reconstitutionType: '',
+    reconstitutionType: '', // CHANGED: Now starts empty so it doesn't clutter the label
     concentration: '',
     protocolUnits: '',
     protocolAmount: '',
     protocolFrequency: '',
-    reconstitutionDate: ''
+    reconstitutionDate: '',
+    doseUnit: 'mcg'
   }
 }
 
@@ -47,18 +48,42 @@ export default function App() {
   const composer = useMemo(() => new LabelComposer(), [])
   const todayPicker = getTodayPickerDate()
 
-  // Start the picker completely empty so the native placeholder shows
   const [selectedDate, setSelectedDate] = useState('')
   const [isFreeTextDate, setIsFreeTextDate] = useState(false)
   const [input, setInput] = useState<LabelModelInput>(getEmptyInput())
 
   const isPristine = !input.compoundName && !input.compoundAmount &&
-    !input.reconstitutionAmount && !input.reconstitutionType &&
-    !input.concentration && !input.protocolUnits &&
-    !input.protocolAmount && !input.protocolFrequency &&
-    !input.reconstitutionDate; // Added date to the pristine check
+    !input.reconstitutionAmount && !input.protocolAmount &&
+    !input.protocolFrequency && !input.reconstitutionDate &&
+    !input.reconstitutionType; // Added to pristine check
 
-  const model = composer.compose(isPristine ? getExampleInput(todayPicker) : input)
+  let activeInput = isPristine ? getExampleInput(todayPicker) : { ...input }
+
+  if (!isPristine) {
+    const vialMg = parseFloat(input.compoundAmount || '0')
+    const waterMl = parseFloat(input.reconstitutionAmount || '0')
+    const doseAmount = parseFloat(input.protocolAmount || '0')
+    const doseUnit = input.doseUnit || 'mcg'
+
+    const mathResult = calculateDrawVolume({ vialMg, waterMl, doseAmount, doseUnit })
+
+    if (input.compoundAmount) activeInput.compoundAmount = `${input.compoundAmount}mg`
+    if (input.reconstitutionAmount) activeInput.reconstitutionAmount = `${input.reconstitutionAmount}ml`
+    if (input.protocolAmount) activeInput.protocolAmount = `${input.protocolAmount}${doseUnit}`
+
+    if (mathResult) {
+      activeInput.protocolUnits = `${mathResult.drawUnits} units`
+      activeInput.concentration = `${mathResult.concentrationMgPerMl}mg per ml`
+
+      input.protocolUnits = activeInput.protocolUnits;
+      input.concentration = activeInput.concentration;
+    } else {
+      input.protocolUnits = '';
+      input.concentration = '';
+    }
+  }
+
+  const model = composer.compose(activeInput)
 
   function updateField<K extends keyof LabelModelInput>(field: K, value: string) {
     setInput(prev => ({ ...prev, [field]: value }))
@@ -70,7 +95,6 @@ export default function App() {
   }
 
   return (
-    // Replaced the inline style block with the CSS class
     <div className="app-container">
       <ControlSidebar
         input={input}

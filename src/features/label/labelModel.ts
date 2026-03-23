@@ -16,6 +16,22 @@ export interface LabelModel {
   lines: string[]
 }
 
+export interface LabelModelInput {
+  compoundName?: string
+  compoundAmount?: string
+  reconstitutionAmount?: string
+  reconstitutionType?: string
+  concentration?: string
+
+  protocolUnits?: string
+  protocolAmount?: string
+  protocolFrequency?: string
+
+  reconstitutionDate?: string
+  doseUnit?: 'mg' | 'mcg'
+}
+
+
 export class LabelModelBuilder {
 
   public build(input: LabelModelInput): LabelModel {
