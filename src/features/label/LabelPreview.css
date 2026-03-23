@@ -1,6 +1,5 @@
 .label-preview-container {
   container-type: inline-size;
-  /* This is the magic line */
   width: 100%;
   aspect-ratio: 2 / 1;
   border: 1px solid #ccc;
@@ -9,53 +8,55 @@
   justify-content: center;
   align-items: center;
   background-color: white;
-  padding: 1.875cqw;
-  /* Was 6px */
+  padding: 1.5cqw;
+  /* Tighter outer padding */
   box-sizing: border-box;
-  gap: 1.25cqw;
-  /* Was 4px */
+  gap: 1cqw;
+  /* Tighter gap between title and boxes */
 }
 
 .label-preview-title {
-  font-weight: 700;
+  font-weight: 800;
+  /* Bolder title */
   text-align: center;
   color: black;
   line-height: 1;
+  margin-bottom: 0.5cqw;
 }
 
 .label-preview-box {
-  width: 92%;
+  width: 96%;
+  /* Uses more horizontal space */
   border: 1.5px solid black;
-  /* We keep borders as px so they stay crisp */
-  border-radius: 1.875cqw;
-  /* Was 6px */
-  padding: 0.9cqw 1.5cqw;
-  /* Was 3px 5px */
+  border-radius: 1.2cqw;
+  /* Slightly sharper corners */
+  padding: 0.8cqw 1.2cqw;
+  /* Tighter internal padding */
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  line-height: 1.05;
   color: black;
-  gap: 0.6cqw;
-  /* Was 2px */
+  gap: 0.4cqw;
+  /* Tighter gap between lines */
 }
 
 .label-preview-section-label {
-  font-weight: 700;
-  color: #444;
-  margin-bottom: 1px;
+  font-weight: 800;
+  /* Maximum contrast for section headers */
+  color: #333;
+  margin-bottom: 0;
   letter-spacing: 0.5px;
 }
 
 .label-preview-section-text {
   font-weight: 500;
   color: black;
-  line-height: 1.05;
+  line-height: 1.1;
 }
 
 .label-preview-section-emphasis {
-  font-weight: 600;
+  font-weight: 700;
   color: black;
-  line-height: 1.05;
+  line-height: 1.1;
 }

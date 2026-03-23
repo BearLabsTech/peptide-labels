@@ -57,7 +57,8 @@ describe('LabelLayoutEngine', () => {
             heightMm: 20
         })
 
-        expect(result.fontSizePx).toBeLessThan(16)
+        // UPDATED: Now testing against our new 26px ceiling
+        expect(result.fontSizePx).toBeLessThan(26)
     })
 
     it('itShouldWrapMoreAggressivelyWhenWidthIsSmaller', () => {

@@ -17,7 +17,7 @@ interface WrapState {
 
 export class LabelLayoutEngine {
     private readonly MIN_FONT_SIZE_PX = 8;
-    private readonly INITIAL_FONT_SIZE_PX = 16;
+    private readonly INITIAL_FONT_SIZE_PX = 26;
 
     public layout(input: LabelLayoutInput): LabelLayoutResult {
         for (let size = this.INITIAL_FONT_SIZE_PX; size >= this.MIN_FONT_SIZE_PX; size -= 1) {
@@ -87,7 +87,7 @@ export class LabelLayoutEngine {
         }
 
         if (state.current) state.lines.push(state.current)
-        
+
         return { lines: state.lines, didChopWord: state.didChopWord }
     }
 

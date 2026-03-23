@@ -43,7 +43,8 @@ describe('LabelComposer', () => {
         })
 
         expect(result.wrappedLines.length).toBe(1)
-        expect(result.titleFontSizePx).toBeLessThan(16)
+        // UPDATED: Now testing against the new 26px ceiling
+        expect(result.titleFontSizePx).toBeLessThan(26)
     })
 
     it('itShouldConstrainLayoutMoreWhenPaddingIsLarger', () => {
@@ -156,9 +157,10 @@ describe('LabelComposer', () => {
             protocolFrequency: 'Three times per week'
         })
 
-        expect(result.titleFontSizePx).toBeLessThan(16);
+        // UPDATED: Now testing against the new 26px ceiling
+        expect(result.titleFontSizePx).toBeLessThan(26);
         expect(result.titleFontSizePx).toBeGreaterThan(4);
-        expect(result.bodyFontSizePx).toBe(16);
+        expect(result.bodyFontSizePx).toBe(19);
     })
 
 })

@@ -34,7 +34,7 @@ function getEmptyInput(): LabelModelInput {
     compoundName: '',
     compoundAmount: '',
     reconstitutionAmount: '',
-    reconstitutionType: '', // CHANGED: Now starts empty so it doesn't clutter the label
+    reconstitutionType: '',
     concentration: '',
     protocolUnits: '',
     protocolAmount: '',
@@ -55,35 +55,36 @@ export default function App() {
   const isPristine = !input.compoundName && !input.compoundAmount &&
     !input.reconstitutionAmount && !input.protocolAmount &&
     !input.protocolFrequency && !input.reconstitutionDate &&
-    !input.reconstitutionType; // Added to pristine check
+    !input.reconstitutionType;
 
-  let activeInput = isPristine ? getExampleInput(todayPicker) : { ...input }
+  // 1. Run the math engine
+  const vialMg = parseFloat(input.compoundAmount || '0')
+  const waterMl = parseFloat(input.reconstitutionAmount || '0')
+  const doseAmount = parseFloat(input.protocolAmount || '0')
+  const doseUnit = input.doseUnit || 'mcg'
 
-  if (!isPristine) {
-    const vialMg = parseFloat(input.compoundAmount || '0')
-    const waterMl = parseFloat(input.reconstitutionAmount || '0')
-    const doseAmount = parseFloat(input.protocolAmount || '0')
-    const doseUnit = input.doseUnit || 'mcg'
+  const mathResult = isPristine ? null : calculateDrawVolume({ vialMg, waterMl, doseAmount, doseUnit })
 
-    const mathResult = calculateDrawVolume({ vialMg, waterMl, doseAmount, doseUnit })
-
-    if (input.compoundAmount) activeInput.compoundAmount = `${input.compoundAmount}mg`
-    if (input.reconstitutionAmount) activeInput.reconstitutionAmount = `${input.reconstitutionAmount}ml`
-    if (input.protocolAmount) activeInput.protocolAmount = `${input.protocolAmount}${doseUnit}`
-
-    if (mathResult) {
-      activeInput.protocolUnits = `${mathResult.drawUnits} units`
-      activeInput.concentration = `${mathResult.concentrationMgPerMl}mg per ml`
-
-      input.protocolUnits = activeInput.protocolUnits;
-      input.concentration = activeInput.concentration;
-    } else {
-      input.protocolUnits = '';
-      input.concentration = '';
-    }
+  // 2. Prepare Sidebar Input (Raw text + Auto-Calculated display values)
+  const sidebarInput = {
+    ...input,
+    protocolUnits: mathResult ? `${mathResult.drawUnits} units` : '',
+    concentration: mathResult ? `${mathResult.concentrationMgPerMl}mg per ml` : ''
   }
 
-  const model = composer.compose(activeInput)
+  // 3. Prepare Label Input (Formatted with mg/ml units for the visual label)
+  let labelInput: LabelModelInput;
+
+  if (isPristine) {
+    labelInput = getExampleInput(todayPicker);
+  } else {
+    labelInput = { ...sidebarInput }
+    if (labelInput.compoundAmount) labelInput.compoundAmount = `${labelInput.compoundAmount}mg`
+    if (labelInput.reconstitutionAmount) labelInput.reconstitutionAmount = `${labelInput.reconstitutionAmount}ml`
+    if (labelInput.protocolAmount) labelInput.protocolAmount = `${labelInput.protocolAmount}${doseUnit}`
+  }
+
+  const model = composer.compose(labelInput)
 
   function updateField<K extends keyof LabelModelInput>(field: K, value: string) {
     setInput(prev => ({ ...prev, [field]: value }))
@@ -97,7 +98,7 @@ export default function App() {
   return (
     <div className="app-container">
       <ControlSidebar
-        input={input}
+        input={sidebarInput}
         updateField={updateField}
         selectedDate={selectedDate}
         updateDateFromPicker={updateDateFromPicker}

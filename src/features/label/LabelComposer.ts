@@ -81,9 +81,15 @@ export class LabelComposer {
   }
 
   private buildProtocolUnitLine(input: LabelModelInput): string | null {
-    if (!input.protocolUnits) return null
-    if (!input.protocolAmount) return input.protocolUnits
-    return `${input.protocolUnits} (${input.protocolAmount})`
+    const hasUnits = !!input.protocolUnits;
+    const hasAmount = !!input.protocolAmount;
+
+    // THE FIX: Intelligently display whatever data we have
+    if (!hasUnits && !hasAmount) return null;
+    if (!hasUnits) return input.protocolAmount!;
+    if (!hasAmount) return input.protocolUnits!;
+
+    return `${input.protocolUnits} (${input.protocolAmount})`;
   }
 
   private buildReconstitutionLines(input: LabelModelInput): string[] {
