@@ -40,20 +40,16 @@ describe('LabelModelBuilder', () => {
     ])
   })
 
-  it('itShouldBuildReconstitutionLineWhenAmountAndTypeProvided', () => {
+  it('itShouldMaintainBasicStructureEvenIfUntested', () => {
     const builder = new LabelModelBuilder()
 
     const result = builder.build({
-      compoundName: 'Semaglutide',
-      compoundAmount: '10mg',
-      reconstitutionAmount: '2mL',
-      reconstitutionType: 'BAC'
+      compoundName: 'Reta',
+      isUntested: true
     })
 
-    expect(result.lines).toEqual([
-      'Semaglutide',
-      '10mg - 2mL BAC'
-    ])
+    // The builder handles the list of strings, the Composer handles the Title decoration
+    expect(result.lines).toEqual(['Reta'])
   })
 
   it('itShouldOmitReconstitutionLineWhenCompoundAmountMissing', () => {

@@ -9,34 +9,50 @@ export interface LabelRenderModel {
   title: string
   protocolLines: string[]
   reconstitutionLines: string[]
-}
-
-export interface LabelComposerConfig {
-  labelWidthMm?: number
-  labelHeightMm?: number
-  paddingMm?: number
+  qrCodes: { type: string, url: string }[]
+  customImage?: string
 }
 
 export class LabelComposer {
-  private readonly layoutEngine: LabelLayoutEngine
-  private readonly labelWidthMm: number
-  private readonly labelHeightMm: number
-  private readonly paddingMm: number
-
-  public constructor(config: LabelComposerConfig = {}) {
-    this.layoutEngine = new LabelLayoutEngine()
-    this.labelWidthMm = config.labelWidthMm ?? 40
-    this.labelHeightMm = config.labelHeightMm ?? 20
-    this.paddingMm = config.paddingMm ?? 2
-  }
+  private readonly layoutEngine = new LabelLayoutEngine()
+  private readonly labelWidthMm = 40
+  private readonly labelHeightMm = 20
+  private readonly paddingMm = 2
 
   public compose(input: LabelModelInput): LabelRenderModel {
-    const title = this.buildTitle(input)
-    const protocolLines = this.buildProtocolLines(input)
-    const reconstitutionLines = this.buildReconstitutionLines(input)
+    const isUntested = !!input.isUntested
 
-    const titleLayout = this.layoutTitle(title)
-    const bodyLayout = this.layoutBody([...reconstitutionLines, ...protocolLines])
+    // 1. Build the multi-line Title
+    const title = isUntested ? '☠️\nDanger\nUntested\n☠️' : this.buildStandardTitle(input)
+
+    // 2. Build the Body Sections
+    const reconstitutionLines = this.buildReconstitutionLines(input)
+    const protocolLines = this.buildProtocolLines(input)
+
+    const qrCodes = [
+      { type: 'Vendor COA', url: input.vendorCoa },
+      { type: 'Group COA', url: input.groupCoa },
+      { type: 'My COA', url: input.myCoa }
+    ].filter(qr => !!qr.url) as { type: string, url: string }[]
+
+    const hasRight = qrCodes.length > 0;
+    const hasLeft = !!input.customImage;
+
+    // 3. Layout: Title gets 50% of height in Danger mode for maximum impact
+    const titleHeightWeight = isUntested ? 0.5 : 0.4;
+    const bodyHeightWeight = 1.0 - titleHeightWeight;
+
+    const titleLayout = this.layoutEngine.layout({
+      lines: title.split('\n'), // Forces the engine to treat each part as its own line
+      widthMm: this.usableWidthMm(hasLeft, hasRight),
+      heightMm: this.usableHeightMm() * titleHeightWeight
+    })
+
+    const bodyLayout = this.layoutEngine.layout({
+      lines: [...reconstitutionLines, ...protocolLines],
+      widthMm: this.usableWidthMm(hasLeft, hasRight),
+      heightMm: this.usableHeightMm() * bodyHeightWeight
+    })
 
     return {
       wrappedLines: [...titleLayout.wrappedLines, ...bodyLayout.wrappedLines],
@@ -44,76 +60,55 @@ export class LabelComposer {
       bodyFontSizePx: bodyLayout.fontSizePx,
       title,
       protocolLines,
-      reconstitutionLines
+      reconstitutionLines,
+      qrCodes,
+      customImage: input.customImage
     }
   }
 
-  private layoutTitle(title: string): LabelLayoutResult {
-    return this.layoutEngine.layout({
-      lines: [title],
-      widthMm: this.usableWidthMm(),
-      heightMm: this.usableHeightMm() * 0.4
-    })
-  }
-
-  private layoutBody(bodyLines: string[]): LabelLayoutResult {
-    return this.layoutEngine.layout({
-      lines: bodyLines,
-      widthMm: this.usableWidthMm(),
-      heightMm: this.usableHeightMm() * 0.6
-    })
-  }
-
-  private buildTitle(input: LabelModelInput): string {
-    if (!input.compoundName) return input.compoundAmount ?? ''
-    if (!input.compoundAmount) return input.compoundName
-    return `${input.compoundName} ${input.compoundAmount}`
+  private buildStandardTitle(input: LabelModelInput): string {
+    const name = input.compoundName || ''
+    const amount = input.compoundAmount || ''
+    return amount ? `${name} ${amount}`.trim() : name
   }
 
   private buildProtocolLines(input: LabelModelInput): string[] {
     const lines: string[] = []
-    const protocolUnitLine = this.buildProtocolUnitLine(input)
+    const name = input.compoundName || ''
+    const amount = input.compoundAmount || ''
+    const fullName = amount ? `${name} ${amount}`.trim() : name
 
-    if (protocolUnitLine) lines.push(protocolUnitLine)
+    // Always include the compound name in the protocol section (it's demoted in Danger mode)
+    if (fullName) lines.push(fullName)
+
+    if (input.protocolUnits || input.protocolAmount) {
+      const units = input.protocolUnits || ''
+      const amt = input.protocolAmount || ''
+      lines.push(amt ? `${units} (${amt})`.trim() : units)
+    }
+
     if (input.protocolFrequency) lines.push(input.protocolFrequency)
-
     return lines
-  }
-
-  private buildProtocolUnitLine(input: LabelModelInput): string | null {
-    const hasUnits = !!input.protocolUnits;
-    const hasAmount = !!input.protocolAmount;
-
-    // THE FIX: Intelligently display whatever data we have
-    if (!hasUnits && !hasAmount) return null;
-    if (!hasUnits) return input.protocolAmount!;
-    if (!hasAmount) return input.protocolUnits!;
-
-    return `${input.protocolUnits} (${input.protocolAmount})`;
   }
 
   private buildReconstitutionLines(input: LabelModelInput): string[] {
     const lines: string[] = []
-    const solutionLine = this.buildReconstitutionSolutionLine(input)
-
-    if (solutionLine) lines.push(solutionLine)
+    if (input.reconstitutionAmount || input.reconstitutionType) {
+      lines.push(`${input.reconstitutionAmount || ''} ${input.reconstitutionType || ''}`.trim())
+    }
     if (input.concentration) lines.push(input.concentration)
     if (input.reconstitutionDate) lines.push(input.reconstitutionDate)
-
     return lines
   }
 
-  private buildReconstitutionSolutionLine(input: LabelModelInput): string {
-    if (!input.reconstitutionAmount) return input.reconstitutionType ?? ''
-    if (!input.reconstitutionType) return input.reconstitutionAmount
-    return `${input.reconstitutionAmount} ${input.reconstitutionType}`
-  }
-
-  private usableWidthMm(): number {
-    return Math.max(1, this.labelWidthMm - this.paddingMm * 2)
+  private usableWidthMm(hasLeft: boolean, hasRight: boolean): number {
+    let mult = 1.0;
+    if (hasLeft) mult -= 0.25;
+    if (hasRight) mult -= 0.25;
+    return (this.labelWidthMm - (this.paddingMm * 2)) * mult;
   }
 
   private usableHeightMm(): number {
-    return Math.max(1, this.labelHeightMm - this.paddingMm * 2)
+    return this.labelHeightMm - (this.paddingMm * 2)
   }
 }

@@ -25,7 +25,8 @@ function getExampleInput(todayPicker: string): LabelModelInput {
     protocolAmount: '5mg',
     protocolFrequency: 'Weekly',
     reconstitutionDate: formatDate(todayPicker),
-    doseUnit: 'mg'
+    doseUnit: 'mg',
+    vendorCoa: 'https://github.com'
   }
 }
 
@@ -40,7 +41,12 @@ function getEmptyInput(): LabelModelInput {
     protocolAmount: '',
     protocolFrequency: '',
     reconstitutionDate: '',
-    doseUnit: 'mcg'
+    doseUnit: 'mcg',
+    vendorCoa: '',
+    groupCoa: '',
+    myCoa: '',
+    customImage: '',
+    isUntested: false
   }
 }
 
@@ -52,10 +58,13 @@ export default function App() {
   const [isFreeTextDate, setIsFreeTextDate] = useState(false)
   const [input, setInput] = useState<LabelModelInput>(getEmptyInput())
 
+  // Updated: isUntested now counts as user activity
   const isPristine = !input.compoundName && !input.compoundAmount &&
     !input.reconstitutionAmount && !input.protocolAmount &&
     !input.protocolFrequency && !input.reconstitutionDate &&
-    !input.reconstitutionType;
+    !input.reconstitutionType && !input.vendorCoa &&
+    !input.groupCoa && !input.myCoa && !input.customImage &&
+    !input.isUntested;
 
   // 1. Run the math engine
   const vialMg = parseFloat(input.compoundAmount || '0')
@@ -65,14 +74,14 @@ export default function App() {
 
   const mathResult = isPristine ? null : calculateDrawVolume({ vialMg, waterMl, doseAmount, doseUnit })
 
-  // 2. Prepare Sidebar Input (Raw text + Auto-Calculated display values)
+  // 2. Prepare Sidebar Input
   const sidebarInput = {
     ...input,
     protocolUnits: mathResult ? `${mathResult.drawUnits} units` : '',
     concentration: mathResult ? `${mathResult.concentrationMgPerMl}mg per ml` : ''
   }
 
-  // 3. Prepare Label Input (Formatted with mg/ml units for the visual label)
+  // 3. Prepare Label Input
   let labelInput: LabelModelInput;
 
   if (isPristine) {
@@ -86,7 +95,7 @@ export default function App() {
 
   const model = composer.compose(labelInput)
 
-  function updateField<K extends keyof LabelModelInput>(field: K, value: string) {
+  function updateField<K extends keyof LabelModelInput>(field: K, value: any) {
     setInput(prev => ({ ...prev, [field]: value }))
   }
 

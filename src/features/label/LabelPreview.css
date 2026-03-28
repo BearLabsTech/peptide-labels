@@ -4,59 +4,99 @@
   aspect-ratio: 2 / 1;
   border: 1px solid #ccc;
   display: flex;
+  background-color: white;
+  padding: 1.5cqw;
+  box-sizing: border-box;
+  gap: 1.5cqw;
+}
+
+.label-left-column,
+.label-right-column {
+  width: 25%;
+  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: white;
-  padding: 1.5cqw;
-  /* Tighter outer padding */
-  box-sizing: border-box;
-  gap: 1cqw;
-  /* Tighter gap between title and boxes */
+  height: 100%;
+}
+
+.label-left-column {
+  border-right: 1.5px solid black;
+  padding-right: 1.5cqw;
+}
+
+.label-right-column {
+  border-left: 1.5px solid black;
+  padding-left: 1.5cqw;
+}
+
+/* --- CENTER COLUMN FIX --- */
+.label-center-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
 }
 
 .label-preview-title {
-  font-weight: 800;
-  /* Bolder title */
+  height: 40%;
+  /* Matches titleHeightWeight in Composer */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: 900;
   text-align: center;
-  color: black;
-  line-height: 1;
+  line-height: 1.1;
+  text-transform: uppercase;
   margin-bottom: 0.5cqw;
 }
 
+/* The body area containing the boxes */
+.label-body-area {
+  height: 60%;
+  /* Matches bodyHeightWeight in Composer */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0.8cqw;
+}
+
 .label-preview-box {
-  width: 96%;
-  /* Uses more horizontal space */
+  width: 100%;
   border: 1.5px solid black;
   border-radius: 1.2cqw;
-  /* Slightly sharper corners */
-  padding: 0.8cqw 1.2cqw;
-  /* Tighter internal padding */
+  padding: 0.8cqw;
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  color: black;
-  gap: 0.4cqw;
-  /* Tighter gap between lines */
+  box-sizing: border-box;
+}
+
+/* ------------------------- */
+
+.label-mascot-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.qr-text {
+  font-size: 2cqw;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-top: 0.2cqw;
 }
 
 .label-preview-section-label {
   font-weight: 800;
-  /* Maximum contrast for section headers */
-  color: #333;
-  margin-bottom: 0;
+  font-size: 0.65em;
   letter-spacing: 0.5px;
 }
 
 .label-preview-section-text {
   font-weight: 500;
-  color: black;
-  line-height: 1.1;
-}
-
-.label-preview-section-emphasis {
-  font-weight: 700;
-  color: black;
   line-height: 1.1;
 }

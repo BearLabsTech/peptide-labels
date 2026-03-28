@@ -4,7 +4,7 @@ import { RECONSTITUTION_TYPES } from './peptideMath'
 
 export interface ControlSidebarProps {
     input: LabelModelInput
-    updateField: <K extends keyof LabelModelInput>(field: K, value: string) => void
+    updateField: <K extends keyof LabelModelInput>(field: K, value: any) => void
     selectedDate: string
     updateDateFromPicker: (value: string) => void
     isFreeTextDate: boolean
@@ -19,6 +19,8 @@ export function ControlSidebar(props: ControlSidebarProps) {
                 <CompoundSection {...props} />
                 <ReconstitutionSection {...props} />
                 <ProtocolSection {...props} />
+                <MediaSection {...props} />
+                <CoaSection {...props} />
             </div>
         </div>
     )
@@ -40,6 +42,32 @@ function CompoundSection({ input, updateField }: ControlSidebarProps) {
                 onChange={v => updateField('compoundAmount', v)}
                 placeholder="20"
             />
+
+            <div style={{
+                marginTop: 16,
+                padding: '12px',
+                borderRadius: '6px',
+                backgroundColor: input.isUntested ? '#fef2f2' : '#f8fafc',
+                border: `1px solid ${input.isUntested ? '#fee2e2' : '#e2e8f0'}`,
+                display: 'flex',
+                alignItems: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+            }} onClick={() => updateField('isUntested', !input.isUntested)}>
+                <input
+                    type="checkbox"
+                    checked={input.isUntested || false}
+                    onChange={() => { }}
+                    style={{ marginRight: 10, cursor: 'pointer' }}
+                />
+                <span style={{
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    color: input.isUntested ? '#991b1b' : '#475569'
+                }}>
+                    Mark as UNTESTED (Danger Mode)
+                </span>
+            </div>
         </div>
     )
 }
@@ -114,6 +142,45 @@ function ProtocolSection({ input, updateField }: ControlSidebarProps) {
     )
 }
 
+function MediaSection({ input, updateField }: ControlSidebarProps) {
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <SectionTitle title="Personalization" />
+            <ImageUploadInput
+                label="Mascot Image"
+                currentImage={input.customImage}
+                onChange={base64 => updateField('customImage', base64)}
+            />
+        </div>
+    )
+}
+
+function CoaSection({ input, updateField }: ControlSidebarProps) {
+    return (
+        <div style={{ marginBottom: 24 }}>
+            <SectionTitle title="Certificates of Analysis (Optional)" />
+            <TextInput
+                label="Vendor COA Link"
+                value={input.vendorCoa}
+                onChange={v => updateField('vendorCoa', v)}
+                placeholder="https://..."
+            />
+            <TextInput
+                label="Group COA Link"
+                value={input.groupCoa}
+                onChange={v => updateField('groupCoa', v)}
+                placeholder="https://..."
+            />
+            <TextInput
+                label="My COA Link"
+                value={input.myCoa}
+                onChange={v => updateField('myCoa', v)}
+                placeholder="https://..."
+            />
+        </div>
+    )
+}
+
 function SectionTitle({ title }: { title: string }) {
     return (
         <h2 style={{ fontSize: '0.9rem', color: '#222', borderBottom: '2px solid #eee', paddingBottom: 4, marginBottom: 12 }}>
@@ -168,6 +235,43 @@ function TextInput({ label, value, onChange, placeholder, disabled }: { label: s
                     borderColor: disabled ? '#e2e8f0' : '#ccc'
                 }}
             />
+        </div>
+    )
+}
+
+function ImageUploadInput({ label, onChange, currentImage }: { label: string, onChange: (base64: string) => void, currentImage?: string }) {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            onChange(reader.result as string)
+        }
+        reader.readAsDataURL(file)
+    }
+
+    return (
+        <div style={{ marginBottom: 16 }}>
+            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: '#555', marginBottom: 2 }}>
+                {label}
+            </label>
+            <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: 8 }}>
+                Ideal ratio: 1:2 (Portrait) or 1:1 (Square)
+            </div>
+            <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                style={{ ...inputStyle, padding: '4px', cursor: 'pointer', backgroundColor: 'white' }}
+            />
+            {currentImage && (
+                <button
+                    onClick={() => onChange('')}
+                    style={{ marginTop: 8, padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', backgroundColor: '#fee2e2', color: '#991b1b', border: '1px solid #f87171', borderRadius: '4px' }}
+                >
+                    Remove Image
+                </button>
+            )}
         </div>
     )
 }

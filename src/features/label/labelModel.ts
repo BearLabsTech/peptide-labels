@@ -1,17 +1,3 @@
-export interface LabelModelInput {
-  compoundName?: string
-  compoundAmount?: string
-  reconstitutionAmount?: string
-  reconstitutionType?: string
-  concentration?: string
-
-  protocolUnits?: string
-  protocolAmount?: string
-  protocolFrequency?: string
-
-  reconstitutionDate?: string
-}
-
 export interface LabelModel {
   lines: string[]
 }
@@ -29,8 +15,18 @@ export interface LabelModelInput {
 
   reconstitutionDate?: string
   doseUnit?: 'mg' | 'mcg'
-}
 
+  // COA Links
+  vendorCoa?: string
+  groupCoa?: string
+  myCoa?: string
+
+  // Media
+  customImage?: string
+
+  // Status
+  isUntested?: boolean
+}
 
 export class LabelModelBuilder {
 
