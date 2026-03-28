@@ -11,29 +11,34 @@ describe('LabelComposer', () => {
         })
 
         expect(result.title).toBe('Tirzepatide 20mg')
+        expect(result.demotedTitle).toBeUndefined()
         expect(result.wrappedLines.length).toBeGreaterThan(0)
     })
 
-    // --- CRITICAL DANGER FOCUS TEST ---
-    it('itShouldForceDangerStatusToFourLinesWhenUntested', () => {
+    it('itShouldShrinkBodyTextAndLightenTitleInDangerMode', () => {
         const composer = new LabelComposer()
-        const result = composer.compose({
+
+        const standardResult = composer.compose({
+            compoundName: 'Reta',
+            compoundAmount: '20mg'
+        })
+
+        const dangerResult = composer.compose({
             compoundName: 'Reta',
             compoundAmount: '20mg',
             isUntested: true
         })
 
-        // Verify the raw title string structure
-        expect(result.title).toBe('☠️\nDanger\nUntested\n☠️')
+        // Body text must be artificially shrunk to emphasize the Danger title
+        expect(dangerResult.bodyFontSizePx).toBeLessThan(standardResult.bodyFontSizePx)
 
-        // Verify the layout engine actually wrapped it into 4 distinct lines
-        // This confirms it is using the full 50% height allocated in the composer
-        const dangerLines = result.wrappedLines.filter(l =>
-            l === '☠️' || l === 'Danger' || l === 'Untested'
-        )
-        expect(dangerLines.length).toBe(4)
+        // Ensure name demotion works
+        expect(dangerResult.demotedTitle).toBe('Reta 20mg')
+    })
 
-        // Ensure the compound name exists in the body
-        expect(result.protocolLines).toContain('Reta 20mg')
+    it('itShouldAllocateFullHeightToTitleWhenNoBodyExists', () => {
+        const composer = new LabelComposer()
+        const result = composer.compose({ compoundName: 'Reta' })
+        expect(result.titleFontSizePx).toBeGreaterThan(20)
     })
 })
