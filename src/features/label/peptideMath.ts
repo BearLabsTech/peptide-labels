@@ -1,86 +1,64 @@
 export interface PeptideMathInput {
-    vialAmount: number | undefined
-    vialUnit: 'mg' | 'IU'
-    waterMl: number | undefined
-    doseAmount: number | undefined
-    doseUnit: 'mg' | 'mcg' | 'IU'
-}
-
-export interface PeptideMathResult {
-    drawUnits: number
-    drawVolumeMl: number
-    concentrationMgPerMl?: number
-    concentrationIuPerMl?: number
-}
-
-export function calculateDrawVolume(input: PeptideMathInput): PeptideMathResult | null {
-    if (!input.vialAmount || input.vialAmount <= 0) return null
-    if (!input.waterMl || input.waterMl <= 0) return null
-    if (!input.doseAmount || input.doseAmount <= 0) return null
-
-    const isIuVial = input.vialUnit === 'IU'
-    const isIuDose = input.doseUnit === 'IU'
-    if (isIuVial !== isIuDose) return null
-
-    let drawVolumeMl = 0;
-    let concentrationMgPerMl: number | undefined = undefined;
-    let concentrationIuPerMl: number | undefined = undefined;
-
-    if (isIuVial) {
-        concentrationIuPerMl = input.vialAmount / input.waterMl
-        drawVolumeMl = input.doseAmount / concentrationIuPerMl
-    } else {
-        const totalVialMcg = input.vialAmount * 1000
-        const doseMcg = input.doseUnit === 'mg' ? input.doseAmount * 1000 : input.doseAmount
-        concentrationMgPerMl = input.vialAmount / input.waterMl
-        const concentrationMcgPerMl = totalVialMcg / input.waterMl
-        drawVolumeMl = doseMcg / concentrationMcgPerMl
-    }
-
-    const rawUnits = drawVolumeMl * 100
-    const roundedUnits = Math.round(rawUnits * 10) / 10
-    const roundedVolumeMl = Math.round(drawVolumeMl * 1000) / 1000
-
-    return {
-        drawUnits: roundedUnits,
-        drawVolumeMl: roundedVolumeMl,
-        concentrationMgPerMl,
-        concentrationIuPerMl
-    }
+    vialAmount?: number; vialUnit: 'mg' | 'IU'; waterMl?: number;
+    doseAmount?: number; doseUnit: 'mg' | 'mcg' | 'IU';
 }
 
 export interface PeptideReverseMathInput {
-    vialAmount: number | undefined
-    vialUnit: 'mg' | 'IU'
-    drawUnits: number | undefined
-    doseAmount: number | undefined
-    doseUnit: 'mg' | 'mcg' | 'IU'
+    vialAmount?: number; vialUnit: 'mg' | 'IU'; drawUnits?: number;
+    doseAmount?: number; doseUnit: 'mg' | 'mcg' | 'IU';
 }
 
+export interface PeptideMathResult {
+    drawUnits: number; drawVolumeMl: number;
+    concentrationMgPerMl?: number; concentrationIuPerMl?: number;
+}
+
+export const RECONSTITUTION_TYPES = ['BAC Water', 'Sterile Water', 'Sodium Chloride 0.9%'] as const;
+
+// --- FORWARD MATH ---
+export function calculateDrawVolume(input: PeptideMathInput): PeptideMathResult | null {
+    if (!isForwardValid(input)) return null;
+    const volumeMl = getForwardVolumeMl(input);
+    const concentration = input.vialAmount! / input.waterMl!;
+    return formatResult(volumeMl, concentration, input.vialUnit === 'IU');
+}
+
+function isForwardValid(i: PeptideMathInput): boolean {
+    if (!i.vialAmount || i.vialAmount <= 0) return false;
+    if (!i.waterMl || i.waterMl <= 0 || !i.doseAmount || i.doseAmount <= 0) return false;
+    return (i.vialUnit === 'IU') === (i.doseUnit === 'IU');
+}
+
+function getForwardVolumeMl(i: PeptideMathInput): number {
+    if (i.vialUnit === 'IU') return i.doseAmount! / (i.vialAmount! / i.waterMl!);
+    const doseMcg = i.doseUnit === 'mg' ? i.doseAmount! * 1000 : i.doseAmount!;
+    return doseMcg / ((i.vialAmount! * 1000) / i.waterMl!);
+}
+
+function formatResult(vol: number, conc: number, isIu: boolean): PeptideMathResult {
+    return {
+        drawUnits: Math.round((vol * 100) * 10) / 10,
+        drawVolumeMl: Math.round(vol * 1000) / 1000,
+        concentrationIuPerMl: isIu ? conc : undefined,
+        concentrationMgPerMl: !isIu ? conc : undefined
+    };
+}
+
+// --- REVERSE MATH ---
 export function calculateReverseWater(input: PeptideReverseMathInput): number | null {
-    if (!input.vialAmount || input.vialAmount <= 0) return null
-    if (!input.drawUnits || input.drawUnits <= 0) return null
-    if (!input.doseAmount || input.doseAmount <= 0) return null
-
-    const isIuVial = input.vialUnit === 'IU'
-    const isIuDose = input.doseUnit === 'IU'
-    if (isIuVial !== isIuDose) return null
-
-    let waterMl = 0;
-
-    if (isIuVial) {
-        waterMl = (input.drawUnits * input.vialAmount) / (input.doseAmount * 100)
-    } else {
-        const totalVialMcg = input.vialAmount * 1000
-        const doseMcg = input.doseUnit === 'mg' ? input.doseAmount * 1000 : input.doseAmount
-        waterMl = (input.drawUnits * totalVialMcg) / (doseMcg * 100)
-    }
-
-    return Math.round(waterMl * 100) / 100
+    if (!isReverseValid(input)) return null;
+    const waterMl = getReverseWaterMl(input);
+    return Math.round(waterMl * 100) / 100;
 }
 
-export const RECONSTITUTION_TYPES = [
-    'BAC Water',
-    'Sterile Water',
-    'Sodium Chloride 0.9%'
-] as const;
+function isReverseValid(i: PeptideReverseMathInput): boolean {
+    if (!i.vialAmount || i.vialAmount <= 0) return false;
+    if (!i.drawUnits || i.drawUnits <= 0 || !i.doseAmount || i.doseAmount <= 0) return false;
+    return (i.vialUnit === 'IU') === (i.doseUnit === 'IU');
+}
+
+function getReverseWaterMl(i: PeptideReverseMathInput): number {
+    if (i.vialUnit === 'IU') return (i.drawUnits! * i.vialAmount!) / (i.doseAmount! * 100);
+    const doseMcg = i.doseUnit === 'mg' ? i.doseAmount! * 1000 : i.doseAmount!;
+    return (i.drawUnits! * (i.vialAmount! * 1000)) / (doseMcg * 100);
+}
