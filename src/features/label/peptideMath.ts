@@ -1,48 +1,84 @@
 export interface PeptideMathInput {
-    vialMg: number | undefined
+    vialAmount: number | undefined
+    vialUnit: 'mg' | 'IU'
     waterMl: number | undefined
     doseAmount: number | undefined
-    doseUnit: 'mg' | 'mcg'
+    doseUnit: 'mg' | 'mcg' | 'IU'
 }
 
 export interface PeptideMathResult {
-    drawUnits: number           // "Pull the syringe to X"
-    drawVolumeMl: number        // Actual liquid volume
-    concentrationMgPerMl: number // For the label printout
+    drawUnits: number
+    drawVolumeMl: number
+    concentrationMgPerMl?: number
+    concentrationIuPerMl?: number
 }
 
 export function calculateDrawVolume(input: PeptideMathInput): PeptideMathResult | null {
-    // 1. Validate inputs: Prevent divide-by-zero or NaN errors
-    if (!input.vialMg || input.vialMg <= 0) return null
+    if (!input.vialAmount || input.vialAmount <= 0) return null
     if (!input.waterMl || input.waterMl <= 0) return null
     if (!input.doseAmount || input.doseAmount <= 0) return null
 
-    // 2. Standardize everything to micrograms (mcg) for safe calculation
-    const totalVialMcg = input.vialMg * 1000
-    const doseMcg = input.doseUnit === 'mg' ? input.doseAmount * 1000 : input.doseAmount
+    const isIuVial = input.vialUnit === 'IU'
+    const isIuDose = input.doseUnit === 'IU'
+    if (isIuVial !== isIuDose) return null
 
-    // 3. Calculate concentrations
-    const concentrationMcgPerMl = totalVialMcg / input.waterMl
-    const concentrationMgPerMl = input.vialMg / input.waterMl
+    let drawVolumeMl = 0;
+    let concentrationMgPerMl: number | undefined = undefined;
+    let concentrationIuPerMl: number | undefined = undefined;
 
-    // 4. Calculate actual liquid draw volume
-    const drawVolumeMl = doseMcg / concentrationMcgPerMl
+    if (isIuVial) {
+        concentrationIuPerMl = input.vialAmount / input.waterMl
+        drawVolumeMl = input.doseAmount / concentrationIuPerMl
+    } else {
+        const totalVialMcg = input.vialAmount * 1000
+        const doseMcg = input.doseUnit === 'mg' ? input.doseAmount * 1000 : input.doseAmount
+        concentrationMgPerMl = input.vialAmount / input.waterMl
+        const concentrationMcgPerMl = totalVialMcg / input.waterMl
+        drawVolumeMl = doseMcg / concentrationMcgPerMl
+    }
 
-    // 5. Convert to U-100 insulin syringe units (1 ml = 100 units)
     const rawUnits = drawVolumeMl * 100
-
-    // 6. Round to practical syringe measurements (1 decimal place)
     const roundedUnits = Math.round(rawUnits * 10) / 10
     const roundedVolumeMl = Math.round(drawVolumeMl * 1000) / 1000
 
     return {
         drawUnits: roundedUnits,
         drawVolumeMl: roundedVolumeMl,
-        concentrationMgPerMl: concentrationMgPerMl
+        concentrationMgPerMl,
+        concentrationIuPerMl
     }
 }
 
-// A handy list of common reconstitution liquids for our dropdown
+export interface PeptideReverseMathInput {
+    vialAmount: number | undefined
+    vialUnit: 'mg' | 'IU'
+    drawUnits: number | undefined
+    doseAmount: number | undefined
+    doseUnit: 'mg' | 'mcg' | 'IU'
+}
+
+export function calculateReverseWater(input: PeptideReverseMathInput): number | null {
+    if (!input.vialAmount || input.vialAmount <= 0) return null
+    if (!input.drawUnits || input.drawUnits <= 0) return null
+    if (!input.doseAmount || input.doseAmount <= 0) return null
+
+    const isIuVial = input.vialUnit === 'IU'
+    const isIuDose = input.doseUnit === 'IU'
+    if (isIuVial !== isIuDose) return null
+
+    let waterMl = 0;
+
+    if (isIuVial) {
+        waterMl = (input.drawUnits * input.vialAmount) / (input.doseAmount * 100)
+    } else {
+        const totalVialMcg = input.vialAmount * 1000
+        const doseMcg = input.doseUnit === 'mg' ? input.doseAmount * 1000 : input.doseAmount
+        waterMl = (input.drawUnits * totalVialMcg) / (doseMcg * 100)
+    }
+
+    return Math.round(waterMl * 100) / 100
+}
+
 export const RECONSTITUTION_TYPES = [
     'BAC Water',
     'Sterile Water',

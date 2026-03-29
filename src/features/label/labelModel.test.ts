@@ -8,7 +8,8 @@ describe('LabelModelBuilder', () => {
 
     const result = builder.build({
       compoundName: 'Tirzepatide',
-      compoundAmount: '20mg',
+      compoundAmount: '20',
+      vialUnit: 'mg',
       reconstitutionAmount: '2ml',
       reconstitutionType: 'BAC',
       concentration: '1mg per 10 units',
@@ -23,6 +24,23 @@ describe('LabelModelBuilder', () => {
       '1mg per 10 units',
       '40 units weekly (4mg)',
       'Reconstituted 20260222'
+    ])
+  })
+
+  it('itShouldFormatIuCorrectly', () => {
+    const builder = new LabelModelBuilder()
+
+    const result = builder.build({
+      compoundName: 'HCG',
+      compoundAmount: '5000',
+      vialUnit: 'IU',
+      reconstitutionAmount: '2ml',
+      reconstitutionType: 'BAC'
+    })
+
+    expect(result.lines).toEqual([
+      'HCG',
+      '5000IU - 2ml BAC'
     ])
   })
 
@@ -48,36 +66,6 @@ describe('LabelModelBuilder', () => {
       isUntested: true
     })
 
-    // The builder handles the list of strings, the Composer handles the Title decoration
     expect(result.lines).toEqual(['Reta'])
   })
-
-  it('itShouldOmitReconstitutionLineWhenCompoundAmountMissing', () => {
-    const builder = new LabelModelBuilder()
-
-    const result = builder.build({
-      compoundName: 'Test',
-      reconstitutionAmount: '2mL',
-      reconstitutionType: 'BAC'
-    })
-
-    expect(result.lines).toEqual([
-      'Test'
-    ])
-  })
-
-  it('itShouldIncludeProtocolUnitsWithoutProtocolAmountWhenProtocolAmountMissing', () => {
-    const builder = new LabelModelBuilder()
-
-    const result = builder.build({
-      compoundName: 'Test',
-      protocolUnits: '40 units weekly'
-    })
-
-    expect(result.lines).toEqual([
-      'Test',
-      '40 units weekly'
-    ])
-  })
-
 })

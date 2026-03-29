@@ -4,7 +4,8 @@ export interface LabelModel {
 
 export interface LabelModelInput {
   compoundName?: string
-  compoundAmount?: string
+  compoundAmount?: string // e.g. "20" or "5000"
+  vialUnit?: 'mg' | 'IU'  // NEW: Strict typing for the vial
   reconstitutionAmount?: string
   reconstitutionType?: string
   concentration?: string
@@ -14,7 +15,7 @@ export interface LabelModelInput {
   protocolFrequency?: string
 
   reconstitutionDate?: string
-  doseUnit?: 'mg' | 'mcg'
+  doseUnit?: 'mg' | 'mcg' | 'IU' // NEW: Added IU
 
   // COA Links
   vendorCoa?: string
@@ -51,7 +52,9 @@ export class LabelModelBuilder {
     if (!input.reconstitutionAmount) return
     if (!input.reconstitutionType) return
 
-    const line = `${input.compoundAmount} - ${input.reconstitutionAmount} ${input.reconstitutionType}`
+    // Cleanly append the unit to the amount based on what the user selected
+    const unit = input.vialUnit ? input.vialUnit : 'mg'
+    const line = `${input.compoundAmount}${unit} - ${input.reconstitutionAmount} ${input.reconstitutionType}`
     lines.push(line)
   }
 
@@ -77,5 +80,4 @@ export class LabelModelBuilder {
     const line = `Reconstituted ${input.reconstitutionDate}`
     lines.push(line)
   }
-
 }
