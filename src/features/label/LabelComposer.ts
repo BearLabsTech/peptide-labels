@@ -1,6 +1,8 @@
 import type { LabelModelInput } from './labelModel'
 import { LabelLayoutEngine } from './LabelLayoutEngine'
 import { resolveLabelMath } from './LabelMathResolver'
+import { LABEL_CONFIG } from './LabelConfig'
+
 
 export interface LabelRenderModel {
   wrappedLines: string[]; titleFontSizePx: number; bodyFontSizePx: number;
@@ -10,9 +12,9 @@ export interface LabelRenderModel {
 
 export class LabelComposer {
   private readonly layoutEngine = new LabelLayoutEngine()
-  private readonly labelWidthMm = 40
-  private readonly labelHeightMm = 20
-  private readonly paddingMm = 2
+  private readonly labelWidthMm = LABEL_CONFIG.dimensions.widthMm
+  private readonly labelHeightMm = LABEL_CONFIG.dimensions.heightMm
+  private readonly paddingMm = LABEL_CONFIG.dimensions.paddingMm
 
   public compose(rawInput: LabelModelInput): LabelRenderModel {
     const input = resolveLabelMath(rawInput).mergedInput;

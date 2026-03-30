@@ -1,3 +1,5 @@
+import { LABEL_CONFIG } from "./LabelConfig"
+
 export interface LabelLayoutInput {
     lines: string[]
     widthMm: number
@@ -54,9 +56,8 @@ export class LabelLayoutEngine {
     }
 
     private mmToPx(mm: number): number {
-        const dpi = 203
-        const inches = mm / 25.4
-        return inches * dpi
+        const inches = mm / 25.4;
+        return inches * LABEL_CONFIG.printer.dpi;
     }
 
     private wrapLines(lines: string[], maxChars: number): { lines: string[], didChopWord: boolean } {
