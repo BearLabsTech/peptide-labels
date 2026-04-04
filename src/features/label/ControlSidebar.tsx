@@ -1,33 +1,28 @@
 import type { LabelModelInput } from './labelModel'
 import { resolveLabelMath } from './LabelMathResolver'
 import { useLabelForm } from './useLabelForm'
-import { CompoundSection, ReconstitutionSection, ProtocolSection, MediaSection, CoaSection } from './components/SidebarSections'
+import { CompoundSection, SourceSection, ReconstitutionSection, ProtocolSection, MediaSection, CoaSection } from './components/SidebarSections'
 
 export interface ControlSidebarProps {
     input: LabelModelInput
     updateField: <K extends keyof LabelModelInput>(field: K, value: any) => void
-    selectedDate: string
-    updateDateFromPicker: (value: string) => void
-    isFreeTextDate: boolean
-    setIsFreeTextDate: (value: boolean) => void
 }
 
-export function ControlSidebar(props: ControlSidebarProps) {
-    const { autoUnits, autoWater, autoConcentration } = resolveLabelMath(props.input);
+export function ControlSidebar({ input, updateField }: ControlSidebarProps) {
+    const { autoUnits, autoWater, autoConcentration } = resolveLabelMath(input);
     const derivedState = { autoUnits, autoWater, autoConcentration };
-
-    // Inject our new clean business logic hook
-    const handlers = useLabelForm(props.input, props.updateField);
+    const handlers = useLabelForm(input, updateField);
 
     return (
         <div className="sidebar-panel">
             <SidebarHeader />
             <div className="sidebar-scroll-area">
-                <CompoundSection {...props} handlers={handlers} />
-                <ReconstitutionSection {...props} derivedState={derivedState} handlers={handlers} />
-                <ProtocolSection {...props} derivedState={derivedState} handlers={handlers} />
-                <MediaSection {...props} handlers={handlers} />
-                <CoaSection {...props} handlers={handlers} />
+                <CompoundSection input={input} updateField={updateField} handlers={handlers} />
+                <SourceSection input={input} updateField={updateField} />
+                <ReconstitutionSection input={input} updateField={updateField} derivedState={derivedState} handlers={handlers} />
+                <ProtocolSection input={input} updateField={updateField} derivedState={derivedState} handlers={handlers} />
+                <MediaSection input={input} updateField={updateField} />
+                <CoaSection input={input} updateField={updateField} />
             </div>
         </div>
     )

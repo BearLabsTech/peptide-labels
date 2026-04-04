@@ -5,25 +5,24 @@ import { ControlSidebar } from './features/label/ControlSidebar'
 import { LabelStage } from './features/label/LabelStage'
 import './App.css'
 
-function getTodayPickerDate(): string {
+function getTodayDateString(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
-function formatDate(value: string): string {
-  return value.replaceAll('-', '')
-}
-
-function getExampleInput(todayPicker: string): LabelModelInput {
+function getExampleInput(today: string): LabelModelInput {
   return {
     compoundName: 'Tirzepatide',
     compoundAmount: '20',
     vialUnit: 'mg',
+    vendorName: 'Bear Labs',
+    batchNumber: 'BL-2026',
     reconstitutionAmount: '2',
     reconstitutionType: 'BAC Water',
     protocolAmount: '5',
     measureUnit: 'mg',
     protocolFrequency: 'Weekly',
-    reconstitutionDate: formatDate(todayPicker),
+    reconstitutionDate: today,
+    dateFormat: 'YYYYMMDD',
     vendorCoa: 'https://github.com'
   }
 }
@@ -33,30 +32,28 @@ function getEmptyInput(): LabelModelInput {
     compoundName: '', compoundAmount: '', reconstitutionAmount: '',
     reconstitutionType: '', concentration: '', protocolUnits: '',
     protocolAmount: '', protocolFrequency: '', reconstitutionDate: '',
-    measureUnit: 'mcg', vendorCoa: '', groupCoa: '', myCoa: '', customImage: '',
-    isUntested: false, vialUnit: 'mg'
+    measureUnit: 'mcg', vendorCoa: '', groupBuyCoa: '', testGroupCoa: '',
+    myCoa: '', customImage: '', isUntested: false, vialUnit: 'mg',
+    dateFormat: 'YYYYMMDD'
   }
 }
 
 export default function App() {
   const composer = useMemo(() => new LabelComposer(), [])
-  const todayPicker = getTodayPickerDate()
-
-  const [selectedDate, setSelectedDate] = useState('')
-  const [isFreeTextDate, setIsFreeTextDate] = useState(false)
+  const today = getTodayDateString()
   const [input, setInput] = useState<LabelModelInput>(getEmptyInput())
 
   const isPristine = !input.compoundName && !input.compoundAmount &&
     !input.reconstitutionAmount && !input.protocolAmount &&
     !input.protocolFrequency && !input.reconstitutionDate &&
     !input.reconstitutionType && !input.vendorCoa &&
-    !input.groupCoa && !input.myCoa && !input.customImage &&
-    !input.isUntested;
+    !input.groupBuyCoa && !input.myCoa && !input.customImage &&
+    !input.isUntested && !input.vendorName;
 
   let labelInput: LabelModelInput;
 
   if (isPristine) {
-    labelInput = getExampleInput(todayPicker);
+    labelInput = getExampleInput(today);
   } else {
     labelInput = { ...input }
     if (labelInput.reconstitutionAmount && !labelInput.reconstitutionAmount.includes('ml')) {
@@ -70,26 +67,10 @@ export default function App() {
     setInput(prev => ({ ...prev, [field]: value }))
   }
 
-  function updateDateFromPicker(value: string) {
-    setSelectedDate(value)
-    updateField('reconstitutionDate', formatDate(value))
-  }
-
   return (
     <div className="app-container">
-      <ControlSidebar
-        input={input}
-        updateField={updateField}
-        selectedDate={selectedDate}
-        updateDateFromPicker={updateDateFromPicker}
-        isFreeTextDate={isFreeTextDate}
-        setIsFreeTextDate={setIsFreeTextDate}
-      />
-      <LabelStage
-        model={model}
-        compoundName={input.compoundName}
-        isExampleMode={isPristine}
-      />
+      <ControlSidebar input={input} updateField={updateField} />
+      <LabelStage model={model} compoundName={input.compoundName} isExampleMode={isPristine} />
     </div>
   )
 }

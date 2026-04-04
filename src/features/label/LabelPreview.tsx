@@ -6,7 +6,7 @@ import './LabelPreview.css'
 
 export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel }>(
   ({ model }, ref) => {
-    const hasBody = !!model.demotedTitle || model.reconstitutionLines.length > 0 || model.protocolLines.length > 0;
+    const hasBody = !!model.demotedTitle || model.reconstitutionLines.length > 0 || model.protocolLines.length > 0 || model.sourceLines.length > 0;
 
     return (
       <div ref={ref} className="label-preview-container">
@@ -56,6 +56,15 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
                 <div className="label-preview-box">
                   <div className="label-preview-section-label">PROTOCOL</div>
                   {model.protocolLines.map((l, i) => (
+                    <div key={i} className="label-preview-section-text" style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.82) }}>{l}</div>
+                  ))}
+                </div>
+              )}
+
+              {model.sourceLines.length > 0 && (
+                <div className="label-preview-box">
+                  <div className="label-preview-section-label">SOURCE</div>
+                  {model.sourceLines.map((l, i) => (
                     <div key={i} className="label-preview-section-text" style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.82) }}>{l}</div>
                   ))}
                 </div>

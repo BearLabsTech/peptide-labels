@@ -15,68 +15,32 @@ export interface LabelModelInput {
   protocolFrequency?: string
 
   reconstitutionDate?: string
+  reconstitutionDateIsFreeText?: boolean
   measureUnit?: 'mg' | 'mcg' | 'IU'
+
+  // Global Settings
+  dateFormat?: 'YYYYMMDD' | 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
+
+  // Source Info
+  vendorName?: string
+  groupBuyName?: string
+  batchNumber?: string
+  batchDate?: string
+  batchDateIsFreeText?: boolean
 
   // COA Links
   vendorCoa?: string
-  groupCoa?: string
+  groupBuyCoa?: string
+  testGroupCoa?: string
   myCoa?: string
+  customCoa1Name?: string
+  customCoa1Link?: string
+  customCoa2Name?: string
+  customCoa2Link?: string
 
   // Media
   customImage?: string
 
   // Status
   isUntested?: boolean
-}
-
-export class LabelModelBuilder {
-
-  public build(input: LabelModelInput): LabelModel {
-    const lines: string[] = []
-
-    this.addCompoundName(lines, input)
-    this.addReconstitutionLine(lines, input)
-    this.addConcentration(lines, input)
-    this.addProtocolUnitLine(lines, input)
-    this.addDateLine(lines, input)
-
-    return { lines }
-  }
-
-  private addCompoundName(lines: string[], input: LabelModelInput): void {
-    if (input.compoundName) lines.push(input.compoundName)
-  }
-
-  private addReconstitutionLine(lines: string[], input: LabelModelInput): void {
-    if (!input.compoundAmount) return
-    if (!input.reconstitutionAmount) return
-    if (!input.reconstitutionType) return
-
-    const unit = input.vialUnit ? input.vialUnit : 'mg'
-    const line = `${input.compoundAmount}${unit} - ${input.reconstitutionAmount} ${input.reconstitutionType}`
-    lines.push(line)
-  }
-
-  private addConcentration(lines: string[], input: LabelModelInput): void {
-    if (input.concentration) lines.push(input.concentration)
-  }
-
-  private addProtocolUnitLine(lines: string[], input: LabelModelInput): void {
-    if (!input.protocolUnits) return
-
-    if (!input.protocolAmount) {
-      lines.push(input.protocolUnits)
-      return
-    }
-
-    const line = `${input.protocolUnits} (${input.protocolAmount})`
-    lines.push(line)
-  }
-
-  private addDateLine(lines: string[], input: LabelModelInput): void {
-    if (!input.reconstitutionDate) return
-
-    const line = `Reconstituted ${input.reconstitutionDate}`
-    lines.push(line)
-  }
 }

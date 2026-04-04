@@ -1,47 +1,22 @@
 import { useState } from 'react'
 import type { ChangeEvent, CSSProperties, ReactNode } from 'react'
-import type { LabelModelInput } from '../labelModel'
 
 const inputStyle: CSSProperties = {
-    width: '100%',
-    padding: '10px 12px',
-    border: '1px solid var(--color-border)',
-    borderRadius: 'var(--radius-sm)',
-    fontSize: '1rem',
-    boxSizing: 'border-box',
-    color: 'var(--color-text-main)',
-    backgroundColor: 'var(--color-surface)'
+    width: '100%', padding: '10px 12px', border: '1px solid var(--color-border)',
+    borderRadius: 'var(--radius-sm)', fontSize: '1rem', boxSizing: 'border-box',
+    color: 'var(--color-text-main)', backgroundColor: 'var(--color-surface)'
 }
 
-export interface AccordionSectionProps {
-    title: string;
-    children: ReactNode;
-    defaultOpen?: boolean;
-}
-
+export interface AccordionSectionProps { title: string; children: ReactNode; defaultOpen?: boolean; }
 export function AccordionSection({ title, children, defaultOpen = false }: AccordionSectionProps) {
     const [isOpen, setIsOpen] = useState(defaultOpen);
-
     return (
         <div className="accordion-wrapper">
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className={`accordion-btn ${isOpen ? 'active' : ''}`}
-            >
+            <button onClick={() => setIsOpen(!isOpen)} className={`accordion-btn ${isOpen ? 'active' : ''}`}>
                 <span className="accordion-title">{title}</span>
-                <span
-                    className="accordion-icon"
-                    style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-                >
-                    ▼
-                </span>
+                <span className="accordion-icon" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
             </button>
-
-            {isOpen && (
-                <div style={{ padding: '16px 20px 8px 20px', backgroundColor: 'var(--color-surface)' }}>
-                    {children}
-                </div>
-            )}
+            {isOpen && <div style={{ padding: '16px 20px 8px 20px', backgroundColor: 'var(--color-surface)' }}>{children}</div>}
         </div>
     )
 }
@@ -51,17 +26,7 @@ export function TextInput({ label, value, onChange, placeholder, disabled }: Tex
     return (
         <div style={{ marginBottom: 16 }}>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: 6 }}>{label}</label>
-            <input
-                value={value ?? ''}
-                onChange={e => onChange(e.target.value)}
-                placeholder={placeholder}
-                disabled={disabled}
-                style={{
-                    ...inputStyle,
-                    backgroundColor: disabled ? 'var(--color-background)' : 'var(--color-surface)',
-                    cursor: disabled ? 'not-allowed' : 'text'
-                }}
-            />
+            <input value={value ?? ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} disabled={disabled} style={{ ...inputStyle, backgroundColor: disabled ? 'var(--color-background)' : 'var(--color-surface)', cursor: disabled ? 'not-allowed' : 'text' }} />
         </div>
     )
 }
@@ -82,27 +47,17 @@ export function SelectInput({ label, value, onChange, options, allowNone }: Sele
 export interface ImageUploadProps { label: string; onChange: (base64: string) => void; currentImage?: string; }
 export function ImageUploadInput({ label, onChange, currentImage }: ImageUploadProps) {
     const [fileName, setFileName] = useState<string | null>(null);
-
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
+        const file = e.target.files?.[0]; if (!file) return;
         setFileName(file.name);
-
-        const reader = new FileReader();
-        reader.onloadend = () => onChange(reader.result as string);
+        const reader = new FileReader(); reader.onloadend = () => onChange(reader.result as string);
         reader.readAsDataURL(file);
     }
-
-    const handleRemove = () => {
-        setFileName(null);
-        onChange('');
-    }
+    const handleRemove = () => { setFileName(null); onChange(''); }
 
     return (
         <div style={{ marginBottom: 16 }}>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: 8 }}>{label}</label>
-
             {!currentImage ? (
                 <div className="dropzone-container">
                     <input type="file" accept="image/*" onChange={handleFileChange} className="dropzone-input" />
@@ -113,45 +68,28 @@ export function ImageUploadInput({ label, onChange, currentImage }: ImageUploadP
                 <div style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '16px', backgroundColor: 'var(--color-background)', textAlign: 'center' }}>
                     <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-main)' }}>Image Selected</div>
                     {fileName && <div className="file-name-badge">{fileName}</div>}
-                    <button
-                        onClick={handleRemove}
-                        style={{
-                            marginTop: 16, padding: '8px 12px', fontSize: '0.85rem', cursor: 'pointer',
-                            backgroundColor: 'var(--color-danger-bg)', color: 'var(--color-danger)',
-                            border: '1px solid var(--color-danger)', borderRadius: 'var(--radius-sm)',
-                            width: '100%', fontWeight: 600, transition: 'all 0.2s'
-                        }}
-                    >
-                        Remove Image
-                    </button>
+                    <button onClick={handleRemove} style={{ marginTop: 16, padding: '8px 12px', fontSize: '0.85rem', cursor: 'pointer', backgroundColor: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: '1px solid var(--color-danger)', borderRadius: 'var(--radius-sm)', width: '100%', fontWeight: 600, transition: 'all 0.2s' }}>Remove Image</button>
                 </div>
             )}
         </div>
     )
 }
 
-export interface DateFieldProps {
-    input: any;
-    updateField: <K extends keyof LabelModelInput>(field: K, value: any) => void;
-    selectedDate: string;
-    updateDateFromPicker: (v: string) => void;
-    isFreeTextDate: boolean;
-    setIsFreeTextDate: (v: boolean) => void;
-}
-
-export function DateField({ input, updateField, selectedDate, updateDateFromPicker, isFreeTextDate, setIsFreeTextDate }: DateFieldProps) {
+// NEW: Highly reusable DateField component
+export interface DateFieldProps { label: string; value: string; onChange: (v: string) => void; isFreeText: boolean; onFreeTextToggle: (v: boolean) => void; }
+export function DateField({ label, value, onChange, isFreeText, onFreeTextToggle }: DateFieldProps) {
     return (
         <div style={{ marginBottom: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-main)' }}>Reconstitution Date</label>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-main)' }}>{label}</label>
                 <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={isFreeTextDate} onChange={e => setIsFreeTextDate(e.target.checked)} style={{ marginRight: 4 }} /> Free text
+                    <input type="checkbox" checked={isFreeText} onChange={e => onFreeTextToggle(e.target.checked)} style={{ marginRight: 4 }} /> Free text
                 </label>
             </div>
-            {isFreeTextDate ? (
-                <input value={input.reconstitutionDate ?? ''} onChange={e => updateField('reconstitutionDate', e.target.value)} placeholder="YYYYMMDD" style={inputStyle} />
+            {isFreeText ? (
+                <input value={value} onChange={e => onChange(e.target.value)} placeholder="e.g. Mixed Jan 1st" style={inputStyle} />
             ) : (
-                <input type="date" value={selectedDate} onChange={e => updateDateFromPicker(e.target.value)} style={inputStyle} />
+                <input type="date" value={value} onChange={e => onChange(e.target.value)} style={inputStyle} />
             )}
         </div>
     )
