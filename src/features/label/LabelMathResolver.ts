@@ -15,7 +15,7 @@ export function resolveLabelMath(input: LabelModelInput): ResolvedLabelMath {
     const u = parseUnits(input.protocolUnits)
 
     const vUnit = (input.vialUnit || 'mg') as 'mg' | 'IU'
-    const dUnit = (vUnit === 'IU' ? 'IU' : (input.doseUnit || 'mcg')) as 'mg' | 'mcg' | 'IU'
+    const dUnit = (vUnit === 'IU' ? 'IU' : (input.measureUnit || 'mcg')) as 'mg' | 'mcg' | 'IU'
 
     if (w > 0 && v > 0 && d > 0) return calcForward(input, v, w, d, vUnit, dUnit);
     if (u > 0 && v > 0 && d > 0) return calcReverse(input, v, u, d, vUnit, dUnit);
@@ -29,7 +29,7 @@ function parseUnits(unitsStr?: string): number {
 }
 
 function calcForward(input: LabelModelInput, v: number, w: number, d: number, vUnit: 'mg' | 'IU', dUnit: 'mg' | 'mcg' | 'IU'): ResolvedLabelMath {
-    const res = calculateDrawVolume({ vialAmount: v, vialUnit: vUnit, waterMl: w, doseAmount: d, doseUnit: dUnit });
+    const res = calculateDrawVolume({ vialAmount: v, vialUnit: vUnit, waterMl: w, targetAmount: d, targetUnit: dUnit });
     if (!res) return defaultState(input);
 
     const autoU = `${res.drawUnits} units`;
@@ -49,7 +49,7 @@ function calcForward(input: LabelModelInput, v: number, w: number, d: number, vU
 }
 
 function calcReverse(input: LabelModelInput, v: number, u: number, d: number, vUnit: 'mg' | 'IU', dUnit: 'mg' | 'mcg' | 'IU'): ResolvedLabelMath {
-    const res = calculateReverseWater({ vialAmount: v, vialUnit: vUnit, drawUnits: u, doseAmount: d, doseUnit: dUnit });
+    const res = calculateReverseWater({ vialAmount: v, vialUnit: vUnit, drawUnits: u, targetAmount: d, targetUnit: dUnit });
     if (!res) return defaultState(input);
 
     const autoW = res.toString();

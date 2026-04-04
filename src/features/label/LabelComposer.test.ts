@@ -23,7 +23,7 @@ describe('LabelComposer', () => {
             compoundAmount: '36',
             vialUnit: 'IU',
             protocolAmount: '2',
-            doseUnit: 'IU'
+            measureUnit: 'IU'
         })
         expect(resultIu.title).toBe('HGH 36IU')
         expect(resultIu.protocolLines).toContain('2IU')
@@ -33,7 +33,7 @@ describe('LabelComposer', () => {
             compoundAmount: '10',
             vialUnit: 'mg',
             protocolAmount: '500',
-            doseUnit: 'mcg'
+            measureUnit: 'mcg'
         })
         expect(resultMg.title).toBe('Tirz 10mg')
         expect(resultMg.protocolLines).toContain('500mcg')
@@ -48,7 +48,7 @@ describe('LabelComposer', () => {
             compoundAmount: '36mg', // User accidentally left 'mg' in the box!
             vialUnit: 'IU',         // But selected IU in the dropdown
             protocolAmount: '2mcg', // Left 'mcg' in the box!
-            doseUnit: 'IU'
+            measureUnit: 'IU'
         })
 
         // Engine must aggressively strip the old text units out

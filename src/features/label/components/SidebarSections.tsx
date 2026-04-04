@@ -54,12 +54,12 @@ export function ReconstitutionSection({
 }
 
 export function ProtocolSection({ input, updateField, derivedState, handlers }: SectionProps) {
-    const doseUnitOptions = input.vialUnit === 'IU' ? ['IU'] : ['mcg', 'mg'];
+    const measureUnitOptions = input.vialUnit === 'IU' ? ['IU'] : ['mcg', 'mg'];
     return (
         <AccordionSection title="Protocol">
             <div style={{ display: 'flex', gap: '12px' }}>
-                <div style={{ flex: 1 }}><TextInput label="Dose Amount" value={input.protocolAmount} onChange={handlers.handleDoseChange} placeholder="500" /></div>
-                <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.doseUnit || 'mcg'} onChange={(v) => updateField('doseUnit', v)} options={doseUnitOptions} /></div>
+                <div style={{ flex: 1 }}><TextInput label="Protocol Amount" value={input.protocolAmount} onChange={handlers.handleProtocolAmountChange} placeholder="500" /></div>
+                <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.measureUnit || 'mcg'} onChange={(v) => updateField('measureUnit', v)} options={measureUnitOptions} /></div>
             </div>
             <TextInput label="Draw Volume (Units)" value={input.protocolUnits || derivedState?.autoUnits} onChange={handlers.handleDrawVolumeChange} placeholder="e.g. 10" />
             <TextInput label="Frequency" value={input.protocolFrequency} onChange={(v) => updateField('protocolFrequency', v)} placeholder="Weekly" />
@@ -70,14 +70,14 @@ export function ProtocolSection({ input, updateField, derivedState, handlers }: 
 export function MediaSection({ input, updateField }: SectionProps) {
     return (
         <AccordionSection title="Personalization">
-            <ImageUploadInput label="Mascot Image" currentImage={input.customImage} onChange={(b64) => updateField('customImage', b64)} />
+            <ImageUploadInput label="Logo Image" currentImage={input.customImage} onChange={(b64) => updateField('customImage', b64)} />
         </AccordionSection>
     )
 }
 
 export function CoaSection({ input, updateField }: SectionProps) {
     return (
-        <AccordionSection title="Certificates of Analysis (Optional)">
+        <AccordionSection title="Certificates of Analysis">
             <TextInput label="Vendor COA Link" value={input.vendorCoa} onChange={(v) => updateField('vendorCoa', v)} placeholder="https://..." />
             <TextInput label="Group COA Link" value={input.groupCoa} onChange={(v) => updateField('groupCoa', v)} placeholder="https://..." />
             <TextInput label="My COA Link" value={input.myCoa} onChange={(v) => updateField('myCoa', v)} placeholder="https://..." />

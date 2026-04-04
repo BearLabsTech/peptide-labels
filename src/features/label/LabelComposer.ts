@@ -3,7 +3,6 @@ import { LabelLayoutEngine } from './LabelLayoutEngine'
 import { resolveLabelMath } from './LabelMathResolver'
 import { LABEL_CONFIG } from './LabelConfig'
 
-
 export interface LabelRenderModel {
   wrappedLines: string[]; titleFontSizePx: number; bodyFontSizePx: number;
   title: string; demotedTitle?: string; protocolLines: string[]; reconstitutionLines: string[];
@@ -59,7 +58,7 @@ export class LabelComposer {
   private buildProtocolLines(input: LabelModelInput): string[] {
     const lines: string[] = [];
     const units = input.protocolUnits || '';
-    const amt = this.formatAmount(input.protocolAmount, input.doseUnit || 'mcg');
+    const amt = this.formatAmount(input.protocolAmount, input.measureUnit || 'mcg');
 
     if (units && amt) lines.push(`${units} (${amt})`);
     else if (units || amt) lines.push(units || amt);

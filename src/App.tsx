@@ -21,7 +21,7 @@ function getExampleInput(todayPicker: string): LabelModelInput {
     reconstitutionAmount: '2',
     reconstitutionType: 'BAC Water',
     protocolAmount: '5',
-    doseUnit: 'mg',
+    measureUnit: 'mg',
     protocolFrequency: 'Weekly',
     reconstitutionDate: formatDate(todayPicker),
     vendorCoa: 'https://github.com'
@@ -33,7 +33,7 @@ function getEmptyInput(): LabelModelInput {
     compoundName: '', compoundAmount: '', reconstitutionAmount: '',
     reconstitutionType: '', concentration: '', protocolUnits: '',
     protocolAmount: '', protocolFrequency: '', reconstitutionDate: '',
-    doseUnit: 'mcg', vendorCoa: '', groupCoa: '', myCoa: '', customImage: '',
+    measureUnit: 'mcg', vendorCoa: '', groupCoa: '', myCoa: '', customImage: '',
     isUntested: false, vialUnit: 'mg'
   }
 }
@@ -53,14 +53,12 @@ export default function App() {
     !input.groupCoa && !input.myCoa && !input.customImage &&
     !input.isUntested;
 
-  // Prepare Label Input (Math is now automatically handled natively by LabelComposer & Sidebar!)
   let labelInput: LabelModelInput;
 
   if (isPristine) {
     labelInput = getExampleInput(todayPicker);
   } else {
     labelInput = { ...input }
-    // The composer natively handles mg/IU formatting now, we just ensure ml is on the water
     if (labelInput.reconstitutionAmount && !labelInput.reconstitutionAmount.includes('ml')) {
       labelInput.reconstitutionAmount = `${labelInput.reconstitutionAmount}ml`
     }

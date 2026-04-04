@@ -3,11 +3,11 @@ import { resolveLabelMath } from './LabelMathResolver'
 
 describe('LabelMathResolver', () => {
 
-    it('should perform forward math and format MG concentration when vial, water, and dose are present', () => {
+    it('should perform forward math and format MG concentration when vial, water, and protocol amount are present', () => {
         const result = resolveLabelMath({
             compoundAmount: '10', vialUnit: 'mg',
             reconstitutionAmount: '2',
-            protocolAmount: '500', doseUnit: 'mcg'
+            protocolAmount: '500', measureUnit: 'mcg'
         })
         expect(result.autoUnits).toBe('10 units')
         expect(result.autoWater).toBe('')
@@ -17,11 +17,11 @@ describe('LabelMathResolver', () => {
         expect(result.mergedInput.concentration).toBe('5mg per ml')
     })
 
-    it('should perform reverse math and format MG concentration when vial, draw units, and dose are present', () => {
+    it('should perform reverse math and format MG concentration when vial, draw units, and protocol amount are present', () => {
         const result = resolveLabelMath({
             compoundAmount: '10', vialUnit: 'mg',
             protocolUnits: '10 units',
-            protocolAmount: '500', doseUnit: 'mcg'
+            protocolAmount: '500', measureUnit: 'mcg'
         })
         expect(result.autoWater).toBe('2')
         // strict separation prevents echoing user input into the auto-calculated placeholder
@@ -36,7 +36,7 @@ describe('LabelMathResolver', () => {
         const result = resolveLabelMath({
             compoundAmount: '5000', vialUnit: 'IU',
             reconstitutionAmount: '2',
-            protocolAmount: '250', doseUnit: 'IU'
+            protocolAmount: '250', measureUnit: 'IU'
         })
         expect(result.autoUnits).toBe('10 units')
         expect(result.autoWater).toBe('')
@@ -54,7 +54,7 @@ describe('LabelMathResolver', () => {
         const result = resolveLabelMath({
             compoundAmount: 'abc', vialUnit: 'mg',
             reconstitutionAmount: 'xyz',
-            protocolAmount: '500', doseUnit: 'mcg'
+            protocolAmount: '500', measureUnit: 'mcg'
         })
         expect(result.autoUnits).toBe('')
         expect(result.autoWater).toBe('')

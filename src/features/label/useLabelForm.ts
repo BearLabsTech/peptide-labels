@@ -3,7 +3,7 @@ import type { LabelModelInput } from './labelModel'
 export interface LabelFormHandlers {
     handleVialUnitChange: (unit: string) => void;
     handleWaterChange: (v: string) => void;
-    handleDoseChange: (v: string) => void;
+    handleProtocolAmountChange: (v: string) => void;
     handleDrawVolumeChange: (v: string) => void;
 }
 
@@ -11,8 +11,8 @@ export function useLabelForm(input: LabelModelInput, updateField: <K extends key
 
     const handleVialUnitChange = (unit: string) => {
         updateField('vialUnit', unit);
-        if (unit === 'IU') updateField('doseUnit', 'IU');
-        else if (unit === 'mg' && input.doseUnit === 'IU') updateField('doseUnit', 'mcg');
+        if (unit === 'IU') updateField('measureUnit', 'IU');
+        else if (unit === 'mg' && input.measureUnit === 'IU') updateField('measureUnit', 'mcg');
     };
 
     const handleWaterChange = (v: string) => {
@@ -20,7 +20,7 @@ export function useLabelForm(input: LabelModelInput, updateField: <K extends key
         if (v) updateField('protocolUnits', ''); // Wipe units to force forward math
     };
 
-    const handleDoseChange = (v: string) => {
+    const handleProtocolAmountChange = (v: string) => {
         updateField('protocolAmount', v);
         updateField('protocolUnits', ''); // Wipe units so math stays aligned to Water
     };
@@ -33,7 +33,7 @@ export function useLabelForm(input: LabelModelInput, updateField: <K extends key
     return {
         handleVialUnitChange,
         handleWaterChange,
-        handleDoseChange,
+        handleProtocolAmountChange,
         handleDrawVolumeChange
     };
 }

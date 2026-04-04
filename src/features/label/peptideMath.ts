@@ -1,11 +1,11 @@
 export interface PeptideMathInput {
     vialAmount?: number; vialUnit: 'mg' | 'IU'; waterMl?: number;
-    doseAmount?: number; doseUnit: 'mg' | 'mcg' | 'IU';
+    targetAmount?: number; targetUnit: 'mg' | 'mcg' | 'IU';
 }
 
 export interface PeptideReverseMathInput {
     vialAmount?: number; vialUnit: 'mg' | 'IU'; drawUnits?: number;
-    doseAmount?: number; doseUnit: 'mg' | 'mcg' | 'IU';
+    targetAmount?: number; targetUnit: 'mg' | 'mcg' | 'IU';
 }
 
 export interface PeptideMathResult {
@@ -25,14 +25,14 @@ export function calculateDrawVolume(input: PeptideMathInput): PeptideMathResult 
 
 function isForwardValid(i: PeptideMathInput): boolean {
     if (!i.vialAmount || i.vialAmount <= 0) return false;
-    if (!i.waterMl || i.waterMl <= 0 || !i.doseAmount || i.doseAmount <= 0) return false;
-    return (i.vialUnit === 'IU') === (i.doseUnit === 'IU');
+    if (!i.waterMl || i.waterMl <= 0 || !i.targetAmount || i.targetAmount <= 0) return false;
+    return (i.vialUnit === 'IU') === (i.targetUnit === 'IU');
 }
 
 function getForwardVolumeMl(i: PeptideMathInput): number {
-    if (i.vialUnit === 'IU') return i.doseAmount! / (i.vialAmount! / i.waterMl!);
-    const doseMcg = i.doseUnit === 'mg' ? i.doseAmount! * 1000 : i.doseAmount!;
-    return doseMcg / ((i.vialAmount! * 1000) / i.waterMl!);
+    if (i.vialUnit === 'IU') return i.targetAmount! / (i.vialAmount! / i.waterMl!);
+    const targetMcg = i.targetUnit === 'mg' ? i.targetAmount! * 1000 : i.targetAmount!;
+    return targetMcg / ((i.vialAmount! * 1000) / i.waterMl!);
 }
 
 function formatResult(vol: number, conc: number, isIu: boolean): PeptideMathResult {
@@ -53,12 +53,12 @@ export function calculateReverseWater(input: PeptideReverseMathInput): number | 
 
 function isReverseValid(i: PeptideReverseMathInput): boolean {
     if (!i.vialAmount || i.vialAmount <= 0) return false;
-    if (!i.drawUnits || i.drawUnits <= 0 || !i.doseAmount || i.doseAmount <= 0) return false;
-    return (i.vialUnit === 'IU') === (i.doseUnit === 'IU');
+    if (!i.drawUnits || i.drawUnits <= 0 || !i.targetAmount || i.targetAmount <= 0) return false;
+    return (i.vialUnit === 'IU') === (i.targetUnit === 'IU');
 }
 
 function getReverseWaterMl(i: PeptideReverseMathInput): number {
-    if (i.vialUnit === 'IU') return (i.drawUnits! * i.vialAmount!) / (i.doseAmount! * 100);
-    const doseMcg = i.doseUnit === 'mg' ? i.doseAmount! * 1000 : i.doseAmount!;
-    return (i.drawUnits! * (i.vialAmount! * 1000)) / (doseMcg * 100);
+    if (i.vialUnit === 'IU') return (i.drawUnits! * i.vialAmount!) / (i.targetAmount! * 100);
+    const targetMcg = i.targetUnit === 'mg' ? i.targetAmount! * 1000 : i.targetAmount!;
+    return (i.drawUnits! * (i.vialAmount! * 1000)) / (targetMcg * 100);
 }
