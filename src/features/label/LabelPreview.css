@@ -1,3 +1,4 @@
+/* src/features/label/LabelPreview.css */
 .label-preview-container {
   container-type: inline-size;
   width: 100%;
@@ -23,12 +24,14 @@
 }
 
 .label-left-column {
-  border-right: 1.5px solid black;
+  /* Softened the border */
+  border-right: 1.5px solid #475569;
   padding-right: 1.5cqw;
 }
 
 .label-right-column {
-  border-left: 1.5px solid black;
+  /* Softened the border */
+  border-left: 1.5px solid #475569;
   padding-left: 1.5cqw;
 }
 
@@ -57,7 +60,8 @@
   text-align: center;
   line-height: 1.1;
   text-transform: uppercase;
-  color: black;
+  color: #1e293b;
+  /* Softened text */
 }
 
 .danger-title-wrapper {
@@ -65,9 +69,8 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  /* KILLED min-width: 0 to prevent collapse */
   gap: 1.5cqw;
-  color: black;
+  color: #1e293b;
 }
 
 .danger-text {
@@ -82,7 +85,6 @@
 
 .danger-icon {
   font-size: 1.3em;
-  /* Tightened up slightly for better proportions */
   line-height: 1;
   flex-shrink: 0;
 }
@@ -101,13 +103,14 @@
 .label-demoted-title {
   font-weight: 600;
   text-align: center;
-  color: black;
+  color: #1e293b;
   line-height: 1.1;
 }
 
 .label-preview-box {
   width: 100%;
-  border: 1.5px solid black;
+  /* Softened the border */
+  border: 1.5px solid #475569;
   border-radius: 1.2cqw;
   padding: 0.8cqw;
   text-align: center;
@@ -129,18 +132,19 @@
   font-weight: 900;
   text-transform: uppercase;
   margin-top: 0.2cqw;
-  color: black;
+  color: #1e293b;
 }
 
 .label-preview-section-label {
   font-weight: 700;
   font-size: 0.65em;
   letter-spacing: 0.5px;
-  color: black;
+  color: #475569;
+  /* Slightly lighter slate for the tiny headers */
 }
 
 .label-preview-section-text {
   font-weight: 600;
   line-height: 1.1;
-  color: black;
+  color: #1e293b;
 }

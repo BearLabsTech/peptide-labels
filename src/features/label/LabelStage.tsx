@@ -51,14 +51,7 @@ function DownloadButton({ onClick, disabled }: { onClick: () => void, disabled?:
         <button
             onClick={onClick}
             disabled={disabled}
-            style={{
-                marginTop: 40, padding: '12px 24px',
-                backgroundColor: disabled ? '#94a3b8' : '#0f172a',
-                color: 'white', border: 'none', borderRadius: '6px', fontSize: '1rem',
-                fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer',
-                boxShadow: disabled ? 'none' : '0 4px 6px -1px rgba(0,0,0,0.1)',
-                transition: 'all 0.2s ease'
-            }}
+            className="btn-primary"
         >
             Download Label PNG
         </button>

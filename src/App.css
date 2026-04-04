@@ -1,21 +1,22 @@
+/* src/App.css */
+
 /* --- Desktop Layout (Default) --- */
 .app-container {
   display: flex;
   flex-direction: row;
   height: 100dvh;
-  /* Upgraded to dynamic height for mobile browsers */
   width: 100vw;
   overflow: hidden;
-  background-color: #f0f2f5;
+  background-color: var(--color-background);
 }
 
 .sidebar-panel {
   width: 340px;
-  background-color: #ffffff;
-  border-right: 1px solid #e0e0e0;
+  background-color: var(--color-surface);
+  border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   z-index: 10;
   flex-shrink: 0;
 }
@@ -39,8 +40,10 @@
 .stage-wrapper {
   width: 100%;
   max-width: 500px;
-  background-color: white;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  background-color: var(--color-surface);
+  /* Enhanced sticker shadow and slight rounding */
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
 }
 
 /* --- Mobile Layout Shift --- */
@@ -51,23 +54,23 @@
 
   .stage-panel {
     flex: none;
-    /* Stop growing, just fit the label */
-    padding: 20px;
+    /* Reduced padding to save screen real estate */
+    padding: 16px;
     order: 1;
-    /* Pin the label preview to the top of the screen */
-    background-color: #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    z-index: 20;
+    background-color: var(--color-border);
+    box-shadow: var(--shadow-sm);
+
+    /* Sticky Mobile Preview */
+    position: sticky;
+    top: 0;
+    z-index: 50;
   }
 
   .sidebar-panel {
     width: 100%;
     flex: 1;
-    /* Take up all the remaining height */
     order: 2;
-    /* Put the scrolling controls below the label */
     border-right: none;
     min-height: 0;
-    /* THE FIX: Forces flexbox to shrink and activates the scrollbar */
   }
 }
