@@ -35,14 +35,14 @@
 }
 
 .label-left-column {
-  /* Thickened border to 3px */
-  border-right: 3px solid #000000;
+  /* Changed to dashed to create a clean perforated look */
+  border-right: 3px dashed #000000;
   padding-right: 1.5cqw;
 }
 
 .label-right-column {
-  /* Thickened border to 3px */
-  border-left: 3px solid #000000;
+  /* Changed to dashed to create a clean perforated look */
+  border-left: 3px dashed #000000;
   padding-left: 1.5cqw;
 }
 
@@ -145,15 +145,24 @@
   color: #000000;
 }
 
+/* --- FIX FOR THERMAL BLOOM (Small Text) --- */
 .label-preview-section-label {
-  font-weight: 900;
+  font-weight: 800;
+  /* Dropped slightly */
   font-size: 0.65em;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  /* Widened to separate the tiny all-caps */
   color: #000000;
+  margin-bottom: 2px;
+  /* Added breathing room below the label */
 }
 
 .label-preview-section-text {
-  font-weight: 800;
-  line-height: 1.1;
+  font-weight: 600;
+  /* Dropped from 800 to stop the 'e' and 'a' from filling in */
+  line-height: 1.25;
+  /* Increased from 1.1 for vertical breathing room */
+  letter-spacing: 0.4px;
+  /* Added horizontal breathing room between letters */
   color: #000000;
 }
