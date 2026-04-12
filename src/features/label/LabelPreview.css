@@ -1,10 +1,17 @@
-/* src/features/label/LabelPreview.css */
+/* Aggressively disable browser anti-aliasing */
+.label-preview-container * {
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: crispEdges;
+}
+
 .label-preview-container {
   container-type: inline-size;
   width: 100%;
   max-width: 100%;
   aspect-ratio: 2 / 1;
-  border: 1px solid #ccc;
+  /* Darkened to pure black and thickened */
+  border: 2px solid #000000;
   display: flex;
   background-color: white;
   padding: 1.5cqw;
@@ -24,14 +31,12 @@
 }
 
 .label-left-column {
-  /* Softened the border */
-  border-right: 1.5px solid #475569;
+  border-right: 2px solid #000000;
   padding-right: 1.5cqw;
 }
 
 .label-right-column {
-  /* Softened the border */
-  border-left: 1.5px solid #475569;
+  border-left: 2px solid #000000;
   padding-left: 1.5cqw;
 }
 
@@ -60,8 +65,8 @@
   text-align: center;
   line-height: 1.1;
   text-transform: uppercase;
-  color: #1e293b;
-  /* Softened text */
+  color: #000000;
+  /* Pure black */
 }
 
 .danger-title-wrapper {
@@ -70,7 +75,7 @@
   align-items: center;
   justify-content: center;
   gap: 1.5cqw;
-  color: #1e293b;
+  color: #000000;
 }
 
 .danger-text {
@@ -89,7 +94,7 @@
   flex-shrink: 0;
 }
 
-/* --- BODY STYLES (LIGHTENED WEIGHTS) --- */
+/* --- BODY STYLES --- */
 .label-body-area {
   display: flex;
   flex-direction: column;
@@ -101,16 +106,16 @@
 }
 
 .label-demoted-title {
-  font-weight: 600;
+  font-weight: 900;
+  /* Bumped up */
   text-align: center;
-  color: #1e293b;
+  color: #000000;
   line-height: 1.1;
 }
 
 .label-preview-box {
   width: 100%;
-  /* Softened the border */
-  border: 1.5px solid #475569;
+  border: 2px solid #000000;
   border-radius: 1.2cqw;
   padding: 0.8cqw;
   text-align: center;
@@ -124,7 +129,8 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  filter: grayscale(100%) contrast(120%);
+  /* This ensures the logo is pushed as close to pure black as possible */
+  filter: grayscale(100%) contrast(200%);
 }
 
 .qr-text {
@@ -132,19 +138,20 @@
   font-weight: 900;
   text-transform: uppercase;
   margin-top: 0.2cqw;
-  color: #1e293b;
+  color: #000000;
 }
 
 .label-preview-section-label {
-  font-weight: 700;
+  font-weight: 900;
+  /* Bumped up */
   font-size: 0.65em;
   letter-spacing: 0.5px;
-  color: #475569;
-  /* Slightly lighter slate for the tiny headers */
+  color: #000000;
 }
 
 .label-preview-section-text {
-  font-weight: 600;
+  font-weight: 800;
+  /* Bumped up from 600 to 800 */
   line-height: 1.1;
-  color: #1e293b;
+  color: #000000;
 }
