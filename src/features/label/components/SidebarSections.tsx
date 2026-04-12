@@ -1,4 +1,4 @@
-import { TextInput, SelectInput, AccordionSection, ImageUploadInput, DateField } from './FormInputs'
+import { TextInput, SelectInput, AccordionSection, ImageUploadInput, DateField, ToggleInput } from './FormInputs'
 import { RECONSTITUTION_TYPES } from '../peptideMath'
 import type { LabelModelInput } from '../labelModel'
 import type { LabelFormHandlers } from '../useLabelForm'
@@ -12,7 +12,7 @@ export interface SectionProps {
 
 export function CompoundSection({ input, updateField, handlers }: SectionProps) {
     return (
-        <AccordionSection title="Compound">
+        <AccordionSection title="Compound" defaultOpen={true}>
             <TextInput label="Compound Name" value={input.compoundName} onChange={(v) => updateField('compoundName', v)} placeholder="Tirzepatide" />
             <div style={{ display: 'flex', gap: '12px' }}>
                 <div style={{ flex: 1 }}><TextInput label="Vial Amount" value={input.compoundAmount} onChange={(v) => updateField('compoundAmount', v)} placeholder="20" /></div>
@@ -27,50 +27,46 @@ export function CompoundSection({ input, updateField, handlers }: SectionProps) 
 }
 
 export function SourceSection({ input, updateField }: SectionProps) {
+    const isSectionActive = input.showSource !== false;
     return (
         <AccordionSection title="Source">
-            <TextInput label="Vendor Name" value={input.vendorName} onChange={v => updateField('vendorName', v)} placeholder="e.g. Bear Labs" />
-            <TextInput label="Group Buy" value={input.groupBuyName} onChange={v => updateField('groupBuyName', v)} placeholder="e.g. Alpha Testing" />
-            <TextInput label="Batch / Lot Number" value={input.batchNumber} onChange={v => updateField('batchNumber', v)} placeholder="e.g. BL-2026" />
-            <DateField
-                label="Batch Date"
-                value={input.batchDate || ''}
-                onChange={v => updateField('batchDate', v)}
-                isFreeText={!!input.batchDateIsFreeText}
-                onFreeTextToggle={v => updateField('batchDateIsFreeText', v)}
-            />
+            <ToggleInput label="Print Source on Label" checked={isSectionActive} onChange={v => updateField('showSource', v)} />
+            <TextInput label="Vendor Name" value={input.vendorName} onChange={v => updateField('vendorName', v)} placeholder="e.g. Bear Labs" printToggle={{ visible: input.showVendor !== false, onChange: v => updateField('showVendor', v), disabled: !isSectionActive }} />
+            <TextInput label="Group Buy" value={input.groupBuyName} onChange={v => updateField('groupBuyName', v)} placeholder="e.g. Alpha Testing" printToggle={{ visible: input.showGroup !== false, onChange: v => updateField('showGroup', v), disabled: !isSectionActive }} />
+            <TextInput label="Batch / Lot Number" value={input.batchNumber} onChange={v => updateField('batchNumber', v)} placeholder="e.g. BL-2026" printToggle={{ visible: input.showBatch !== false, onChange: v => updateField('showBatch', v), disabled: !isSectionActive }} />
+            <DateField label="Batch Date" value={input.batchDate || ''} onChange={v => updateField('batchDate', v)} isFreeText={!!input.batchDateIsFreeText} onFreeTextToggle={v => updateField('batchDateIsFreeText', v)} />
         </AccordionSection>
     )
 }
 
 export function ReconstitutionSection({ input, updateField, derivedState, handlers }: SectionProps) {
+    const isSectionActive = input.showReconstitution !== false;
     return (
         <AccordionSection title="Reconstitution">
-            <TextInput label="Water Amount (ml)" value={input.reconstitutionAmount || derivedState?.autoWater} onChange={handlers!.handleWaterChange} placeholder="2" />
+            <ToggleInput label="Print Reconstitution on Label" checked={isSectionActive} onChange={v => updateField('showReconstitution', v)} />
+            <TextInput label="Water Amount (ml)" value={input.reconstitutionAmount || derivedState?.autoWater} onChange={handlers!.handleWaterChange} placeholder="2" printToggle={{ visible: input.showWater !== false, onChange: v => updateField('showWater', v), disabled: !isSectionActive }} />
             <SelectInput label="Water Type" value={input.reconstitutionType || ''} onChange={(v) => updateField('reconstitutionType', v)} options={RECONSTITUTION_TYPES} allowNone={true} />
-            <TextInput label="Concentration" value={input.concentration || derivedState?.autoConcentration} disabled={true} placeholder="e.g. 10mg per ml" onChange={() => { }} />
-
-            <DateField
-                label="Reconstitution Date"
-                value={input.reconstitutionDate || ''}
-                onChange={v => updateField('reconstitutionDate', v)}
-                isFreeText={!!input.reconstitutionDateIsFreeText}
-                onFreeTextToggle={v => updateField('reconstitutionDateIsFreeText', v)}
-            />
+            <TextInput label="Concentration" value={input.concentration || derivedState?.autoConcentration} disabled={true} placeholder="e.g. 10mg per ml" onChange={() => { }} printToggle={{ visible: input.showConcentration !== false, onChange: v => updateField('showConcentration', v), disabled: !isSectionActive }} />
+            <DateField label="Reconstitution Date" value={input.reconstitutionDate || ''} onChange={v => updateField('reconstitutionDate', v)} isFreeText={!!input.reconstitutionDateIsFreeText} onFreeTextToggle={v => updateField('reconstitutionDateIsFreeText', v)} printToggle={{ visible: input.showReconDate !== false, onChange: v => updateField('showReconDate', v), disabled: !isSectionActive }} />
         </AccordionSection>
     )
 }
 
 export function ProtocolSection({ input, updateField, derivedState, handlers }: SectionProps) {
+    const isSectionActive = input.showProtocol !== false;
     const measureUnitOptions = input.vialUnit === 'IU' ? ['IU'] : ['mcg', 'mg'];
     return (
         <AccordionSection title="Protocol">
+            <ToggleInput label="Print Protocol on Label" checked={isSectionActive} onChange={v => updateField('showProtocol', v)} />
             <div style={{ display: 'flex', gap: '12px' }}>
-                <div style={{ flex: 1 }}><TextInput label="Protocol Amount" value={input.protocolAmount} onChange={handlers!.handleProtocolAmountChange} placeholder="500" /></div>
+                <div style={{ flex: 1 }}><TextInput label="Protocol Amount" value={input.protocolAmount} onChange={handlers!.handleProtocolAmountChange} placeholder="500" printToggle={{ visible: input.showProtocolAmount !== false, onChange: v => updateField('showProtocolAmount', v), disabled: !isSectionActive }} /></div>
                 <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.measureUnit || 'mcg'} onChange={(v) => updateField('measureUnit', v)} options={measureUnitOptions} /></div>
             </div>
-            <TextInput label="Draw Volume (Units)" value={input.protocolUnits || derivedState?.autoUnits} onChange={handlers!.handleDrawVolumeChange} placeholder="e.g. 10" />
-            <TextInput label="Frequency" value={input.protocolFrequency} onChange={(v) => updateField('protocolFrequency', v)} placeholder="Weekly" />
+
+            {/* FIX: Draw Volume now has its own dedicated showProtocolUnits toggle */}
+            <TextInput label="Draw Volume (Units)" value={input.protocolUnits || derivedState?.autoUnits} onChange={handlers!.handleDrawVolumeChange} placeholder="e.g. 10" printToggle={{ visible: input.showProtocolUnits !== false, onChange: v => updateField('showProtocolUnits', v), disabled: !isSectionActive }} />
+
+            <TextInput label="Frequency" value={input.protocolFrequency} onChange={(v) => updateField('protocolFrequency', v)} placeholder="Weekly" printToggle={{ visible: input.showProtocolFrequency !== false, onChange: v => updateField('showProtocolFrequency', v), disabled: !isSectionActive }} />
         </AccordionSection>
     )
 }
@@ -78,12 +74,7 @@ export function ProtocolSection({ input, updateField, derivedState, handlers }: 
 export function MediaSection({ input, updateField }: SectionProps) {
     return (
         <AccordionSection title="Personalization">
-            <SelectInput
-                label="Date Format"
-                value={input.dateFormat || 'YYYYMMDD'}
-                onChange={v => updateField('dateFormat', v)}
-                options={['YYYYMMDD', 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY']}
-            />
+            <SelectInput label="Date Format" value={input.dateFormat || 'YYYYMMDD'} onChange={v => updateField('dateFormat', v)} options={['YYYYMMDD', 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY']} />
             <ImageUploadInput label="Logo Image" currentImage={input.customImage} onChange={(b64) => updateField('customImage', b64)} />
         </AccordionSection>
     )

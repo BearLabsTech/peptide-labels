@@ -43,6 +43,22 @@ export interface LabelModelInput {
 
   // Status
   isUntested?: boolean
+
+  // Visibility Toggles: Section Level
+  showSource?: boolean
+  showReconstitution?: boolean
+  showProtocol?: boolean
+
+  // Visibility Toggles: Granular Field Level
+  showWater?: boolean
+  showConcentration?: boolean
+  showReconDate?: boolean
+  showProtocolAmount?: boolean
+  showProtocolUnits?: boolean  // NEW
+  showProtocolFrequency?: boolean
+  showVendor?: boolean
+  showGroup?: boolean
+  showBatch?: boolean
 }
 
 export class LabelModelBuilder {

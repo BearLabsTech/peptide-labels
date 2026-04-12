@@ -34,7 +34,8 @@ function getEmptyInput(): LabelModelInput {
     protocolAmount: '', protocolFrequency: '', reconstitutionDate: '',
     measureUnit: 'mcg', vendorCoa: '', groupBuyCoa: '', testGroupCoa: '',
     myCoa: '', customImage: '', isUntested: false, vialUnit: 'mg',
-    dateFormat: 'YYYYMMDD'
+    dateFormat: 'YYYYMMDD',
+    showSource: true, showReconstitution: true, showProtocol: true
   }
 }
 

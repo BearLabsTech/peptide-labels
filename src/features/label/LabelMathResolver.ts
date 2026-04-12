@@ -20,7 +20,20 @@ export function resolveLabelMath(input: LabelModelInput): ResolvedLabelMath {
     if (w > 0 && v > 0 && d > 0) return calcForward(input, v, w, d, vUnit, dUnit);
     if (u > 0 && v > 0 && d > 0) return calcReverse(input, v, u, d, vUnit, dUnit);
 
-    return defaultState(input);
+    // FIX: Calculate concentration if we at least have Vial and Water amounts,
+    // even if the user hasn't typed in a Protocol yet!
+    let autoC = '';
+    if (v > 0 && w > 0) {
+        const conc = Math.round((v / w) * 100) / 100;
+        autoC = `${conc}${vUnit === 'IU' ? 'IU per ml' : 'mg per ml'}`;
+    }
+
+    return {
+        mergedInput: { ...input, concentration: input.concentration || autoC },
+        autoUnits: '',
+        autoWater: '',
+        autoConcentration: autoC
+    };
 }
 
 function parseUnits(unitsStr?: string): number {
@@ -43,7 +56,7 @@ function calcForward(input: LabelModelInput, v: number, w: number, d: number, vU
             concentration: input.concentration || autoC
         },
         autoUnits: autoU,
-        autoWater: '', // Strict separation: We did not auto-calculate water here
+        autoWater: '',
         autoConcentration: autoC
     };
 }
@@ -62,7 +75,7 @@ function calcReverse(input: LabelModelInput, v: number, u: number, d: number, vU
             reconstitutionAmount: input.reconstitutionAmount || autoW,
             concentration: input.concentration || autoC
         },
-        autoUnits: '', // Strict separation: We did not auto-calculate units here
+        autoUnits: '',
         autoWater: autoW,
         autoConcentration: autoC
     };

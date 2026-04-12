@@ -19,9 +19,11 @@ export class LabelComposer {
   public compose(rawInput: LabelModelInput): LabelRenderModel {
     const input = resolveLabelMath(rawInput).mergedInput;
     const { title, demotedTitle } = this.buildTitles(input);
-    const sourceLines = this.buildSourceLines(input);
-    const reconstitutionLines = this.buildReconstitutionLines(input);
-    const protocolLines = this.buildProtocolLines(input);
+
+    const sourceLines = input.showSource !== false ? this.buildSourceLines(input) : [];
+    const reconstitutionLines = input.showReconstitution !== false ? this.buildReconstitutionLines(input) : [];
+    const protocolLines = input.showProtocol !== false ? this.buildProtocolLines(input) : [];
+
     const qrCodes = this.buildQrCodes(input);
 
     return this.calculateLayouts(input, title, demotedTitle, sourceLines, reconstitutionLines, protocolLines, qrCodes);
@@ -72,9 +74,9 @@ export class LabelComposer {
 
   private buildSourceLines(input: LabelModelInput): string[] {
     const lines: string[] = [];
-    if (input.vendorName) lines.push(`Vendor: ${input.vendorName}`);
-    if (input.groupBuyName) lines.push(`Group: ${input.groupBuyName}`);
-    if (input.batchNumber || input.batchDate) {
+    if (input.showVendor !== false && input.vendorName) lines.push(`Vendor: ${input.vendorName}`);
+    if (input.showGroup !== false && input.groupBuyName) lines.push(`Group: ${input.groupBuyName}`);
+    if (input.showBatch !== false && (input.batchNumber || input.batchDate)) {
       const batchParts = [];
       if (input.batchNumber) batchParts.push(`Lot: ${input.batchNumber}`);
       if (input.batchDate) batchParts.push(this.formatDate(input.batchDate, input.dateFormat));
@@ -85,21 +87,34 @@ export class LabelComposer {
 
   private buildProtocolLines(input: LabelModelInput): string[] {
     const lines: string[] = [];
-    const units = input.protocolUnits || '';
-    const amt = this.formatAmount(input.protocolAmount, input.measureUnit || 'mcg');
 
-    if (units && amt) lines.push(`${units} (${amt})`);
-    else if (units || amt) lines.push(units || amt);
+    // Independently grab units and amount based on their specific toggles
+    const unitsStr = input.showProtocolUnits !== false ? (input.protocolUnits || '') : '';
+    const amtStr = input.showProtocolAmount !== false ? this.formatAmount(input.protocolAmount, input.measureUnit || 'mcg') : '';
 
-    if (input.protocolFrequency) lines.push(input.protocolFrequency);
+    if (unitsStr && amtStr) lines.push(`${unitsStr} (${amtStr})`);
+    else if (unitsStr || amtStr) lines.push(unitsStr || amtStr);
+
+    if (input.showProtocolFrequency !== false && input.protocolFrequency) {
+      lines.push(input.protocolFrequency);
+    }
     return lines;
   }
 
   private buildReconstitutionLines(input: LabelModelInput): string[] {
     const lines: string[] = [];
-    if (input.reconstitutionAmount || input.reconstitutionType) lines.push(`${input.reconstitutionAmount || ''} ${input.reconstitutionType || ''}`.trim());
-    if (input.concentration) lines.push(input.concentration);
-    if (input.reconstitutionDate) lines.push(`Mixed ${this.formatDate(input.reconstitutionDate, input.dateFormat)}`);
+
+    if (input.showWater !== false && (input.reconstitutionAmount || input.reconstitutionType)) {
+      lines.push(`${input.reconstitutionAmount || ''} ${input.reconstitutionType || ''}`.trim());
+    }
+
+    if (input.showConcentration !== false && input.concentration) {
+      lines.push(input.concentration);
+    }
+
+    if (input.showReconDate !== false && input.reconstitutionDate) {
+      lines.push(`Mixed ${this.formatDate(input.reconstitutionDate, input.dateFormat)}`);
+    }
     return lines;
   }
 
