@@ -12,8 +12,8 @@
   width: 100%;
   max-width: 100%;
   aspect-ratio: 2 / 1;
-  /* Thickened border to 3px */
-  border: 3px solid #000000;
+  /* Removed outer border to help with physical printer alignment */
+  border: none;
   display: flex;
   background-color: white;
   padding: 1.5cqw;
@@ -35,13 +35,13 @@
 }
 
 .label-left-column {
-  /* Changed to dashed to create a clean perforated look */
+  /* Retained dashed border to act as a clean perforated divider */
   border-right: 3px dashed #000000;
   padding-right: 1.5cqw;
 }
 
 .label-right-column {
-  /* Changed to dashed to create a clean perforated look */
+  /* Retained dashed border to act as a clean perforated divider */
   border-left: 3px dashed #000000;
   padding-left: 1.5cqw;
 }
@@ -55,6 +55,8 @@
   height: 100%;
   min-width: 0;
   min-height: 0;
+  /* INCREASED GAP: Physically pushes the title away from the boxes */
+  gap: 3.5cqw;
 }
 
 /* --- TITLE AND DANGER STYLES --- */
@@ -69,7 +71,8 @@
 .label-preview-title {
   font-weight: 900;
   text-align: center;
-  line-height: 1.1;
+  line-height: 0.95;
+  /* Extra tight to prevent bleeding into the gap */
   text-transform: uppercase;
   color: #000000;
 }
@@ -104,10 +107,10 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.8cqw;
+  /* DECREASED GAP: Steals space from between boxes to give to the title gap */
+  gap: 0.5cqw;
   width: 100%;
   min-height: 0;
-  margin-top: 0.5cqw;
 }
 
 .label-demoted-title {
@@ -119,10 +122,10 @@
 
 .label-preview-box {
   width: 100%;
-  /* Thickened border to 3px */
   border: 3px solid #000000;
   border-radius: 1.2cqw;
-  padding: 0.8cqw;
+  /* DECREASED PADDING: Tighter vertical box padding to save real estate */
+  padding: 0.5cqw 0.8cqw;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -148,21 +151,15 @@
 /* --- FIX FOR THERMAL BLOOM (Small Text) --- */
 .label-preview-section-label {
   font-weight: 800;
-  /* Dropped slightly */
   font-size: 0.65em;
   letter-spacing: 1px;
-  /* Widened to separate the tiny all-caps */
   color: #000000;
   margin-bottom: 2px;
-  /* Added breathing room below the label */
 }
 
 .label-preview-section-text {
   font-weight: 600;
-  /* Dropped from 800 to stop the 'e' and 'a' from filling in */
   line-height: 1.25;
-  /* Increased from 1.1 for vertical breathing room */
   letter-spacing: 0.4px;
-  /* Added horizontal breathing room between letters */
   color: #000000;
 }

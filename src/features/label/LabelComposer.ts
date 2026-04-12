@@ -35,7 +35,10 @@ export class LabelComposer {
 
     const baseWidthMm = this.usableWidthMm(!!input.customImage, qrCodes.length > 0) * 0.90;
     const titleWidthMm = isDanger ? (baseWidthMm * 0.65) : baseWidthMm;
-    const titleHeightWeight = !hasBody ? 1.0 : (isDanger ? 0.45 : 0.4);
+
+    // FIX: Reduced title height ratio from 40% to 30% when a body is present 
+    // to give the layout engine more conservative boundaries
+    const titleHeightWeight = !hasBody ? 1.0 : (isDanger ? 0.35 : 0.30);
 
     const titleLayout = this.layoutEngine.layout({ lines: title.split('\n'), widthMm: titleWidthMm, heightMm: this.usableHeightMm() * titleHeightWeight });
     const bodyLayout = this.layoutEngine.layout({ lines: [...(demotedTitle ? [demotedTitle] : []), ...recLines, ...proLines, ...srcLines], widthMm: baseWidthMm, heightMm: this.usableHeightMm() * (!hasBody ? 0 : (1.0 - titleHeightWeight)) });
@@ -73,6 +76,7 @@ export class LabelComposer {
   }
 
   private buildSourceLines(input: LabelModelInput): string[] {
+    if (input.showSource === false) return [];
     const lines: string[] = [];
     if (input.showVendor !== false && input.vendorName) lines.push(`Vendor: ${input.vendorName}`);
     if (input.showGroup !== false && input.groupBuyName) lines.push(`Group: ${input.groupBuyName}`);
@@ -86,9 +90,9 @@ export class LabelComposer {
   }
 
   private buildProtocolLines(input: LabelModelInput): string[] {
+    if (input.showProtocol === false) return [];
     const lines: string[] = [];
 
-    // Independently grab units and amount based on their specific toggles
     const unitsStr = input.showProtocolUnits !== false ? (input.protocolUnits || '') : '';
     const amtStr = input.showProtocolAmount !== false ? this.formatAmount(input.protocolAmount, input.measureUnit || 'mcg') : '';
 
@@ -102,6 +106,7 @@ export class LabelComposer {
   }
 
   private buildReconstitutionLines(input: LabelModelInput): string[] {
+    if (input.showReconstitution === false) return [];
     const lines: string[] = [];
 
     if (input.showWater !== false && (input.reconstitutionAmount || input.reconstitutionType)) {
