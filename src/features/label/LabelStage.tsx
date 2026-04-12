@@ -15,18 +15,16 @@ export function LabelStage({ model, compoundName, isExampleMode }: LabelStagePro
     async function downloadLabel() {
         if (!stageRef.current || isExampleMode) return
 
-        // 1. Generate the initial high-res PNG from the browser
+        // We will output an even higher resolution baseline (pixelRatio 3) 
+        // to give the filter more raw pixels to work with.
         const dataUrl = await toPng(stageRef.current, {
             canvasWidth: 472,
             canvasHeight: 236,
-            pixelRatio: 2,
+            pixelRatio: 3,
             backgroundColor: '#ffffff'
         })
 
-        // 2. Run it through our custom monochrome filter to destroy all anti-aliasing (gray pixels)
         const monochromeUrl = await applyMonochromeFilter(dataUrl)
-
-        // 3. Download the pure 1-bit image
         triggerDownload(monochromeUrl, compoundName)
     }
 
@@ -48,7 +46,6 @@ export function LabelStage({ model, compoundName, isExampleMode }: LabelStagePro
     )
 }
 
-// --- NEW: Image Processing Engine ---
 function applyMonochromeFilter(dataUrl: string): Promise<string> {
     return new Promise((resolve) => {
         const img = new Image()
@@ -57,9 +54,8 @@ function applyMonochromeFilter(dataUrl: string): Promise<string> {
             canvas.width = img.width
             canvas.height = img.height
             const ctx = canvas.getContext('2d')
-            if (!ctx) return resolve(dataUrl) // Fallback if canvas fails
+            if (!ctx) return resolve(dataUrl)
 
-            // Fill white background
             ctx.fillStyle = '#ffffff'
             ctx.fillRect(0, 0, canvas.width, canvas.height)
             ctx.drawImage(img, 0, 0)
@@ -67,25 +63,22 @@ function applyMonochromeFilter(dataUrl: string): Promise<string> {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
             const data = imageData.data
 
-            // Aggressive Thresholding: Scan every pixel
             for (let i = 0; i < data.length; i += 4) {
                 const r = data[i]
                 const g = data[i + 1]
                 const b = data[i + 2]
                 const alpha = data[i + 3]
 
-                // Calculate perceived brightness of the pixel
                 const brightness = (r * 0.299 + g * 0.587 + b * 0.114)
 
-                // If pixel is mostly transparent, or lighter than a medium-dark gray -> make pure white
-                // We use 150 to ensure we aggressively erase the light-gray anti-aliasing edge pixels
-                if (alpha < 128 || brightness > 150) {
-                    data[i] = 255;     // R
-                    data[i + 1] = 255; // G
-                    data[i + 2] = 255; // B
-                    data[i + 3] = 255; // Alpha
+                // By increasing the brightness threshold to 200, we force medium-light 
+                // grays to become black, which fattens the text and lines for the printer.
+                if (alpha < 128 || brightness > 200) {
+                    data[i] = 255;
+                    data[i + 1] = 255;
+                    data[i + 2] = 255;
+                    data[i + 3] = 255;
                 } else {
-                    // Otherwise, it's dark enough -> make pure black
                     data[i] = 0;
                     data[i + 1] = 0;
                     data[i + 2] = 0;

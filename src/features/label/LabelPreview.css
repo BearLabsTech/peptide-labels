@@ -1,3 +1,5 @@
+/* src/features/label/LabelPreview.css */
+
 /* Aggressively disable browser anti-aliasing */
 .label-preview-container * {
   -webkit-font-smoothing: none;
@@ -10,14 +12,16 @@
   width: 100%;
   max-width: 100%;
   aspect-ratio: 2 / 1;
-  /* Darkened to pure black and thickened */
-  border: 2px solid #000000;
+  /* Thickened border to 3px */
+  border: 3px solid #000000;
   display: flex;
   background-color: white;
   padding: 1.5cqw;
   box-sizing: border-box;
   gap: 1.5cqw;
   overflow: hidden;
+  /* Force a blocky, standard font */
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .label-left-column,
@@ -31,12 +35,14 @@
 }
 
 .label-left-column {
-  border-right: 2px solid #000000;
+  /* Thickened border to 3px */
+  border-right: 3px solid #000000;
   padding-right: 1.5cqw;
 }
 
 .label-right-column {
-  border-left: 2px solid #000000;
+  /* Thickened border to 3px */
+  border-left: 3px solid #000000;
   padding-left: 1.5cqw;
 }
 
@@ -66,7 +72,6 @@
   line-height: 1.1;
   text-transform: uppercase;
   color: #000000;
-  /* Pure black */
 }
 
 .danger-title-wrapper {
@@ -107,7 +112,6 @@
 
 .label-demoted-title {
   font-weight: 900;
-  /* Bumped up */
   text-align: center;
   color: #000000;
   line-height: 1.1;
@@ -115,7 +119,8 @@
 
 .label-preview-box {
   width: 100%;
-  border: 2px solid #000000;
+  /* Thickened border to 3px */
+  border: 3px solid #000000;
   border-radius: 1.2cqw;
   padding: 0.8cqw;
   text-align: center;
@@ -129,7 +134,6 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  /* This ensures the logo is pushed as close to pure black as possible */
   filter: grayscale(100%) contrast(200%);
 }
 
@@ -143,7 +147,6 @@
 
 .label-preview-section-label {
   font-weight: 900;
-  /* Bumped up */
   font-size: 0.65em;
   letter-spacing: 0.5px;
   color: #000000;
@@ -151,7 +154,6 @@
 
 .label-preview-section-text {
   font-weight: 800;
-  /* Bumped up from 600 to 800 */
   line-height: 1.1;
   color: #000000;
 }
