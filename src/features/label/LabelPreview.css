@@ -24,24 +24,24 @@
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.label-left-column,
-.label-right-column {
-  width: 25%;
+.label-left-column {
+  width: 20%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
-}
-
-.label-left-column {
-  /* Retained dashed border to act as a clean perforated divider */
   border-right: 3px dashed #000000;
   padding-right: 1.5cqw;
 }
 
 .label-right-column {
-  /* Retained dashed border to act as a clean perforated divider */
+  width: 38%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
   border-left: 3px dashed #000000;
   padding-left: 1.5cqw;
 }
@@ -55,8 +55,8 @@
   height: 100%;
   min-width: 0;
   min-height: 0;
-  /* INCREASED GAP: Physically pushes the title away from the boxes */
-  gap: 3.5cqw;
+  /* Space between title block and body boxes (keep tight — width budget is tight) */
+  gap: 4cqw;
 }
 
 /* --- TITLE AND DANGER STYLES --- */
@@ -140,11 +140,39 @@
   filter: grayscale(100%) contrast(200%);
 }
 
+.label-qr-slot {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 0;
+  width: 100%;
+}
+
+.label-qr-slot-graphic {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.label-qr-svg {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+}
+
 .qr-text {
   font-size: 2cqw;
   font-weight: 900;
   text-transform: uppercase;
   margin-top: 0.2cqw;
+  flex-shrink: 0;
   color: #000000;
 }
 

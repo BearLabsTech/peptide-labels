@@ -10,6 +10,10 @@ export interface LabelRenderModel {
   qrCodes: { type: string, url: string }[]; customImage?: string; isDangerMode: boolean;
 }
 
+/** Match `LabelPreview.css` fractional widths (flex row: left / center:flex / right). */
+const LEFT_COLUMN_WIDTH_FRAC = 0.2
+const RIGHT_COLUMN_WIDTH_FRAC = 0.38
+
 export class LabelComposer {
   private readonly layoutEngine = new LabelLayoutEngine()
   private readonly labelWidthMm = LABEL_CONFIG.dimensions.widthMm
@@ -135,10 +139,11 @@ export class LabelComposer {
   }
 
   private usableWidthMm(hasLeft: boolean, hasRight: boolean): number {
-    let mult = 1.0;
-    if (hasLeft) mult -= 0.25;
-    if (hasRight) mult -= 0.25;
-    return (this.labelWidthMm - (this.paddingMm * 2)) * mult;
+    const innerMm = this.labelWidthMm - this.paddingMm * 2
+    let centerFrac = 1.0
+    if (hasLeft) centerFrac -= LEFT_COLUMN_WIDTH_FRAC
+    if (hasRight) centerFrac -= RIGHT_COLUMN_WIDTH_FRAC
+    return innerMm * centerFrac
   }
 
   private usableHeightMm(): number { return this.labelHeightMm - (this.paddingMm * 2); }

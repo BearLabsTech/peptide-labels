@@ -77,8 +77,10 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
         {model.qrCodes.length > 0 && (
           <div className="label-right-column">
             {model.qrCodes.map(qr => (
-              <div key={qr.type} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 0 }}>
-                <QRCodeSVG value={qr.url} size={100} width="100%" height="70%" />
+              <div key={qr.type} className="label-qr-slot">
+                <div className="label-qr-slot-graphic">
+                  <QRCodeSVG value={qr.url} size={320} className="label-qr-svg" />
+                </div>
                 <div className="qr-text">{qr.type}</div>
               </div>
             ))}
