@@ -1,0 +1,27 @@
+---
+description: Separation of math, composition, and preview; defensive calculator behavior
+globs: src/features/label/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Domain architecture
+
+Keep these concerns **strictly decoupled**:
+
+| Concern | Primary home |
+|--------|----------------|
+| Math (forward + reverse calculations, units, water, etc.) | `LabelMathResolver.ts` (and `peptideMath.ts` where shared) |
+| String building / layout structure | `LabelComposer.ts`, `LabelLayoutEngine.ts` |
+| On-screen / print rendering | `LabelPreview.tsx` (and related CSS) |
+
+Do not move calculation logic into the preview for convenience, or preview-specific hacks into the resolver.
+
+## Defensive math (`LabelMathResolver`)
+
+- Handle **forward** math (e.g. draw units) and **reverse** math (e.g. required water) explicitly and safely.
+- **Never echo raw user input** into auto-calculated placeholders or derived fields in a way that masks the real computed value.
+- **Fail gracefully** on invalid or incomplete inputs (clear UX, no silent wrong numbers).
+
+## Global preferences
+
+Settings such as **date format** (MM/DD/YYYY, YYYYMMDD, etc.) are **global preferences** carried in the label model / form state and passed through—avoid hard-coding formats inside isolated UI leaves.

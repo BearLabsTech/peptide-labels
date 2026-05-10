@@ -1,0 +1,14 @@
+---
+description: Web UI stack, tokens, and patterns for the control surface (non-print)
+globs: src/**/*.tsx,src/**/*.css
+alwaysApply: false
+---
+
+# Web UI (standard)
+
+- **No Tailwind.** Use standard CSS: variables in `src/index.css` and colocated stylesheets (e.g. component `.css` next to the component).
+- **Design tokens:** Extend the existing CSS variable system in `index.css` (e.g. `--color-primary`, `--color-surface`, `--color-border`). Avoid scattering one-off theme colors unless there is a deliberate exception.
+- **Visual direction:** Light mode default. Match density, spacing, typography, and component style already used in the app (control sidebar, forms)—do not rely on vague “minimalist” rewrites that ignore existing patterns.
+- **Forms:** Prefer reusing patterns from `src/features/label/components/FormInputs.tsx` and related primitives; add shared inputs there when the same pattern repeats.
+- **Sidebar density:** Use the existing **accordion section** pattern for the control sidebar (see `SidebarSections.tsx` / related components).
+- **Print toggles:** Preserve the product model—**section-level** master print toggles plus **per-field** granular print toggles so users keep surgical control over what prints.

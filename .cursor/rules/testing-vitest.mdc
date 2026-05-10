@@ -1,0 +1,35 @@
+---
+description: Vitest unit tests—behavior-first, TDD, math safety, no browser tests
+globs: "**/*.test.ts"
+alwaysApply: false
+---
+
+# Testing (Vitest)
+
+- **Runner:** Use `npm run test:run` (non-watch) to verify the suite after substantive changes. When editing core label modules listed in `run-tests-core-label-modules.mdc`, treat a green run as part of “done.”
+- **Scope:** **Unit tests only.** No browser-driven tests, no Playwright/Cypress, no end-to-end or “whole system” tests. No React Testing Library in a real DOM unless the project explicitly adds that later.
+- **Unit of test:** A **unit of behavior**, not a single function or implementation detail. Tests should stay green when refactoring internals if **observable behavior** is unchanged.
+
+## When to add or change tests
+
+- **New behavior** → add a **new test first** (red–green–refactor): write a failing test that specifies the new obligation, then implement.
+- **Implementation-only refactors** (same external behavior) → **do not** require new tests; existing tests should still pass.
+- Touching core modules (`peptideMath.ts`, `LabelMathResolver.ts`, `LabelComposer.ts`, `LabelLayoutEngine.ts`, `labelModel.ts`, `Scaling.ts`) means **run** the suite; **update** tests when behavior or outputs change, not merely when code moves.
+
+## Naming
+
+- Use **`should`-style** descriptions so intent is obvious years later, e.g. `it("should print the draw volume on the label when the user enables print for that field", ...)`.
+- Long, precise names are **preferred** over short vague ones.
+
+## Assertions
+
+- Prefer **explicit expectations on meaningful outcomes** (values, labels, safety limits). Avoid brittle ties to incidental formatting, log text, or private structure unless that structure is a deliberate public contract.
+
+## Math and safety (`peptideMath`, `LabelMathResolver`)
+
+- Treat calculator math as **safety-critical**: prefer **more** coverage here when in doubt, not less.
+- Think **adversarially**: what change could subtly wrong-foot a user while still “looking” fine? Add tests for edge cases, boundaries, rounding, invalid/missing inputs, and **regressions for every bugfix** in this area.
+
+## Unacceptable shortcuts
+
+Never: skip/disable tests, delete tests to go green, loosen assertions without fixing the product, or use `@ts-expect-error` / `@ts-ignore` on tests to hide real type or logic problems.

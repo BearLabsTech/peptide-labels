@@ -1,0 +1,11 @@
+---
+description: Compliance terminology for labels and community testing copy
+alwaysApply: true
+---
+
+# Terminology (strict)
+
+- **Never use the word "dose".** Use terms such as **Protocol**, **Measure**, **Amount**, or **Draw Volume** instead.
+- For community testing, use **"Test Group"** (not "Group Test"). The acronym is **TG**.
+
+Apply these rules to UI copy, comments, docs, commit messages, and tests when they describe user-facing concepts.

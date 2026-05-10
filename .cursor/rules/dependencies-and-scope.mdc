@@ -1,0 +1,9 @@
+---
+description: Lean dependencies; ask before adding packages
+alwaysApply: true
+---
+
+# Dependencies
+
+- Keep the dependency tree **lean**. Prefer small, focused utilities and in-repo solutions (layout engine, monochrome export pipeline, etc.) over large UI or math frameworks.
+- **Ask the user before adding** a new npm dependency unless they already instructed otherwise for that task.

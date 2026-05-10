@@ -1,0 +1,13 @@
+---
+description: Run Vitest after editing core label math, layout, or model code
+globs: src/features/label/peptideMath.ts,src/features/label/LabelMathResolver.ts,src/features/label/LabelComposer.ts,src/features/label/LabelLayoutEngine.ts,src/features/label/labelModel.ts,src/features/label/Scaling.ts
+alwaysApply: false
+---
+
+# Verify before wrapping up
+
+After editing any of these modules, run:
+
+`npm run test:run`
+
+Implementation refactors that preserve behavior should leave tests unchanged and passing. Add or change tests only when **behavior** changes (see `testing-vitest.mdc`).

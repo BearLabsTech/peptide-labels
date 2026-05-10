@@ -1,0 +1,17 @@
+---
+description: 203 DPI thermal PNG output—pure monochrome, no anti-alias artifacts
+globs: src/features/label/LabelPreview.*,src/features/label/LabelStage.tsx
+alwaysApply: false
+---
+
+# Thermal print output (critical)
+
+The exported PNG targets **203 DPI thermal printers** (e.g. Niimbot). Output is **binary**: pure black or pure white. Grays and gradients dither badly.
+
+When editing **print preview**, **export**, or **canvas** code (`LabelPreview.tsx`, `LabelPreview.css`, `LabelStage.tsx`, monochrome pipeline):
+
+- **Colors:** Use **#000000** and **#ffffff** only for print preview borders, text, and fills that hit the bitmap. No gray borders or gray text for print.
+- **Anti-aliasing:** Print-facing CSS should include `-webkit-font-smoothing: none;` and `text-rendering: crispEdges;` (or equivalent) so browser smoothing does not ruin the print.
+- **Type:** Blocky, common sans-serif stack (e.g. Arial, Helvetica) for the **print layout** (not necessarily the whole web UI).
+- **Thermal “bloom”:** Small type needs enough **letter-spacing** and **line-height**; prefer a slightly **lower font-weight** (e.g. 600 vs 800) so characters like “e” and “a” do not blob together under the print head.
+- **Export pipeline:** The HTML Canvas path uses a **monochrome threshold** step (`applyMonochromeFilter` in `LabelStage.tsx`) to force edge pixels to pure black or white—keep that behavior aligned with the above constraints when changing export.
