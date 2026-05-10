@@ -1,0 +1,12 @@
+---
+description: Ask which vial size (label profile) when label changes are ambiguous
+alwaysApply: true
+---
+
+# Clarify target vial size
+
+When the task affects **label layout, print/PDF/PNG output, label dimensions, typography on the label, QR/size on the label, export pipeline, or scaling of the label preview** — and the user has **not** stated which **vial size** they mean (**3 ml**, **10 ml**, or another supported profile once added) — **stop and ask** which vial size is in scope **before** implementing.
+
+Use **vial size** in questions (not “label mm”) unless they already spoke in mm.
+
+If they explicitly name the vial size or say “only what exists in code,” proceed without re-asking.

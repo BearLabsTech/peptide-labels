@@ -1,0 +1,31 @@
+---
+description: Vial size ↔ label profile (3 ml today); thermal reality and LABEL_CONFIG
+globs: src/features/label/**/*.{ts,tsx,css},src/App.tsx,src/App.css
+alwaysApply: false
+---
+
+# Vial size and label profile
+
+Discuss and reason about **vial size** (e.g. **3 ml**, **10 ml**) as the product concept; **label dimensions and preview scaling** follow from the active **vial profile**.
+
+## Implemented profile
+
+| Vial size | Label source of truth | Notes |
+|-----------|------------------------|--------|
+| **3 ml** | `src/features/label/LabelConfig.ts` (`LABEL_CONFIG`) | Only profile wired in code today: dimensions (currently **40 × 20 mm**), padding, **203 DPI** printer assumption, `baseContainerWidthPx` for on-screen preview scaling. |
+
+## Planned
+
+| Vial size | Status |
+|-----------|--------|
+| **10 ml** | Larger physical label — **not implemented yet**. When added, extend config (e.g. multiple profiles or presets) and keep this table accurate. |
+
+Only **3 ml** is implemented today (`LABEL_CONFIG`). When the user has not named a vial size, follow **`label-work-clarify-vial-size.mdc`** before changing label-related behavior.
+
+## Mental model
+
+- Output targets **small adhesive stock** at **203 DPI-class thermal** (e.g. Niimbot): binary dots, bleed/bloom — **legibility on paper** beats “looks fine zoomed on a monitor.”
+- **`LABEL_CONFIG`** is canonical for whichever profile is active; changing mm/DPI/preview base requires updating layout (`LabelLayoutEngine`, `LabelComposer`, `Scaling`), tests, and preview/export together.
+- PNG/export constraints: **`thermal-print-output.mdc`**.
+
+Prefer checking **export/preview at realistic zoom** for the **target vial profile**, not full-screen dev chrome.

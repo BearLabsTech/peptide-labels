@@ -1,6 +1,6 @@
 ---
 description: Run Vitest after editing core label math, layout, or model code
-globs: src/features/label/peptideMath.ts,src/features/label/LabelMathResolver.ts,src/features/label/LabelComposer.ts,src/features/label/LabelLayoutEngine.ts,src/features/label/labelModel.ts,src/features/label/Scaling.ts
+globs: src/features/label/LabelConfig.ts,src/features/label/peptideMath.ts,src/features/label/LabelMathResolver.ts,src/features/label/LabelComposer.ts,src/features/label/LabelLayoutEngine.ts,src/features/label/labelModel.ts,src/features/label/Scaling.ts
 alwaysApply: false
 ---
 
