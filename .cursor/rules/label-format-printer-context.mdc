@@ -8,19 +8,16 @@ alwaysApply: false
 
 Discuss and reason about **vial size** (e.g. **3 ml**, **10 ml**) as the product concept; **label dimensions and preview scaling** follow from the active **vial profile**.
 
-## Implemented profile
+## Vial profiles (product intent)
 
-| Vial size | Label source of truth | Notes |
-|-----------|------------------------|--------|
-| **3 ml** | `src/features/label/LabelConfig.ts` (`LABEL_CONFIG`) | Only profile wired in code today: dimensions (currently **40 × 20 mm**), padding, **203 DPI** printer assumption, `baseContainerWidthPx` for on-screen preview scaling. |
+Implemented and planned vial sizes are described in [docs/FRD.md](../../docs/FRD.md) (**Today** / **Planned**). Only **3 ml** is wired in code today.
 
-## Planned
+| Vial size | Code source of truth | Notes |
+|-----------|----------------------|--------|
+| **3 ml** | `src/features/label/LabelConfig.ts` (`LABEL_CONFIG`) | Dimensions (currently **40 × 20 mm**), padding, **203 DPI** printer assumption, `baseContainerWidthPx` for preview scaling. |
+| **10 ml** | Not implemented | See FRD **Planned**; extend config (profiles/presets) when built. |
 
-| Vial size | Status |
-|-----------|--------|
-| **10 ml** | Larger physical label — **not implemented yet**. When added, extend config (e.g. multiple profiles or presets) and keep this table accurate. |
-
-Only **3 ml** is implemented today (`LABEL_CONFIG`). When the user has not named a vial size, follow **`label-work-clarify-vial-size.mdc`** before changing label-related behavior.
+When the user has not named a vial size, follow **`label-work-clarify-vial-size.mdc`** before changing label-related behavior.
 
 ## Mental model
 

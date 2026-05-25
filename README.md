@@ -1,26 +1,11 @@
 # Peptide Labels
 
-## Purpose
+Peptide Labels is a web app for designing **compact vial labels** with a **built-in calculator**, **live preview**, and **thermal-ready export**—so reconstitution and protocol numbers stay aligned on the sticker you print.
 
-Peptide Labels is a small web app for designing **compact vial labels** you can print on common **203 DPI thermal printers** (for example Niimbot-style devices). A **built-in calculator** helps you stay consistent: as you enter reconstitution and protocol details, the app can **derive related values** (for example concentration, draw volume, or water volume—depending on what you type) so the label reflects coherent numbers without manual spreadsheet work.
+**Product documentation**
 
-You fill in an accordion **sidebar** organized by topic—compound identity, reconstitution, protocol, source and batch, certificates of analysis (COAs), and personalization—and see a **live preview** sized like a real label. On the label you can combine, when you choose to show them:
-
-- **Compound** — name, vial amount (mg or IU), and optional **untested** emphasis (“danger mode”) when you need a clear visual warning.
-- **Reconstitution** — how much liquid you used, the liquid type, **concentration** (often filled in for you), and **reconstitution date** (calendar or free text).
-- **Protocol** — protocol amount and measure unit (mcg, mg, or IU as applicable), **draw volume** in units when that is the driving line, and **frequency** (for example weekly).
-- **Source** — vendor, group buy name, batch or lot number, and **batch date**.
-- **Trust and paperwork** — URLs for vendor, group buy, **Test Group (TG)**, and personal COA links, plus **two custom-named COA** slots; matching content can appear as **QR codes** on the label.
-- **Personalization** — global **date format** for printed dates and an optional **logo** image beside the text.
-
-Section-level and per-field controls let you **omit** anything you do not want on the physical label. When you are ready, you export a **high-contrast monochrome PNG** suited to thermal print heads.
-
-## Features (overview)
-
-- **Sidebar + calculator workflow** — structured inputs with derived fields so numbers stay aligned (see **Purpose** above for everything you can put on a label).
-- **Live preview** — layout matches a fixed label size on screen and in export.
-- **Fine-grained printing** — master toggles per section plus per-field visibility for the physical label.
-- **Thermal-ready export** — PNG download with a monochrome pipeline aimed at **203 DPI** devices and clean black/white output.
+- [docs/FRD.md](docs/FRD.md) — functional requirements (what the app does and plans to do, and why)
+- [docs/COPY-GUIDELINES.md](docs/COPY-GUIDELINES.md) — copy and compliance rules for user-facing text
 
 ---
 
@@ -66,7 +51,7 @@ Explain each step briefly so I understand what changed.
 
 **Cursor and project rules**
 
-This repo includes **Cursor rules** under `.cursor/rules/` (domain architecture, Vitest expectations, thermal print constraints, UI conventions, terminology, and dependency scope). They are written for both humans and coding agents. If you already use **Cursor**, opening the project there is often the smoothest way to get consistent help, because those rules load automatically in context.
+This repo includes **Cursor rules** under `.cursor/rules/` that mirror the docs above for agents (`functional-requirements.mdc`, `terminology-compliance.mdc`) plus implementation rules (domain architecture, Vitest, thermal print, UI conventions, dependency scope). If you use **Cursor**, opening the project loads those rules automatically.
 
 ---
 
@@ -92,6 +77,6 @@ Unacceptable patterns include: skipping or disabling tests to go green, deleting
 
 Prefer a **lean dependency tree** and in-repo solutions over heavy frameworks. Ask before adding new npm packages unless the team has already agreed otherwise for that task. The web UI uses **plain CSS** (tokens in `src/index.css` and colocated stylesheets), not Tailwind—match existing patterns.
 
-**Terminology (contributors)**
+**Copy and terminology (contributors)**
 
-User-facing concepts and docs in this project avoid the word **“dose”**; use terms such as **Protocol**, **Measure**, **Amount**, or **Draw Volume**. 
+See [docs/COPY-GUIDELINES.md](docs/COPY-GUIDELINES.md) for approved wording (e.g. Protocol / Draw Volume, Test Group / TG).

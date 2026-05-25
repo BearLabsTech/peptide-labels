@@ -1,11 +1,12 @@
 ---
-description: Compliance terminology for labels and community testing copy
+description: Copy and compliance — canonical rules in docs/COPY-GUIDELINES.md
 alwaysApply: true
 ---
 
-# Terminology (strict)
+# Copy and compliance
 
-- **Never use the word "dose".** Use terms such as **Protocol**, **Measure**, **Amount**, or **Draw Volume** instead.
-- For community testing, use **"Test Group"** (not "Group Test"). The acronym is **TG**.
+**Canonical source:** [docs/COPY-GUIDELINES.md](../../docs/COPY-GUIDELINES.md)
 
-Apply these rules to UI copy, comments, docs, commit messages, and tests when they describe user-facing concepts.
+Before writing or changing **user-facing copy or code** (identifiers, comments, docs, commits), read that file and follow it.
+
+When copy or compliance rules change, update **COPY-GUIDELINES.md** in the same change set. Do not edit only this rule file or let the rule body diverge from the doc.

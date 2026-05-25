@@ -1,0 +1,32 @@
+---
+description: Consult and maintain docs/FRD.md for all product/feature work
+alwaysApply: true
+---
+
+# Functional requirements
+
+**Canonical source:** [docs/FRD.md](../../docs/FRD.md)
+
+## Before implementing
+
+For any **feature**, **behavior change**, or **user-visible fix** that affects what the app does:
+
+1. Read `docs/FRD.md` (use `@docs/FRD.md` when helpful).
+2. If the behavior is **missing or ambiguous**, stop: agree functionality with the user and **update the FRD first**—then implement.
+
+## After implementing
+
+Update `docs/FRD.md` in the **same** change set (same PR/session):
+
+- **Today** — when shipped behavior changes or new capability ships.
+- **Planned** — when roadmap intent changes; move items from Planned to Today when implemented.
+
+Keep **value-led, customer-facing** narrative (why + what). Do not turn the FRD into a field list, technical spec, or copy-compliance doc.
+
+## Scope
+
+- **FRD:** what the product does and will do.
+- **Copy/compliance:** [docs/COPY-GUIDELINES.md](../../docs/COPY-GUIDELINES.md) via `terminology-compliance.mdc`.
+- **Technical how-to:** other `.cursor/rules/` files (architecture, thermal export, tests, etc.).
+
+Do not duplicate FRD content into rules or README feature lists.
