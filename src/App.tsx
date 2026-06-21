@@ -3,6 +3,7 @@ import { LabelComposer } from './features/label/LabelComposer'
 import type { LabelModelInput } from './features/label/labelModel'
 import { ControlSidebar } from './features/label/ControlSidebar'
 import { LabelStage } from './features/label/LabelStage'
+import { usePrintSetup } from './features/label/usePrintSetup'
 import './App.css'
 
 function getTodayDateString(): string {
@@ -40,7 +41,8 @@ function getEmptyInput(): LabelModelInput {
 }
 
 export default function App() {
-  const composer = useMemo(() => new LabelComposer(), [])
+  const { selection, setSelection, printTarget, setupOpen, openPrintSetup } = usePrintSetup()
+  const composer = useMemo(() => new LabelComposer(printTarget), [printTarget])
   const today = getTodayDateString()
   const [input, setInput] = useState<LabelModelInput>(getEmptyInput())
 
@@ -70,8 +72,20 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <ControlSidebar input={input} updateField={updateField} />
-      <LabelStage model={model} compoundName={input.compoundName} isExampleMode={isPristine} />
+      <ControlSidebar
+        input={input}
+        updateField={updateField}
+        printSelection={selection}
+        onPrintSelectionChange={setSelection}
+        setupOpen={setupOpen}
+      />
+      <LabelStage
+        model={model}
+        printTarget={printTarget}
+        compoundName={input.compoundName}
+        isExampleMode={isPristine}
+        onChangePrintSetup={openPrintSetup}
+      />
     </div>
   )
 }

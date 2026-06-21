@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Thermal print output (critical)
 
-The exported PNG targets the printer profile in `LABEL_CONFIG.printer` (currently **203 DPI**, Niimbot-class thermal). Physical label size comes from `LABEL_CONFIG.dimensions` for the **active vial profile** (today: **3 ml** — see `label-format-printer-context.mdc`). Output is **binary**: pure black or pure white. Grays and gradients dither badly.
+The exported PNG targets the active **PrintTarget** from `src/features/label/print/` (default skip: **40 × 20 mm @ 300 DPI**). Export dimensions come from `buildExportSpec` / `dimensions.ts` only—no hardcoded canvas sizes or orphan `pixelRatio` multipliers. Physical size metadata is embedded via PNG `pHYs`.
 
 When editing **print preview**, **export**, or **canvas** code (`LabelPreview.tsx`, `LabelPreview.css`, `LabelStage.tsx`, monochrome pipeline):
 

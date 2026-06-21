@@ -2,51 +2,59 @@ import { useRef } from 'react'
 import { toPng } from 'html-to-image'
 import { LabelPreview } from './LabelPreview'
 import type { LabelRenderModel } from './LabelComposer'
+import { buildExportSpec } from './print/exportSpec'
+import { applyMonochromeThreshold } from './print/monochrome'
+import { injectPngPhys } from './print/pngPhys'
+import type { PrintTarget } from './print/types'
+import { PrintTargetBanner } from './components/PrintTargetBanner'
 
 export interface LabelStageProps {
     model: LabelRenderModel
+    printTarget: PrintTarget
     compoundName?: string
     isExampleMode?: boolean
+    onChangePrintSetup?: () => void
 }
 
-export function LabelStage({ model, compoundName, isExampleMode }: LabelStageProps) {
+export function LabelStage({ model, printTarget, compoundName, isExampleMode, onChangePrintSetup }: LabelStageProps) {
     const stageRef = useRef<HTMLDivElement>(null)
 
     async function downloadLabel() {
         if (!stageRef.current || isExampleMode) return
 
-        // We will output an even higher resolution baseline (pixelRatio 3) 
-        // to give the filter more raw pixels to work with.
+        const exportSpec = buildExportSpec(printTarget)
         const dataUrl = await toPng(stageRef.current, {
-            canvasWidth: 472,
-            canvasHeight: 236,
-            pixelRatio: 3,
-            backgroundColor: '#ffffff'
+            canvasWidth: exportSpec.canvasWidthPx,
+            canvasHeight: exportSpec.canvasHeightPx,
+            pixelRatio: exportSpec.pixelRatio,
+            backgroundColor: '#ffffff',
         })
 
-        const monochromeUrl = await applyMonochromeFilter(dataUrl)
+        const monochromeUrl = await applyMonochromeFilter(dataUrl, exportSpec.dpi)
         triggerDownload(monochromeUrl, compoundName)
     }
 
     return (
         <div className="stage-panel">
+            <PrintTargetBanner printTarget={printTarget} onChange={onChangePrintSetup} />
             <div
                 className="stage-wrapper"
                 ref={stageRef}
                 style={{
                     opacity: isExampleMode ? 0.4 : 1,
                     transition: 'opacity 0.3s ease',
-                    pointerEvents: isExampleMode ? 'none' : 'auto'
+                    pointerEvents: isExampleMode ? 'none' : 'auto',
+                    aspectRatio: `${printTarget.labelWidthMm} / ${printTarget.labelHeightMm}`,
                 }}
             >
-                <LabelPreview model={model} />
+                <LabelPreview model={model} printTarget={printTarget} />
             </div>
             <DownloadButton onClick={downloadLabel} disabled={isExampleMode} />
         </div>
     )
 }
 
-function applyMonochromeFilter(dataUrl: string): Promise<string> {
+async function applyMonochromeFilter(dataUrl: string, dpi: number): Promise<string> {
     return new Promise((resolve) => {
         const img = new Image()
         img.onload = () => {
@@ -61,36 +69,24 @@ function applyMonochromeFilter(dataUrl: string): Promise<string> {
             ctx.drawImage(img, 0, 0)
 
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-            const data = imageData.data
-
-            for (let i = 0; i < data.length; i += 4) {
-                const r = data[i]
-                const g = data[i + 1]
-                const b = data[i + 2]
-                const alpha = data[i + 3]
-
-                const brightness = (r * 0.299 + g * 0.587 + b * 0.114)
-
-                // By increasing the brightness threshold to 200, we force medium-light 
-                // grays to become black, which fattens the text and lines for the printer.
-                if (alpha < 128 || brightness > 200) {
-                    data[i] = 255;
-                    data[i + 1] = 255;
-                    data[i + 2] = 255;
-                    data[i + 3] = 255;
-                } else {
-                    data[i] = 0;
-                    data[i + 1] = 0;
-                    data[i + 2] = 0;
-                    data[i + 3] = 255;
-                }
-            }
-
+            applyMonochromeThreshold(imageData.data)
             ctx.putImageData(imageData, 0, 0)
-            resolve(canvas.toDataURL('image/png'))
+
+            canvas.toBlob(async (blob) => {
+                if (!blob) return resolve(canvas.toDataURL('image/png'))
+                const bytes = new Uint8Array(await blob.arrayBuffer())
+                const withPhys = injectPngPhys(bytes, dpi)
+                resolve(bytesToDataUrl(withPhys))
+            }, 'image/png')
         }
         img.src = dataUrl
     })
+}
+
+function bytesToDataUrl(bytes: Uint8Array): string {
+    let binary = ''
+    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+    return `data:image/png;base64,${btoa(binary)}`
 }
 
 function triggerDownload(dataUrl: string, name?: string) {

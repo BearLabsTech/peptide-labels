@@ -41,9 +41,51 @@
   width: 100%;
   max-width: 500px;
   background-color: var(--color-surface);
-  /* Enhanced sticker shadow and slight rounding */
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
+}
+
+.print-target-banner {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.print-target-banner-primary {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+}
+
+.print-target-banner-secondary {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.print-target-banner-change {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.print-target-banner-change:hover {
+  background-color: var(--color-background);
 }
 
 /* --- Mobile Layout Shift --- */

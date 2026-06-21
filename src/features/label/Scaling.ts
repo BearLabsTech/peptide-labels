@@ -1,6 +1,4 @@
-import { LABEL_CONFIG } from './LabelConfig'
-
-export function pxToCqw(px: number): string {
-    const percentage = (px / LABEL_CONFIG.ui.baseContainerWidthPx) * 100;
+export function pxToCqw(px: number, baseContainerWidthPx: number): string {
+    const percentage = (px / baseContainerWidthPx) * 100;
     return `${percentage}cqw`;
 }

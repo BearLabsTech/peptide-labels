@@ -1,7 +1,8 @@
 import type { LabelModelInput } from './labelModel'
 import { LabelLayoutEngine } from './LabelLayoutEngine'
 import { resolveLabelMath } from './LabelMathResolver'
-import { LABEL_CONFIG } from './LabelConfig'
+import type { PrintTarget } from './print/types'
+import { resolvePrintTarget } from './print/PrintTargetResolver'
 
 export interface LabelRenderModel {
   wrappedLines: string[]; titleFontSizePx: number; bodyFontSizePx: number;
@@ -15,10 +16,13 @@ const LEFT_COLUMN_WIDTH_FRAC = 0.2
 const RIGHT_COLUMN_WIDTH_FRAC = 0.38
 
 export class LabelComposer {
-  private readonly layoutEngine = new LabelLayoutEngine()
-  private readonly labelWidthMm = LABEL_CONFIG.dimensions.widthMm
-  private readonly labelHeightMm = LABEL_CONFIG.dimensions.heightMm
-  private readonly paddingMm = LABEL_CONFIG.dimensions.paddingMm
+  private readonly layoutEngine: LabelLayoutEngine
+  private readonly printTarget: PrintTarget
+
+  constructor(printTarget: PrintTarget = resolvePrintTarget({})) {
+    this.printTarget = printTarget
+    this.layoutEngine = new LabelLayoutEngine(printTarget.effectiveDpi)
+  }
 
   public compose(rawInput: LabelModelInput): LabelRenderModel {
     const input = resolveLabelMath(rawInput).mergedInput;
@@ -139,12 +143,14 @@ export class LabelComposer {
   }
 
   private usableWidthMm(hasLeft: boolean, hasRight: boolean): number {
-    const innerMm = this.labelWidthMm - this.paddingMm * 2
+    const innerMm = this.printTarget.labelWidthMm - this.printTarget.paddingMm * 2
     let centerFrac = 1.0
     if (hasLeft) centerFrac -= LEFT_COLUMN_WIDTH_FRAC
     if (hasRight) centerFrac -= RIGHT_COLUMN_WIDTH_FRAC
     return innerMm * centerFrac
   }
 
-  private usableHeightMm(): number { return this.labelHeightMm - (this.paddingMm * 2); }
+  private usableHeightMm(): number {
+    return this.printTarget.labelHeightMm - (this.printTarget.paddingMm * 2);
+  }
 }

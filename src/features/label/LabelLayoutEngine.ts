@@ -1,4 +1,4 @@
-import { LABEL_CONFIG } from "./LabelConfig"
+import { mmToPx } from './print/dimensions'
 
 export interface LabelLayoutInput {
     lines: string[]
@@ -20,6 +20,11 @@ interface WrapState {
 export class LabelLayoutEngine {
     private readonly MIN_FONT_SIZE_PX = 8;
     private readonly INITIAL_FONT_SIZE_PX = 26;
+    private readonly dpi: number;
+
+    constructor(dpi: number) {
+        this.dpi = dpi;
+    }
 
     public layout(input: LabelLayoutInput): LabelLayoutResult {
         for (let size = this.INITIAL_FONT_SIZE_PX; size >= this.MIN_FONT_SIZE_PX; size -= 1) {
@@ -50,14 +55,9 @@ export class LabelLayoutEngine {
     }
 
     private estimateMaxCharsPerLine(widthMm: number, fontSizePx: number): number {
-        const widthPx = this.mmToPx(widthMm)
+        const widthPx = mmToPx(widthMm, this.dpi)
         const approxCharWidthPx = fontSizePx * 0.6
         return Math.max(4, Math.floor(widthPx / approxCharWidthPx))
-    }
-
-    private mmToPx(mm: number): number {
-        const inches = mm / 25.4;
-        return inches * LABEL_CONFIG.printer.dpi;
     }
 
     private wrapLines(lines: string[], maxChars: number): { lines: string[], didChopWord: boolean } {
@@ -126,7 +126,7 @@ export class LabelLayoutEngine {
     }
 
     private doesFitHeight(lineCount: number, heightMm: number, fontSizePx: number): boolean {
-        const heightPx = this.mmToPx(heightMm)
+        const heightPx = mmToPx(heightMm, this.dpi)
         const lineHeightPx = fontSizePx * 1.2
         const requiredPx = lineCount * lineHeightPx
         return requiredPx <= heightPx

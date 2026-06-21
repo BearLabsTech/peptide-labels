@@ -82,9 +82,11 @@ An optional **logo** sits beside the text so shared group buys or your own stash
 
 ### Ready to print
 
-Thermal printers need **sharp black and white**, not subtle grays from a screen capture. Export produces a **monochrome PNG** tuned for common **203 DPI** class devices—the kind many hobby and bench setups use for Niimbot-style stock.
+Thermal printers need **sharp black and white**, not subtle grays from a screen capture. Export produces a **monochrome PNG** sized to your selected label dimensions, with physical size metadata embedded for import into apps like Niimbot.
 
-The download name reflects your compound when you have named one, so saved files are easy to find later. Today’s label size targets **3 ml vials**—a compact sticker matched to small adhesive stock.
+**Print setup** at the top of the sidebar lets you optionally choose a printer model, vial size, and label size—or skip and use the default **40 × 20 mm** footprint at high resolution (300 DPI). The preview banner shows your active label size at a glance; export, preview scaling, and layout all follow the same print target.
+
+The download name reflects your compound when you have named one, so saved files are easy to find later.
 
 ---
 

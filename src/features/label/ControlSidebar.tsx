@@ -2,13 +2,18 @@ import type { LabelModelInput } from './labelModel'
 import { resolveLabelMath } from './LabelMathResolver'
 import { useLabelForm } from './useLabelForm'
 import { CompoundSection, SourceSection, ReconstitutionSection, ProtocolSection, MediaSection, CoaSection } from './components/SidebarSections'
+import { PrintSetupSection } from './components/PrintSetupSection'
+import type { PrintSetupSelection } from './print/types'
 
 export interface ControlSidebarProps {
     input: LabelModelInput
     updateField: <K extends keyof LabelModelInput>(field: K, value: any) => void
+    printSelection: PrintSetupSelection
+    onPrintSelectionChange: (next: PrintSetupSelection) => void
+    setupOpen?: boolean
 }
 
-export function ControlSidebar({ input, updateField }: ControlSidebarProps) {
+export function ControlSidebar({ input, updateField, printSelection, onPrintSelectionChange, setupOpen }: ControlSidebarProps) {
     const { autoUnits, autoWater, autoConcentration } = resolveLabelMath(input);
     const derivedState = { autoUnits, autoWater, autoConcentration };
     const handlers = useLabelForm(input, updateField);
@@ -17,6 +22,11 @@ export function ControlSidebar({ input, updateField }: ControlSidebarProps) {
         <div className="sidebar-panel">
             <SidebarHeader />
             <div className="sidebar-scroll-area">
+                <PrintSetupSection
+                    selection={printSelection}
+                    onChange={onPrintSelectionChange}
+                    defaultOpen={setupOpen ?? true}
+                />
                 <CompoundSection input={input} updateField={updateField} handlers={handlers} />
                 <SourceSection input={input} updateField={updateField} />
                 <ReconstitutionSection input={input} updateField={updateField} derivedState={derivedState} handlers={handlers} />

@@ -11,7 +11,7 @@
   container-type: inline-size;
   width: 100%;
   max-width: 100%;
-  aspect-ratio: 2 / 1;
+  /* aspect-ratio set inline from PrintTarget */
   /* Removed outer border to help with physical printer alignment */
   border: none;
   display: flex;
