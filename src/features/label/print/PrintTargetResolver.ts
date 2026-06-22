@@ -1,8 +1,9 @@
-import { DEFAULT_DPI, LABEL_PADDING_MM, SKIP_DEFAULT_TARGET } from './defaults'
-import { getLabelById, getPrinterById } from './printCatalog'
-import type { PrintSetupSelection, PrintTarget } from './types'
+import { CUSTOM_STOCK_PADDING_MM, DEFAULT_DPI, SKIP_DEFAULT_TARGET } from './defaults'
+import { DEFAULT_STOCK_ID, getPrinterById, getStockById } from './printCatalog'
+import type { LabelShape, PrintSetupSelection, PrintTarget } from './types'
 
-export function resolveEffectiveDpi(selection: PrintSetupSelection): number {
+/** Skip/default uses 300 DPI; a selected printer uses its native DPI. */
+export function resolveEffectiveDpi(selection: Partial<PrintSetupSelection>): number {
   if (selection.printerId) {
     const printer = getPrinterById(selection.printerId)
     if (printer) return printer.dpi
@@ -12,42 +13,58 @@ export function resolveEffectiveDpi(selection: PrintSetupSelection): number {
 
 export function resolvePrintTarget(selection: Partial<PrintSetupSelection> = {}): PrintTarget {
   const effectiveDpi = resolveEffectiveDpi(selection)
-  const dimensions = resolveLabelDimensions(selection)
+  const stock = resolveStock(selection)
+  const custom = resolveCustomDimensions(selection)
+
+  if (stock) {
+    return {
+      labelWidthMm: stock.widthMm,
+      labelHeightMm: stock.heightMm,
+      effectiveDpi,
+      paddingMm: stock.paddingMm,
+      shape: stock.shape,
+      cornerRadiusMm: stock.cornerRadiusMm,
+      stockId: stock.id,
+      dimensionId: stock.dimensionId,
+      printerId: selection.printerId,
+      vialMl: selection.vialMl ?? SKIP_DEFAULT_TARGET.vialMl,
+    }
+  }
+
+  if (custom) {
+    return {
+      labelWidthMm: custom.widthMm,
+      labelHeightMm: custom.heightMm,
+      effectiveDpi,
+      paddingMm: CUSTOM_STOCK_PADDING_MM,
+      shape: 'rectangular' satisfies LabelShape,
+      cornerRadiusMm: 0,
+      printerId: selection.printerId,
+      vialMl: selection.vialMl ?? SKIP_DEFAULT_TARGET.vialMl,
+    }
+  }
 
   return {
-    labelWidthMm: dimensions.widthMm,
-    labelHeightMm: dimensions.heightMm,
+    ...SKIP_DEFAULT_TARGET,
     effectiveDpi,
-    paddingMm: LABEL_PADDING_MM,
     printerId: selection.printerId,
-    labelId: selection.labelId ?? dimensions.labelId,
-    vialMl: selection.vialMl ?? SKIP_DEFAULT_TARGET.vialMl,
   }
 }
 
-function resolveLabelDimensions(selection: Partial<PrintSetupSelection>): {
-  widthMm: number
-  heightMm: number
-  labelId?: string
-} {
-  if (selection.widthMm != null && selection.heightMm != null) {
-    return {
-      widthMm: selection.widthMm,
-      heightMm: selection.heightMm,
-      labelId: selection.labelId,
-    }
-  }
+function resolveStock(selection: Partial<PrintSetupSelection>) {
+  const stockId = selection.stockId ?? legacyLabelIdToStockId(selection.labelId)
+  if (!stockId) return undefined
+  return getStockById(stockId)
+}
 
-  if (selection.labelId) {
-    const label = getLabelById(selection.labelId)
-    if (label) {
-      return { widthMm: label.widthMm, heightMm: label.heightMm, labelId: label.id }
-    }
-  }
+function resolveCustomDimensions(selection: Partial<PrintSetupSelection>) {
+  if (selection.stockId || selection.labelId) return undefined
+  if (selection.widthMm == null || selection.heightMm == null) return undefined
+  return { widthMm: selection.widthMm, heightMm: selection.heightMm }
+}
 
-  return {
-    widthMm: SKIP_DEFAULT_TARGET.labelWidthMm,
-    heightMm: SKIP_DEFAULT_TARGET.labelHeightMm,
-    labelId: SKIP_DEFAULT_TARGET.labelId,
-  }
+function legacyLabelIdToStockId(labelId?: string): string | undefined {
+  if (labelId === '40x20') return DEFAULT_STOCK_ID
+  if (labelId === '50x30') return '50x30-rounded'
+  return undefined
 }

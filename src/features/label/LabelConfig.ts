@@ -1,4 +1,4 @@
-import { DEFAULT_DPI, LABEL_PADDING_MM, SKIP_DEFAULT_TARGET } from './print/defaults'
+import { DEFAULT_DPI, SKIP_DEFAULT_TARGET } from './print/defaults'
 import { previewBaseWidthPx } from './print/dimensions'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
 
@@ -10,7 +10,7 @@ export const LABEL_CONFIG = {
   dimensions: {
     widthMm: SKIP_DEFAULT_TARGET.labelWidthMm,
     heightMm: SKIP_DEFAULT_TARGET.labelHeightMm,
-    paddingMm: LABEL_PADDING_MM,
+    paddingMm: SKIP_DEFAULT_TARGET.paddingMm,
   },
   ui: {
     baseContainerWidthPx: previewBaseWidthPx(resolvePrintTarget({})),

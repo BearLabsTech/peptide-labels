@@ -1,22 +1,27 @@
-import { forwardRef } from 'react'
+import { forwardRef, type CSSProperties } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import type { LabelRenderModel } from './LabelComposer'
+import { labelContentStyle, labelStickerStyle } from './print/labelSurfaceStyle'
 import { previewBaseWidthPx } from './print/dimensions'
 import type { PrintTarget } from './print/types'
 import { pxToCqw } from './Scaling'
 import './LabelPreview.css'
 
-export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel; printTarget: PrintTarget }>(
-  ({ model, printTarget }, ref) => {
+export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel; printTarget: PrintTarget; style?: CSSProperties }>(
+  ({ model, printTarget, style }, ref) => {
     const hasBody = !!model.demotedTitle || model.reconstitutionLines.length > 0 || model.protocolLines.length > 0 || model.sourceLines.length > 0;
     const baseWidthPx = previewBaseWidthPx(printTarget)
 
     return (
       <div
         ref={ref}
-        className="label-preview-container"
-        style={{ aspectRatio: `${printTarget.labelWidthMm} / ${printTarget.labelHeightMm}` }}
+        className="label-sticker"
+        style={{ ...labelStickerStyle(printTarget), ...style }}
       >
+        <div
+          className="label-preview-container"
+          style={labelContentStyle(printTarget)}
+        >
         {model.customImage && (
           <div className="label-left-column">
             <img src={model.customImage} className="label-mascot-image" alt="Mascot" />
@@ -24,6 +29,7 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
         )}
 
         <div className="label-center-column">
+          <div className="label-center-stack">
 
           <div className="label-title-area">
             {model.isDangerMode ? (
@@ -36,7 +42,7 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
               </div>
             ) : (
               <div className="label-preview-title" style={{ fontSize: pxToCqw(model.titleFontSizePx, baseWidthPx) }}>
-                {model.title.split('\n').map((line, i) => <div key={i}>{line}</div>)}
+                {model.titleLines.map((line, i) => <div key={i}>{line}</div>)}
               </div>
             )}
           </div>
@@ -51,8 +57,16 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
               )}
 
               {model.reconstitutionLines.length > 0 && (
-                <div className="label-preview-box">
-                  <div className="label-preview-section-label">RECONSTITUTION</div>
+                <div
+                  className="label-preview-box"
+                  style={{ fontSize: pxToCqw(model.bodyFontSizePx, baseWidthPx) }}
+                >
+                  <div
+                    className="label-preview-section-label"
+                    style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.55, baseWidthPx) }}
+                  >
+                    RECONSTITUTION
+                  </div>
                   {model.reconstitutionLines.map((l, i) => (
                     <div key={i} className="label-preview-section-text" style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.82, baseWidthPx) }}>{l}</div>
                   ))}
@@ -60,8 +74,16 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
               )}
 
               {model.protocolLines.length > 0 && (
-                <div className="label-preview-box">
-                  <div className="label-preview-section-label">PROTOCOL</div>
+                <div
+                  className="label-preview-box"
+                  style={{ fontSize: pxToCqw(model.bodyFontSizePx, baseWidthPx) }}
+                >
+                  <div
+                    className="label-preview-section-label"
+                    style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.55, baseWidthPx) }}
+                  >
+                    PROTOCOL
+                  </div>
                   {model.protocolLines.map((l, i) => (
                     <div key={i} className="label-preview-section-text" style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.82, baseWidthPx) }}>{l}</div>
                   ))}
@@ -69,8 +91,16 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
               )}
 
               {model.sourceLines.length > 0 && (
-                <div className="label-preview-box">
-                  <div className="label-preview-section-label">SOURCE</div>
+                <div
+                  className="label-preview-box"
+                  style={{ fontSize: pxToCqw(model.bodyFontSizePx, baseWidthPx) }}
+                >
+                  <div
+                    className="label-preview-section-label"
+                    style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.55, baseWidthPx) }}
+                  >
+                    SOURCE
+                  </div>
                   {model.sourceLines.map((l, i) => (
                     <div key={i} className="label-preview-section-text" style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.82, baseWidthPx) }}>{l}</div>
                   ))}
@@ -79,6 +109,7 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
             </div>
           )}
 
+          </div>
         </div>
 
         {model.qrCodes.length > 0 && (
@@ -93,6 +124,7 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
             ))}
           </div>
         )}
+        </div>
       </div>
     )
   }

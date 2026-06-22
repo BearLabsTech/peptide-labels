@@ -17,13 +17,13 @@ export interface LabelStageProps {
 }
 
 export function LabelStage({ model, printTarget, compoundName, isExampleMode, onChangePrintSetup }: LabelStageProps) {
-    const stageRef = useRef<HTMLDivElement>(null)
+    const labelRef = useRef<HTMLDivElement>(null)
 
     async function downloadLabel() {
-        if (!stageRef.current || isExampleMode) return
+        if (!labelRef.current || isExampleMode) return
 
         const exportSpec = buildExportSpec(printTarget)
-        const dataUrl = await toPng(stageRef.current, {
+        const dataUrl = await toPng(labelRef.current, {
             canvasWidth: exportSpec.canvasWidthPx,
             canvasHeight: exportSpec.canvasHeightPx,
             pixelRatio: exportSpec.pixelRatio,
@@ -37,17 +37,17 @@ export function LabelStage({ model, printTarget, compoundName, isExampleMode, on
     return (
         <div className="stage-panel">
             <PrintTargetBanner printTarget={printTarget} onChange={onChangePrintSetup} />
-            <div
-                className="stage-wrapper"
-                ref={stageRef}
-                style={{
-                    opacity: isExampleMode ? 0.4 : 1,
-                    transition: 'opacity 0.3s ease',
-                    pointerEvents: isExampleMode ? 'none' : 'auto',
-                    aspectRatio: `${printTarget.labelWidthMm} / ${printTarget.labelHeightMm}`,
-                }}
-            >
-                <LabelPreview model={model} printTarget={printTarget} />
+            <div className="label-stage-mat">
+                <LabelPreview
+                    ref={labelRef}
+                    model={model}
+                    printTarget={printTarget}
+                    style={{
+                        opacity: isExampleMode ? 0.4 : 1,
+                        transition: 'opacity 0.3s ease',
+                        pointerEvents: isExampleMode ? 'none' : 'auto',
+                    }}
+                />
             </div>
             <DownloadButton onClick={downloadLabel} disabled={isExampleMode} />
         </div>

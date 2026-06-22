@@ -26,6 +26,7 @@ Keep **value-led, customer-facing** narrative (why + what). Do not turn the FRD 
 ## Scope
 
 - **FRD:** what the product does and will do.
+- **Tech debt / known issues:** [docs/TECH-DEBT.md](../../docs/TECH-DEBT.md) via `future-work-tracking.mdc` (not FRD Planned).
 - **Copy/compliance:** [docs/COPY-GUIDELINES.md](../../docs/COPY-GUIDELINES.md) via `terminology-compliance.mdc`.
 - **Technical how-to:** other `.cursor/rules/` files (architecture, thermal export, tests, etc.).
 

@@ -14,8 +14,8 @@ describe('exportSpec', () => {
     })
   })
 
-  it('should match B21 explicit selection to 320x160 canvas', () => {
-    const target = resolvePrintTarget({ printerId: 'niimbot-b21', labelId: '40x20' })
+  it('should match B21 printer selection to 320x160 canvas at 203 DPI', () => {
+    const target = resolvePrintTarget({ printerId: 'niimbot-b21', stockId: '40x20-rounded' })
     expect(buildExportSpec(target)).toEqual({
       canvasWidthPx: 320,
       canvasHeightPx: 160,
@@ -24,11 +24,21 @@ describe('exportSpec', () => {
     })
   })
 
-  it('should match M2 explicit selection to 472x236 canvas', () => {
-    const target = resolvePrintTarget({ printerId: 'niimbot-m2', labelId: '40x20' })
+  it('should match M2 explicit selection to 472x236 canvas at 300 DPI', () => {
+    const target = resolvePrintTarget({ printerId: 'niimbot-m2', stockId: '40x20-rounded' })
     expect(buildExportSpec(target)).toEqual({
       canvasWidthPx: 472,
       canvasHeightPx: 236,
+      pixelRatio: 1,
+      dpi: 300,
+    })
+  })
+
+  it('should match 50x30 rounded stock at 300 DPI without printer to 591x354 canvas', () => {
+    const target = resolvePrintTarget({ stockId: '50x30-rounded' })
+    expect(buildExportSpec(target)).toEqual({
+      canvasWidthPx: 591,
+      canvasHeightPx: 354,
       pixelRatio: 1,
       dpi: 300,
     })
@@ -44,7 +54,9 @@ describe('exportSpec', () => {
   it('should align preview base width with export canvas width', () => {
     const cases = [
       resolvePrintTarget({}),
-      resolvePrintTarget({ printerId: 'niimbot-b21', labelId: '40x20' }),
+      resolvePrintTarget({ printerId: 'niimbot-b21', stockId: '40x20-rounded' }),
+      resolvePrintTarget({ stockId: '50x30-rounded' }),
+      resolvePrintTarget({ stockId: '40x20-rect' }),
       resolvePrintTarget({ widthMm: 50, heightMm: 30 }),
     ]
     for (const target of cases) {

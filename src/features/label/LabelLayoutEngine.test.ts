@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { LabelLayoutEngine } from './LabelLayoutEngine'
+import { mmToPx } from './print/dimensions'
 
 describe('LabelLayoutEngine', () => {
-
     it('itShouldReturnSameLinesWhenTheyAlreadyFit', () => {
         const engine = new LabelLayoutEngine(300)
 
@@ -56,7 +56,6 @@ describe('LabelLayoutEngine', () => {
             heightMm: 20
         })
 
-        // UPDATED: Now testing against our new 26px ceiling
         expect(result.fontSizePx).toBeLessThan(26)
     })
 
@@ -78,4 +77,41 @@ describe('LabelLayoutEngine', () => {
         expect(narrow.wrappedLines.length).toBeGreaterThan(wide.wrappedLines.length)
     })
 
+    it('itShouldShrinkBoxedBodyFontWhenSectionsOverflow', () => {
+        const engine = new LabelLayoutEngine(300)
+        const labelWidthPx = mmToPx(40, 300)
+
+        const result = engine.layoutBoxedBody({
+            boxes: [
+                { lines: ['2 BAC Water', '10mg per ml', 'Mixed 20260621'] },
+                { lines: ['10 units (1mg)', 'Weekly'] },
+                { lines: ['Vendor: Test Labs', 'Lot: TEST01'] },
+            ],
+            widthMm: 14,
+            heightMm: 8,
+            labelWidthPx,
+        })
+
+        expect(result.fontSizePx).toBeLessThan(26)
+    })
+
+    it('itShouldShrinkBoldTitleToFitCenterColumnWidth', () => {
+        const engine = new LabelLayoutEngine(203)
+        const innerMm = 38
+        const centerWidthMm = Math.max(1, innerMm * (1 - 0.2 - 0.38) - 2) * 0.92
+
+        const result = engine.layout({
+            lines: ['TEST COMPOUND 20MG'],
+            widthMm: centerWidthMm,
+            heightMm: 18,
+            charWidthEm: 0.95,
+            widthSafety: 0.92,
+        })
+
+        const widthPx = mmToPx(centerWidthMm, 203) * 0.92
+        const tokens = result.wrappedLines.flatMap((line) => line.split(' '))
+        const longestPx = Math.max(...tokens.map((word) => word.length * result.fontSizePx * 0.95))
+        expect(longestPx).toBeLessThanOrEqual(widthPx)
+        expect(result.fontSizePx).toBeLessThan(26)
+    })
 })

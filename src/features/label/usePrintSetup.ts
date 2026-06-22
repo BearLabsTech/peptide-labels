@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { PrintSetupSelection } from './print/types'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
-import { loadPrintSetup, savePrintSetup } from './print/printStorage'
+import { loadPrintSetup, normalizePrintSetup, savePrintSetup } from './print/printStorage'
 
 export function usePrintSetup() {
-  const [selection, setSelection] = useState<PrintSetupSelection>(() => loadPrintSetup() ?? {})
+  const [selection, setSelection] = useState<PrintSetupSelection>(() =>
+    normalizePrintSetup(loadPrintSetup() ?? {}),
+  )
   const [setupOpen, setSetupOpen] = useState(false)
 
   const printTarget = useMemo(() => resolvePrintTarget(selection), [selection])

@@ -1,23 +1,62 @@
-import type { LabelSize, Printer, VialRecommendation } from './types'
+import type { LabelStock, Printer, VialRecommendation } from './types'
 
-const LABEL_40X20: LabelSize = {
-  id: '40x20',
-  name: '40 × 20 mm',
+const STOCK_40X20_ROUNDED: LabelStock = {
+  id: '40x20-rounded',
+  name: '40 × 20 mm — rounded',
+  dimensionId: '40x20',
   widthMm: 40,
   heightMm: 20,
+  shape: 'rounded',
+  cornerRadiusMm: 1.2,
+  paddingMm: 0.5,
   printerIds: ['niimbot-b21', 'niimbot-m2', 'niimbot-b21-pro'],
 }
 
-const LABEL_50X30: LabelSize = {
-  id: '50x30',
-  name: '50 × 30 mm',
+const STOCK_40X20_RECT: LabelStock = {
+  id: '40x20-rect',
+  name: '40 × 20 mm — rectangular',
+  dimensionId: '40x20',
+  widthMm: 40,
+  heightMm: 20,
+  shape: 'rectangular',
+  cornerRadiusMm: 0,
+  paddingMm: 1,
+  printerIds: ['niimbot-b21', 'niimbot-m2', 'niimbot-b21-pro'],
+}
+
+const STOCK_50X30_ROUNDED: LabelStock = {
+  id: '50x30-rounded',
+  name: '50 × 30 mm — rounded',
+  dimensionId: '50x30',
   widthMm: 50,
   heightMm: 30,
+  shape: 'rounded',
+  cornerRadiusMm: 1.5,
+  paddingMm: 0.5,
   printerIds: ['niimbot-b21', 'niimbot-m2', 'niimbot-b21-pro'],
 }
 
+const STOCK_50X30_RECT: LabelStock = {
+  id: '50x30-rect',
+  name: '50 × 30 mm — rectangular',
+  dimensionId: '50x30',
+  widthMm: 50,
+  heightMm: 30,
+  shape: 'rectangular',
+  cornerRadiusMm: 0,
+  paddingMm: 1,
+  printerIds: ['niimbot-b21', 'niimbot-m2', 'niimbot-b21-pro'],
+}
+
+export const DEFAULT_STOCK_ID = STOCK_40X20_ROUNDED.id
+
 export const PRINT_CATALOG = {
-  labels: [LABEL_40X20, LABEL_50X30] as const satisfies readonly LabelSize[],
+  stocks: [
+    STOCK_40X20_ROUNDED,
+    STOCK_40X20_RECT,
+    STOCK_50X30_ROUNDED,
+    STOCK_50X30_RECT,
+  ] as const satisfies readonly LabelStock[],
   printers: [
     {
       id: 'niimbot-b21',
@@ -39,10 +78,10 @@ export const PRINT_CATALOG = {
     },
   ] as const satisfies readonly Printer[],
   vialRecommendations: [
-    { vialMl: 3, labelId: '40x20', rank: 1 },
-    { vialMl: 3, labelId: '50x30', rank: 2 },
-    { vialMl: 10, labelId: '50x30', rank: 1 },
-    { vialMl: 10, labelId: '40x20', rank: 2 },
+    { vialMl: 3, stockId: '40x20-rounded', rank: 1 },
+    { vialMl: 3, stockId: '50x30-rounded', rank: 2 },
+    { vialMl: 10, stockId: '50x30-rounded', rank: 1 },
+    { vialMl: 10, stockId: '40x20-rounded', rank: 2 },
   ] satisfies readonly VialRecommendation[],
 } as const
 
@@ -50,6 +89,6 @@ export function getPrinterById(id: string): Printer | undefined {
   return PRINT_CATALOG.printers.find((p) => p.id === id)
 }
 
-export function getLabelById(id: string): LabelSize | undefined {
-  return PRINT_CATALOG.labels.find((l) => l.id === id)
+export function getStockById(id: string): LabelStock | undefined {
+  return PRINT_CATALOG.stocks.find((s) => s.id === id)
 }

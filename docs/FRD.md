@@ -84,7 +84,11 @@ An optional **logo** sits beside the text so shared group buys or your own stash
 
 Thermal printers need **sharp black and white**, not subtle grays from a screen capture. Export produces a **monochrome PNG** sized to your selected label dimensions, with physical size metadata embedded for import into apps like Niimbot.
 
-**Print setup** at the top of the sidebar lets you optionally choose a printer model, vial size, and label size—or skip and use the default **40 × 20 mm** footprint at high resolution (300 DPI). The preview banner shows your active label size at a glance; export, preview scaling, and layout all follow the same print target.
+**Print setup** at the top of the sidebar lets you optionally choose a printer model, vial size, and **label stock**—rounded or rectangular rolls in common sizes—or skip and use the default **40 × 20 mm rounded** stock. The live preview is **what you print**: same padding, corner shape, and dimensions as the downloaded PNG.
+
+When you **select a printer**, export resolution matches that device’s native DPI (for example **203 DPI** on Niimbot B21, **300 DPI** on M2). With no printer selected, export stays at **300 DPI** so high-resolution printers and import apps get a sharp file. Label **stock** (not the printer alone) drives corner shape and padding.
+
+The preview banner shows your active label size and corner shape at a glance. Padding is tighter on **rounded** stock because Niimbot already insets rounded templates.
 
 The download name reflects your compound when you have named one, so saved files are easy to find later.
 
@@ -126,9 +130,9 @@ The landing page will include an optional way to **contribute** if the app has b
 
 ### User-selected label size
 
-Today’s export assumes one label footprint matched to common **3 ml** stock on Niimbot-class printers. In practice, **thermal printers and adhesive stock vary**: the sticker that fits a 3 ml vial on one device may not match another maker’s rolls.
+Today you can pick from catalog **label stock** (rounded or rectangular rolls in common sizes) or enter custom width and height.
 
-Rather than shipping a new fixed size every time someone’s printer differs, the product will let you **choose label dimensions** (width and height) that match what you actually load in the printer. Preview and export will follow your selection so the PNG you download matches real stock—not a single hard-coded profile per vial size.
+In practice, **thermal printers and adhesive stock still vary** beyond what the catalog lists today. The product will expand stock profiles and make dimension choice clearer as more rolls are validated on real hardware.
 
 ---
 
@@ -165,6 +169,16 @@ The current layout prioritizes readability on the smallest labels with a consist
 Beyond the single layout in **Today**, the product will offer **additional templates**—alternative arrangements of the same information (hierarchy, spacing, which blocks dominate visually) that you pick before or while designing. New templates will respect the same calculator, compliance, and print-target rules; they change **presentation**, not the underlying math or data model.
 
 *Benefits from flexible label sizes and a stable layout engine; more work per template than section styling alone.*
+
+---
+
+### Compound name as the primary read
+
+On labels with reconstitution, protocol, and source filled in, the **compound name can disappear into the same visual weight as the section blocks**—readable, but not clearly the first thing you see on the vial. That undermines the main job of the sticker: **instant identity** at a glance.
+
+The product needs a **layout design** (not just a font-size tweak) that keeps the compound name **primary**: stronger hierarchy, dedicated space, or a template treatment so “what is this?” reads before the supporting boxes. Any approach must still fit **40 × 20 mm** stock with logo and QR when those are on, and stay aligned with preview = export.
+
+*Deferred — design first, then implement. Related: section styling options, additional label templates; compound name casing tracked separately in [TECH-DEBT.md](./TECH-DEBT.md).*
 
 ---
 

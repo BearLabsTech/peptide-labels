@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { AccordionSection, TextInput } from './FormInputs'
 import { filterCatalog } from '../print/PrintCatalogFilter'
-import { PRINT_CATALOG } from '../print/printCatalog'
-import type { PrintSetupSelection, Printer, LabelSize } from '../print/types'
+import { DEFAULT_STOCK_ID, getStockById } from '../print/printCatalog'
+import type { PrintSetupSelection, Printer, LabelStock } from '../print/types'
 
 const inputStyle = {
   width: '100%',
@@ -23,21 +23,20 @@ export interface PrintSetupSectionProps {
 
 export function PrintSetupSection({ selection, onChange, defaultOpen = true }: PrintSetupSectionProps) {
   const filtered = useMemo(() => filterCatalog(selection), [selection])
-  const useCustomSize = selection.widthMm != null && selection.heightMm != null
+  const useCustomSize = selection.widthMm != null && selection.heightMm != null && !selection.stockId
 
   function update(partial: Partial<PrintSetupSelection>) {
     onChange({ ...selection, ...partial })
   }
 
-  function selectCatalogLabel(labelId: string) {
-    update({ labelId, widthMm: undefined, heightMm: undefined })
+  function selectCatalogStock(stockId: string) {
+    update({ stockId, labelId: undefined, widthMm: undefined, heightMm: undefined })
   }
 
   function enableCustomSize() {
-    const current = selection.labelId
-      ? PRINT_CATALOG.labels.find((l) => l.id === selection.labelId)
-      : undefined
+    const current = selection.stockId ? getStockById(selection.stockId) : undefined
     update({
+      stockId: undefined,
       labelId: undefined,
       widthMm: current?.widthMm ?? 40,
       heightMm: current?.heightMm ?? 20,
@@ -56,7 +55,7 @@ export function PrintSetupSection({ selection, onChange, defaultOpen = true }: P
           onChange={(e) => update({ printerId: e.target.value || undefined })}
           style={{ ...inputStyle, cursor: 'pointer' }}
         >
-          <option value="">Default (300 DPI)</option>
+          <option value="">Default (300 DPI export)</option>
           {filtered.printers.map((p: Printer) => (
             <option key={p.id} value={p.id}>{p.name}</option>
           ))}
@@ -80,18 +79,20 @@ export function PrintSetupSection({ selection, onChange, defaultOpen = true }: P
       {!useCustomSize ? (
         <div style={{ marginBottom: 16 }}>
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
-            Label size
+            Label stock
           </label>
           <select
-            value={selection.labelId ?? '40x20'}
-            onChange={(e) => selectCatalogLabel(e.target.value)}
+            value={selection.stockId ?? DEFAULT_STOCK_ID}
+            onChange={(e) => selectCatalogStock(e.target.value)}
             style={{ ...inputStyle, cursor: 'pointer' }}
           >
-            {filtered.labels.map((label: LabelSize) => {
-              const recommended = filtered.recommendedLabelIds.includes(label.id)
+            {filtered.stocks.map((stock: LabelStock) => {
+              const recommended = filtered.recommendedStockIds.includes(stock.id)
+              const isDefault = stock.id === DEFAULT_STOCK_ID
+              const suffix = recommended ? ' — recommended' : isDefault ? ' — default' : ''
               return (
-                <option key={label.id} value={label.id}>
-                  {label.name}{recommended ? ' — recommended' : ''}
+                <option key={stock.id} value={stock.id}>
+                  {stock.name}{suffix}
                 </option>
               )
             })}
@@ -120,7 +121,7 @@ export function PrintSetupSection({ selection, onChange, defaultOpen = true }: P
               <TextInput
                 label="Width (mm)"
                 value={String(selection.widthMm ?? '')}
-                onChange={(v) => update({ widthMm: Number(v) || undefined, labelId: undefined })}
+                onChange={(v) => update({ widthMm: Number(v) || undefined, stockId: undefined, labelId: undefined })}
                 placeholder="40"
               />
             </div>
@@ -128,14 +129,17 @@ export function PrintSetupSection({ selection, onChange, defaultOpen = true }: P
               <TextInput
                 label="Height (mm)"
                 value={String(selection.heightMm ?? '')}
-                onChange={(v) => update({ heightMm: Number(v) || undefined, labelId: undefined })}
+                onChange={(v) => update({ heightMm: Number(v) || undefined, stockId: undefined, labelId: undefined })}
                 placeholder="20"
               />
             </div>
           </div>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '0 0 12px' }}>
+            Custom size uses rectangular corners and standard padding.
+          </p>
           <button
             type="button"
-            onClick={() => selectCatalogLabel('40x20')}
+            onClick={() => selectCatalogStock(DEFAULT_STOCK_ID)}
             style={{
               marginBottom: 16,
               background: 'none',
@@ -147,7 +151,7 @@ export function PrintSetupSection({ selection, onChange, defaultOpen = true }: P
               textDecoration: 'underline',
             }}
           >
-            Use catalog sizes
+            Use catalog label stock
           </button>
         </>
       )}

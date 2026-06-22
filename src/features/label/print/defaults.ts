@@ -1,15 +1,21 @@
+import { DEFAULT_STOCK_ID, getStockById } from './printCatalog'
 import type { PrintTarget } from './types'
 
 export const DEFAULT_DPI = 300
-export const LABEL_PADDING_MM = 2
 
-export const SKIP_DEFAULT_LABEL_ID = '40x20'
+/** Custom mm entry when no catalog stock is selected. */
+export const CUSTOM_STOCK_PADDING_MM = 1
+
+const defaultStock = getStockById(DEFAULT_STOCK_ID)!
 
 export const SKIP_DEFAULT_TARGET: PrintTarget = {
-  labelWidthMm: 40,
-  labelHeightMm: 20,
+  labelWidthMm: defaultStock.widthMm,
+  labelHeightMm: defaultStock.heightMm,
   effectiveDpi: DEFAULT_DPI,
-  paddingMm: LABEL_PADDING_MM,
-  labelId: SKIP_DEFAULT_LABEL_ID,
+  paddingMm: defaultStock.paddingMm,
+  shape: defaultStock.shape,
+  cornerRadiusMm: defaultStock.cornerRadiusMm,
+  stockId: defaultStock.id,
+  dimensionId: defaultStock.dimensionId,
   vialMl: 3,
 }

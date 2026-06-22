@@ -1,11 +1,12 @@
 import type { LabelModelInput } from './labelModel'
-import { LabelLayoutEngine } from './LabelLayoutEngine'
+import { LabelLayoutEngine, type BoxedSection } from './LabelLayoutEngine'
 import { resolveLabelMath } from './LabelMathResolver'
+import { mmToPx } from './print/dimensions'
 import type { PrintTarget } from './print/types'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
 
 export interface LabelRenderModel {
-  wrappedLines: string[]; titleFontSizePx: number; bodyFontSizePx: number;
+  wrappedLines: string[]; titleLines: string[]; titleFontSizePx: number; bodyFontSizePx: number;
   title: string; demotedTitle?: string; protocolLines: string[];
   reconstitutionLines: string[]; sourceLines: string[];
   qrCodes: { type: string, url: string }[]; customImage?: string; isDangerMode: boolean;
@@ -14,6 +15,10 @@ export interface LabelRenderModel {
 /** Match `LabelPreview.css` fractional widths (flex row: left / center:flex / right). */
 const LEFT_COLUMN_WIDTH_FRAC = 0.2
 const RIGHT_COLUMN_WIDTH_FRAC = 0.38
+/** Bold uppercase title (`font-weight: 900`) — Arial caps run ~0.95em per character. */
+const TITLE_CHAR_WIDTH_EM = 0.95
+const TITLE_WIDTH_SAFETY = 0.92
+const TITLE_WIDTH_FRAC = 0.92
 
 export class LabelComposer {
   private readonly layoutEngine: LabelLayoutEngine
@@ -41,21 +46,115 @@ export class LabelComposer {
     const hasBody = recLines.length > 0 || proLines.length > 0 || srcLines.length > 0 || !!demotedTitle;
     const isDanger = !!input.isUntested;
 
-    const baseWidthMm = this.usableWidthMm(!!input.customImage, qrCodes.length > 0) * 0.90;
-    const titleWidthMm = isDanger ? (baseWidthMm * 0.65) : baseWidthMm;
+    const hasLeft = !!input.customImage
+    const hasRight = qrCodes.length > 0
+    const centerColumnMm = this.centerColumnWidthMm(hasLeft, hasRight)
+    const baseWidthMm = centerColumnMm * TITLE_WIDTH_FRAC
+    const titleWidthMm = isDanger ? (centerColumnMm * 0.65) : (centerColumnMm * TITLE_WIDTH_FRAC)
+    const innerHeightMm = this.usableHeightMm();
+    const labelWidthPx = mmToPx(this.printTarget.labelWidthMm, this.printTarget.effectiveDpi);
+    const titleBodyGapMm = this.printTarget.paddingMm;
 
-    // FIX: Reduced title height ratio from 40% to 30% when a body is present 
-    // to give the layout engine more conservative boundaries
-    const titleHeightWeight = !hasBody ? 1.0 : (isDanger ? 0.35 : 0.30);
+    const boxes: BoxedSection[] = [
+      ...(recLines.length > 0 ? [{ lines: recLines }] : []),
+      ...(proLines.length > 0 ? [{ lines: proLines }] : []),
+      ...(srcLines.length > 0 ? [{ lines: srcLines }] : []),
+    ];
 
-    const titleLayout = this.layoutEngine.layout({ lines: title.split('\n'), widthMm: titleWidthMm, heightMm: this.usableHeightMm() * titleHeightWeight });
-    const bodyLayout = this.layoutEngine.layout({ lines: [...(demotedTitle ? [demotedTitle] : []), ...recLines, ...proLines, ...srcLines], widthMm: baseWidthMm, heightMm: this.usableHeightMm() * (!hasBody ? 0 : (1.0 - titleHeightWeight)) });
+    if (!hasBody) {
+      const titleLayout = this.layoutEngine.layout({
+        lines: title.split('\n').map((line) => line.toUpperCase()),
+        widthMm: titleWidthMm,
+        heightMm: innerHeightMm,
+        charWidthEm: TITLE_CHAR_WIDTH_EM,
+        widthSafety: TITLE_WIDTH_SAFETY,
+      });
+      return {
+        wrappedLines: titleLayout.wrappedLines,
+        titleLines: titleLayout.wrappedLines,
+        titleFontSizePx: titleLayout.fontSizePx,
+        bodyFontSizePx: titleLayout.fontSizePx,
+        title, demotedTitle, sourceLines: srcLines, protocolLines: proLines, reconstitutionLines: recLines,
+        qrCodes, customImage: input.customImage, isDangerMode: isDanger,
+      };
+    }
+
+    const titleHeightWeight = isDanger ? 0.35 : 0.30;
+    const titleLinesUpper = title.split('\n').map((line) => line.toUpperCase());
+    const titleInput = {
+      lines: titleLinesUpper,
+      widthMm: titleWidthMm,
+      heightMm: innerHeightMm * titleHeightWeight,
+      charWidthEm: TITLE_CHAR_WIDTH_EM,
+      widthSafety: TITLE_WIDTH_SAFETY,
+    };
+
+    let titleLayout = this.layoutEngine.layout(titleInput);
+    let bodyLayout = this.layoutEngine.layoutBoxedBody({
+      boxes,
+      demotedLine: demotedTitle,
+      widthMm: baseWidthMm,
+      heightMm: this.remainingBodyHeightMm(innerHeightMm, titleLayout, titleBodyGapMm),
+      labelWidthPx,
+    });
+
+    for (let font = Math.min(titleLayout.fontSizePx, bodyLayout.fontSizePx); font >= 8; font--) {
+      const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, font);
+      if (!titleAttempt) continue;
+
+      const bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleAttempt, titleBodyGapMm);
+      const bodyInput = {
+        boxes,
+        demotedLine: demotedTitle,
+        widthMm: baseWidthMm,
+        heightMm: bodyHeightMm,
+        labelWidthPx,
+      };
+
+      if (
+        this.layoutEngine.sectionLabelsFitBoxWidth(baseWidthMm, font) &&
+        this.layoutEngine.estimateCenterStackHeightPx(
+          titleAttempt.wrappedLines.length,
+          font,
+          titleBodyGapMm,
+          bodyInput,
+          font,
+        ) <= mmToPx(innerHeightMm, this.printTarget.effectiveDpi)
+      ) {
+        titleLayout = titleAttempt;
+        bodyLayout = {
+          fontSizePx: font,
+          wrappedLines: this.layoutEngine.layoutBoxedBody(bodyInput).wrappedLines,
+        };
+        break;
+      }
+
+      if (font === 8) {
+        titleLayout = titleAttempt;
+        bodyLayout = this.layoutEngine.layoutBoxedBody(bodyInput);
+      }
+    }
 
     return {
       wrappedLines: [...titleLayout.wrappedLines, ...bodyLayout.wrappedLines],
-      titleFontSizePx: titleLayout.fontSizePx, bodyFontSizePx: isDanger ? (bodyLayout.fontSizePx * 0.8) : bodyLayout.fontSizePx,
-      title, demotedTitle, sourceLines: srcLines, protocolLines: proLines, reconstitutionLines: recLines, qrCodes, customImage: input.customImage, isDangerMode: isDanger
+      titleLines: titleLayout.wrappedLines,
+      titleFontSizePx: titleLayout.fontSizePx,
+      bodyFontSizePx: isDanger ? (bodyLayout.fontSizePx * 0.8) : bodyLayout.fontSizePx,
+      title, demotedTitle, sourceLines: srcLines, protocolLines: proLines, reconstitutionLines: recLines,
+      qrCodes, customImage: input.customImage, isDangerMode: isDanger,
     }
+  }
+
+  private remainingBodyHeightMm(
+    innerHeightMm: number,
+    titleLayout: { wrappedLines: string[]; fontSizePx: number },
+    titleBodyGapMm: number,
+  ): number {
+    const innerPx = mmToPx(innerHeightMm, this.printTarget.effectiveDpi)
+    const titlePx = this.layoutEngine.estimateTitleHeightPx(titleLayout.wrappedLines.length, titleLayout.fontSizePx)
+    const gapPx = mmToPx(titleBodyGapMm, this.printTarget.effectiveDpi)
+    const remainingPx = Math.max(0, innerPx - titlePx - gapPx)
+    return (remainingPx * 25.4) / this.printTarget.effectiveDpi
   }
 
   private formatDate(dateStr: string | undefined, format: string = 'YYYYMMDD'): string {
@@ -142,12 +241,15 @@ export class LabelComposer {
     ].filter(qr => !!qr.url);
   }
 
-  private usableWidthMm(hasLeft: boolean, hasRight: boolean): number {
+  /** Center column mm — matches flex 20% / flex 1 / 38% minus inter-column gaps. */
+  private centerColumnWidthMm(hasLeft: boolean, hasRight: boolean): number {
     const innerMm = this.printTarget.labelWidthMm - this.printTarget.paddingMm * 2
     let centerFrac = 1.0
     if (hasLeft) centerFrac -= LEFT_COLUMN_WIDTH_FRAC
     if (hasRight) centerFrac -= RIGHT_COLUMN_WIDTH_FRAC
-    return innerMm * centerFrac
+    const gapCount = (hasLeft ? 1 : 0) + (hasRight ? 1 : 0)
+    const gapMm = this.printTarget.paddingMm * gapCount
+    return Math.max(1, innerMm * centerFrac - gapMm)
   }
 
   private usableHeightMm(): number {

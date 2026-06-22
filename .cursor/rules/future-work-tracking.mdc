@@ -1,0 +1,41 @@
+---
+description: Route deferred work to FRD (roadmap) or TECH-DEBT (bugs/fixes)
+alwaysApply: true
+---
+
+# Future work tracking
+
+When work is **deferred**, **out of scope for the current task**, or **discovered during implementation**, record it so it is not lost. Pick the right doc — do not default to chat-only notes.
+
+**Canonical sources:**
+
+- [docs/FRD.md](../../docs/FRD.md) — product roadmap (**Today** / **Planned**)
+- [docs/TECH-DEBT.md](../../docs/TECH-DEBT.md) — bugs, quality gaps, fix-up and investigation items
+
+## Decide where it goes
+
+| Track in **FRD** (Planned) | Track in **TECH-DEBT** (Open) |
+|---|---|
+| New capability users would choose or notice | Known bug or regression |
+| Intentional product direction | Existing behavior that should work but does not meet quality bar |
+| New vial size, mode, template, account layer, etc. | Print/export quality vs real hardware (padding, crispness, DPI mismatch) |
+| “We will build X later” as a feature | Refactor, cleanup, or investigation follow-up |
+| Changes **what** the product offers | Fixes **how well** shipped behavior works |
+
+**Examples:**
+
+- Landing page, calculator-only mode, 10 ml vial → **FRD** Planned
+- Export margin too large on B21, text less crisp than native Niimbot text → **TECH-DEBT**
+- Shipped print setup but missing first-run wizard polish → usually **TECH-DEBT** unless it is a committed product milestone
+
+## When unclear
+
+If the item could reasonably be **roadmap** or **fix-up**, **ask the developer** (or the user) which doc to use before adding it. Briefly state both options and your lean.
+
+Do not duplicate the same item in both docs unless the user explicitly wants both angles (rare — avoid by default).
+
+## When adding an entry
+
+- **FRD:** value-led **why + what**; match existing Planned tone (see `functional-requirements.mdc`).
+- **TECH-DEBT:** symptom, priority, status, and concrete hypotheses or files to inspect.
+- On the same change set when you **ship** the fix: move TECH-DEBT items to **Resolved**; move FRD items from **Planned** to **Today**.
