@@ -4,8 +4,8 @@ import { filterCatalog } from './PrintCatalogFilter'
 describe('PrintCatalogFilter', () => {
   it('should return all printers and stocks when no facets selected', () => {
     const result = filterCatalog({})
-    expect(result.printers.length).toBe(3)
-    expect(result.stocks.length).toBe(4)
+    expect(result.printers.length).toBe(4)
+    expect(result.stocks.length).toBe(6)
     expect(result.recommendedStockIds).toEqual([])
   })
 
@@ -20,13 +20,13 @@ describe('PrintCatalogFilter', () => {
     const result = filterCatalog({ stockId: '40x20-rounded' })
     expect(result.printers.every((p) => p.labelIds.includes('40x20'))).toBe(true)
     expect(result.printers.map((p) => p.id)).toEqual(
-      expect.arrayContaining(['niimbot-b21', 'niimbot-m2', 'niimbot-b21-pro']),
+      expect.arrayContaining(['niimbot-b21', 'niimbot-m2', 'niimbot-b21-pro', 'niimbot-b1-pro']),
     )
   })
 
   it('should rank 40x20 rounded first for 3 ml vial without removing other stocks', () => {
     const result = filterCatalog({ vialMl: 3 })
-    expect(result.stocks.length).toBe(4)
+    expect(result.stocks.length).toBe(6)
     expect(result.recommendedStockIds[0]).toBe('40x20-rounded')
   })
 

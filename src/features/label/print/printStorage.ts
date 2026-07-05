@@ -28,6 +28,11 @@ export function normalizePrintSetup(selection: PrintSetupSelection): PrintSetupS
     return { ...rest, stockId: '50x30-rounded' }
   }
 
+  if (selection.labelId === '40x30') {
+    const { labelId: _legacy, ...rest } = selection
+    return { ...rest, stockId: '40x30-rounded' }
+  }
+
   const { labelId: _legacy, ...rest } = selection
   return { ...rest, stockId: DEFAULT_STOCK_ID }
 }

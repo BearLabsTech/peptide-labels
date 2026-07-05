@@ -86,7 +86,9 @@ Thermal printers need **sharp black and white**, not subtle grays from a screen 
 
 **Print setup** at the top of the sidebar lets you optionally choose a printer model, vial size, and **label stock**—rounded or rectangular rolls in common sizes—or skip and use the default **40 × 20 mm rounded** stock. The live preview is **what you print**: same padding, corner shape, and dimensions as the downloaded PNG.
 
-When you **select a printer**, export resolution matches that device’s native DPI (for example **203 DPI** on Niimbot B21, **300 DPI** on M2). With no printer selected, export stays at **300 DPI** so high-resolution printers and import apps get a sharp file. Label **stock** (not the printer alone) drives corner shape and padding.
+When you **select a printer**, export resolution matches that device’s native DPI (for example **203 DPI** on Niimbot B21, **300 DPI** on M2, B21 Pro, and B1 Pro). With no printer selected, export stays at **300 DPI** so high-resolution printers and import apps get a sharp file. Label **stock** (not the printer alone) drives corner shape and padding.
+
+The print catalog includes **Niimbot B1 Pro** and **40 × 30 mm** stock (rounded and rectangular), alongside existing B21 / M2 / B21 Pro options and 40 × 20 mm and 50 × 30 mm rolls.
 
 The preview banner shows your active label size and corner shape at a glance. Padding is tighter on **rounded** stock because Niimbot already insets rounded templates.
 

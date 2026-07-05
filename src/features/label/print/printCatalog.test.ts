@@ -9,9 +9,17 @@ describe('printCatalog', () => {
   })
 
   it('should list rounded and rectangular stocks for each common size', () => {
-    expect(PRINT_CATALOG.stocks.length).toBe(4)
+    expect(PRINT_CATALOG.stocks.length).toBe(6)
     expect(getStockById('40x20-rect')?.shape).toBe('rectangular')
+    expect(getStockById('40x30-rounded')?.widthMm).toBe(40)
+    expect(getStockById('40x30-rounded')?.heightMm).toBe(30)
     expect(getStockById('50x30-rect')?.shape).toBe('rectangular')
+  })
+
+  it('should include B1 Pro at 300 DPI with 40x30 support', () => {
+    const b1Pro = PRINT_CATALOG.printers.find((p) => p.id === 'niimbot-b1-pro')
+    expect(b1Pro?.dpi).toBe(300)
+    expect(b1Pro?.labelIds).toContain('40x30')
   })
 })
 
@@ -40,6 +48,10 @@ describe('printStorage normalizePrintSetup', () => {
 
   it('should migrate legacy labelId 50x30 to rounded stock', () => {
     expect(normalizePrintSetup({ labelId: '50x30' })).toEqual({ stockId: '50x30-rounded' })
+  })
+
+  it('should migrate legacy labelId 40x30 to rounded stock', () => {
+    expect(normalizePrintSetup({ labelId: '40x30' })).toEqual({ stockId: '40x30-rounded' })
   })
 
   it('should strip legacy labelId when stockId is present', () => {

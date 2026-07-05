@@ -51,6 +51,16 @@ describe('exportSpec', () => {
     expect(spec.dpi).toBe(300)
   })
 
+  it('should match B1 Pro with 40x30 rounded stock at 300 DPI to 472x354 canvas', () => {
+    const target = resolvePrintTarget({ printerId: 'niimbot-b1-pro', stockId: '40x30-rounded' })
+    expect(buildExportSpec(target)).toEqual({
+      canvasWidthPx: 472,
+      canvasHeightPx: 354,
+      pixelRatio: 1,
+      dpi: 300,
+    })
+  })
+
   it('should align preview base width with export canvas width', () => {
     const cases = [
       resolvePrintTarget({}),
