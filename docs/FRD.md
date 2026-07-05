@@ -68,7 +68,7 @@ As with other sections, you can print the whole sourcing block or only the lines
 
 Links to certificates of analysis belong on the label when you want **one scan to verify** what you are holding. You can attach vendor, group buy, **Test Group**, and personal COA URLs, plus **two named custom COA slots** for anything else you rely on.
 
-When you provide a valid link, the label can show a **QR code** labeled for that source—Vendor COA, Group Buy COA, TG COA, My COA, or your custom names—so verification does not depend on typing a long URL from a tiny sticker.
+When you provide a valid link, the label can show a **QR code** labeled for that source—Vendor COA, Group Buy COA, TG COA, My COA, or your custom names—so verification does not depend on typing a long URL from a tiny sticker. When at least one COA link is active, you can **widen or narrow the QR column** so the center text area adjusts to match.
 
 ---
 
@@ -76,7 +76,9 @@ When you provide a valid link, the label can show a **QR code** labeled for that
 
 Dates on the label can follow **how you already think about dates**—compact numeric forms, ISO-style dashes, US or European day/month order—applied consistently wherever a date prints.
 
-An optional **logo** sits beside the text so shared group buys or your own stash are instantly recognizable on the shelf. You can remove it anytime; the label works fine without branding.
+An optional **logo** sits beside the text so shared group buys or your own stash are instantly recognizable on the shelf. When a logo is present, you can **widen or narrow its column** so the text area compresses or expands to match. When COA links are active, the **QR column** adjusts the same way. If both side columns would crowd the text, the app scales them back to keep a readable center. You can remove the logo anytime; the label works fine without branding.
+
+Typography **scales with label height**—taller stock like 40 × 30 mm uses larger type when the content allows, so bigger labels do not look under-filled.
 
 ---
 

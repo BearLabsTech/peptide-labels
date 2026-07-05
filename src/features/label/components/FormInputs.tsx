@@ -125,3 +125,30 @@ export function ToggleInput({ label, checked, onChange }: ToggleInputProps) {
         </div>
     )
 }
+
+export interface RangeInputProps {
+    label: string
+    value: number
+    onChange: (v: number) => void
+    min: number
+    max: number
+    step?: number
+    formatValue?: (v: number) => string
+}
+
+export function RangeInput({ label, value, onChange, min, max, step = 1, formatValue = (v) => String(v) }: RangeInputProps) {
+    return (
+        <div style={{ marginBottom: 16 }}>
+            <FieldHeader label={label} rightContent={formatValue(value)} />
+            <input
+                type="range"
+                min={min}
+                max={max}
+                step={step}
+                value={value}
+                onChange={(e) => onChange(Number(e.target.value))}
+                style={{ width: '100%', cursor: 'pointer' }}
+            />
+        </div>
+    )
+}

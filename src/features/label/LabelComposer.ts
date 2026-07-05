@@ -1,6 +1,9 @@
 import type { LabelModelInput } from './labelModel'
 import { LabelLayoutEngine, type BoxedSection } from './LabelLayoutEngine'
 import { resolveLabelMath } from './LabelMathResolver'
+import { buildQrCodes, type QrCodeEntry } from './coaLinks'
+import { computeColumnLayout } from './labelColumnLayout'
+import { maxFontSizePxForLabelHeight } from './labelLayoutConstants'
 import { mmToPx } from './print/dimensions'
 import type { PrintTarget } from './print/types'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
@@ -9,12 +12,11 @@ export interface LabelRenderModel {
   wrappedLines: string[]; titleLines: string[]; titleFontSizePx: number; bodyFontSizePx: number;
   title: string; demotedTitle?: string; protocolLines: string[];
   reconstitutionLines: string[]; sourceLines: string[];
-  qrCodes: { type: string, url: string }[]; customImage?: string; isDangerMode: boolean;
+  qrCodes: QrCodeEntry[]; customImage?: string; isDangerMode: boolean;
+  logoColumnWidthPercent: number;
+  qrColumnWidthPercent: number;
 }
 
-/** Match `LabelPreview.css` fractional widths (flex row: left / center:flex / right). */
-const LEFT_COLUMN_WIDTH_FRAC = 0.2
-const RIGHT_COLUMN_WIDTH_FRAC = 0.38
 /** Bold uppercase title (`font-weight: 900`) — Arial caps run ~0.95em per character. */
 const TITLE_CHAR_WIDTH_EM = 0.95
 const TITLE_WIDTH_SAFETY = 0.92
@@ -23,10 +25,12 @@ const TITLE_WIDTH_FRAC = 0.92
 export class LabelComposer {
   private readonly layoutEngine: LabelLayoutEngine
   private readonly printTarget: PrintTarget
+  private readonly maxFontSizePx: number
 
   constructor(printTarget: PrintTarget = resolvePrintTarget({})) {
     this.printTarget = printTarget
-    this.layoutEngine = new LabelLayoutEngine(printTarget.effectiveDpi)
+    this.maxFontSizePx = maxFontSizePxForLabelHeight(printTarget.labelHeightMm)
+    this.layoutEngine = new LabelLayoutEngine(printTarget.effectiveDpi, this.maxFontSizePx)
   }
 
   public compose(rawInput: LabelModelInput): LabelRenderModel {
@@ -37,18 +41,34 @@ export class LabelComposer {
     const reconstitutionLines = input.showReconstitution !== false ? this.buildReconstitutionLines(input) : [];
     const protocolLines = input.showProtocol !== false ? this.buildProtocolLines(input) : [];
 
-    const qrCodes = this.buildQrCodes(input);
+    const qrCodes = buildQrCodes(input);
 
     return this.calculateLayouts(input, title, demotedTitle, sourceLines, reconstitutionLines, protocolLines, qrCodes);
   }
 
-  private calculateLayouts(input: LabelModelInput, title: string, demotedTitle: string | undefined, srcLines: string[], recLines: string[], proLines: string[], qrCodes: any[]): LabelRenderModel {
+  private calculateLayouts(
+    input: LabelModelInput,
+    title: string,
+    demotedTitle: string | undefined,
+    srcLines: string[],
+    recLines: string[],
+    proLines: string[],
+    qrCodes: QrCodeEntry[],
+  ): LabelRenderModel {
     const hasBody = recLines.length > 0 || proLines.length > 0 || srcLines.length > 0 || !!demotedTitle;
     const isDanger = !!input.isUntested;
 
-    const hasLeft = !!input.customImage
-    const hasRight = qrCodes.length > 0
-    const centerColumnMm = this.centerColumnWidthMm(hasLeft, hasRight)
+    const hasLogo = !!input.customImage
+    const hasQr = qrCodes.length > 0
+    const columns = computeColumnLayout({
+      labelWidthMm: this.printTarget.labelWidthMm,
+      paddingMm: this.printTarget.paddingMm,
+      hasLogo,
+      hasQr,
+      logoColumnWidthPercent: input.logoColumnWidthPercent,
+      qrColumnWidthPercent: input.qrColumnWidthPercent,
+    })
+    const centerColumnMm = columns.centerWidthMm
     const baseWidthMm = centerColumnMm * TITLE_WIDTH_FRAC
     const titleWidthMm = isDanger ? (centerColumnMm * 0.65) : (centerColumnMm * TITLE_WIDTH_FRAC)
     const innerHeightMm = this.usableHeightMm();
@@ -76,6 +96,8 @@ export class LabelComposer {
         bodyFontSizePx: titleLayout.fontSizePx,
         title, demotedTitle, sourceLines: srcLines, protocolLines: proLines, reconstitutionLines: recLines,
         qrCodes, customImage: input.customImage, isDangerMode: isDanger,
+        logoColumnWidthPercent: columns.logoWidthPercent,
+        qrColumnWidthPercent: columns.qrWidthPercent,
       };
     }
 
@@ -98,7 +120,7 @@ export class LabelComposer {
       labelWidthPx,
     });
 
-    for (let font = Math.min(titleLayout.fontSizePx, bodyLayout.fontSizePx); font >= 8; font--) {
+    for (let font = Math.min(titleLayout.fontSizePx, bodyLayout.fontSizePx, this.maxFontSizePx); font >= 8; font--) {
       const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, font);
       if (!titleAttempt) continue;
 
@@ -142,6 +164,8 @@ export class LabelComposer {
       bodyFontSizePx: isDanger ? (bodyLayout.fontSizePx * 0.8) : bodyLayout.fontSizePx,
       title, demotedTitle, sourceLines: srcLines, protocolLines: proLines, reconstitutionLines: recLines,
       qrCodes, customImage: input.customImage, isDangerMode: isDanger,
+      logoColumnWidthPercent: columns.logoWidthPercent,
+      qrColumnWidthPercent: columns.qrWidthPercent,
     }
   }
 
@@ -228,28 +252,6 @@ export class LabelComposer {
       lines.push(`Mixed ${this.formatDate(input.reconstitutionDate, input.dateFormat)}`);
     }
     return lines;
-  }
-
-  private buildQrCodes(input: LabelModelInput) {
-    return [
-      { type: 'Vendor COA', url: input.vendorCoa },
-      { type: 'GB COA', url: input.groupBuyCoa },
-      { type: 'TG COA', url: input.testGroupCoa },
-      { type: 'My COA', url: input.myCoa },
-      { type: input.customCoa1Name || 'Custom 1', url: input.customCoa1Link },
-      { type: input.customCoa2Name || 'Custom 2', url: input.customCoa2Link }
-    ].filter(qr => !!qr.url);
-  }
-
-  /** Center column mm — matches flex 20% / flex 1 / 38% minus inter-column gaps. */
-  private centerColumnWidthMm(hasLeft: boolean, hasRight: boolean): number {
-    const innerMm = this.printTarget.labelWidthMm - this.printTarget.paddingMm * 2
-    let centerFrac = 1.0
-    if (hasLeft) centerFrac -= LEFT_COLUMN_WIDTH_FRAC
-    if (hasRight) centerFrac -= RIGHT_COLUMN_WIDTH_FRAC
-    const gapCount = (hasLeft ? 1 : 0) + (hasRight ? 1 : 0)
-    const gapMm = this.printTarget.paddingMm * gapCount
-    return Math.max(1, innerMm * centerFrac - gapMm)
   }
 
   private usableHeightMm(): number {

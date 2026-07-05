@@ -40,6 +40,10 @@ export interface LabelModelInput {
 
   // Media
   customImage?: string
+  /** Logo column width as percent of label inner width (15–45). Default 20. */
+  logoColumnWidthPercent?: number
+  /** COA / QR column width as percent of label inner width (25–50). Default 38. */
+  qrColumnWidthPercent?: number
 
   // Status
   isUntested?: boolean

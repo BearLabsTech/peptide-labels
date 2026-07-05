@@ -17,12 +17,13 @@
   padding: var(--label-pad, 1.25cqw);
   box-sizing: border-box;
   gap: var(--label-pad, 1.25cqw);
+  /* Side column % widths come from computeColumnLayout (labelColumnLayout.ts). */
   /* Force a blocky, standard sans-serif stack */
   font-family: Arial, Helvetica, sans-serif;
 }
 
 .label-left-column {
-  width: 20%;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -33,7 +34,7 @@
 }
 
 .label-right-column {
-  width: 38%;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;

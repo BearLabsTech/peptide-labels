@@ -23,7 +23,7 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
           style={labelContentStyle(printTarget)}
         >
         {model.customImage && (
-          <div className="label-left-column">
+          <div className="label-left-column" style={{ width: `${model.logoColumnWidthPercent}%` }}>
             <img src={model.customImage} className="label-mascot-image" alt="Mascot" />
           </div>
         )}
@@ -113,7 +113,7 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
         </div>
 
         {model.qrCodes.length > 0 && (
-          <div className="label-right-column">
+          <div className="label-right-column" style={{ width: `${model.qrColumnWidthPercent}%` }}>
             {model.qrCodes.map(qr => (
               <div key={qr.type} className="label-qr-slot">
                 <div className="label-qr-slot-graphic">

@@ -1,6 +1,9 @@
 import { TextInput, SelectInput, AccordionSection, ImageUploadInput, DateField, ToggleInput } from './FormInputs'
+import { ColumnWidthSlider } from './ColumnWidthSlider'
 import { RECONSTITUTION_TYPES } from '../peptideMath'
+import { hasCoaLinks } from '../coaLinks'
 import type { LabelModelInput } from '../labelModel'
+import { LOGO_COLUMN_WIDTH, QR_COLUMN_WIDTH } from '../labelLayoutConstants'
 import type { LabelFormHandlers } from '../useLabelForm'
 
 export interface SectionProps {
@@ -76,6 +79,14 @@ export function MediaSection({ input, updateField }: SectionProps) {
         <AccordionSection title="Personalization">
             <SelectInput label="Date Format" value={input.dateFormat || 'YYYYMMDD'} onChange={v => updateField('dateFormat', v)} options={['YYYYMMDD', 'YYYY-MM-DD', 'MM/DD/YYYY', 'DD/MM/YYYY']} />
             <ImageUploadInput label="Logo Image" currentImage={input.customImage} onChange={(b64) => updateField('customImage', b64)} />
+            {input.customImage && (
+                <ColumnWidthSlider
+                    label="Logo column width"
+                    value={input.logoColumnWidthPercent}
+                    onChange={(v) => updateField('logoColumnWidthPercent', v)}
+                    bounds={LOGO_COLUMN_WIDTH}
+                />
+            )}
         </AccordionSection>
     )
 }
@@ -99,6 +110,15 @@ export function CoaSection({ input, updateField }: SectionProps) {
                     <div style={{ flex: 2 }}><TextInput label="COA 2 Link" value={input.customCoa2Link} onChange={v => updateField('customCoa2Link', v)} placeholder="https://..." /></div>
                 </div>
             </div>
+
+            {hasCoaLinks(input) && (
+                <ColumnWidthSlider
+                    label="COA column width"
+                    value={input.qrColumnWidthPercent}
+                    onChange={(v) => updateField('qrColumnWidthPercent', v)}
+                    bounds={QR_COLUMN_WIDTH}
+                />
+            )}
         </AccordionSection>
     )
 }

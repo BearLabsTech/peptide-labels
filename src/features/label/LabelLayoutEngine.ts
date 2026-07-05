@@ -51,15 +51,20 @@ const SECTION_LABEL_LINE_HEIGHT = 1.15
 
 export class LabelLayoutEngine {
     private readonly MIN_FONT_SIZE_PX = 8;
-    private readonly INITIAL_FONT_SIZE_PX = 26;
+    private readonly maxFontSizePx: number;
     private readonly dpi: number;
 
-    constructor(dpi: number) {
+    constructor(dpi: number, maxFontSizePx = 26) {
         this.dpi = dpi;
+        this.maxFontSizePx = maxFontSizePx;
+    }
+
+    public getMaxFontSizePx(): number {
+        return this.maxFontSizePx;
     }
 
     public layout(input: LabelLayoutInput): LabelLayoutResult {
-        for (let size = this.INITIAL_FONT_SIZE_PX; size >= this.MIN_FONT_SIZE_PX; size -= 1) {
+        for (let size = this.maxFontSizePx; size >= this.MIN_FONT_SIZE_PX; size -= 1) {
             const attempt = this.tryLayoutAtSize(input, size)
             if (attempt.fits) return { wrappedLines: attempt.lines, fontSizePx: size }
         }
@@ -69,7 +74,7 @@ export class LabelLayoutEngine {
 
     /** Layout body sections as bordered boxes (matches preview DOM, not flat text). */
     public layoutBoxedBody(input: BoxedBodyLayoutInput): LabelLayoutResult {
-        for (let size = this.INITIAL_FONT_SIZE_PX; size >= this.MIN_FONT_SIZE_PX; size -= 1) {
+        for (let size = this.maxFontSizePx; size >= this.MIN_FONT_SIZE_PX; size -= 1) {
             const heightPx = this.estimateBoxedBodyHeightPx(input, size)
             const budgetPx = mmToPx(input.heightMm, this.dpi)
             if (heightPx <= budgetPx && this.sectionLabelsFitBoxWidth(input.widthMm, size)) {

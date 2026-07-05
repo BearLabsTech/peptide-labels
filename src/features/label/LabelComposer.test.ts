@@ -2,20 +2,20 @@ import { describe, it, expect } from 'vitest'
 import { LabelComposer } from './LabelComposer'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
 import { mmToPx } from './print/dimensions'
+import { computeColumnLayout } from './labelColumnLayout'
 
 const TITLE_CHAR_WIDTH_EM = 0.95
 const TITLE_WIDTH_SAFETY = 0.92
 const TITLE_WIDTH_FRAC = 0.92
-const CENTER_FRAC = 1 - 0.2 - 0.38
-
-function centerColumnWidthMm(target: ReturnType<typeof resolvePrintTarget>, hasLeft: boolean, hasRight: boolean): number {
-    const innerMm = target.labelWidthMm - target.paddingMm * 2
-    const gapCount = (hasLeft ? 1 : 0) + (hasRight ? 1 : 0)
-    return Math.max(1, innerMm * CENTER_FRAC - target.paddingMm * gapCount)
-}
 
 function centerTitleWidthPx(target: ReturnType<typeof resolvePrintTarget>): number {
-    const titleWidthMm = centerColumnWidthMm(target, true, true) * TITLE_WIDTH_FRAC
+    const columns = computeColumnLayout({
+      labelWidthMm: target.labelWidthMm,
+      paddingMm: target.paddingMm,
+      hasLogo: true,
+      hasQr: true,
+    })
+    const titleWidthMm = columns.centerWidthMm * TITLE_WIDTH_FRAC
     return mmToPx(titleWidthMm, target.effectiveDpi) * TITLE_WIDTH_SAFETY
 }
 
@@ -211,14 +211,19 @@ describe('LabelComposer', () => {
 
         const innerMm = target.labelHeightMm - target.paddingMm * 2
         const innerPx = mmToPx(innerMm, target.effectiveDpi)
-        const centerColumnMm = (target.labelWidthMm - target.paddingMm * 2) * (1 - 0.2 - 0.38) - target.paddingMm * 2
+        const columns = computeColumnLayout({
+          labelWidthMm: target.labelWidthMm,
+          paddingMm: target.paddingMm,
+          hasLogo: true,
+          hasQr: true,
+        })
         const bodyInput = {
             boxes: [
                 { lines: result.reconstitutionLines },
                 { lines: result.protocolLines },
                 { lines: result.sourceLines },
             ],
-            widthMm: centerColumnMm * 0.92,
+            widthMm: columns.centerWidthMm * 0.92,
             heightMm: innerMm,
             labelWidthPx: mmToPx(target.labelWidthMm, target.effectiveDpi),
         }
@@ -232,5 +237,76 @@ describe('LabelComposer', () => {
         )
         expect(stackPx).toBeLessThanOrEqual(innerPx)
         expect(result.bodyFontSizePx).toBeLessThan(26)
+    })
+
+    it('itShouldUseLargerFontOnTallerLabelStockWhenContentIsSparse', () => {
+        const compact = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
+        const tall = new LabelComposer(resolvePrintTarget({ stockId: '40x30-rounded' }))
+        const input = {
+            compoundName: 'Test Compound',
+            compoundAmount: '20',
+            vialUnit: 'mg' as const,
+            reconstitutionAmount: '2',
+            reconstitutionType: 'BAC Water',
+            concentration: '10mg per ml',
+        }
+        const compactResult = compact.compose(input)
+        const tallResult = tall.compose(input)
+        expect(tallResult.titleFontSizePx).toBeGreaterThan(compactResult.titleFontSizePx)
+        expect(tallResult.bodyFontSizePx).toBeGreaterThan(compactResult.bodyFontSizePx)
+    })
+
+    it('itShouldShrinkTitleFontWhenWiderLogoColumnStealsCenterWidth', () => {
+        const target = resolvePrintTarget({ stockId: '40x30-rounded' })
+        const narrowLogo = new LabelComposer(target)
+        const wideLogo = new LabelComposer(target)
+        const base = {
+            compoundName: 'Test Compound',
+            compoundAmount: '20',
+            vialUnit: 'mg' as const,
+            customImage: 'data:image/png;base64,test',
+        }
+        const narrowResult = narrowLogo.compose({ ...base, logoColumnWidthPercent: 20 })
+        const wideResult = wideLogo.compose({ ...base, logoColumnWidthPercent: 40 })
+        expect(wideResult.titleFontSizePx).toBeLessThanOrEqual(narrowResult.titleFontSizePx)
+        expect(wideResult.logoColumnWidthPercent).toBe(40)
+    })
+
+    it('itShouldShrinkTitleFontWhenWiderCoaColumnStealsCenterWidth', () => {
+        const target = resolvePrintTarget({ stockId: '40x30-rounded' })
+        const narrowQr = new LabelComposer(target)
+        const wideQr = new LabelComposer(target)
+        const base = {
+            compoundName: 'Test Compound',
+            compoundAmount: '20',
+            vialUnit: 'mg' as const,
+            vendorCoa: 'https://example.com/coa',
+        }
+        const narrowResult = narrowQr.compose({ ...base, qrColumnWidthPercent: 30 })
+        const wideResult = wideQr.compose({ ...base, qrColumnWidthPercent: 48 })
+        expect(wideResult.titleFontSizePx).toBeLessThanOrEqual(narrowResult.titleFontSizePx)
+        expect(wideResult.qrColumnWidthPercent).toBe(48)
+    })
+
+    it('itShouldExposeResolvedColumnPercentsMatchingComputeColumnLayout', () => {
+        const target = resolvePrintTarget({ stockId: '40x30-rounded' })
+        const composer = new LabelComposer(target)
+        const result = composer.compose({
+            compoundName: 'Test',
+            customImage: 'data:image/png;base64,test',
+            vendorCoa: 'https://example.com/coa',
+            logoColumnWidthPercent: 25,
+            qrColumnWidthPercent: 40,
+        })
+        const expected = computeColumnLayout({
+            labelWidthMm: target.labelWidthMm,
+            paddingMm: target.paddingMm,
+            hasLogo: true,
+            hasQr: true,
+            logoColumnWidthPercent: 25,
+            qrColumnWidthPercent: 40,
+        })
+        expect(result.logoColumnWidthPercent).toBe(expected.logoWidthPercent)
+        expect(result.qrColumnWidthPercent).toBe(expected.qrWidthPercent)
     })
 })
