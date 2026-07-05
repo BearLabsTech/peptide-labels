@@ -1,0 +1,18 @@
+---
+description: Run tests and build before git commit or push when requested
+alwaysApply: true
+---
+
+# Verify before commit or push
+
+When the developer asks to **commit**, **push**, or both — run local checks **before** staging, committing, or pushing:
+
+1. `npm run test:run`
+2. `npm run build`
+
+## Rules
+
+- Run both commands yourself; do not skip or only suggest them.
+- If either fails, **stop**. Report the failure, fix if straightforward, and re-run until both pass — then commit/push.
+- Do not commit or push with failing tests or a broken build unless the developer explicitly overrides after seeing the failure.
+- After a successful commit, push only if the developer asked for push (or both commit and push).
