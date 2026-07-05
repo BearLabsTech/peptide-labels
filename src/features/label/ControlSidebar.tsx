@@ -1,7 +1,7 @@
 import type { LabelModelInput } from './labelModel'
 import { resolveLabelMath } from './LabelMathResolver'
 import { useLabelForm } from './useLabelForm'
-import { CompoundSection, SourceSection, ReconstitutionSection, ProtocolSection, MediaSection, CoaSection } from './components/SidebarSections'
+import { CompoundSection, SourceSection, ReconstitutionSection, ProtocolSection, MediaSection, TestingSection } from './components/SidebarSections'
 import { PrintSetupSection } from './components/PrintSetupSection'
 import type { PrintSetupSelection } from './print/types'
 
@@ -32,7 +32,7 @@ export function ControlSidebar({ input, updateField, printSelection, onPrintSele
                 <ReconstitutionSection input={input} updateField={updateField} derivedState={derivedState} handlers={handlers} />
                 <ProtocolSection input={input} updateField={updateField} derivedState={derivedState} handlers={handlers} />
                 <MediaSection input={input} updateField={updateField} />
-                <CoaSection input={input} updateField={updateField} />
+                <TestingSection input={input} updateField={updateField} />
             </div>
         </div>
     )

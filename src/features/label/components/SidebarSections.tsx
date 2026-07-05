@@ -1,9 +1,19 @@
-import { TextInput, SelectInput, AccordionSection, ImageUploadInput, DateField, ToggleInput } from './FormInputs'
+import { TextInput, SelectInput, AccordionSection, SubAccordionSection, ImageUploadInput, DateField, ToggleInput } from './FormInputs'
 import { ColumnWidthSlider } from './ColumnWidthSlider'
 import { RECONSTITUTION_TYPES } from '../peptideMath'
-import { hasCoaLinks } from '../coaLinks'
+import { buildQrCodes } from '../coaLinks'
 import type { LabelModelInput } from '../labelModel'
 import { LOGO_COLUMN_WIDTH, QR_COLUMN_WIDTH } from '../labelLayoutConstants'
+import {
+    TEST_RESULT_FIELDS,
+    TEST_STATUS_OPTIONS,
+    TEST_TYPES,
+    countPrintableTestResults,
+    getTestResult,
+    hasTestingColumnContent,
+    type TestResultStatus,
+    type TestType,
+} from '../testIndicators'
 import type { LabelFormHandlers } from '../useLabelForm'
 
 export interface SectionProps {
@@ -91,29 +101,83 @@ export function MediaSection({ input, updateField }: SectionProps) {
     )
 }
 
-export function CoaSection({ input, updateField }: SectionProps) {
+export function TestingSection({ input, updateField }: SectionProps) {
+    const qrCount = buildQrCodes(input).length
+    const showCoaQr = input.showCoaQr !== false
+    const showTestIndicators = input.showTestIndicators === true
+    const showTestingColumn = hasTestingColumnContent(input, qrCount)
+    const printableTestCount = countPrintableTestResults(input)
+    const indicatorSubTitle = printableTestCount > 0
+        ? `Test result indicators (${printableTestCount} selected)`
+        : 'Test result indicators'
+    const coaSubTitle = qrCount > 0 ? `COA links (${qrCount} saved)` : 'COA links'
+
+    function updateTestResult(type: TestType, status: TestResultStatus) {
+        const field = TEST_RESULT_FIELDS[type]
+        updateField(field, status)
+    }
+
     return (
-        <AccordionSection title="Certificates of Analysis">
-            <TextInput label="Vendor COA Link" value={input.vendorCoa} onChange={(v) => updateField('vendorCoa', v)} placeholder="https://..." />
-            <TextInput label="Group Buy COA Link" value={input.groupBuyCoa} onChange={(v) => updateField('groupBuyCoa', v)} placeholder="https://..." />
-            <TextInput label="Test Group COA Link" value={input.testGroupCoa} onChange={(v) => updateField('testGroupCoa', v)} placeholder="https://..." />
-            <TextInput label="My COA Link" value={input.myCoa} onChange={(v) => updateField('myCoa', v)} placeholder="https://..." />
-
-            <div style={{ marginTop: '24px', borderTop: '1px solid var(--color-border)', paddingTop: '16px' }}>
-                <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: '12px' }}>Custom COAs</div>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                    <div style={{ flex: 1 }}><TextInput label="COA 1 Name" value={input.customCoa1Name} onChange={v => updateField('customCoa1Name', v)} placeholder="Name" /></div>
-                    <div style={{ flex: 2 }}><TextInput label="COA 1 Link" value={input.customCoa1Link} onChange={v => updateField('customCoa1Link', v)} placeholder="https://..." /></div>
+        <AccordionSection title="Testing">
+            <SubAccordionSection title={indicatorSubTitle} defaultOpen={showTestIndicators}>
+                <ToggleInput
+                    label="Print test result indicators on label"
+                    checked={showTestIndicators}
+                    onChange={(v) => updateField('showTestIndicators', v)}
+                />
+                <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: 12, marginTop: -4, lineHeight: 1.4 }}>
+                    Each test defaults to Do Not Print. Choose Pass, Fail, or Not Run only for checks you want on the label.
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                    <div style={{ flex: 1 }}><TextInput label="COA 2 Name" value={input.customCoa2Name} onChange={v => updateField('customCoa2Name', v)} placeholder="Name" /></div>
-                    <div style={{ flex: 2 }}><TextInput label="COA 2 Link" value={input.customCoa2Link} onChange={v => updateField('customCoa2Link', v)} placeholder="https://..." /></div>
-                </div>
-            </div>
+                {TEST_TYPES.map((type) => (
+                    <div key={type} style={{ marginBottom: 16 }}>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: 6 }}>{type}</label>
+                        <select
+                            value={getTestResult(input, type)}
+                            onChange={(e) => updateTestResult(type, e.target.value as TestResultStatus)}
+                            style={{
+                                width: '100%', padding: '10px 12px', border: '1px solid var(--color-border)',
+                                borderRadius: 'var(--radius-sm)', fontSize: '1rem', boxSizing: 'border-box',
+                                color: 'var(--color-text-main)', backgroundColor: 'var(--color-surface)', cursor: 'pointer',
+                            }}
+                        >
+                            {TEST_STATUS_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                ))}
+            </SubAccordionSection>
 
-            {hasCoaLinks(input) && (
+            <SubAccordionSection title={coaSubTitle} defaultOpen={showCoaQr && qrCount > 0}>
+                <ToggleInput
+                    label="Print COA QR codes on label"
+                    checked={showCoaQr}
+                    onChange={(v) => updateField('showCoaQr', v)}
+                />
+                <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: 12, marginTop: -4, lineHeight: 1.4 }}>
+                    COA links are saved here either way; QR codes print only when the toggle above is on.
+                </div>
+
+                <TextInput label="Vendor COA Link" value={input.vendorCoa} onChange={(v) => updateField('vendorCoa', v)} placeholder="https://..." />
+                <TextInput label="Group Buy COA Link" value={input.groupBuyCoa} onChange={(v) => updateField('groupBuyCoa', v)} placeholder="https://..." />
+                <TextInput label="Test Group COA Link" value={input.testGroupCoa} onChange={(v) => updateField('testGroupCoa', v)} placeholder="https://..." />
+                <TextInput label="My COA Link" value={input.myCoa} onChange={(v) => updateField('myCoa', v)} placeholder="https://..." />
+
+                <SubAccordionSection title="Custom COAs">
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                        <div style={{ flex: 1 }}><TextInput label="COA 1 Name" value={input.customCoa1Name} onChange={v => updateField('customCoa1Name', v)} placeholder="Name" /></div>
+                        <div style={{ flex: 2 }}><TextInput label="COA 1 Link" value={input.customCoa1Link} onChange={v => updateField('customCoa1Link', v)} placeholder="https://..." /></div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ flex: 1 }}><TextInput label="COA 2 Name" value={input.customCoa2Name} onChange={v => updateField('customCoa2Name', v)} placeholder="Name" /></div>
+                        <div style={{ flex: 2 }}><TextInput label="COA 2 Link" value={input.customCoa2Link} onChange={v => updateField('customCoa2Link', v)} placeholder="https://..." /></div>
+                    </div>
+                </SubAccordionSection>
+            </SubAccordionSection>
+
+            {showTestingColumn && (
                 <ColumnWidthSlider
-                    label="COA column width"
+                    label="Testing column width"
                     value={input.qrColumnWidthPercent}
                     onChange={(v) => updateField('qrColumnWidthPercent', v)}
                     bounds={QR_COLUMN_WIDTH}

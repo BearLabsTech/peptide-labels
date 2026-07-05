@@ -140,6 +140,60 @@ body {
   margin-left: 10px;
 }
 
+/* --- Nested accordion (inside a section) --- */
+.sub-accordion-wrapper {
+  margin-bottom: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: var(--color-background);
+}
+
+.sub-accordion-wrapper:last-child {
+  margin-bottom: 0;
+}
+
+.sub-accordion-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background-color: var(--color-background);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-text-main);
+  transition: background-color 0.2s ease;
+}
+
+.sub-accordion-btn:hover {
+  background-color: var(--color-surface);
+}
+
+.sub-accordion-btn.active {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sub-accordion-title {
+  flex: 1;
+  text-align: left;
+  font-size: 0.92rem;
+}
+
+.sub-accordion-icon {
+  transition: transform 0.2s ease;
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  margin-left: 10px;
+  flex-shrink: 0;
+}
+
+.sub-accordion-body {
+  padding: 12px 14px 4px;
+  background-color: var(--color-surface);
+}
+
 /* --- Form Input Focus States --- */
 input:focus,
 select:focus,

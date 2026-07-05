@@ -1,6 +1,7 @@
 import { forwardRef, type CSSProperties } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import type { LabelRenderModel } from './LabelComposer'
+import { TestStatusMark } from './components/TestStatusMark'
 import { labelContentStyle, labelStickerStyle } from './print/labelSurfaceStyle'
 import { previewBaseWidthPx } from './print/dimensions'
 import type { PrintTarget } from './print/types'
@@ -112,7 +113,7 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
           </div>
         </div>
 
-        {model.qrCodes.length > 0 && (
+        {(model.qrCodes.length > 0 || model.testIndicators.length > 0) && (
           <div className="label-right-column" style={{ width: `${model.qrColumnWidthPercent}%` }}>
             {model.qrCodes.map(qr => (
               <div key={qr.type} className="label-qr-slot">
@@ -122,6 +123,32 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
                 <div className="qr-text">{qr.type}</div>
               </div>
             ))}
+            {model.testIndicators.length > 0 && model.testIndicatorLayout && (
+              <div
+                className={`label-test-indicators${model.qrCodes.length > 0 ? ' label-test-indicators--with-qr' : ''}`}
+                style={{ gap: pxToCqw(model.testIndicatorLayout.rowGapPx, baseWidthPx) }}
+              >
+                {model.testIndicators.map((entry) => (
+                  <div
+                    key={entry.type}
+                    className="label-test-row"
+                    style={{ gap: pxToCqw(model.testIndicatorLayout!.labelMarkGapPx, baseWidthPx) }}
+                  >
+                    <span
+                      className="label-test-name"
+                      style={{ fontSize: pxToCqw(model.testIndicatorLayout!.labelFontSizePx, baseWidthPx) }}
+                    >
+                      {entry.label}
+                    </span>
+                    <TestStatusMark
+                      status={entry.status}
+                      sizePx={model.testIndicatorLayout!.markSizePx}
+                      baseWidthPx={baseWidthPx}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
         </div>

@@ -37,12 +37,25 @@ export interface LabelModelInput {
   customCoa1Link?: string
   customCoa2Name?: string
   customCoa2Link?: string
+  /** When false, COA QR codes stay in the sidebar but do not print. Default true. */
+  showCoaQr?: boolean
+
+  // Test result indicators (right testing column)
+  /** When true, print pass/fail/not-run marks for test types not set to Do Not Print. */
+  showTestIndicators?: boolean
+  testMass?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  testPurity?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  testLcms?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  testEndotoxin?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  testSterility?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  testHeavyMetals?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  testFentanyl?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
 
   // Media
   customImage?: string
   /** Logo column width as percent of label inner width (15–45). Default 20. */
   logoColumnWidthPercent?: number
-  /** COA / QR column width as percent of label inner width (25–50). Default 38. */
+  /** Testing column width as percent of label inner width (25–50). Default 38. */
   qrColumnWidthPercent?: number
 
   // Status

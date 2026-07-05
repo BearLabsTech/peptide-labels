@@ -15,7 +15,7 @@ export const LOGO_COLUMN_WIDTH: ColumnWidthBounds = {
   maxPercent: 45,
 }
 
-/** COA / QR column — right flex child (`LabelPreview.css`). */
+/** Testing column (COA QR + test indicators) — right flex child (`LabelPreview.css`). */
 export const QR_COLUMN_WIDTH: ColumnWidthBounds = {
   defaultPercent: 38,
   minPercent: 25,

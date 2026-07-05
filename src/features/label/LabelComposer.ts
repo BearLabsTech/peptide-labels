@@ -2,6 +2,8 @@ import type { LabelModelInput } from './labelModel'
 import { LabelLayoutEngine, type BoxedSection } from './LabelLayoutEngine'
 import { resolveLabelMath } from './LabelMathResolver'
 import { buildQrCodes, type QrCodeEntry } from './coaLinks'
+import { buildTestIndicators, hasTestingColumnContent, shouldShowCoaQr, type TestIndicatorEntry } from './testIndicators'
+import { computeTestIndicatorLayout, type TestIndicatorLayout } from './testIndicatorLayout'
 import { computeColumnLayout } from './labelColumnLayout'
 import { maxFontSizePxForLabelHeight } from './labelLayoutConstants'
 import { mmToPx } from './print/dimensions'
@@ -13,6 +15,8 @@ export interface LabelRenderModel {
   title: string; demotedTitle?: string; protocolLines: string[];
   reconstitutionLines: string[]; sourceLines: string[];
   qrCodes: QrCodeEntry[]; customImage?: string; isDangerMode: boolean;
+  testIndicators: TestIndicatorEntry[];
+  testIndicatorLayout?: TestIndicatorLayout;
   logoColumnWidthPercent: number;
   qrColumnWidthPercent: number;
 }
@@ -42,8 +46,9 @@ export class LabelComposer {
     const protocolLines = input.showProtocol !== false ? this.buildProtocolLines(input) : [];
 
     const qrCodes = buildQrCodes(input);
+    const testIndicators = buildTestIndicators(input);
 
-    return this.calculateLayouts(input, title, demotedTitle, sourceLines, reconstitutionLines, protocolLines, qrCodes);
+    return this.calculateLayouts(input, title, demotedTitle, sourceLines, reconstitutionLines, protocolLines, qrCodes, testIndicators);
   }
 
   private calculateLayouts(
@@ -54,17 +59,20 @@ export class LabelComposer {
     recLines: string[],
     proLines: string[],
     qrCodes: QrCodeEntry[],
+    testIndicators: TestIndicatorEntry[],
   ): LabelRenderModel {
     const hasBody = recLines.length > 0 || proLines.length > 0 || srcLines.length > 0 || !!demotedTitle;
     const isDanger = !!input.isUntested;
 
     const hasLogo = !!input.customImage
-    const hasQr = qrCodes.length > 0
+    const showCoaQr = shouldShowCoaQr(input)
+    const visibleQrCodes = showCoaQr ? qrCodes : []
+    const hasRightColumn = hasTestingColumnContent(input, qrCodes.length)
     const columns = computeColumnLayout({
       labelWidthMm: this.printTarget.labelWidthMm,
       paddingMm: this.printTarget.paddingMm,
       hasLogo,
-      hasQr,
+      hasQr: hasRightColumn,
       logoColumnWidthPercent: input.logoColumnWidthPercent,
       qrColumnWidthPercent: input.qrColumnWidthPercent,
     })
@@ -80,6 +88,7 @@ export class LabelComposer {
       ...(proLines.length > 0 ? [{ lines: proLines }] : []),
       ...(srcLines.length > 0 ? [{ lines: srcLines }] : []),
     ];
+    const testIndicatorLayout = this.buildTestIndicatorLayout(testIndicators, columns, visibleQrCodes);
 
     if (!hasBody) {
       const titleLayout = this.layoutEngine.layout({
@@ -95,7 +104,7 @@ export class LabelComposer {
         titleFontSizePx: titleLayout.fontSizePx,
         bodyFontSizePx: titleLayout.fontSizePx,
         title, demotedTitle, sourceLines: srcLines, protocolLines: proLines, reconstitutionLines: recLines,
-        qrCodes, customImage: input.customImage, isDangerMode: isDanger,
+        qrCodes: visibleQrCodes, testIndicators, testIndicatorLayout, customImage: input.customImage, isDangerMode: isDanger,
         logoColumnWidthPercent: columns.logoWidthPercent,
         qrColumnWidthPercent: columns.qrWidthPercent,
       };
@@ -163,10 +172,26 @@ export class LabelComposer {
       titleFontSizePx: titleLayout.fontSizePx,
       bodyFontSizePx: isDanger ? (bodyLayout.fontSizePx * 0.8) : bodyLayout.fontSizePx,
       title, demotedTitle, sourceLines: srcLines, protocolLines: proLines, reconstitutionLines: recLines,
-      qrCodes, customImage: input.customImage, isDangerMode: isDanger,
+      qrCodes: visibleQrCodes, testIndicators, testIndicatorLayout, customImage: input.customImage, isDangerMode: isDanger,
       logoColumnWidthPercent: columns.logoWidthPercent,
       qrColumnWidthPercent: columns.qrWidthPercent,
     }
+  }
+
+  private buildTestIndicatorLayout(
+    testIndicators: TestIndicatorEntry[],
+    columns: ReturnType<typeof computeColumnLayout>,
+    visibleQrCodes: QrCodeEntry[],
+  ): TestIndicatorLayout | undefined {
+    return computeTestIndicatorLayout({
+      effectiveDpi: this.printTarget.effectiveDpi,
+      labelHeightMm: this.printTarget.labelHeightMm,
+      paddingMm: this.printTarget.paddingMm,
+      qrColumnWidthMm: columns.qrWidthMm,
+      rowCount: testIndicators.length,
+      qrCodesAbove: visibleQrCodes.length > 0,
+      labels: testIndicators.map((entry) => entry.label),
+    })
   }
 
   private remainingBodyHeightMm(

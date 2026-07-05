@@ -66,9 +66,11 @@ As with other sections, you can print the whole sourcing block or only the lines
 
 ### Trust and paperwork
 
-Links to certificates of analysis belong on the label when you want **one scan to verify** what you are holding. You can attach vendor, group buy, **Test Group**, and personal COA URLs, plus **two named custom COA slots** for anything else you rely on.
+The right column on the label is a **testing column**: a compact place for verification at a glance without relying on tiny QR codes alone.
 
-When you provide a valid link, the label can show a **QR code** labeled for that source—Vendor COA, Group Buy COA, TG COA, My COA, or your custom names—so verification does not depend on typing a long URL from a tiny sticker. When at least one COA link is active, you can **widen or narrow the QR column** so the center text area adjusts to match.
+**Test result indicators** show whether common checks were **passed**, **failed**, or **not run**—Mass, Purity, LC/MS, Endotoxin, Sterility, Heavy Metals, and Fentanyl—using high-contrast box marks that stay readable on small thermal stock. Each test defaults to **Do Not Print**; only the checks you choose appear on the label. Turn indicators on when you want the vial to show testing status without opening a certificate; keep full COA links in the sidebar for your records even when QR codes are off the label.
+
+**COA QR codes** remain optional. You can attach vendor, group buy, **Test Group**, and personal COA URLs, plus **two named custom COA slots**. When you choose to print them, each valid link becomes a QR code labeled for that source—Vendor COA, Group Buy COA, TG COA, My COA, or your custom names. You can print indicators only, QR codes only, or both; when either is active, you **widen or narrow the testing column** so the center text area adjusts to match.
 
 ---
 
@@ -76,7 +78,7 @@ When you provide a valid link, the label can show a **QR code** labeled for that
 
 Dates on the label can follow **how you already think about dates**—compact numeric forms, ISO-style dashes, US or European day/month order—applied consistently wherever a date prints.
 
-An optional **logo** sits beside the text so shared group buys or your own stash are instantly recognizable on the shelf. When a logo is present, you can **widen or narrow its column** so the text area compresses or expands to match. When COA links are active, the **QR column** adjusts the same way. If both side columns would crowd the text, the app scales them back to keep a readable center. You can remove the logo anytime; the label works fine without branding.
+An optional **logo** sits beside the text so shared group buys or your own stash are instantly recognizable on the shelf. When a logo is present, you can **widen or narrow its column** so the text area compresses or expands to match. When test indicators or COA QR codes are active, the **testing column** adjusts the same way. If both side columns would crowd the text, the app scales them back to keep a readable center. You can remove the logo anytime; the label works fine without branding.
 
 Typography **scales with label height**—taller stock like 40 × 30 mm uses larger type when the content allows, so bigger labels do not look under-filled.
 
@@ -193,6 +195,14 @@ Most of **Today** is built around **monochrome thermal** output—sharp black on
 Color support is planned as a **print-target option** once requirements are clearer: what file types and color spaces those printers expect, whether the live preview should mirror color, and which design elements benefit from color versus staying high-contrast for legibility. Until then, export remains monochrome-first.
 
 *Benefits from a settled print-target model (dimensions, DPI, and optional templates/styling).*
+
+---
+
+### Saved test results library
+
+Today you set pass, fail, or not-run **per label** in the Testing section. The product will add a **library of saved test results**—batch or lot keyed records you can reuse when designing labels, so you are not re-entering the same Mass, Purity, and LC/MS outcomes for every vial from the same run. Full COA documents stay wherever you already store them; the library is for the summary you want on the sticker.
+
+*Requires: accounts and saved data (or a lighter local-only store first).*
 
 ---
 

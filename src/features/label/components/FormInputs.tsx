@@ -21,6 +21,20 @@ export function AccordionSection({ title, children, defaultOpen = false }: Accor
     )
 }
 
+export interface SubAccordionSectionProps { title: string; children: ReactNode; defaultOpen?: boolean; }
+export function SubAccordionSection({ title, children, defaultOpen = false }: SubAccordionSectionProps) {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
+    return (
+        <div className="sub-accordion-wrapper">
+            <button type="button" onClick={() => setIsOpen(!isOpen)} className={`sub-accordion-btn ${isOpen ? 'active' : ''}`}>
+                <span className="sub-accordion-title">{title}</span>
+                <span className="sub-accordion-icon" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+            </button>
+            {isOpen && <div className="sub-accordion-body">{children}</div>}
+        </div>
+    )
+}
+
 // FIX: Added minHeight to guarantee alignment across flex rows
 interface FieldHeaderProps { label: string; printToggle?: { visible: boolean; onChange: (v: boolean) => void; disabled?: boolean }; rightContent?: ReactNode; }
 function FieldHeader({ label, printToggle, rightContent }: FieldHeaderProps) {

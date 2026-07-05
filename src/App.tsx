@@ -24,6 +24,11 @@ function getExampleInput(today: string): LabelModelInput {
     protocolFrequency: 'Weekly',
     reconstitutionDate: today,
     dateFormat: 'YYYYMMDD',
+    showTestIndicators: true,
+    testMass: 'pass',
+    testPurity: 'pass',
+    testLcms: 'pass',
+    showCoaQr: false,
     vendorCoa: 'https://github.com'
   }
 }

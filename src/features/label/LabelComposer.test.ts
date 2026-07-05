@@ -309,4 +309,59 @@ describe('LabelComposer', () => {
         expect(result.logoColumnWidthPercent).toBe(expected.logoWidthPercent)
         expect(result.qrColumnWidthPercent).toBe(expected.qrWidthPercent)
     })
+
+    it('shouldPrintTestIndicatorsWithoutCoaQrWhenCoaPrintingIsDisabled', () => {
+        const composer = new LabelComposer()
+        const result = composer.compose({
+            compoundName: 'Tirzepatide',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            showTestIndicators: true,
+            testMass: 'pass',
+            testPurity: 'fail',
+            vendorCoa: 'https://example.com/coa',
+            showCoaQr: false,
+        })
+
+        expect(result.qrCodes).toEqual([])
+        expect(result.testIndicators).toHaveLength(2)
+        expect(result.testIndicators[0]).toMatchObject({ type: 'Mass', status: 'pass' })
+        expect(result.testIndicators[1]).toMatchObject({ type: 'Purity', status: 'fail' })
+        expect(result.qrColumnWidthPercent).toBeGreaterThan(0)
+        expect(result.testIndicatorLayout).toBeDefined()
+        expect(result.testIndicatorLayout!.markSizePx).toBeGreaterThan(result.testIndicatorLayout!.labelFontSizePx)
+    })
+
+    it('shouldOmitTestIndicatorLayoutWhenNoTestsPrintOnTheLabel', () => {
+        const composer = new LabelComposer()
+        const result = composer.compose({
+            compoundName: 'Test',
+            showTestIndicators: true,
+        })
+
+        expect(result.testIndicators).toEqual([])
+        expect(result.testIndicatorLayout).toBeUndefined()
+    })
+
+    it('shouldReserveTestingColumnForIndicatorsEvenWithoutCoaLinks', () => {
+        const composer = new LabelComposer()
+        const withoutIndicators = composer.compose({ compoundName: 'Test' })
+        const withIndicators = composer.compose({
+            compoundName: 'Test',
+            showTestIndicators: true,
+            testLcms: 'pass',
+        })
+        const toggleOnButNothingSelected = composer.compose({
+            compoundName: 'Test',
+            showTestIndicators: true,
+        })
+
+        expect(withoutIndicators.testIndicators).toEqual([])
+        expect(withoutIndicators.qrColumnWidthPercent).toBe(0)
+        expect(withIndicators.testIndicators).toHaveLength(1)
+        expect(withIndicators.testIndicatorLayout).toBeDefined()
+        expect(withIndicators.qrColumnWidthPercent).toBeGreaterThan(0)
+        expect(toggleOnButNothingSelected.testIndicators).toEqual([])
+        expect(toggleOnButNothingSelected.qrColumnWidthPercent).toBe(0)
+    })
 })
