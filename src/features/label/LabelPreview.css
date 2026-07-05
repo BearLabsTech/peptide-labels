@@ -200,7 +200,8 @@
   flex: 0 1 auto;
   height: auto;
   max-height: 45%;
-  margin-top: 0.4cqw;
+  justify-content: flex-start;
+  margin-bottom: 1.25cqw;
 }
 
 .label-test-row {

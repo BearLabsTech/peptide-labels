@@ -5,7 +5,7 @@ import { buildQrCodes, type QrCodeEntry } from './coaLinks'
 import { buildTestIndicators, hasTestingColumnContent, shouldShowCoaQr, type TestIndicatorEntry } from './testIndicators'
 import { computeTestIndicatorLayout, type TestIndicatorLayout } from './testIndicatorLayout'
 import { computeColumnLayout } from './labelColumnLayout'
-import { maxFontSizePxForLabelHeight } from './labelLayoutConstants'
+import { maxFontSizePxForLabelHeight, MIN_TITLE_TO_BODY_FONT_RATIO, TITLE_HEIGHT_WEIGHT, TITLE_HEIGHT_WEIGHT_DANGER } from './labelLayoutConstants'
 import { mmToPx } from './print/dimensions'
 import type { PrintTarget } from './print/types'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
@@ -110,7 +110,7 @@ export class LabelComposer {
       };
     }
 
-    const titleHeightWeight = isDanger ? 0.35 : 0.30;
+    const titleHeightWeight = isDanger ? TITLE_HEIGHT_WEIGHT_DANGER : TITLE_HEIGHT_WEIGHT;
     const titleLinesUpper = title.split('\n').map((line) => line.toUpperCase());
     const titleInput = {
       lines: titleLinesUpper,
@@ -121,50 +121,84 @@ export class LabelComposer {
     };
 
     let titleLayout = this.layoutEngine.layout(titleInput);
+    const innerPx = mmToPx(innerHeightMm, this.printTarget.effectiveDpi);
+
+    const bodyInputBase = { boxes, demotedLine: demotedTitle, widthMm: baseWidthMm, labelWidthPx };
+    const layoutBodyAtFont = (bodyHeightMm: number, bodyFontPx: number) => ({
+      fontSizePx: bodyFontPx,
+      wrappedLines: this.layoutEngine.layoutBoxedBody({ ...bodyInputBase, heightMm: bodyHeightMm }).wrappedLines,
+    });
+
+    const stackFits = (
+      tLayout: { wrappedLines: string[]; fontSizePx: number },
+      bLayout: { fontSizePx: number },
+      bodyHeightMm: number,
+    ) =>
+      this.layoutEngine.sectionLabelsFitBoxWidth(baseWidthMm, bLayout.fontSizePx) &&
+      this.layoutEngine.estimateCenterStackHeightPx(
+        tLayout.wrappedLines.length,
+        tLayout.fontSizePx,
+        titleBodyGapMm,
+        { boxes, demotedLine: demotedTitle, widthMm: baseWidthMm, heightMm: bodyHeightMm, labelWidthPx },
+        bLayout.fontSizePx,
+      ) <= innerPx;
+
+    let bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleLayout, titleBodyGapMm);
     let bodyLayout = this.layoutEngine.layoutBoxedBody({
       boxes,
       demotedLine: demotedTitle,
       widthMm: baseWidthMm,
-      heightMm: this.remainingBodyHeightMm(innerHeightMm, titleLayout, titleBodyGapMm),
+      heightMm: bodyHeightMm,
       labelWidthPx,
     });
 
-    for (let font = Math.min(titleLayout.fontSizePx, bodyLayout.fontSizePx, this.maxFontSizePx); font >= 8; font--) {
-      const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, font);
-      if (!titleAttempt) continue;
-
-      const bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleAttempt, titleBodyGapMm);
-      const bodyInput = {
-        boxes,
-        demotedLine: demotedTitle,
-        widthMm: baseWidthMm,
-        heightMm: bodyHeightMm,
-        labelWidthPx,
-      };
-
-      if (
-        this.layoutEngine.sectionLabelsFitBoxWidth(baseWidthMm, font) &&
-        this.layoutEngine.estimateCenterStackHeightPx(
-          titleAttempt.wrappedLines.length,
-          font,
-          titleBodyGapMm,
-          bodyInput,
-          font,
-        ) <= mmToPx(innerHeightMm, this.printTarget.effectiveDpi)
-      ) {
-        titleLayout = titleAttempt;
-        bodyLayout = {
-          fontSizePx: font,
-          wrappedLines: this.layoutEngine.layoutBoxedBody(bodyInput).wrappedLines,
-        };
+    for (let bodyFont = bodyLayout.fontSizePx; bodyFont >= 8; bodyFont--) {
+      const attempt = layoutBodyAtFont(bodyHeightMm, bodyFont);
+      if (stackFits(titleLayout, attempt, bodyHeightMm)) {
+        bodyLayout = attempt;
         break;
       }
+      if (bodyFont === 8) bodyLayout = attempt;
+    }
 
-      if (font === 8) {
-        titleLayout = titleAttempt;
-        bodyLayout = this.layoutEngine.layoutBoxedBody(bodyInput);
+    if (!stackFits(titleLayout, bodyLayout, bodyHeightMm)) {
+      for (let titleFont = titleLayout.fontSizePx - 1; titleFont >= 8; titleFont--) {
+        const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, titleFont);
+        if (!titleAttempt) continue;
+        bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleAttempt, titleBodyGapMm);
+        const refitBody = this.layoutEngine.layoutBoxedBody({
+          boxes,
+          demotedLine: demotedTitle,
+          widthMm: baseWidthMm,
+          heightMm: bodyHeightMm,
+          labelWidthPx,
+        });
+        for (let bodyFont = refitBody.fontSizePx; bodyFont >= 8; bodyFont--) {
+          const attempt = layoutBodyAtFont(bodyHeightMm, bodyFont);
+          if (stackFits(titleAttempt, attempt, bodyHeightMm)) {
+            titleLayout = titleAttempt;
+            bodyLayout = attempt;
+            break;
+          }
+          if (bodyFont === 8) {
+            titleLayout = titleAttempt;
+            bodyLayout = attempt;
+          }
+        }
+        if (stackFits(titleLayout, bodyLayout, bodyHeightMm)) break;
       }
     }
+
+    ({ titleLayout, bodyLayout, bodyHeightMm } = this.boostTitleRelativeToBody({
+      titleInput,
+      titleLayout,
+      bodyLayout,
+      bodyHeightMm,
+      innerHeightMm,
+      titleBodyGapMm,
+      layoutBodyAtFont,
+      stackFits,
+    }));
 
     return {
       wrappedLines: [...titleLayout.wrappedLines, ...bodyLayout.wrappedLines],
@@ -176,6 +210,57 @@ export class LabelComposer {
       logoColumnWidthPercent: columns.logoWidthPercent,
       qrColumnWidthPercent: columns.qrWidthPercent,
     }
+  }
+
+  private boostTitleRelativeToBody(params: {
+    titleInput: { lines: string[]; widthMm: number; heightMm: number; charWidthEm: number; widthSafety: number };
+    titleLayout: { wrappedLines: string[]; fontSizePx: number };
+    bodyLayout: { fontSizePx: number; wrappedLines: string[] };
+    bodyHeightMm: number;
+    innerHeightMm: number;
+    titleBodyGapMm: number;
+    layoutBodyAtFont: (bodyHeightMm: number, bodyFontPx: number) => { fontSizePx: number; wrappedLines: string[] };
+    stackFits: (
+      tLayout: { wrappedLines: string[]; fontSizePx: number },
+      bLayout: { fontSizePx: number },
+      bodyHeightMm: number,
+    ) => boolean;
+  }): {
+    titleLayout: { wrappedLines: string[]; fontSizePx: number };
+    bodyLayout: { fontSizePx: number; wrappedLines: string[] };
+    bodyHeightMm: number;
+  } {
+    const {
+      titleInput,
+      titleLayout,
+      bodyLayout,
+      bodyHeightMm,
+      innerHeightMm,
+      titleBodyGapMm,
+      layoutBodyAtFont,
+      stackFits,
+    } = params;
+
+    if (titleLayout.fontSizePx >= bodyLayout.fontSizePx * MIN_TITLE_TO_BODY_FONT_RATIO) {
+      return { titleLayout, bodyLayout, bodyHeightMm };
+    }
+
+    for (let titleFont = this.maxFontSizePx; titleFont >= 8; titleFont--) {
+      const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, titleFont);
+      if (!titleAttempt) continue;
+
+      const attemptBodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleAttempt, titleBodyGapMm);
+      const maxBodyFont = Math.floor(titleFont / MIN_TITLE_TO_BODY_FONT_RATIO);
+
+      for (let bodyFont = Math.min(maxBodyFont, bodyLayout.fontSizePx); bodyFont >= 8; bodyFont--) {
+        const bodyAttempt = layoutBodyAtFont(attemptBodyHeightMm, bodyFont);
+        if (stackFits(titleAttempt, bodyAttempt, attemptBodyHeightMm)) {
+          return { titleLayout: titleAttempt, bodyLayout: bodyAttempt, bodyHeightMm: attemptBodyHeightMm };
+        }
+      }
+    }
+
+    return { titleLayout, bodyLayout, bodyHeightMm };
   }
 
   private buildTestIndicatorLayout(
@@ -220,8 +305,10 @@ export class LabelComposer {
   }
 
   private buildTitles(input: LabelModelInput) {
-    const fullName = this.formatAmount(input.compoundAmount, input.vialUnit || 'mg');
-    const fullCompound = fullName ? `${input.compoundName || ''} ${fullName}`.trim() : (input.compoundName || '');
+    const amountLine = this.formatAmount(input.compoundAmount, input.vialUnit || 'mg');
+    const nameLine = (input.compoundName || '').trim();
+    const titleLines = [nameLine, amountLine].filter(Boolean);
+    const fullCompound = titleLines.join('\n');
     if (input.isUntested) return { title: 'DANGER\nUNTESTED', demotedTitle: fullCompound || undefined };
     return { title: fullCompound, demotedTitle: undefined };
   }

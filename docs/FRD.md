@@ -24,7 +24,7 @@ The preview always reflects what you are building **at true label proportions**,
 
 ### Compound identity
 
-The label answers the first question on every vial: **what is this?** You name the compound and how much is in the vial (milligrams or international units). That identity anchors everything else—the calculator, the protocol line, and the filename when you export.
+The label answers the first question on every vial: **what is this?** You name the compound and how much is in the vial (milligrams or international units). The **compound name and vial amount print on separate lines** at the top of the label, sized to read first before reconstitution and protocol blocks below. That identity anchors everything else—the calculator, the protocol line, and the filename when you export.
 
 When you need a clear warning that material has **not been tested**, you can mark the vial as untested. The label shifts to an unmistakable caution treatment so anyone handling the vial sees the risk before they rely on the numbers below it.
 
@@ -182,9 +182,11 @@ Beyond the single layout in **Today**, the product will offer **additional templ
 
 On labels with reconstitution, protocol, and source filled in, the **compound name can disappear into the same visual weight as the section blocks**—readable, but not clearly the first thing you see on the vial. That undermines the main job of the sticker: **instant identity** at a glance.
 
-The product needs a **layout design** (not just a font-size tweak) that keeps the compound name **primary**: stronger hierarchy, dedicated space, or a template treatment so “what is this?” reads before the supporting boxes. Any approach must still fit **40 × 20 mm** stock with logo and QR when those are on, and stay aligned with preview = export.
+The product needs a **layout design** (not just a font-size tweak) that keeps the compound name **primary**: stronger hierarchy, dedicated space, or a template treatment so “what is this?” reads before the supporting boxes. **Today** uses a two-line title (name, then amount) with a larger title budget than the body; further template work may follow.
 
-*Deferred — design first, then implement. Related: section styling options, additional label templates; compound name casing tracked separately in [TECH-DEBT.md](./TECH-DEBT.md).*
+Any approach must still fit **40 × 20 mm** stock with logo and QR when those are on, and stay aligned with preview = export.
+
+*Partially addressed in **Today** (two-line title, larger title budget). Related: section styling options, additional label templates; compound name casing tracked separately in [TECH-DEBT.md](./TECH-DEBT.md).*
 
 ---
 

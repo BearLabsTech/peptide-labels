@@ -34,7 +34,7 @@ describe('LabelComposer', () => {
             vialUnit: 'mg'
         })
 
-        expect(result.title).toBe('Tirzepatide 20mg')
+        expect(result.title).toBe('Tirzepatide\n20mg')
         expect(result.titleLines.length).toBeGreaterThan(0)
         expect(result.wrappedLines.length).toBeGreaterThan(0)
     })
@@ -49,7 +49,7 @@ describe('LabelComposer', () => {
             protocolAmount: '2',
             measureUnit: 'IU'
         })
-        expect(resultIu.title).toBe('HGH 36IU')
+        expect(resultIu.title).toBe('HGH\n36IU')
         expect(resultIu.protocolLines).toContain('2IU')
 
         const resultMg = composer.compose({
@@ -59,7 +59,7 @@ describe('LabelComposer', () => {
             protocolAmount: '500',
             measureUnit: 'mcg'
         })
-        expect(resultMg.title).toBe('Tirz 10mg')
+        expect(resultMg.title).toBe('Tirz\n10mg')
         expect(resultMg.protocolLines).toContain('500mcg')
     })
 
@@ -76,7 +76,7 @@ describe('LabelComposer', () => {
         })
 
         // Engine must aggressively strip the old text units out
-        expect(result.title).toBe('HGH 36IU')
+        expect(result.title).toBe('HGH\n36IU')
         expect(result.protocolLines).toContain('2IU')
     })
 
@@ -97,7 +97,7 @@ describe('LabelComposer', () => {
         })
 
         expect(dangerResult.bodyFontSizePx).toBeLessThan(standardResult.bodyFontSizePx)
-        expect(dangerResult.demotedTitle).toBe('Reta 20mg')
+        expect(dangerResult.demotedTitle).toBe('Reta\n20mg')
     })
 
     it('itShouldAllocateFullHeightToTitleWhenNoBodyExists', () => {
@@ -286,6 +286,33 @@ describe('LabelComposer', () => {
         const wideResult = wideQr.compose({ ...base, qrColumnWidthPercent: 48 })
         expect(wideResult.titleFontSizePx).toBeLessThanOrEqual(narrowResult.titleFontSizePx)
         expect(wideResult.qrColumnWidthPercent).toBe(48)
+    })
+
+    it('itShouldKeepTitleFontLargerThanBodyWhenSectionsAndSideColumnsPrint', () => {
+        const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded', printerId: 'niimbot-b1-pro' }))
+        const result = composer.compose({
+            compoundName: 'Tirzepatide',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            reconstitutionAmount: '2',
+            reconstitutionType: 'BAC Water',
+            concentration: '10mg per ml',
+            reconstitutionDate: '20260705',
+            protocolAmount: '5',
+            measureUnit: 'mg',
+            protocolFrequency: 'Weekly',
+            showSource: false,
+            showTestIndicators: true,
+            testPurity: 'pass',
+            testEndotoxin: 'pass',
+            showCoaQr: true,
+            vendorCoa: 'https://example.com/coa',
+            customImage: 'data:image/png;base64,test',
+        })
+
+        expect(result.titleFontSizePx).toBeGreaterThan(result.bodyFontSizePx)
+        expect(result.titleFontSizePx / result.bodyFontSizePx).toBeGreaterThanOrEqual(1.35)
+        expect(result.titleLines.length).toBeGreaterThanOrEqual(2)
     })
 
     it('itShouldExposeResolvedColumnPercentsMatchingComputeColumnLayout', () => {

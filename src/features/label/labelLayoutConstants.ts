@@ -2,6 +2,13 @@
 export const REF_LABEL_HEIGHT_MM = 20
 export const REF_MAX_FONT_SIZE_PX = 26
 
+/** Fraction of inner label height reserved for compound title when body sections print. */
+export const TITLE_HEIGHT_WEIGHT = 0.5
+export const TITLE_HEIGHT_WEIGHT_DANGER = 0.42
+
+/** Title font should stay at least this multiple of body font when both print. */
+export const MIN_TITLE_TO_BODY_FONT_RATIO = 1.35
+
 export interface ColumnWidthBounds {
   defaultPercent: number
   minPercent: number

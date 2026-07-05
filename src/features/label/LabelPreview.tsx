@@ -115,14 +115,6 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
 
         {(model.qrCodes.length > 0 || model.testIndicators.length > 0) && (
           <div className="label-right-column" style={{ width: `${model.qrColumnWidthPercent}%` }}>
-            {model.qrCodes.map(qr => (
-              <div key={qr.type} className="label-qr-slot">
-                <div className="label-qr-slot-graphic">
-                  <QRCodeSVG value={qr.url} size={baseWidthPx} className="label-qr-svg" />
-                </div>
-                <div className="qr-text">{qr.type}</div>
-              </div>
-            ))}
             {model.testIndicators.length > 0 && model.testIndicatorLayout && (
               <div
                 className={`label-test-indicators${model.qrCodes.length > 0 ? ' label-test-indicators--with-qr' : ''}`}
@@ -149,6 +141,14 @@ export const LabelPreview = forwardRef<HTMLDivElement, { model: LabelRenderModel
                 ))}
               </div>
             )}
+            {model.qrCodes.map(qr => (
+              <div key={qr.type} className="label-qr-slot">
+                <div className="label-qr-slot-graphic">
+                  <QRCodeSVG value={qr.url} size={baseWidthPx} className="label-qr-svg" />
+                </div>
+                <div className="qr-text">{qr.type}</div>
+              </div>
+            ))}
           </div>
         )}
         </div>

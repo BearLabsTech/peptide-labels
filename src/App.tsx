@@ -4,19 +4,19 @@ import type { LabelModelInput } from './features/label/labelModel'
 import { ControlSidebar } from './features/label/ControlSidebar'
 import { LabelStage } from './features/label/LabelStage'
 import { usePrintSetup } from './features/label/usePrintSetup'
+import exampleLogoUrl from './assets/bear-labs-logo.png'
 import './App.css'
 
 function getTodayDateString(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
+
 function getExampleInput(today: string): LabelModelInput {
   return {
     compoundName: 'Tirzepatide',
     compoundAmount: '20',
     vialUnit: 'mg',
-    vendorName: 'Bear Labs',
-    batchNumber: 'BL-2026',
     reconstitutionAmount: '2',
     reconstitutionType: 'BAC Water',
     protocolAmount: '5',
@@ -24,12 +24,13 @@ function getExampleInput(today: string): LabelModelInput {
     protocolFrequency: 'Weekly',
     reconstitutionDate: today,
     dateFormat: 'YYYYMMDD',
+    showSource: false,
     showTestIndicators: true,
-    testMass: 'pass',
     testPurity: 'pass',
-    testLcms: 'pass',
-    showCoaQr: false,
-    vendorCoa: 'https://github.com'
+    testEndotoxin: 'pass',
+    showCoaQr: true,
+    vendorCoa: 'https://github.com',
+    customImage: exampleLogoUrl,
   }
 }
 
