@@ -1,0 +1,22 @@
+---
+description: Read GitHub Actions workflows before deploy, commit, or CI advice
+alwaysApply: true
+---
+
+# CI/CD and GitHub Actions
+
+When the developer mentions **deployment**, **committing**, **pushing**, **pull requests**, **CI**, **GitHub Actions**, **release**, **GitHub Pages**, or similar delivery/version-control workflow topics — **read `.github/workflows/` first** before advising or changing related config.
+
+## Before acting
+
+1. List and read all files under `.github/workflows/` (today: `deploy.yml`).
+2. Align suggestions with what the workflows actually do — branch triggers, build steps, deploy target, permissions, concurrency.
+3. If workflow behavior would change, update the workflow file in the **same** change set as related code or docs.
+
+## Current pipeline (verify in repo; do not rely on this summary alone)
+
+- **Trigger:** push to `main`
+- **Build:** `npm ci` → `npm run build` (output: `./dist`)
+- **Deploy:** GitHub Pages via `actions/deploy-pages`
+
+Do not assume extra checks (lint, test in CI) exist unless you see them in the workflow files.
