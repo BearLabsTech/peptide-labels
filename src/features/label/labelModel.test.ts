@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest'
-import { LabelModelBuilder } from './labelModel'
+import { DEFAULT_LABEL_LAYOUT_MODE, LabelModelBuilder, resolveLabelLayoutMode } from './labelModel'
 
 describe('LabelModelBuilder', () => {
+
+  it('itShouldDefaultLabelLayoutModeToIdentityHeader', () => {
+    expect(resolveLabelLayoutMode({})).toBe(DEFAULT_LABEL_LAYOUT_MODE)
+    expect(resolveLabelLayoutMode({ labelLayoutMode: 'identityHeader' })).toBe('identityHeader')
+  })
 
   it('itShouldBuildAllLinesWhenAllFieldsProvided', () => {
     const builder = new LabelModelBuilder()

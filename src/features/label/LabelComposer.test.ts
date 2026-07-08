@@ -5,18 +5,15 @@ import { mmToPx } from './print/dimensions'
 import { computeColumnLayout } from './labelColumnLayout'
 
 const TITLE_CHAR_WIDTH_EM = 0.95
-const TITLE_WIDTH_SAFETY = 0.92
-const TITLE_WIDTH_FRAC = 0.92
 
-function centerTitleWidthPx(target: ReturnType<typeof resolvePrintTarget>): number {
+function innerRowTitleWidthPx(target: ReturnType<typeof resolvePrintTarget>): number {
     const columns = computeColumnLayout({
       labelWidthMm: target.labelWidthMm,
       paddingMm: target.paddingMm,
       hasLogo: true,
       hasQr: true,
     })
-    const titleWidthMm = columns.centerWidthMm * TITLE_WIDTH_FRAC
-    return mmToPx(titleWidthMm, target.effectiveDpi) * TITLE_WIDTH_SAFETY
+    return mmToPx(columns.innerRowMm, target.effectiveDpi)
 }
 
 function longestTitleLinePx(lines: string[], fontSizePx: number): number {
@@ -160,7 +157,7 @@ describe('LabelComposer', () => {
         expect(result.bodyFontSizePx).toBeLessThan(26)
     })
 
-    it('itShouldShrinkTitleFontWhenMascotAndQrFlankCenterColumn', () => {
+    it('itShouldFitTitleLinesWithinInnerRowWhenMascotAndQrFlankCenterColumn', () => {
         const target = resolvePrintTarget({ stockId: '40x20-rect', printerId: 'niimbot-b21' })
         const composer = new LabelComposer(target)
         const result = composer.compose({
@@ -171,9 +168,9 @@ describe('LabelComposer', () => {
             vendorCoa: 'https://example.com/coa',
         })
 
-        const budgetPx = centerTitleWidthPx(target)
+        const budgetPx = innerRowTitleWidthPx(target)
         expect(longestTitleLinePx(result.titleLines, result.titleFontSizePx)).toBeLessThanOrEqual(budgetPx)
-        expect(result.titleFontSizePx).toBeLessThan(26)
+        expect(result.titleFontSizePx).toBeLessThanOrEqual(26)
     })
 
     it('itShouldWrapLongestWordWhenTitleOnlyWithMascotAndQr', () => {
@@ -187,7 +184,7 @@ describe('LabelComposer', () => {
 
         expect(result.titleLines.some((line) => line.includes('COMPOUND'))).toBe(true)
         expect(result.titleLines.length).toBeGreaterThan(1)
-        expect(result.bodyFontSizePx).toBeLessThan(26)
+        expect(result.titleFontSizePx).toBeLessThanOrEqual(26)
     })
 
     it('itShouldFitFullCenterStackWhenMascotQrAndAllSectionsFilled', () => {
@@ -313,6 +310,54 @@ describe('LabelComposer', () => {
         expect(result.titleFontSizePx).toBeGreaterThan(result.bodyFontSizePx)
         expect(result.titleFontSizePx / result.bodyFontSizePx).toBeGreaterThanOrEqual(1.35)
         expect(result.titleLines.length).toBeGreaterThanOrEqual(2)
+    })
+
+    it('itShouldDefaultToIdentityHeaderLayout', () => {
+        const target = resolvePrintTarget({ stockId: '40x20-rounded', printerId: 'niimbot-b1-pro' })
+        const input = {
+            compoundName: 'Tirzepatide',
+            compoundAmount: '20',
+            vialUnit: 'mg' as const,
+            reconstitutionAmount: '2',
+            reconstitutionType: 'BAC Water',
+            concentration: '10mg per ml',
+            reconstitutionDate: '20260705',
+            protocolAmount: '5',
+            measureUnit: 'mg' as const,
+            protocolFrequency: 'Weekly',
+            showSource: false,
+            showTestIndicators: true,
+            testPurity: 'pass' as const,
+            testEndotoxin: 'pass' as const,
+            showCoaQr: true,
+            vendorCoa: 'https://example.com/coa',
+            customImage: 'data:image/png;base64,test',
+        }
+        const result = new LabelComposer(target).compose(input)
+
+        expect(result.labelLayoutMode).toBe('identityHeader')
+        expect(result.titleFontSizePx / result.bodyFontSizePx).toBeGreaterThanOrEqual(1.35)
+    })
+
+    it('shouldWrapLongCompoundNamesUsingFullInnerRowWidth', () => {
+        const target = resolvePrintTarget({ stockId: '40x20-rounded', printerId: 'niimbot-b1-pro' })
+        const base = {
+            compoundName: 'Test Compound!!!!!!!!!!',
+            compoundAmount: '20',
+            vialUnit: 'mg' as const,
+            reconstitutionAmount: '2ml',
+            concentration: '10mg per ml',
+            protocolAmount: '4',
+            measureUnit: 'mg' as const,
+            showTestIndicators: true,
+            testPurity: 'pass' as const,
+            testEndotoxin: 'pass' as const,
+            customImage: 'data:image/png;base64,test',
+        }
+        const result = new LabelComposer(target).compose(base)
+
+        expect(result.labelLayoutMode).toBe('identityHeader')
+        expect(result.titleLines.join(' ')).toContain('COMPOUND')
     })
 
     it('itShouldExposeResolvedColumnPercentsMatchingComputeColumnLayout', () => {

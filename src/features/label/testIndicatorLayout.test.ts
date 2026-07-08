@@ -3,7 +3,9 @@ import {
   computeTestIndicatorLayout,
   estimateTestLabelWidthMm,
   labelFontSizePxToMm,
+  testIndicatorsStackHeightPx,
 } from './testIndicatorLayout'
+import { mmToPx } from './print/dimensions'
 
 describe('computeTestIndicatorLayout', () => {
   const base = {
@@ -15,16 +17,16 @@ describe('computeTestIndicatorLayout', () => {
   }
 
   it('should return larger marks when fewer tests print', () => {
-    const one = computeTestIndicatorLayout({ ...base, rowCount: 1, qrCodesAbove: false })
-    const three = computeTestIndicatorLayout({ ...base, rowCount: 3, qrCodesAbove: false })
-    const seven = computeTestIndicatorLayout({ ...base, rowCount: 7, qrCodesAbove: false })
+    const one = computeTestIndicatorLayout({ ...base, rowCount: 1, qrSharesColumn: false })
+    const three = computeTestIndicatorLayout({ ...base, rowCount: 3, qrSharesColumn: false })
+    const seven = computeTestIndicatorLayout({ ...base, rowCount: 7, qrSharesColumn: false })
 
     expect(one!.markSizePx).toBeGreaterThan(three!.markSizePx)
     expect(three!.markSizePx).toBeGreaterThan(seven!.markSizePx)
   })
 
   it('should keep marks larger than label text', () => {
-    const layout = computeTestIndicatorLayout({ ...base, rowCount: 2, qrCodesAbove: false })
+    const layout = computeTestIndicatorLayout({ ...base, rowCount: 2, qrSharesColumn: false })
     expect(layout!.markSizePx).toBeGreaterThan(layout!.labelFontSizePx * 1.5)
   })
 
@@ -37,7 +39,7 @@ describe('computeTestIndicatorLayout', () => {
       paddingMm: 0.5,
       qrColumnWidthMm,
       rowCount: 3,
-      qrCodesAbove: false,
+      qrSharesColumn: false,
       labels: ['Mass', 'Purity', 'Heavy Metals'],
     })
 
@@ -51,14 +53,14 @@ describe('computeTestIndicatorLayout', () => {
       ...base,
       qrColumnWidthMm: 8,
       rowCount: 1,
-      qrCodesAbove: false,
+      qrSharesColumn: false,
       labels: ['Heavy Metals'],
     })
     const wide = computeTestIndicatorLayout({
       ...base,
       qrColumnWidthMm: 16,
       rowCount: 1,
-      qrCodesAbove: false,
+      qrSharesColumn: false,
       labels: ['Heavy Metals'],
     })
 
@@ -67,12 +69,38 @@ describe('computeTestIndicatorLayout', () => {
   })
 
   it('should shrink available height when QR codes share the column', () => {
-    const solo = computeTestIndicatorLayout({ ...base, rowCount: 2, qrCodesAbove: false })
-    const shared = computeTestIndicatorLayout({ ...base, rowCount: 2, qrCodesAbove: true })
+    const solo = computeTestIndicatorLayout({ ...base, rowCount: 2, qrSharesColumn: false })
+    const shared = computeTestIndicatorLayout({ ...base, rowCount: 2, qrSharesColumn: true })
     expect(solo!.markSizePx).toBeGreaterThan(shared!.markSizePx)
   })
 
+  it('should cap mark width within the testing column inner width', () => {
+    const qrColumnWidthMm = 14
+    const layout = computeTestIndicatorLayout({
+      ...base,
+      qrColumnWidthMm,
+      rowCount: 2,
+      qrSharesColumn: false,
+      labels: ['Purity', 'Endotoxin'],
+    })
+    const columnInnerMm = Math.max(0, (qrColumnWidthMm - 0.5 * 0.65) * 0.97)
+    const markMm = labelFontSizePxToMm(layout!.markSizePx, 300)
+    expect(markMm).toBeLessThanOrEqual(columnInnerMm * 0.85)
+  })
+
   it('should return undefined when there is nothing to print', () => {
-    expect(computeTestIndicatorLayout({ ...base, rowCount: 0, qrCodesAbove: false })).toBeUndefined()
+    expect(computeTestIndicatorLayout({ ...base, rowCount: 0, qrSharesColumn: false })).toBeUndefined()
+  })
+
+  it('should fit rendered stack height within the indicators budget', () => {
+    const indicatorsHeightMm = 8
+    const layout = computeTestIndicatorLayout({
+      ...base,
+      rowCount: 2,
+      qrSharesColumn: false,
+      indicatorsHeightMm,
+    })
+    const budgetPx = mmToPx(indicatorsHeightMm, 300)
+    expect(testIndicatorsStackHeightPx(layout!, 2)).toBeLessThanOrEqual(budgetPx)
   })
 })

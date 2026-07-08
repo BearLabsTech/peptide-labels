@@ -22,6 +22,56 @@
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.label-preview-container--identity-header {
+  flex-direction: column;
+  gap: calc(var(--label-pad, 1.25cqw) * 0.75);
+}
+
+.label-title-band {
+  width: 100%;
+  flex-shrink: 0;
+  min-height: 0;
+}
+
+.label-title-band-row {
+  display: flex;
+  align-items: center;
+  gap: var(--label-pad, 1.25cqw);
+  overflow: visible;
+}
+
+.label-title-band-gutter {
+  flex-shrink: 0;
+}
+
+.label-title-band-center {
+  flex: 1;
+  min-width: 0;
+  overflow: visible;
+}
+
+.label-title-breakout {
+  width: calc(var(--title-breakout-width-pct, 100) * 1%);
+  margin-left: calc(var(--title-breakout-margin-left-pct, 0) * 1%);
+  box-sizing: border-box;
+  transform: translateX(calc(var(--title-axis-pct, 50%) - 50%));
+}
+
+.label-title-breakout .label-title-area,
+.label-title-breakout .label-preview-title,
+.label-title-breakout .danger-title-wrapper {
+  width: 100%;
+  text-align: center;
+}
+
+.label-main-row {
+  display: flex;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  gap: var(--label-pad, 1.25cqw);
+}
+
 .label-left-column {
   flex-shrink: 0;
   display: flex;
@@ -29,7 +79,10 @@
   justify-content: center;
   align-items: center;
   height: 100%;
-  border-right: 3px dashed #000000;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-right: 2px dashed #000000;
   padding-right: var(--label-pad, 1.25cqw);
 }
 
@@ -41,8 +94,23 @@
   align-items: center;
   height: 100%;
   min-height: 0;
-  border-left: 3px dashed #000000;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-left: 2px dashed #000000;
   padding-left: calc(var(--label-pad, 1.25cqw) * 0.65);
+  gap: 1.5cqw;
+}
+
+.label-right-column--with-qr-and-indicators {
+  gap: 0;
+  justify-content: flex-start;
+}
+
+.label-qr-slot--below-indicators {
+  flex: 0 0 auto;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 .label-center-column {
@@ -54,17 +122,6 @@
   height: 100%;
   min-width: 0;
   min-height: 0;
-}
-
-/* Title + body as one block — vertically centered when stack is shorter than column */
-.label-center-stack {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  width: 100%;
-  min-height: 0;
-  gap: var(--label-pad, 1.25cqw);
 }
 
 /* --- TITLE AND DANGER STYLES --- */
@@ -131,7 +188,7 @@
 
 .label-preview-box {
   width: 100%;
-  border: 3px solid #000000;
+  border: 2px solid #000000;
   border-radius: 1.2cqw;
   /* DECREASED PADDING: Tighter vertical box padding to save real estate */
   padding: 0.5cqw 0.8cqw;
@@ -159,6 +216,21 @@
   width: 100%;
 }
 
+
+.label-qr-slot--below-indicators .label-qr-slot-graphic {
+  flex: 0 0 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.label-qr-slot--below-indicators .label-qr-svg {
+  display: block;
+  flex-shrink: 0;
+}
+
 .label-qr-slot-graphic {
   flex: 1 1 0;
   min-height: 0;
@@ -179,6 +251,7 @@
 .qr-text {
   font-size: 2cqw;
   font-weight: 900;
+  line-height: 1;
   text-transform: uppercase;
   margin-top: 0.2cqw;
   flex-shrink: 0;
@@ -188,20 +261,24 @@
 .label-test-indicators {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: stretch;
   width: 100%;
-  flex: 1 1 0;
+  flex: 0 0 auto;
   min-height: 0;
-  height: 100%;
+  overflow: visible;
 }
 
 .label-test-indicators--with-qr {
-  flex: 0 1 auto;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.label-test-indicators--solo {
+  flex: 0 0 auto;
   height: auto;
-  max-height: 45%;
   justify-content: flex-start;
-  margin-bottom: 1.25cqw;
+  padding-top: 0.2cqw;
 }
 
 .label-test-row {
@@ -210,25 +287,31 @@
   align-items: center;
   justify-content: center;
   width: 100%;
+  max-width: 100%;
   line-height: 1;
   flex: 0 0 auto;
   min-height: 0;
+  overflow: hidden;
 }
 
 .label-test-name {
   font-weight: 800;
   letter-spacing: 0.01em;
   color: #000000;
-  flex-shrink: 0;
+  flex-shrink: 1;
   white-space: nowrap;
   text-align: center;
   line-height: 1.1;
   width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: clip;
 }
 
 .label-test-mark {
   display: block;
   flex-shrink: 0;
+  max-width: 100%;
 }
 
 /* --- FIX FOR THERMAL BLOOM (Small Text) --- */

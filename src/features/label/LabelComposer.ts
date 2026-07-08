@@ -1,11 +1,12 @@
-import type { LabelModelInput } from './labelModel'
+import type { LabelModelInput, LabelLayoutMode } from './labelModel'
+import { resolveLabelLayoutMode } from './labelModel'
 import { LabelLayoutEngine, type BoxedSection } from './LabelLayoutEngine'
 import { resolveLabelMath } from './LabelMathResolver'
 import { buildQrCodes, type QrCodeEntry } from './coaLinks'
 import { buildTestIndicators, hasTestingColumnContent, shouldShowCoaQr, type TestIndicatorEntry } from './testIndicators'
 import { computeTestIndicatorLayout, type TestIndicatorLayout } from './testIndicatorLayout'
-import { computeColumnLayout } from './labelColumnLayout'
-import { maxFontSizePxForLabelHeight, MIN_TITLE_TO_BODY_FONT_RATIO, TITLE_HEIGHT_WEIGHT, TITLE_HEIGHT_WEIGHT_DANGER } from './labelLayoutConstants'
+import { computeColumnLayout, computeIdentityHeaderTitleWidthMm } from './labelColumnLayout'
+import { maxFontSizePxForLabelHeight, MIN_TITLE_TO_BODY_FONT_RATIO, TITLE_HEIGHT_WEIGHT, TITLE_HEIGHT_WEIGHT_DANGER, IDENTITY_HEADER_TITLE_BAND_GAP_FRAC } from './labelLayoutConstants'
 import { mmToPx } from './print/dimensions'
 import type { PrintTarget } from './print/types'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
@@ -19,11 +20,11 @@ export interface LabelRenderModel {
   testIndicatorLayout?: TestIndicatorLayout;
   logoColumnWidthPercent: number;
   qrColumnWidthPercent: number;
+  labelLayoutMode: LabelLayoutMode;
 }
 
 /** Bold uppercase title (`font-weight: 900`) — Arial caps run ~0.95em per character. */
 const TITLE_CHAR_WIDTH_EM = 0.95
-const TITLE_WIDTH_SAFETY = 0.92
 const TITLE_WIDTH_FRAC = 0.92
 
 export class LabelComposer {
@@ -76,9 +77,11 @@ export class LabelComposer {
       logoColumnWidthPercent: input.logoColumnWidthPercent,
       qrColumnWidthPercent: input.qrColumnWidthPercent,
     })
+    const layoutMode = resolveLabelLayoutMode(input)
     const centerColumnMm = columns.centerWidthMm
     const baseWidthMm = centerColumnMm * TITLE_WIDTH_FRAC
-    const titleWidthMm = isDanger ? (centerColumnMm * 0.65) : (centerColumnMm * TITLE_WIDTH_FRAC)
+    const titleWidthMm = computeIdentityHeaderTitleWidthMm(columns, isDanger)
+    const titleWidthSafety = 1
     const innerHeightMm = this.usableHeightMm();
     const labelWidthPx = mmToPx(this.printTarget.labelWidthMm, this.printTarget.effectiveDpi);
     const titleBodyGapMm = this.printTarget.paddingMm;
@@ -88,16 +91,17 @@ export class LabelComposer {
       ...(proLines.length > 0 ? [{ lines: proLines }] : []),
       ...(srcLines.length > 0 ? [{ lines: srcLines }] : []),
     ];
-    const testIndicatorLayout = this.buildTestIndicatorLayout(testIndicators, columns, visibleQrCodes);
-
     if (!hasBody) {
       const titleLayout = this.layoutEngine.layout({
         lines: title.split('\n').map((line) => line.toUpperCase()),
         widthMm: titleWidthMm,
         heightMm: innerHeightMm,
         charWidthEm: TITLE_CHAR_WIDTH_EM,
-        widthSafety: TITLE_WIDTH_SAFETY,
+        widthSafety: titleWidthSafety,
       });
+      const testIndicatorLayout = this.buildTestIndicatorLayout(
+        testIndicators, columns, visibleQrCodes, titleLayout,
+      );
       return {
         wrappedLines: titleLayout.wrappedLines,
         titleLines: titleLayout.wrappedLines,
@@ -107,17 +111,20 @@ export class LabelComposer {
         qrCodes: visibleQrCodes, testIndicators, testIndicatorLayout, customImage: input.customImage, isDangerMode: isDanger,
         logoColumnWidthPercent: columns.logoWidthPercent,
         qrColumnWidthPercent: columns.qrWidthPercent,
+        labelLayoutMode: layoutMode,
       };
     }
 
-    const titleHeightWeight = isDanger ? TITLE_HEIGHT_WEIGHT_DANGER : TITLE_HEIGHT_WEIGHT;
+    const titleHeightWeight = isDanger
+      ? TITLE_HEIGHT_WEIGHT_DANGER
+      : Math.min(TITLE_HEIGHT_WEIGHT + 0.06, 0.55)
     const titleLinesUpper = title.split('\n').map((line) => line.toUpperCase());
     const titleInput = {
       lines: titleLinesUpper,
       widthMm: titleWidthMm,
       heightMm: innerHeightMm * titleHeightWeight,
       charWidthEm: TITLE_CHAR_WIDTH_EM,
-      widthSafety: TITLE_WIDTH_SAFETY,
+      widthSafety: titleWidthSafety,
     };
 
     let titleLayout = this.layoutEngine.layout(titleInput);
@@ -200,6 +207,10 @@ export class LabelComposer {
       stackFits,
     }));
 
+    const testIndicatorLayout = this.buildTestIndicatorLayout(
+      testIndicators, columns, visibleQrCodes, titleLayout,
+    );
+
     return {
       wrappedLines: [...titleLayout.wrappedLines, ...bodyLayout.wrappedLines],
       titleLines: titleLayout.wrappedLines,
@@ -209,6 +220,7 @@ export class LabelComposer {
       qrCodes: visibleQrCodes, testIndicators, testIndicatorLayout, customImage: input.customImage, isDangerMode: isDanger,
       logoColumnWidthPercent: columns.logoWidthPercent,
       qrColumnWidthPercent: columns.qrWidthPercent,
+      labelLayoutMode: layoutMode,
     }
   }
 
@@ -267,14 +279,28 @@ export class LabelComposer {
     testIndicators: TestIndicatorEntry[],
     columns: ReturnType<typeof computeColumnLayout>,
     visibleQrCodes: QrCodeEntry[],
+    titleLayout?: { wrappedLines: string[]; fontSizePx: number },
   ): TestIndicatorLayout | undefined {
+    const innerHeightMm = this.usableHeightMm()
+    let indicatorsHeightMm = innerHeightMm
+    if (titleLayout) {
+      const titlePx = this.layoutEngine.estimateTitleHeightPx(
+        titleLayout.wrappedLines.length,
+        titleLayout.fontSizePx,
+      )
+      const gapPx = mmToPx(this.printTarget.paddingMm, this.printTarget.effectiveDpi) * IDENTITY_HEADER_TITLE_BAND_GAP_FRAC
+      const rowPx = Math.max(0, mmToPx(innerHeightMm, this.printTarget.effectiveDpi) - titlePx - gapPx)
+      indicatorsHeightMm = (rowPx * 25.4) / this.printTarget.effectiveDpi
+    }
+
     return computeTestIndicatorLayout({
       effectiveDpi: this.printTarget.effectiveDpi,
       labelHeightMm: this.printTarget.labelHeightMm,
       paddingMm: this.printTarget.paddingMm,
       qrColumnWidthMm: columns.qrWidthMm,
       rowCount: testIndicators.length,
-      qrCodesAbove: visibleQrCodes.length > 0,
+      qrSharesColumn: visibleQrCodes.length > 0,
+      indicatorsHeightMm,
       labels: testIndicators.map((entry) => entry.label),
     })
   }

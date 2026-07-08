@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeColumnLayout } from './labelColumnLayout'
+import { computeColumnLayout, computeIdentityHeaderTitleBand, computeIdentityHeaderTitleBreakout, computeIdentityHeaderTitleWidthMm } from './labelColumnLayout'
 import { MIN_CENTER_COLUMN_PERCENT } from './labelLayoutConstants'
 
 describe('computeColumnLayout', () => {
@@ -50,5 +50,66 @@ describe('computeColumnLayout', () => {
 
     expect(layout.logoWidthPercent + layout.qrWidthPercent).toBeLessThanOrEqual(100 - MIN_CENTER_COLUMN_PERCENT)
     expect(layout.centerWidthMm).toBeGreaterThanOrEqual(layout.innerRowMm * (MIN_CENTER_COLUMN_PERCENT / 100))
+  })
+})
+
+describe('computeIdentityHeaderTitleBand', () => {
+  it('should place axis on center column midpoint not geometric label center', () => {
+    const columns = computeColumnLayout({
+      labelWidthMm: 40,
+      paddingMm: 0.5,
+      hasLogo: true,
+      hasQr: true,
+      logoColumnWidthPercent: 20,
+      qrColumnWidthPercent: 38,
+    })
+    const band = computeIdentityHeaderTitleBand(columns, true)
+
+    expect(band.axisFraction).toBeLessThan(0.5)
+    expect(band.spanFraction).toBeGreaterThan(columns.centerWidthMm / columns.innerRowMm)
+  })
+
+  it('should widen span when testing column is narrower than logo column', () => {
+    const wideQr = computeIdentityHeaderTitleBand(
+      computeColumnLayout({
+        labelWidthMm: 40,
+        paddingMm: 0.5,
+        hasLogo: true,
+        hasQr: true,
+        logoColumnWidthPercent: 38,
+        qrColumnWidthPercent: 20,
+      }),
+      true,
+    )
+    const wideLogo = computeIdentityHeaderTitleBand(
+      computeColumnLayout({
+        labelWidthMm: 40,
+        paddingMm: 0.5,
+        hasLogo: true,
+        hasQr: true,
+        logoColumnWidthPercent: 20,
+        qrColumnWidthPercent: 38,
+      }),
+      true,
+    )
+
+    expect(wideQr.axisFraction).toBeGreaterThan(wideLogo.axisFraction)
+    expect(wideQr.spanFraction).not.toBe(wideLogo.spanFraction)
+  })
+
+  it('shouldBreakTitleOutToFullInnerRowFromCenterColumn', () => {
+    const columns = computeColumnLayout({
+      labelWidthMm: 40,
+      paddingMm: 0.5,
+      hasLogo: true,
+      hasQr: true,
+      logoColumnWidthPercent: 20,
+      qrColumnWidthPercent: 38,
+    })
+    const breakout = computeIdentityHeaderTitleBreakout(columns, true, true)
+
+    expect(breakout.breakoutWidthPct).toBeCloseTo((columns.innerRowMm / columns.centerWidthMm) * 100, 5)
+    expect(breakout.breakoutMarginLeftPct).toBeLessThan(0)
+    expect(computeIdentityHeaderTitleWidthMm(columns, false)).toBe(columns.innerRowMm)
   })
 })

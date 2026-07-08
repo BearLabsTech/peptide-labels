@@ -1,3 +1,12 @@
+/** Shipped and future label layout templates. Add variants here as new templates ship. */
+export type LabelLayoutMode = 'identityHeader'
+
+export const DEFAULT_LABEL_LAYOUT_MODE: LabelLayoutMode = 'identityHeader'
+
+export function resolveLabelLayoutMode(input: LabelModelInput): LabelLayoutMode {
+  return input.labelLayoutMode ?? DEFAULT_LABEL_LAYOUT_MODE
+}
+
 export interface LabelModel {
   lines: string[]
 }
@@ -20,6 +29,8 @@ export interface LabelModelInput {
 
   // Global Settings
   dateFormat?: 'YYYYMMDD' | 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
+  /** Layout template id; defaults to identity header. */
+  labelLayoutMode?: LabelLayoutMode
 
   // Source Info
   vendorName?: string

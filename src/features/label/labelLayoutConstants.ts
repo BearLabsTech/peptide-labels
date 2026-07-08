@@ -9,6 +9,9 @@ export const TITLE_HEIGHT_WEIGHT_DANGER = 0.42
 /** Title font should stay at least this multiple of body font when both print. */
 export const MIN_TITLE_TO_BODY_FONT_RATIO = 1.35
 
+/** Gap between title band and main row in identity-header layout (`.label-preview-container--identity-header`). */
+export const IDENTITY_HEADER_TITLE_BAND_GAP_FRAC = 0.75
+
 export interface ColumnWidthBounds {
   defaultPercent: number
   minPercent: number

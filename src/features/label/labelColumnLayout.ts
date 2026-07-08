@@ -76,3 +76,61 @@ export function computeColumnLayout(input: ColumnLayoutInput): ColumnLayout {
     gapCount,
   }
 }
+
+/** Identity-header title band: axis on center column, span until inner row edge. */
+export interface IdentityHeaderTitleBand {
+  /** Horizontal center of the center column, 0–1 from the left inner-row edge. */
+  axisFraction: number
+  /** Max title width centered on {@link axisFraction}, 0–1 of inner row width. */
+  spanFraction: number
+}
+
+export function computeIdentityHeaderTitleBand(
+  columns: ColumnLayout,
+  hasLogo: boolean,
+): IdentityHeaderTitleBand {
+  let axisMm = 0
+  if (hasLogo) axisMm += columns.logoWidthMm + columns.gapMm
+  axisMm += columns.centerWidthMm / 2
+
+  const spanMm = 2 * Math.min(axisMm, columns.innerRowMm - axisMm)
+
+  return {
+    axisFraction: axisMm / columns.innerRowMm,
+    spanFraction: spanMm / columns.innerRowMm,
+  }
+}
+
+/** Break out of the center flex cell to the full inner row; shift so text centers on the center column axis. */
+export interface IdentityHeaderTitleBreakout {
+  axisFraction: number
+  /** Breakout width as % of the center column flex cell. */
+  breakoutWidthPct: number
+  /** Negative left margin as % of the center column flex cell. */
+  breakoutMarginLeftPct: number
+}
+
+export function computeIdentityHeaderTitleBreakout(
+  columns: ColumnLayout,
+  hasLogo: boolean,
+  hasQr: boolean,
+): IdentityHeaderTitleBreakout {
+  const band = computeIdentityHeaderTitleBand(columns, hasLogo)
+  const leftOverhangMm = hasLogo ? columns.logoWidthMm + columns.gapMm : 0
+  const rightOverhangMm = hasQr ? columns.qrWidthMm + columns.gapMm : 0
+  const centerMm = columns.centerWidthMm
+
+  return {
+    axisFraction: band.axisFraction,
+    breakoutWidthPct: ((leftOverhangMm + centerMm + rightOverhangMm) / centerMm) * 100,
+    breakoutMarginLeftPct: -(leftOverhangMm / centerMm) * 100,
+  }
+}
+
+export function computeIdentityHeaderTitleWidthMm(
+  columns: ColumnLayout,
+  isDanger: boolean,
+  dangerWidthFrac = 0.65,
+): number {
+  return isDanger ? columns.innerRowMm * dangerWidthFrac : columns.innerRowMm
+}

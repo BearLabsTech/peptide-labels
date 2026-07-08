@@ -33,8 +33,8 @@ interface WrapState {
     didChopWord: boolean
 }
 
-/** Matches `LabelPreview.css` boxed section chrome. */
-const BOX_BORDER_PX = 6
+/** Matches `LabelPreview.css` boxed section chrome (2px top + bottom). */
+const BOX_BORDER_PX = 4
 const SECTION_LABEL_EM = 0.55
 const CONTENT_EM = 0.82
 const CONTENT_LINE_HEIGHT = 1.25

@@ -13,7 +13,10 @@ export interface TestIndicatorLayoutInput {
   paddingMm: number
   qrColumnWidthMm: number
   rowCount: number
-  qrCodesAbove: boolean
+  /** When true, QR codes share the testing column (reduces indicator height budget). */
+  qrSharesColumn: boolean
+  /** Override vertical budget for indicators; defaults to full inner label height. */
+  indicatorsHeightMm?: number
   /** Full label strings that must fit within the column width. */
   labels: string[]
 }
@@ -25,7 +28,17 @@ const ABS_MIN_LABEL_FONT_MM = 0.95
 const MAX_LABEL_FONT_MM = 2.6
 /** Mark height target relative to label cap height. */
 const MARK_TO_LABEL_RATIO = 1.85
-const MARK_WIDTH_FRAC = 0.97
+/** Mark width cap as fraction of column inner width — leave margin so marks do not bleed. */
+const MARK_WIDTH_FRAC = 0.82
+/** Matches `.label-test-name` line-height in LabelPreview.css. */
+export const TEST_LABEL_LINE_HEIGHT = 1.1
+
+export function testIndicatorsStackHeightPx(layout: TestIndicatorLayout, rowCount: number): number {
+  if (rowCount <= 0) return 0
+  const labelLinePx = layout.labelFontSizePx * TEST_LABEL_LINE_HEIGHT
+  const rowPx = labelLinePx + layout.labelMarkGapPx + layout.markSizePx
+  return rowCount * rowPx + Math.max(0, rowCount - 1) * layout.rowGapPx
+}
 
 export function estimateTestLabelWidthMm(label: string, fontSizeMm: number): number {
   if (!label) return 0
@@ -39,9 +52,9 @@ export function estimateTestLabelWidthMm(label: string, fontSizeMm: number): num
 export function computeTestIndicatorLayout(input: TestIndicatorLayoutInput): TestIndicatorLayout | undefined {
   if (input.rowCount <= 0) return undefined
 
-  const usableHeightMm = input.labelHeightMm - input.paddingMm * 2
+  const usableHeightMm = input.indicatorsHeightMm ?? (input.labelHeightMm - input.paddingMm * 2)
   let indicatorsHeightMm = usableHeightMm
-  if (input.qrCodesAbove) {
+  if (input.qrSharesColumn) {
     indicatorsHeightMm *= 0.45
   }
 
@@ -58,7 +71,7 @@ export function computeTestIndicatorLayout(input: TestIndicatorLayoutInput): Tes
     ? columnInnerMm / (longestLabel.length * LABEL_CHAR_WIDTH_EM)
     : MAX_LABEL_FONT_MM
 
-  const maxLabelForMarkRatioMm = (rowHeightMm - labelMarkGapMm) / (1 + MARK_TO_LABEL_RATIO)
+  const maxLabelForMarkRatioMm = (rowHeightMm - labelMarkGapMm) / (TEST_LABEL_LINE_HEIGHT + MARK_TO_LABEL_RATIO)
   let resolvedLabelFontMm = Math.min(maxLabelFontForWidthMm, maxLabelForMarkRatioMm, MAX_LABEL_FONT_MM)
   resolvedLabelFontMm = Math.max(resolvedLabelFontMm, ABS_MIN_LABEL_FONT_MM)
   resolvedLabelFontMm = Math.min(resolvedLabelFontMm, maxLabelFontForWidthMm)
@@ -72,18 +85,28 @@ export function computeTestIndicatorLayout(input: TestIndicatorLayoutInput): Tes
   }
   resolvedLabelFontMm = labelFontSizePxToMm(labelFontSizePx, input.effectiveDpi)
 
-  const markFromRowMm = rowHeightMm - resolvedLabelFontMm - labelMarkGapMm
+  const markFromRowMm = rowHeightMm - resolvedLabelFontMm * TEST_LABEL_LINE_HEIGHT - labelMarkGapMm
   const markFromWidthMm = columnInnerMm * MARK_WIDTH_FRAC
   const markSizeMm = Math.min(markFromRowMm, markFromWidthMm)
 
   if (markSizeMm <= 0) return undefined
 
-  return {
+  let layout: TestIndicatorLayout = {
     markSizePx: mmToPx(markSizeMm, input.effectiveDpi),
     labelFontSizePx,
     rowGapPx: mmToPx(rowGapMm, input.effectiveDpi),
     labelMarkGapPx: mmToPx(labelMarkGapMm, input.effectiveDpi),
   }
+
+  const budgetPx = mmToPx(indicatorsHeightMm, input.effectiveDpi)
+  while (testIndicatorsStackHeightPx(layout, input.rowCount) > budgetPx && layout.markSizePx > 8) {
+    layout = { ...layout, markSizePx: layout.markSizePx - 1 }
+  }
+  while (testIndicatorsStackHeightPx(layout, input.rowCount) > budgetPx && layout.labelFontSizePx > 1) {
+    layout = { ...layout, labelFontSizePx: layout.labelFontSizePx - 1 }
+  }
+
+  return layout
 }
 
 /** Convert export px back to mm for layout assertions. */
