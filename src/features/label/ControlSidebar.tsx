@@ -16,7 +16,7 @@ export interface ControlSidebarProps {
 export function ControlSidebar({ input, updateField, printSelection, onPrintSelectionChange, setupOpen }: ControlSidebarProps) {
     const { autoUnits, autoWater, autoConcentration } = resolveLabelMath(input);
     const derivedState = { autoUnits, autoWater, autoConcentration };
-    const handlers = useLabelForm(input, updateField);
+    const handlers = useLabelForm(input, updateField, { autoConcentration, autoUnits, autoWater });
 
     return (
         <div className="sidebar-panel">
@@ -28,11 +28,11 @@ export function ControlSidebar({ input, updateField, printSelection, onPrintSele
                     defaultOpen={setupOpen ?? true}
                 />
                 <CompoundSection input={input} updateField={updateField} handlers={handlers} />
-                <SourceSection input={input} updateField={updateField} />
                 <ReconstitutionSection input={input} updateField={updateField} derivedState={derivedState} handlers={handlers} />
                 <ProtocolSection input={input} updateField={updateField} derivedState={derivedState} handlers={handlers} />
                 <MediaSection input={input} updateField={updateField} />
                 <TestingSection input={input} updateField={updateField} />
+                <SourceSection input={input} updateField={updateField} />
             </div>
         </div>
     )

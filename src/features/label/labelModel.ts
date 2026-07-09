@@ -7,6 +7,24 @@ export function resolveLabelLayoutMode(input: LabelModelInput): LabelLayoutMode 
   return input.labelLayoutMode ?? DEFAULT_LABEL_LAYOUT_MODE
 }
 
+/** Formats a water volume for label display, always including the ml unit. */
+export function formatWaterVolumeLabel(amount?: string): string {
+  if (!amount?.trim()) return ''
+  const match = amount.trim().match(/^([\d.]+)/)
+  if (!match) return amount.trim()
+  return `${match[1]} ml`
+}
+
+/** Formats draw volume for label display, always including the units suffix. */
+export function formatDrawVolumeLabel(drawVolume?: string): string {
+  if (!drawVolume?.trim()) return ''
+  const trimmed = drawVolume.trim()
+  if (/units/i.test(trimmed)) return trimmed
+  const match = trimmed.match(/^([\d.]+)/)
+  if (!match) return trimmed
+  return `${match[1]} units`
+}
+
 export interface LabelModel {
   lines: string[]
 }
@@ -26,6 +44,11 @@ export interface LabelModelInput {
   reconstitutionDate?: string
   reconstitutionDateIsFreeText?: boolean
   measureUnit?: 'mg' | 'mcg' | 'IU'
+
+  /** Calculator solve strategy for deriving water volume from protocol. */
+  calculatorSolveMode?: 'standard' | 'round_concentration' | 'target_units'
+  /** Target concentration when calculatorSolveMode is round_concentration (mg/ml or IU/ml). */
+  targetConcentration?: string
 
   // Global Settings
   dateFormat?: 'YYYYMMDD' | 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'

@@ -44,7 +44,9 @@ Inconsistent numbers on a vial label are worse than missing numbers—they look 
 
 If you know vial amount, water volume, and protocol amount, the app can work out **draw volume** and concentration for you. If you already know draw volume and protocol amount, it can work out **how much water** you needed. Enter only vial and water and you still get a useful **concentration** line even before protocol is filled in.
 
-The app keeps **milligram/microgram** and **IU** worlds consistent: an IU vial pairs with IU on the protocol side. When you change one driving input, related fields refresh in a sensible direction so you are always looking at a coherent set of values, not a patchwork of stale and new numbers.
+When you know your protocol amount but want simpler bench math, you can choose how the calculator solves for water volume: enter a **target concentration** (mg/ml—or IU/ml for IU vials) and the app fills in water and draw units, or enter **draw units** directly and the app works backward to the water volume you need. In Set Concentration mode, **the concentration you enter is what prints on the label**—water rounds to practical ml, but draw units and the concentration line stay tied to your target, not a back-calculated drift. **Water volume and concentration are not calculated or printed until you enter vial amount**—without that, the app cannot know concentration, so it defaults draw units to a flat **10 units** placeholder rather than guessing wrong math.
+
+The app keeps **milligram/microgram** and **IU** worlds consistent: an IU vial pairs with IU on the protocol side. When you change one driving input, related fields refresh in a sensible direction so you are always looking at a coherent set of values, not a patchwork of stale and new numbers. Field order does not matter: enter protocol before vial, or vial before protocol, and the app recalculates once enough information is present.
 
 ---
 

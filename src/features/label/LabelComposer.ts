@@ -1,7 +1,8 @@
 import type { LabelModelInput, LabelLayoutMode } from './labelModel'
-import { resolveLabelLayoutMode } from './labelModel'
+import { resolveLabelLayoutMode, formatWaterVolumeLabel, formatDrawVolumeLabel } from './labelModel'
 import { LabelLayoutEngine, type BoxedSection } from './LabelLayoutEngine'
 import { resolveLabelMath } from './LabelMathResolver'
+import { hasPositiveVialAmount } from './peptideMath'
 import { buildQrCodes, type QrCodeEntry } from './coaLinks'
 import { buildTestIndicators, hasTestingColumnContent, shouldShowCoaQr, type TestIndicatorEntry } from './testIndicators'
 import { computeTestIndicatorLayout, type TestIndicatorLayout } from './testIndicatorLayout'
@@ -39,11 +40,12 @@ export class LabelComposer {
   }
 
   public compose(rawInput: LabelModelInput): LabelRenderModel {
-    const input = resolveLabelMath(rawInput).mergedInput;
+    const resolved = resolveLabelMath(rawInput);
+    const input = resolved.mergedInput;
     const { title, demotedTitle } = this.buildTitles(input);
 
     const sourceLines = input.showSource !== false ? this.buildSourceLines(input) : [];
-    const reconstitutionLines = input.showReconstitution !== false ? this.buildReconstitutionLines(input) : [];
+    const reconstitutionLines = input.showReconstitution !== false ? this.buildReconstitutionLines(input, resolved) : [];
     const protocolLines = input.showProtocol !== false ? this.buildProtocolLines(input) : [];
 
     const qrCodes = buildQrCodes(input);
@@ -362,7 +364,7 @@ export class LabelComposer {
     if (input.showProtocol === false) return [];
     const lines: string[] = [];
 
-    const unitsStr = input.showProtocolUnits !== false ? (input.protocolUnits || '') : '';
+    const unitsStr = input.showProtocolUnits !== false ? formatDrawVolumeLabel(input.protocolUnits) : '';
     const amtStr = input.showProtocolAmount !== false ? this.formatAmount(input.protocolAmount, input.measureUnit || 'mcg') : '';
 
     if (unitsStr && amtStr) lines.push(`${unitsStr} (${amtStr})`);
@@ -374,16 +376,21 @@ export class LabelComposer {
     return lines;
   }
 
-  private buildReconstitutionLines(input: LabelModelInput): string[] {
+  private buildReconstitutionLines(input: LabelModelInput, resolved?: ReturnType<typeof resolveLabelMath>): string[] {
     if (input.showReconstitution === false) return [];
+    if (!hasPositiveVialAmount(input.compoundAmount)) return [];
     const lines: string[] = [];
 
-    if (input.showWater !== false && (input.reconstitutionAmount || input.reconstitutionType)) {
-      lines.push(`${input.reconstitutionAmount || ''} ${input.reconstitutionType || ''}`.trim());
+    const waterAmount = input.reconstitutionAmount || resolved?.autoWater || '';
+    const concentration = input.concentration || resolved?.autoConcentration || '';
+
+    if (input.showWater !== false && (waterAmount || input.reconstitutionType)) {
+      const waterLabel = formatWaterVolumeLabel(waterAmount)
+      lines.push(`${waterLabel} ${input.reconstitutionType || ''}`.trim());
     }
 
-    if (input.showConcentration !== false && input.concentration) {
-      lines.push(input.concentration);
+    if (input.showConcentration !== false && concentration) {
+      lines.push(concentration);
     }
 
     if (input.showReconDate !== false && input.reconstitutionDate) {

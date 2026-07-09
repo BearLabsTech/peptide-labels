@@ -136,6 +136,133 @@ describe('LabelComposer', () => {
         expect(result.bodyFontSizePx).toBeLessThanOrEqual(26)
     })
 
+    it('should print reconstitution from derived values when form state has not synced water yet', () => {
+        const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
+        const result = composer.compose({
+            compoundName: 'Test Compound',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            reconstitutionAmount: '',
+            concentration: '',
+            protocolAmount: '3',
+            measureUnit: 'mg',
+            protocolUnits: '10 units',
+            calculatorSolveMode: 'target_units',
+        })
+        expect(result.reconstitutionLines).toEqual(['0.67 ml', '29.85mg per ml'])
+    })
+
+    it('should not print reconstitution in set draw volume mode without a vial amount', () => {
+        const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
+        const result = composer.compose({
+            compoundName: 'Test Compound',
+            protocolAmount: '3',
+            measureUnit: 'mg',
+            protocolUnits: '10 units',
+            calculatorSolveMode: 'target_units',
+        })
+        expect(result.reconstitutionLines).toEqual([])
+    })
+
+    it('should print reconstitution section in set draw volume mode when vial protocol and draw volume are set', () => {
+        const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
+        const result = composer.compose({
+            compoundName: 'Test Compound',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            protocolAmount: '3',
+            measureUnit: 'mg',
+            protocolUnits: '10 units',
+            calculatorSolveMode: 'target_units',
+        })
+        expect(result.reconstitutionLines.length).toBeGreaterThan(0)
+        expect(result.reconstitutionLines[0]).toBe('0.67 ml')
+        expect(result.reconstitutionLines[1]).toBe('29.85mg per ml')
+    })
+
+    it('should print draw volume with units suffix when only a number is entered', () => {
+        const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
+        const result = composer.compose({
+            compoundName: 'Test Compound',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            reconstitutionAmount: '0.67',
+            concentration: '29.85mg per ml',
+            protocolAmount: '3',
+            measureUnit: 'mg',
+            protocolUnits: '10',
+        })
+        expect(result.protocolLines[0]).toBe('10 units (3mg)')
+    })
+
+    it('should print derived water volume in set draw volume mode even when stale water remains in input', () => {
+        const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
+        const result = composer.compose({
+            compoundName: 'Test Compound',
+            compoundAmount: '21.5',
+            vialUnit: 'mg',
+            reconstitutionAmount: '2',
+            protocolAmount: '3',
+            measureUnit: 'mg',
+            protocolUnits: '30 units',
+            calculatorSolveMode: 'target_units',
+        })
+        expect(result.reconstitutionLines[0]).toBe('2.15 ml')
+    })
+
+    it('should print target concentration on label in set concentration mode even when rounded water would drift', () => {
+        const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
+        const result = composer.compose({
+            compoundName: 'Test Compound',
+            compoundAmount: '22',
+            vialUnit: 'mg',
+            protocolAmount: '4',
+            measureUnit: 'mg',
+            calculatorSolveMode: 'round_concentration',
+            targetConcentration: '15',
+            concentration: '5mg per ml',
+            reconstitutionAmount: '4.4',
+            protocolUnits: '80 units',
+        })
+        expect(result.reconstitutionLines[0]).toBe('1.47 ml')
+        expect(result.reconstitutionLines[1]).toBe('15mg per ml')
+        expect(result.protocolLines[0]).toBe('26.7 units (4mg)')
+    })
+
+    it('should print user draw units on label in set draw volume mode even when rounded water would forward-recalculate different units', () => {
+        const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
+        const result = composer.compose({
+            compoundName: 'Test Compound',
+            compoundAmount: '22',
+            vialUnit: 'mg',
+            protocolAmount: '4',
+            measureUnit: 'mg',
+            protocolUnits: '27 units',
+            calculatorSolveMode: 'target_units',
+            reconstitutionAmount: '4.4',
+            concentration: '5mg per ml',
+        })
+        expect(result.reconstitutionLines[0]).toBe('1.49 ml')
+        expect(result.protocolLines[0]).toBe('27 units (4mg)')
+    })
+
+    it('should print water volume with ml unit when only water amount is shown', () => {
+        const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
+        const result = composer.compose({
+            compoundName: 'Test Compound',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            reconstitutionAmount: '2',
+            concentration: '10mg per ml',
+            protocolAmount: '3',
+            measureUnit: 'mg',
+            protocolUnits: '30 units',
+            calculatorSolveMode: 'round_concentration',
+            targetConcentration: '10',
+        })
+        expect(result.reconstitutionLines[0]).toBe('2 ml')
+    })
+
     it('itShouldShrinkBodyFontWhenAllSectionsAreFilled', () => {
         const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rect', printerId: 'niimbot-b21' }))
         const result = composer.compose({
@@ -154,6 +281,7 @@ describe('LabelComposer', () => {
             protocolFrequency: 'Weekly',
             vendorCoa: 'https://example.com',
         })
+        expect(result.reconstitutionLines[0]).toBe('2 ml BAC Water')
         expect(result.bodyFontSizePx).toBeLessThan(26)
     })
 

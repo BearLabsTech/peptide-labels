@@ -1,6 +1,14 @@
 import { TextInput, SelectInput, AccordionSection, SubAccordionSection, ImageUploadInput, DateField, ToggleInput } from './FormInputs'
 import { ColumnWidthSlider } from './ColumnWidthSlider'
 import { RECONSTITUTION_TYPES } from '../peptideMath'
+import {
+    CALCULATOR_MODE_OPTIONS,
+    calculatorModeFromLabel,
+    calculatorModeLabel,
+    concentrationUnitLabel,
+    displayDrawUnits,
+    displayWaterAmount,
+} from '../calculatorModeSwitch'
 import { buildQrCodes } from '../coaLinks'
 import type { LabelModelInput } from '../labelModel'
 import { LOGO_COLUMN_WIDTH, QR_COLUMN_WIDTH } from '../labelLayoutConstants'
@@ -28,7 +36,7 @@ export function CompoundSection({ input, updateField, handlers }: SectionProps) 
         <AccordionSection title="Compound" defaultOpen={true}>
             <TextInput label="Compound Name" value={input.compoundName} onChange={(v) => updateField('compoundName', v)} placeholder="Tirzepatide" />
             <div style={{ display: 'flex', gap: '12px' }}>
-                <div style={{ flex: 1 }}><TextInput label="Vial Amount" value={input.compoundAmount} onChange={(v) => updateField('compoundAmount', v)} placeholder="20" /></div>
+                <div style={{ flex: 1 }}><TextInput label="Vial Amount" value={input.compoundAmount} onChange={handlers!.handleCompoundAmountChange} placeholder="20" /></div>
                 <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.vialUnit || 'mg'} onChange={handlers!.handleVialUnitChange} options={['mg', 'IU']} /></div>
             </div>
             <div style={{ marginTop: 8, padding: '12px', borderRadius: '6px', backgroundColor: input.isUntested ? '#fef2f2' : '#f8fafc', border: `1px solid ${input.isUntested ? '#fee2e2' : '#e2e8f0'}`, display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => updateField('isUntested', !input.isUntested)}>
@@ -54,10 +62,37 @@ export function SourceSection({ input, updateField }: SectionProps) {
 
 export function ReconstitutionSection({ input, updateField, derivedState, handlers }: SectionProps) {
     const isSectionActive = input.showReconstitution !== false;
+    const solveMode = input.calculatorSolveMode || 'standard';
+    const waterDisabled = solveMode !== 'standard';
+    const concUnitLabel = concentrationUnitLabel(input.vialUnit);
     return (
         <AccordionSection title="Reconstitution">
             <ToggleInput label="Print Reconstitution on Label" checked={isSectionActive} onChange={v => updateField('showReconstitution', v)} />
-            <TextInput label="Water Amount (ml)" value={input.reconstitutionAmount || derivedState?.autoWater} onChange={handlers!.handleWaterChange} placeholder="2" printToggle={{ visible: input.showWater !== false, onChange: v => updateField('showWater', v), disabled: !isSectionActive }} />
+            <SelectInput
+                label="Calculator assist"
+                value={calculatorModeLabel(solveMode)}
+                onChange={(label) => handlers!.handleCalculatorModeChange(calculatorModeFromLabel(label))}
+                options={[...CALCULATOR_MODE_OPTIONS]}
+            />
+            {solveMode === 'round_concentration' && (
+                <>
+                    <TextInput
+                        label={`Target concentration (${concUnitLabel})`}
+                        value={input.targetConcentration || ''}
+                        onChange={handlers!.handleTargetConcentrationChange}
+                        placeholder="e.g. 10"
+                    />
+                    <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: -8, marginBottom: 12, lineHeight: 1.4 }}>
+                        Enter your target {concUnitLabel}. The app fills in water volume and draw units from your vial and protocol amount.
+                    </div>
+                </>
+            )}
+            {solveMode === 'target_units' && (
+                <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: 12, lineHeight: 1.4 }}>
+                    Enter your protocol amount and draw units in the Protocol section. The app fills in water volume for you.
+                </div>
+            )}
+            <TextInput label="Water Amount (ml)" value={displayWaterAmount(solveMode, input, derivedState)} onChange={handlers!.handleWaterChange} placeholder="2" disabled={waterDisabled} printToggle={{ visible: input.showWater !== false, onChange: v => updateField('showWater', v), disabled: !isSectionActive }} />
             <SelectInput label="Water Type" value={input.reconstitutionType || ''} onChange={(v) => updateField('reconstitutionType', v)} options={RECONSTITUTION_TYPES} allowNone={true} />
             <TextInput label="Concentration" value={input.concentration || derivedState?.autoConcentration} disabled={true} placeholder="e.g. 10mg per ml" onChange={() => { }} printToggle={{ visible: input.showConcentration !== false, onChange: v => updateField('showConcentration', v), disabled: !isSectionActive }} />
             <DateField label="Reconstitution Date" value={input.reconstitutionDate || ''} onChange={v => updateField('reconstitutionDate', v)} isFreeText={!!input.reconstitutionDateIsFreeText} onFreeTextToggle={v => updateField('reconstitutionDateIsFreeText', v)} printToggle={{ visible: input.showReconDate !== false, onChange: v => updateField('showReconDate', v), disabled: !isSectionActive }} />
@@ -68,16 +103,18 @@ export function ReconstitutionSection({ input, updateField, derivedState, handle
 export function ProtocolSection({ input, updateField, derivedState, handlers }: SectionProps) {
     const isSectionActive = input.showProtocol !== false;
     const measureUnitOptions = input.vialUnit === 'IU' ? ['IU'] : ['mcg', 'mg'];
+    const solveMode = input.calculatorSolveMode || 'standard';
+    const drawUnitsDisabled = solveMode === 'round_concentration';
+
     return (
         <AccordionSection title="Protocol">
             <ToggleInput label="Print Protocol on Label" checked={isSectionActive} onChange={v => updateField('showProtocol', v)} />
             <div style={{ display: 'flex', gap: '12px' }}>
                 <div style={{ flex: 1 }}><TextInput label="Protocol Amount" value={input.protocolAmount} onChange={handlers!.handleProtocolAmountChange} placeholder="500" printToggle={{ visible: input.showProtocolAmount !== false, onChange: v => updateField('showProtocolAmount', v), disabled: !isSectionActive }} /></div>
-                <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.measureUnit || 'mcg'} onChange={(v) => updateField('measureUnit', v)} options={measureUnitOptions} /></div>
+                <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.measureUnit || 'mcg'} onChange={handlers!.handleMeasureUnitChange} options={measureUnitOptions} /></div>
             </div>
 
-            {/* FIX: Draw Volume now has its own dedicated showProtocolUnits toggle */}
-            <TextInput label="Draw Volume (Units)" value={input.protocolUnits || derivedState?.autoUnits} onChange={handlers!.handleDrawVolumeChange} placeholder="e.g. 10" printToggle={{ visible: input.showProtocolUnits !== false, onChange: v => updateField('showProtocolUnits', v), disabled: !isSectionActive }} />
+            <TextInput label="Draw Volume (Units)" value={displayDrawUnits(solveMode, input, derivedState)} onChange={handlers!.handleDrawVolumeChange} placeholder="e.g. 10" disabled={drawUnitsDisabled} printToggle={{ visible: input.showProtocolUnits !== false, onChange: v => updateField('showProtocolUnits', v), disabled: !isSectionActive }} />
 
             <TextInput label="Frequency" value={input.protocolFrequency} onChange={(v) => updateField('protocolFrequency', v)} placeholder="Weekly" printToggle={{ visible: input.showProtocolFrequency !== false, onChange: v => updateField('showProtocolFrequency', v), disabled: !isSectionActive }} />
         </AccordionSection>
