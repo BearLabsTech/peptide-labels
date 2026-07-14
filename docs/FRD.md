@@ -217,3 +217,13 @@ In a later phase, **account creation** will let you sign in and keep a small set
 That layer builds on the landing page and calculator/designer split—research-use acknowledgment and lightweight calculator access stay available without an account; saved data is for people who print often and want their bench setup to follow them.
 
 *Requires: landing page and entry paths (and ideally calculator-only mode); largest scope—identity, storage, and persistence.*
+
+---
+
+### Freemium membership
+
+The product will move to a **freemium model**: core value stays available without paying, while a **membership** unlocks additional capability for people who use the app heavily or want the fuller toolkit.
+
+One guiding principle is already clear: features that carry **ongoing operational cost**—for example **persistence** (cloud-saved data) or possible **AI-assisted** tools—belong behind membership. The rest of the free-versus-paid split, and how people pay, will be decided when this ships. Optional one-off **Support the project** contributions remain a separate path from membership; membership is for ongoing access to paid capability, not a tip jar.
+
+*Requires: accounts and saved data (membership needs a signed-in identity); builds on landing page and entry paths.*
