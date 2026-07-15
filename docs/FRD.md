@@ -124,6 +124,12 @@ Items below are ordered **easiest to hardest** to implement. Where one feature d
 
 ---
 
+### Align calculator and label designer interfaces
+
+Switching modes should feel like moving between two parts of one workspace, not between separate interface systems. The label designer will be brought into closer alignment with the calculator’s cleaner card structure, spacing, control patterns, and responsive behavior while preserving the live preview and print-specific controls.
+
+---
+
 ### Support the project
 
 The landing page will include an optional way to **contribute** if the app has been useful—no paywall, no required amount. Copy along the lines of *if you got value from the app, consider a $5 contribution* sets a gentle suggestion without prescribing what support should look like; you choose what feels fair.
