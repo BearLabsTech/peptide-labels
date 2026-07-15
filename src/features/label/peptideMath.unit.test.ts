@@ -461,19 +461,20 @@ describe('calculateRecommendedDrawUnits', () => {
     it('should raise the system suggestion when the normal default implies less than 1 ml', () => {
         expect(MIN_RECOMMENDED_WATER_ML).toBe(1)
         expect(calculateRecommendedDrawUnits(1, 'mg', 'mg', 5)).toBe(20)
-        expect(calculateRecommendedDrawUnits(1.25, 'mg', 'mg', 7.5)).toBe(16.667)
+        expect(calculateRecommendedDrawUnits(1.25, 'mg', 'mg', 7.5)).toBe(20)
         expect(calculateRecommendedDrawUnits(500, 'mcg', 'mg', 5)).toBe(10)
         expect(calculateRecommendedDrawUnits(1, 'IU', 'IU', 5)).toBe(20)
+        expect(calculateRecommendedDrawUnits(4, 'mg', 'mg', 6.3)).toBe(70)
     })
 
     it('should prioritize the 1 ml floor when it crosses the normal 50-unit policy', () => {
         expect(calculateDefaultDrawUnits(5.2, 'mg', 'mg')).toBe(26)
-        expect(calculateRecommendedDrawUnits(5.2, 'mg', 'mg', 6)).toBe(86.667)
+        expect(calculateRecommendedDrawUnits(5.2, 'mg', 'mg', 6)).toBe(90)
     })
 
-    it('should round the displayed recommendation upward so it cannot drift below 1 ml', () => {
+    it('should choose the next quick pick so a generated recommendation stays above 1 ml', () => {
         const recommended = calculateRecommendedDrawUnits(1, 'mg', 'mg', 6.0001)
-        expect(recommended).toBe(16.667)
+        expect(recommended).toBe(20)
 
         const water = calculateReverseWater({
             vialAmount: 6.0001,
@@ -495,6 +496,7 @@ describe('calculateRecommendedDrawUnits', () => {
         expect(calculateRecommendedDrawUnits(1, 'mg', 'mg', 100, 3)).toBe(3)
         expect(calculateRecommendedDrawUnits(1, 'mg', 'mg', 100, 5)).toBe(5)
         expect(calculateRecommendedDrawUnits(1, 'mg', 'mg', 100, 10)).toBe(10)
+        expect(calculateRecommendedDrawUnits(4, 'mg', 'mg', 36.3, 3)).toBe(30)
 
         const recommended = calculateRecommendedDrawUnits(1, 'mg', 'mg', 100, 3)!
         expect(calculateReverseWater({
@@ -530,13 +532,15 @@ describe('resolveDefaultDrawUnitsLabel', () => {
 
     it('should recommend draw units that imply at least 1 ml once vial amount is known', () => {
         expect(resolveDefaultDrawUnitsLabel('1', 'mg', 'mg', '5')).toBe('20 units')
-        expect(resolveDefaultDrawUnitsLabel('1.25', 'mg', 'mg', '7.5')).toBe('16.667 units')
+        expect(resolveDefaultDrawUnitsLabel('1.25', 'mg', 'mg', '7.5')).toBe('20 units')
         expect(resolveDefaultDrawUnitsLabel('500', 'mcg', 'mg', '5')).toBe('10 units')
     })
 
     it('should cap a generated draw recommendation to selected vial capacity', () => {
         expect(resolveDefaultDrawUnitsLabel('1', 'mg', 'mg', '100', 3)).toBe('3 units')
         expect(resolveDefaultDrawUnitsLabel('1', 'mg', 'mg', '100', 20)).toBe('10 units')
+        expect(resolveDefaultDrawUnitsLabel('4', 'mg', 'mg', '36.3', 3)).toBe('30 units')
+        expect(resolveDefaultDrawUnitsLabel('4', 'mg', 'mg', '6.3', 3)).toBe('70 units')
     })
 
     it('should return empty string when protocol amount is missing', () => {

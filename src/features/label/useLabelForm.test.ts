@@ -47,7 +47,7 @@ describe('createLabelFormHandlers unit transitions', () => {
 
         expect(updates.get('vialUnit')).toBe('IU')
         expect(updates.get('measureUnit')).toBe('IU')
-        expect(updates.get('protocolUnits')).toBe('6 units')
-        expect(updates.get('reconstitutionAmount')).toBe('3')
+        expect(updates.get('protocolUnits')).toBe('5 units')
+        expect(updates.get('reconstitutionAmount')).toBe('2.5')
     })
 })

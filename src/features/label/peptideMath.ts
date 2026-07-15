@@ -1,4 +1,8 @@
 import { DEFAULT_VIAL_CAPACITY_ML, normalizeVialCapacityMl } from './vialCapacity'
+import {
+    nextDrawUnitQuickPick,
+    previousDrawUnitQuickPick,
+} from './drawUnitsPolicy'
 
 export interface PeptideMathInput {
     vialAmount?: number; vialUnit: 'mg' | 'IU'; waterMl?: number;
@@ -310,9 +314,9 @@ export function calculateDefaultDrawUnits(
 }
 
 /**
- * System recommendation for Set Draw Volume. It preserves the normal 10/5 u
- * policy, then raises the suggestion only when needed to imply at least 1 ml.
- * Core reverse math remains unclamped so explicit user choices below 1 ml work.
+ * System recommendation for Set Draw Volume. It preserves the normal 10/5-unit
+ * policy, then adjusts generated values to keep water within the recommended
+ * range. Explicit user choices remain unclamped.
  */
 export function calculateRecommendedDrawUnits(
     protocolAmount: number,
@@ -345,6 +349,18 @@ export function calculateRecommendedDrawUnits(
     ) / vialAmount;
     const displaySafeMaximum = Math.floor((maximumDrawUnits * displayFactor) + 1e-9)
         / displayFactor;
+    if (standard < displaySafeMinimum) {
+        const floorQuickPick = nextDrawUnitQuickPick(displaySafeMinimum);
+        if (floorQuickPick != null && floorQuickPick <= displaySafeMaximum) {
+            return floorQuickPick;
+        }
+    }
+    if (standard > displaySafeMaximum) {
+        const capacityQuickPick = previousDrawUnitQuickPick(displaySafeMaximum);
+        if (capacityQuickPick != null && capacityQuickPick >= displaySafeMinimum) {
+            return capacityQuickPick;
+        }
+    }
     return Math.min(displaySafeMaximum, Math.max(standard, displaySafeMinimum));
 }
 

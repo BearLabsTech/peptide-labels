@@ -11,6 +11,10 @@ import {
     protocolAmountPresets,
     vialAmountPresets,
 } from './calculatorPresets'
+import {
+    nextDrawUnitQuickPick,
+    previousDrawUnitQuickPick,
+} from './drawUnitsPolicy'
 
 describe('drawUnitsPresets', () => {
     it('should offer 5-unit steps through 50 and 10-unit steps through 100', () => {
@@ -28,6 +32,13 @@ describe('drawUnitsPresets', () => {
         expect(drawUnitsPresets(0.3)).toEqual([
             '5', '10', '15', '20', '25', '30',
         ])
+    })
+
+    it('should resolve predictable quick picks around recommendation boundaries', () => {
+        expect(nextDrawUnitQuickPick(63.493)).toBe(70)
+        expect(previousDrawUnitQuickPick(33.057)).toBe(30)
+        expect(nextDrawUnitQuickPick(100.001)).toBeNull()
+        expect(previousDrawUnitQuickPick(4.999)).toBeNull()
     })
 })
 
