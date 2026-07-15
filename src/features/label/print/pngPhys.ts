@@ -58,7 +58,7 @@ export function injectPngPhys(pngBytes: Uint8Array, dpi: number): Uint8Array {
 
   const ihdrLength = new DataView(pngBytes.buffer, pngBytes.byteOffset + PNG_SIGNATURE_LENGTH).getUint32(0, false)
   const afterIhdr = PNG_SIGNATURE_LENGTH + 4 + 4 + ihdrLength + 4
-  let insertAt = afterIhdr
+  const insertAt = afterIhdr
   let removeLength = 0
 
   if (readChunkType(pngBytes, afterIhdr + 4) === 'pHYs') {

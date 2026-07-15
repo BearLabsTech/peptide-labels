@@ -3,6 +3,29 @@ import { DEFAULT_STOCK_ID, getStockById, PRINT_CATALOG } from './printCatalog'
 import { normalizePrintSetup } from './printStorage'
 
 describe('printCatalog', () => {
+  it('should keep printer, stock, and recommendation references consistent', () => {
+    for (const stock of PRINT_CATALOG.stocks) {
+      for (const printerId of stock.printerIds) {
+        const printer = PRINT_CATALOG.printers.find((entry) => entry.id === printerId)
+        expect(printer, `${stock.id} references unknown printer ${printerId}`).toBeDefined()
+        expect(printer?.labelIds).toContain(stock.dimensionId)
+      }
+    }
+
+    for (const printer of PRINT_CATALOG.printers) {
+      for (const dimensionId of printer.labelIds) {
+        const stocks = PRINT_CATALOG.stocks.filter((stock) => stock.dimensionId === dimensionId)
+        expect(stocks.length, `${printer.id} references unknown dimension ${dimensionId}`)
+          .toBeGreaterThan(0)
+        expect(stocks.every((stock) => stock.printerIds.some((id) => id === printer.id))).toBe(true)
+      }
+    }
+
+    for (const recommendation of PRINT_CATALOG.vialRecommendations) {
+      expect(PRINT_CATALOG.stocks.some((stock) => stock.id === recommendation.stockId)).toBe(true)
+    }
+  })
+
   it('should default to 40x20 rounded stock', () => {
     expect(DEFAULT_STOCK_ID).toBe('40x20-rounded')
     expect(getStockById(DEFAULT_STOCK_ID)?.shape).toBe('rounded')
@@ -25,13 +48,17 @@ describe('printCatalog', () => {
 
 describe('printStorage normalizePrintSetup', () => {
   it('should apply default stock when selection is empty', () => {
-    expect(normalizePrintSetup({})).toEqual({ stockId: '40x20-rounded' })
+    expect(normalizePrintSetup({})).toEqual({
+      stockId: '40x20-rounded',
+      vialCapacityMl: 3,
+    })
   })
 
   it('should apply default stock when only printer is selected', () => {
     expect(normalizePrintSetup({ printerId: 'niimbot-b21' })).toEqual({
       printerId: 'niimbot-b21',
       stockId: '40x20-rounded',
+      vialCapacityMl: 3,
     })
   })
 
@@ -39,30 +66,68 @@ describe('printStorage normalizePrintSetup', () => {
     expect(normalizePrintSetup({ widthMm: 40, heightMm: 20 })).toEqual({
       widthMm: 40,
       heightMm: 20,
+      vialCapacityMl: 3,
     })
   })
 
   it('should migrate legacy labelId 40x20 to rounded stock', () => {
-    expect(normalizePrintSetup({ labelId: '40x20' })).toEqual({ stockId: '40x20-rounded' })
+    expect(normalizePrintSetup({ labelId: '40x20' })).toEqual({
+      stockId: '40x20-rounded',
+      vialCapacityMl: 3,
+    })
   })
 
   it('should migrate legacy labelId 50x30 to rounded stock', () => {
-    expect(normalizePrintSetup({ labelId: '50x30' })).toEqual({ stockId: '50x30-rounded' })
+    expect(normalizePrintSetup({ labelId: '50x30' })).toEqual({
+      stockId: '50x30-rounded',
+      vialCapacityMl: 3,
+    })
   })
 
   it('should migrate legacy labelId 40x30 to rounded stock', () => {
-    expect(normalizePrintSetup({ labelId: '40x30' })).toEqual({ stockId: '40x30-rounded' })
+    expect(normalizePrintSetup({ labelId: '40x30' })).toEqual({
+      stockId: '40x30-rounded',
+      vialCapacityMl: 3,
+    })
   })
 
   it('should strip legacy labelId when stockId is present', () => {
     expect(normalizePrintSetup({ stockId: '40x20-rounded', labelId: '40x20' })).toEqual({
       stockId: '40x20-rounded',
+      vialCapacityMl: 3,
     })
   })
 
-  it('should preserve printer and vial selections', () => {
+  it('should migrate legacy vial capacity and preserve canonical selections', () => {
     expect(
       normalizePrintSetup({ printerId: 'niimbot-b21', vialMl: 3, stockId: '40x20-rounded' }),
-    ).toEqual({ printerId: 'niimbot-b21', vialMl: 3, stockId: '40x20-rounded' })
+    ).toEqual({
+      printerId: 'niimbot-b21',
+      vialCapacityMl: 3,
+      stockId: '40x20-rounded',
+    })
+    expect(normalizePrintSetup({ vialCapacityMl: 20 })).toEqual({
+      vialCapacityMl: 20,
+      stockId: '40x20-rounded',
+    })
+  })
+
+  it('should reject persisted capacities below 1 ml', () => {
+    expect(normalizePrintSetup({ vialCapacityMl: 0.5 }).vialCapacityMl).toBe(3)
+  })
+
+  it('should discard invalid or stale custom dimensions when using catalog stock', () => {
+    expect(normalizePrintSetup({ widthMm: -40, heightMm: 20 })).toEqual({
+      stockId: '40x20-rounded',
+      vialCapacityMl: 3,
+    })
+    expect(normalizePrintSetup({
+      stockId: '40x20-rounded',
+      widthMm: 50,
+      heightMm: 30,
+    })).toEqual({
+      stockId: '40x20-rounded',
+      vialCapacityMl: 3,
+    })
   })
 })

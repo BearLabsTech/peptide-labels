@@ -1,19 +1,27 @@
-import type { LabelRenderModel } from './LabelComposer'
 import { IDENTITY_HEADER_TITLE_BAND_GAP_FRAC } from './labelLayoutConstants'
-import { testIndicatorsStackHeightPx } from './testIndicatorLayout'
+import { testIndicatorsStackHeightPx, type TestIndicatorLayout } from './testIndicatorLayout'
 import { mmToPx } from './print/dimensions'
 import type { PrintTarget } from './print/types'
+
+export interface QrRenderLayoutModel {
+  qrColumnWidthPercent: number
+  qrCodes?: readonly unknown[]
+  testIndicators: readonly unknown[]
+  testIndicatorLayout?: TestIndicatorLayout
+  titleLines: readonly string[]
+  titleFontSizePx: number
+}
 
 /** Vertical gap between test indicators and QR when they share the testing column. */
 export const TEST_QR_GAP_FRAC = 0.025
 
 /** Inner width of the testing column as export pixels (matches layout engine padding trim). */
-function testingColumnInnerPx(model: LabelRenderModel, baseWidthPx: number): number {
+function testingColumnInnerPx(model: QrRenderLayoutModel, baseWidthPx: number): number {
   return Math.floor(baseWidthPx * (model.qrColumnWidthPercent / 100) * 0.88)
 }
 
 /** Vertical budget for the three-column row (identity header subtracts title band). */
-function rowInnerHeightPx(model: LabelRenderModel, printTarget: PrintTarget): number {
+function rowInnerHeightPx(model: QrRenderLayoutModel, printTarget: PrintTarget): number {
   let innerPx = mmToPx(printTarget.labelHeightMm - printTarget.paddingMm * 2, printTarget.effectiveDpi)
 
   if (model.titleLines.length > 0) {
@@ -26,7 +34,7 @@ function rowInnerHeightPx(model: LabelRenderModel, printTarget: PrintTarget): nu
 }
 
 /** Rendered indicator stack height — matches LabelPreview.css (label line-height 1.1). */
-export function indicatorsStackHeightPx(model: LabelRenderModel): number {
+export function indicatorsStackHeightPx(model: QrRenderLayoutModel): number {
   const layout = model.testIndicatorLayout
   if (!layout || model.testIndicators.length === 0) return 0
   return testIndicatorsStackHeightPx(layout, model.testIndicators.length)
@@ -50,7 +58,7 @@ export function qrCaptionHeightPx(baseWidthPx: number): number {
 
 /** QR `size` prop — must fit testing column width and space below indicators. */
 export function computeQrRenderSizePx(
-  model: LabelRenderModel,
+  model: QrRenderLayoutModel,
   printTarget: PrintTarget,
   baseWidthPx: number,
 ): number {

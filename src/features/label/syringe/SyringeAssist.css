@@ -1,0 +1,57 @@
+.syringe-assist {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+}
+
+.syringe-assist__warn {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-danger);
+}
+
+.syringe-capacity-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.syringe-capacity-control__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.syringe-capacity-control__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.syringe-capacity-control__btn {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-main);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.syringe-capacity-control__btn--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.syringe-capacity-control__btn:hover:not(.syringe-capacity-control__btn--active) {
+  border-color: var(--color-border-focus);
+}

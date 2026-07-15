@@ -1,4 +1,6 @@
-export type VialSizeMl = 3 | 10
+import type { VialCapacityMl } from '../vialCapacity'
+
+export type { VialCapacityMl } from '../vialCapacity'
 
 export type LabelShape = 'rounded' | 'rectangular'
 
@@ -26,7 +28,7 @@ export interface PrintTarget {
   stockId?: string
   dimensionId?: string
   printerId?: string
-  vialMl?: VialSizeMl
+  vialCapacityMl: VialCapacityMl
 }
 
 export interface PrintSetupSelection {
@@ -36,7 +38,9 @@ export interface PrintSetupSelection {
   labelId?: string
   widthMm?: number
   heightMm?: number
-  vialMl?: VialSizeMl
+  vialCapacityMl?: VialCapacityMl
+  /** @deprecated Legacy; migrated to vialCapacityMl on load. */
+  vialMl?: number
 }
 
 export interface Printer {
@@ -48,7 +52,7 @@ export interface Printer {
 }
 
 export interface VialRecommendation {
-  vialMl: VialSizeMl
+  vialCapacityMl: VialCapacityMl
   stockId: string
   rank: number
   printerId?: string

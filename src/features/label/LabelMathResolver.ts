@@ -7,6 +7,7 @@ import {
     formatConcentrationLabel,
     formatDrawUnitsLabel,
     formatDefaultDrawUnitsLabel,
+    formatWaterAmountLabel,
     parseNumericField,
     resolveMeasureUnit,
     type CalculatorSolveMode,
@@ -52,7 +53,8 @@ export function resolveLabelMath(input: LabelModelInput): ResolvedLabelMath {
         autoUnits: '',
         autoWater: '',
         autoConcentration,
-        mergedPatch: autoConcentration ? { concentration: input.concentration || autoConcentration } : {},
+        // Manual Entry: vial ÷ water is authoritative — never keep a stale stored concentration.
+        mergedPatch: autoConcentration ? { concentration: autoConcentration } : {},
     });
 }
 
@@ -124,24 +126,26 @@ function calcForward(input: LabelModelInput, parsed: ParsedLabelMathInput): Reso
         autoConcentration,
         mergedPatch: {
             protocolUnits: input.protocolUnits || autoUnits,
-            concentration: input.concentration || autoConcentration,
+            // Manual Entry: vial ÷ water is authoritative — never keep a stale stored concentration.
+            concentration: autoConcentration,
         },
     });
 }
 
 function calcReverse(input: LabelModelInput, parsed: ParsedLabelMathInput): ResolvedLabelMath {
-    const waterMl = calculateReverseWater({
+    const exactWaterMl = calculateReverseWater({
         vialAmount: parsed.vialAmount,
         vialUnit: parsed.vialUnit,
         drawUnits: parsed.drawUnits,
         targetAmount: parsed.protocolAmount,
         targetUnit: parsed.protocolUnit,
     });
-    if (waterMl == null) return defaultState(input);
+    if (exactWaterMl == null) return defaultState(input);
 
-    const autoWater = waterMl.toString();
+    // Concentration from exact water — never from a display-rounded water string.
+    const autoWater = formatWaterAmountLabel(exactWaterMl);
     const autoUnits = formatDrawUnitsLabel(parsed.drawUnits);
-    const autoConcentration = formatConcentrationLabel(parsed.vialAmount / waterMl, parsed.vialUnit);
+    const autoConcentration = formatConcentrationLabel(parsed.vialAmount / exactWaterMl, parsed.vialUnit);
 
     return buildResult(input, {
         autoUnits: '',
@@ -156,10 +160,10 @@ function calcReverse(input: LabelModelInput, parsed: ParsedLabelMathInput): Reso
 }
 
 function calcWaterFromTargetConcentration(input: LabelModelInput, parsed: ParsedLabelMathInput): ResolvedLabelMath {
-    const waterMl = calculateWaterFromTargetConcentration(parsed.vialAmount, parsed.targetConcentration);
-    if (waterMl == null) return defaultState(input);
+    const exactWaterMl = calculateWaterFromTargetConcentration(parsed.vialAmount, parsed.targetConcentration);
+    if (exactWaterMl == null) return defaultState(input);
 
-    const autoWater = waterMl.toString();
+    const autoWater = formatWaterAmountLabel(exactWaterMl);
     const autoConcentration = formatConcentrationLabel(parsed.targetConcentration, parsed.vialUnit);
 
     return buildResult(input, {
@@ -183,7 +187,7 @@ function calcFromConcentration(input: LabelModelInput, parsed: ParsedLabelMathIn
     });
     if (!result) return defaultState(input);
 
-    const autoWater = result.waterMl.toString();
+    const autoWater = formatWaterAmountLabel(result.waterMl);
     const autoUnits = result.drawUnits > 0
         ? formatDrawUnitsLabel(result.drawUnits)
         : formatDefaultDrawUnitsLabel(String(parsed.protocolAmount), input.measureUnit, parsed.vialUnit);

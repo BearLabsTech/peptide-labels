@@ -8,6 +8,50 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
+### Calculator state — separate authored inputs from derived values
+
+**Priority:** Medium
+**Status:** Open — transition helpers and focused synchronization tests now reduce stale-state regressions; the state model still stores authored and calculated values together.
+
+**Symptom:** `LabelModelInput` persists calculator inputs, generated results, and provenance flags in one broad optional-string model. A missed event transition can leave a stale derived field that downstream resolvers must ignore or replace.
+
+**When fixing:** Move calculator events behind one atomic reducer/transition boundary, parse strings into one typed calculation draft, and derive `ResolvedLabelMath` once per state change. Inspect `useLabelForm.ts`, `calculatorAssistSync.ts`, `calculatorModeSwitch.ts`, and `LabelMathResolver.ts`.
+
+---
+
+### Preview fitting metrics — duplicated between TypeScript and CSS
+
+**Priority:** Medium
+**Status:** Open
+
+**Symptom:** Font ratios, line height, border width, and section spacing used by `LabelLayoutEngine.ts` are mirrored in `LabelPreview.tsx` and `LabelPreview.css`. A visual-only CSS edit can make fit prediction disagree with preview/export.
+
+**When fixing:** Define shared numerical typography metrics and expose the render-side values through CSS custom properties. Add an integration assertion around the smallest supported stock.
+
+---
+
+### Print catalog compatibility — two relation sources
+
+**Priority:** Low
+**Status:** Open — integrity tests now detect disagreement.
+
+**Symptom:** Stocks list compatible printer IDs while printers separately list supported dimension IDs. New catalog entries require coordinated edits in both directions.
+
+**When fixing:** Keep one canonical printer/stock compatibility relation in `printCatalog.ts` and derive reverse lookups used by `PrintCatalogFilter.ts`.
+
+---
+
+### Label render model — incomplete layout plan
+
+**Priority:** Low
+**Status:** Open
+
+**Symptom:** Composition calculates column geometry but `LabelPreview.tsx` recomputes part of it from percentages and print-target facts. This keeps the renderer coupled to fitting policy.
+
+**When fixing:** Include resolved `ColumnLayout` geometry in `LabelRenderModel` so preview/export render the completed composition plan directly.
+
+---
+
 ### Print padding — exported PNG on Niimbot B21 (40×20 rounded stock)
 
 **Priority:** High  

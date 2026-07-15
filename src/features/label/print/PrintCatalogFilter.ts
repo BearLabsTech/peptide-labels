@@ -60,13 +60,14 @@ function buildRecommendedStockIds(
   selection: Partial<PrintSetupSelection>,
   visibleStocks: LabelStock[],
 ): string[] {
-  if (selection.vialMl == null) return []
+  const vialCapacityMl = selection.vialCapacityMl ?? selection.vialMl
+  if (vialCapacityMl == null) return []
 
   const visibleIds = new Set(visibleStocks.map((s) => s.id))
 
   return PRINT_CATALOG.vialRecommendations
     .filter((rec: VialRecommendation) =>
-      rec.vialMl === selection.vialMl &&
+      rec.vialCapacityMl === vialCapacityMl &&
       (!selection.printerId || !rec.printerId || rec.printerId === selection.printerId) &&
       visibleIds.has(rec.stockId),
     )

@@ -1,14 +1,21 @@
 import { describe, it, expect } from 'vitest'
-import type { LabelModelInput } from './labelModel'
+import type { LabelFieldUpdater, LabelModelInput } from './labelModel'
 import type { CalculatorSolveMode } from './peptideMath'
 import { resolveLabelMath } from './LabelMathResolver'
 import {
     applyCalculatorModeSwitch,
+    applyFieldUpdates,
     applyProtocolAmountChange,
+    applyStandardModeEntry,
+    applyStandardVialAmountChange,
+    applyStandardWaterChange,
+    applyVialCapacityRecommendationChange,
     ensureReconstitutionPrintForAssist,
+    displayConcentration,
     displayDrawUnits,
     displayWaterAmount,
     readResolvedCalculatorValues,
+    syncCalculatorModeSwitchFields,
 } from './calculatorModeSwitch'
 
 const EXPECTED = {
@@ -124,7 +131,7 @@ describe('calculator mode switching', () => {
         expect(setConcentration.protocolUnits).toBe('15 units')
 
         const result = resolveLabelMath(setConcentration)
-        expect(result.autoWater).toBe('1.67')
+        expect(result.autoWater).toBe('1.667')
         expect(result.autoUnits).toBe('25 units')
         expect(result.autoConcentration).toBe('12mg per ml')
     })
@@ -151,6 +158,73 @@ describe('calculator mode switching', () => {
         expect(result.autoConcentration).toBe('10mg per ml')
     })
 
+    it('should raise a generated draw default when needed to recommend at least 1 ml', () => {
+        const input: LabelModelInput = {
+            compoundAmount: '5',
+            vialUnit: 'mg',
+            protocolAmount: '1',
+            measureUnit: 'mg',
+            protocolUnits: '',
+            calculatorSolveMode: 'standard',
+        }
+        const setDrawVolume = switchMode(input, 'target_units')
+        expect(setDrawVolume.protocolUnits).toBe('20 units')
+
+        const result = resolveLabelMath(setDrawVolume)
+        expect(result.autoWater).toBe('1')
+        expect(result.autoConcentration).toBe('5mg per ml')
+    })
+
+    it('should preserve an explicit draw that produces less than 1 ml', () => {
+        const input: LabelModelInput = {
+            compoundAmount: '5',
+            vialUnit: 'mg',
+            protocolAmount: '1',
+            measureUnit: 'mg',
+            protocolUnits: '10 units',
+            calculatorSolveMode: 'standard',
+        }
+        const setDrawVolume = switchMode(input, 'target_units')
+        expect(setDrawVolume.protocolUnits).toBe('10 units')
+
+        const result = resolveLabelMath(setDrawVolume)
+        expect(result.autoWater).toBe('0.5')
+        expect(result.autoConcentration).toBe('10mg per ml')
+    })
+
+    it('should cap the generated target concentration to recommend at least 1 ml', () => {
+        const input: LabelModelInput = {
+            compoundAmount: '5',
+            vialUnit: 'mg',
+            protocolAmount: '1',
+            measureUnit: 'mg',
+            calculatorSolveMode: 'standard',
+        }
+        const setConcentration = switchMode(input, 'round_concentration')
+        expect(setConcentration.targetConcentration).toBe('5')
+
+        const result = resolveLabelMath(setConcentration)
+        expect(result.autoWater).toBe('1')
+        expect(result.autoConcentration).toBe('5mg per ml')
+    })
+
+    it('should preserve an explicit target concentration that produces less than 1 ml', () => {
+        const input: LabelModelInput = {
+            compoundAmount: '5',
+            vialUnit: 'mg',
+            protocolAmount: '1',
+            measureUnit: 'mg',
+            targetConcentration: '10',
+            calculatorSolveMode: 'standard',
+        }
+        const setConcentration = switchMode(input, 'round_concentration')
+        expect(setConcentration.targetConcentration).toBe('10')
+
+        const result = resolveLabelMath(setConcentration)
+        expect(result.autoWater).toBe('0.5')
+        expect(result.autoConcentration).toBe('10mg per ml')
+    })
+
     it('should default to 10 units instead of zero when protocol amount is entered in set draw volume mode', () => {
         const updates = applyProtocolAmountChange({
             compoundAmount: '20',
@@ -163,7 +237,7 @@ describe('calculator mode switching', () => {
         expect(updates.protocolUnits).toBe('30 units')
     })
 
-    it('should fall back to 10 units when scaled draw volume would otherwise round to zero', () => {
+    it('should keep a tiny generated draw within vial capacity', () => {
         const updates = applyProtocolAmountChange({
             compoundAmount: '20',
             vialUnit: 'mg',
@@ -172,7 +246,7 @@ describe('calculator mode switching', () => {
             protocolUnits: '',
         }, '3')
 
-        expect(updates.protocolUnits).toBe('10 units')
+        expect(updates.protocolUnits).toBe('0.045 units')
     })
 
     it('should default to flat 10 units without vial amount regardless of protocol unit', () => {
@@ -214,7 +288,7 @@ describe('calculator mode switching', () => {
         expect(displayWaterAmount('target_units', input)).toBe('')
     })
 
-    it('should default target concentration to 10 only when no vial, water, or concentration exists', () => {
+    it('should default target concentration to 10 when a large enough vial has no prior source', () => {
         const empty: LabelModelInput = {
             compoundAmount: '20',
             vialUnit: 'mg',
@@ -230,6 +304,16 @@ describe('calculator mode switching', () => {
         expect(result.autoWater).toBe('2')
         expect(result.autoUnits).toBe('30 units')
         expect(result.autoConcentration).toBe('10mg per ml')
+    })
+
+    it('should wait for vial context before generating a target concentration recommendation', () => {
+        const withoutVial: LabelModelInput = {
+            protocolAmount: '1',
+            measureUnit: 'mg',
+            calculatorSolveMode: 'standard',
+        }
+        const setConcentration = switchMode(withoutVial, 'round_concentration')
+        expect(setConcentration.targetConcentration).toBeUndefined()
     })
 
     it('should keep set draw volume math correct when stale manual water is still stored', () => {
@@ -323,6 +407,56 @@ describe('calculator display helpers', () => {
         const resolved = resolveLabelMath(input)
         expect(displayDrawUnits('target_units', input, resolved)).toBe('27 units')
     })
+
+    it('should prefer derived concentration in Manual Entry even when stale assist concentration remains', () => {
+        const input: LabelModelInput = {
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            reconstitutionAmount: '2',
+            protocolAmount: '2.5',
+            measureUnit: 'mg',
+            concentration: '20mg per ml',
+            calculatorSolveMode: 'standard',
+        }
+        const resolved = resolveLabelMath(input)
+        expect(displayConcentration(input, resolved)).toBe('10mg per ml')
+        expect(readResolvedCalculatorValues(input, resolved).concentration).toBe('10mg per ml')
+    })
+})
+
+describe('Manual Entry concentration sync', () => {
+    it('should refresh concentration when Manual Entry water changes after an assist leftover', () => {
+        const fromAssist: LabelModelInput = {
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            reconstitutionAmount: '1.165',
+            protocolAmount: '2.5',
+            measureUnit: 'mg',
+            protocolUnits: '50 units',
+            concentration: '20mg per ml',
+            calculatorSolveMode: 'standard',
+        }
+        const updates = applyStandardWaterChange(fromAssist, '2')
+        expect(updates.reconstitutionAmount).toBe('2')
+        expect(updates.concentration).toBe('10mg per ml')
+        expect(updates.protocolUnits).toBe('')
+    })
+
+    it('should refresh concentration when switching into Manual Entry with water already set', () => {
+        const fromAssist: LabelModelInput = {
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            reconstitutionAmount: '2',
+            protocolAmount: '2.5',
+            measureUnit: 'mg',
+            protocolUnits: '25 units',
+            concentration: '20mg per ml',
+            calculatorSolveMode: 'target_units',
+        }
+        const updates = applyStandardModeEntry(fromAssist)
+        expect(updates.calculatorSolveMode).toBe('standard')
+        expect(updates.concentration).toBe('10mg per ml')
+    })
 })
 
 describe('calculator mode switching with mcg protocol amounts', () => {
@@ -353,5 +487,130 @@ describe('calculator mode switching with mcg protocol amounts', () => {
 
         state = switchMode(state, 'standard')
         expect(resolvedValues(state)).toEqual(expected)
+    })
+})
+
+describe('vial capacity recommendation provenance', () => {
+    it('should regenerate a system draw recommendation without changing a user draw', () => {
+        const generated: LabelModelInput = {
+            compoundAmount: '100',
+            vialUnit: 'mg',
+            protocolAmount: '1',
+            measureUnit: 'mg',
+            protocolUnits: '10 units',
+            protocolUnitsOrigin: 'recommended',
+            calculatorSolveMode: 'target_units',
+        }
+        expect(applyVialCapacityRecommendationChange(generated, 3)).toEqual({
+            protocolUnits: '3 units',
+            protocolUnitsOrigin: 'recommended',
+        })
+        expect(applyVialCapacityRecommendationChange({
+            ...generated,
+            protocolUnitsOrigin: 'user',
+        }, 3)).toEqual({})
+    })
+
+    it('should regenerate a system target concentration without changing a user target', () => {
+        const generated: LabelModelInput = {
+            compoundAmount: '100',
+            vialUnit: 'mg',
+            protocolAmount: '1',
+            measureUnit: 'mg',
+            targetConcentration: '10',
+            targetConcentrationOrigin: 'recommended',
+            calculatorSolveMode: 'round_concentration',
+        }
+        expect(applyVialCapacityRecommendationChange(generated, 3)).toEqual({
+            targetConcentration: '33.334',
+            targetConcentrationOrigin: 'recommended',
+        })
+        expect(applyVialCapacityRecommendationChange({
+            ...generated,
+            targetConcentrationOrigin: 'user',
+        }, 3)).toEqual({})
+    })
+
+    it('should not reuse a rounded generated draw concentration as a new target', () => {
+        const generatedDraw: LabelModelInput = {
+            compoundAmount: '100',
+            vialUnit: 'mg',
+            protocolAmount: '1',
+            measureUnit: 'mg',
+            protocolUnits: '3 units',
+            protocolUnitsOrigin: 'recommended',
+            concentration: '33.333mg per ml',
+            calculatorSolveMode: 'target_units',
+        }
+        const next = applyCalculatorModeSwitch(
+            generatedDraw,
+            'round_concentration',
+            { autoConcentration: '33.333mg per ml' },
+            3,
+        )
+        expect(next.targetConcentration).toBe('33.334')
+        expect(next.targetConcentrationOrigin).toBe('recommended')
+    })
+})
+
+describe('calculator field update adapters', () => {
+    function captureUpdates() {
+        const calls: Array<[keyof LabelModelInput, LabelModelInput[keyof LabelModelInput]]> = []
+        const updateField: LabelFieldUpdater = (field, value) => {
+            calls.push([field, value])
+        }
+        return { calls, updateField }
+    }
+
+    it('should refresh Manual Entry concentration when compound amount changes', () => {
+        expect(applyStandardVialAmountChange({
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            reconstitutionAmount: '2',
+            concentration: '10mg per ml',
+            calculatorSolveMode: 'standard',
+        }, '10')).toEqual({
+            compoundAmount: '10',
+            concentration: '5mg per ml',
+        })
+    })
+
+    it('should apply defined fields and omit undefined fields', () => {
+        const { calls, updateField } = captureUpdates()
+        applyFieldUpdates(updateField, {
+            protocolAmount: '2',
+            protocolUnits: undefined,
+            showProtocol: false,
+        })
+        expect(calls).toEqual([
+            ['protocolAmount', '2'],
+            ['showProtocol', false],
+        ])
+    })
+
+    it('should sync only calculator mode fields that changed', () => {
+        const { calls, updateField } = captureUpdates()
+        syncCalculatorModeSwitchFields(
+            {
+                calculatorSolveMode: 'standard',
+                protocolUnits: '10 units',
+                protocolUnitsOrigin: 'user',
+            },
+            {
+                calculatorSolveMode: 'target_units',
+                protocolUnits: '20 units',
+                protocolUnitsOrigin: 'recommended',
+                targetConcentration: '5',
+                targetConcentrationOrigin: 'recommended',
+            },
+            updateField,
+        )
+        expect(calls).toEqual([
+            ['calculatorSolveMode', 'target_units'],
+            ['targetConcentration', '5'],
+            ['targetConcentrationOrigin', 'recommended'],
+            ['protocolUnits', '20 units'],
+            ['protocolUnitsOrigin', 'recommended'],
+        ])
     })
 })

@@ -1,12 +1,9 @@
-import { useRef } from 'react'
-import { toPng } from 'html-to-image'
+import { useRef, useState } from 'react'
 import { LabelPreview } from './LabelPreview'
 import type { LabelRenderModel } from './LabelComposer'
-import { buildExportSpec } from './print/exportSpec'
-import { applyMonochromeThreshold } from './print/monochrome'
-import { injectPngPhys } from './print/pngPhys'
 import type { PrintTarget } from './print/types'
 import { PrintTargetBanner } from './components/PrintTargetBanner'
+import { exportLabelPng } from './labelExport'
 
 export interface LabelStageProps {
     model: LabelRenderModel
@@ -18,20 +15,20 @@ export interface LabelStageProps {
 
 export function LabelStage({ model, printTarget, compoundName, isExampleMode, onChangePrintSetup }: LabelStageProps) {
     const labelRef = useRef<HTMLDivElement>(null)
+    const [isExporting, setIsExporting] = useState(false)
+    const [exportError, setExportError] = useState<string | null>(null)
 
     async function downloadLabel() {
-        if (!labelRef.current || isExampleMode) return
-
-        const exportSpec = buildExportSpec(printTarget)
-        const dataUrl = await toPng(labelRef.current, {
-            canvasWidth: exportSpec.canvasWidthPx,
-            canvasHeight: exportSpec.canvasHeightPx,
-            pixelRatio: exportSpec.pixelRatio,
-            backgroundColor: '#ffffff',
-        })
-
-        const monochromeUrl = await applyMonochromeFilter(dataUrl, exportSpec.dpi)
-        triggerDownload(monochromeUrl, compoundName)
+        if (!labelRef.current || isExampleMode || isExporting) return
+        setIsExporting(true)
+        setExportError(null)
+        try {
+            await exportLabelPng(labelRef.current, printTarget, compoundName)
+        } catch {
+            setExportError('Couldn’t download the label. Try again.')
+        } finally {
+            setIsExporting(false)
+        }
     }
 
     return (
@@ -49,61 +46,32 @@ export function LabelStage({ model, printTarget, compoundName, isExampleMode, on
                     }}
                 />
             </div>
-            <DownloadButton onClick={downloadLabel} disabled={isExampleMode} />
+            <DownloadButton
+                onClick={downloadLabel}
+                disabled={isExampleMode || isExporting}
+                isExporting={isExporting}
+            />
+            {exportError && <p className="label-export-error" role="alert">{exportError}</p>}
         </div>
     )
 }
 
-async function applyMonochromeFilter(dataUrl: string, dpi: number): Promise<string> {
-    return new Promise((resolve) => {
-        const img = new Image()
-        img.onload = () => {
-            const canvas = document.createElement('canvas')
-            canvas.width = img.width
-            canvas.height = img.height
-            const ctx = canvas.getContext('2d')
-            if (!ctx) return resolve(dataUrl)
-
-            ctx.fillStyle = '#ffffff'
-            ctx.fillRect(0, 0, canvas.width, canvas.height)
-            ctx.drawImage(img, 0, 0)
-
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-            applyMonochromeThreshold(imageData.data)
-            ctx.putImageData(imageData, 0, 0)
-
-            canvas.toBlob(async (blob) => {
-                if (!blob) return resolve(canvas.toDataURL('image/png'))
-                const bytes = new Uint8Array(await blob.arrayBuffer())
-                const withPhys = injectPngPhys(bytes, dpi)
-                resolve(bytesToDataUrl(withPhys))
-            }, 'image/png')
-        }
-        img.src = dataUrl
-    })
-}
-
-function bytesToDataUrl(bytes: Uint8Array): string {
-    let binary = ''
-    for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
-    return `data:image/png;base64,${btoa(binary)}`
-}
-
-function triggerDownload(dataUrl: string, name?: string) {
-    const link = document.createElement('a')
-    link.download = `${name?.toLowerCase() || 'label'}-export.png`
-    link.href = dataUrl
-    link.click()
-}
-
-function DownloadButton({ onClick, disabled }: { onClick: () => void, disabled?: boolean }) {
+function DownloadButton({
+    onClick,
+    disabled,
+    isExporting,
+}: {
+    onClick: () => void
+    disabled?: boolean
+    isExporting: boolean
+}) {
     return (
         <button
             onClick={onClick}
             disabled={disabled}
             className="btn-primary"
         >
-            Download Label PNG
+            {isExporting ? 'Preparing PNG…' : 'Download Label PNG'}
         </button>
     )
 }

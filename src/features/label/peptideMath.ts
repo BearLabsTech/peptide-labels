@@ -1,3 +1,5 @@
+import { DEFAULT_VIAL_CAPACITY_ML, normalizeVialCapacityMl } from './vialCapacity'
+
 export interface PeptideMathInput {
     vialAmount?: number; vialUnit: 'mg' | 'IU'; waterMl?: number;
     targetAmount?: number; targetUnit: 'mg' | 'mcg' | 'IU';
@@ -29,6 +31,29 @@ export type CalculatorSolveMode = 'standard' | 'round_concentration' | 'target_u
 export const DEFAULT_TARGET_CONCENTRATION = 10;
 export const DEFAULT_DRAW_UNITS_PER_MG = 10;
 export const DEFAULT_DRAW_UNITS_PER_IU = 10;
+export const MIN_RECOMMENDED_WATER_ML = 1;
+
+/** Display-only precision. Never round intermediate math to this — format at the UI/label boundary. */
+export const DISPLAY_DECIMALS = 3;
+
+export function roundForDisplay(value: number): number {
+    const factor = 10 ** DISPLAY_DECIMALS;
+    return Math.round(value * factor) / factor;
+}
+
+/** Round to three decimal places, then trim trailing zeros for compact display. */
+export function formatDisplayNumber(value: number): string {
+    const rounded = roundForDisplay(value);
+    return rounded.toFixed(DISPLAY_DECIMALS).replace(/\.?0+$/, '');
+}
+
+/**
+ * Fixed three-decimal display (e.g. measures per vial).
+ * Never pass the result of this into subsequent math.
+ */
+export function formatDisplayNumberFixed(value: number): string {
+    return roundForDisplay(value).toFixed(DISPLAY_DECIMALS);
+}
 
 /** Parses the numeric concentration from a label string such as "20mg per ml". */
 export function parseConcentrationValue(concentration?: string): number | null {
@@ -43,22 +68,39 @@ export function resolveDefaultTargetConcentration(input: {
     concentration?: string;
     compoundAmount?: string;
     reconstitutionAmount?: string;
-}): string {
+}, vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML): string {
     const fromLabel = parseConcentrationValue(input.concentration);
-    if (fromLabel != null) return String(fromLabel);
+    if (fromLabel != null) return formatDisplayNumber(fromLabel);
 
     const v = parseFloat(input.compoundAmount || '0');
     const w = parseFloat(input.reconstitutionAmount || '0');
     if (v > 0 && w > 0) {
-        return String(roundConcentration(v / w));
+        return formatDisplayNumber(v / w);
     }
 
-    return String(DEFAULT_TARGET_CONCENTRATION);
+    if (!(v > 0)) return formatDisplayNumber(DEFAULT_TARGET_CONCENTRATION);
+
+    const displayFactor = 10 ** DISPLAY_DECIMALS;
+    const capacity = normalizeVialCapacityMl(vialCapacityMl);
+    const minimumConcentration = Math.ceil(((v / capacity) * displayFactor) - 1e-9)
+        / displayFactor;
+    const maximumConcentration = Math.floor(((v / MIN_RECOMMENDED_WATER_ML) * displayFactor) + 1e-9)
+        / displayFactor;
+    const recommendedTarget = Math.min(
+        maximumConcentration,
+        Math.max(DEFAULT_TARGET_CONCENTRATION, minimumConcentration),
+    );
+    return formatDisplayNumber(recommendedTarget);
 }
 
 export function parseNumericField(value?: string): number {
-    const match = (value || '').match(/[\d.]+/);
-    return match ? parseFloat(match[0]) : 0;
+    const source = value || '';
+    const match = source.match(/^\s*[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?/i);
+    if (!match) return 0;
+    const remainder = source.slice(match[0].length).trim();
+    if (/^[.\deE+-]/.test(remainder)) return 0;
+    const parsed = Number(match[0]);
+    return Number.isFinite(parsed) ? parsed : 0;
 }
 
 export function resolveMeasureUnit(
@@ -70,22 +112,30 @@ export function resolveMeasureUnit(
 
 export function formatConcentrationLabel(concentration: number, vialUnit: 'mg' | 'IU'): string {
     const suffix = vialUnit === 'IU' ? 'IU per ml' : 'mg per ml';
-    return `${roundConcentration(concentration)}${suffix}`;
+    return `${formatDisplayNumber(concentration)}${suffix}`;
+}
+
+export function formatWaterAmountLabel(waterMl: number): string {
+    return formatDisplayNumber(waterMl);
 }
 
 export function formatDrawUnitsLabel(units: number): string {
-    return `${units} units`;
+    return `${formatDisplayNumber(units)} units`;
 }
 
 export function formatDefaultDrawUnitsLabel(
     protocolAmount: string | undefined,
     measureUnit: 'mg' | 'mcg' | 'IU' | undefined,
     vialUnit: 'mg' | 'IU' | undefined,
+    compoundAmount?: string,
+    vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
 ): string {
-    const units = calculateDefaultDrawUnits(
+    const units = calculateRecommendedDrawUnits(
         parseFloat(protocolAmount || '0'),
         resolveMeasureUnit(vialUnit || 'mg', measureUnit),
         vialUnit || 'mg',
+        parseFloat(compoundAmount || '0'),
+        vialCapacityMl,
     );
     return units != null ? formatDrawUnitsLabel(units) : '';
 }
@@ -105,16 +155,15 @@ export function resolveDefaultDrawUnitsLabel(
     measureUnit: 'mg' | 'mcg' | 'IU' | undefined,
     vialUnit: 'mg' | 'IU' | undefined,
     compoundAmount?: string,
+    vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
 ): string {
     if (!protocolAmount?.trim() || parseFloat(protocolAmount) <= 0) return '';
     if (!hasPositiveVialAmount(compoundAmount)) {
         return formatDrawUnitsLabel(DEFAULT_DRAW_UNITS_PER_MG);
     }
-    return formatDefaultDrawUnitsLabel(protocolAmount, measureUnit, vialUnit);
-}
-
-function roundConcentration(concentration: number): number {
-    return Math.round(concentration * 100) / 100;
+    return formatDefaultDrawUnitsLabel(
+        protocolAmount, measureUnit, vialUnit, compoundAmount, vialCapacityMl,
+    );
 }
 
 export interface PeptideMathResult {
@@ -146,18 +195,19 @@ function getForwardVolumeMl(i: PeptideMathInput): number {
 
 function formatResult(vol: number, conc: number, isIu: boolean): PeptideMathResult {
     return {
-        drawUnits: Math.round((vol * 100) * 10) / 10,
-        drawVolumeMl: Math.round(vol * 1000) / 1000,
+        drawUnits: vol * 100,
+        drawVolumeMl: vol,
         concentrationIuPerMl: isIu ? conc : undefined,
         concentrationMgPerMl: !isIu ? conc : undefined
     };
 }
 
 // --- REVERSE MATH ---
+/** Exact water volume — do not round; format with {@link formatWaterAmountLabel} for display. */
 export function calculateReverseWater(input: PeptideReverseMathInput): number | null {
     if (!isReverseValid(input)) return null;
     const waterMl = getReverseWaterMl(input);
-    return Math.round(waterMl * 100) / 100;
+    return waterMl > 0 ? waterMl : null;
 }
 
 function isReverseValid(i: PeptideReverseMathInput): boolean {
@@ -173,12 +223,13 @@ function getReverseWaterMl(i: PeptideReverseMathInput): number {
 }
 
 // --- CONCENTRATION-TARGET SOLVE ---
+/** Exact water from target concentration — format for display at the UI/label boundary. */
 export function calculateWaterFromTargetConcentration(
     vialAmount: number,
     targetConcentration: number,
 ): number | null {
     if (!vialAmount || vialAmount <= 0 || !targetConcentration || targetConcentration <= 0) return null;
-    const waterMl = roundWaterMl(vialAmount / targetConcentration);
+    const waterMl = vialAmount / targetConcentration;
     return waterMl > 0 ? waterMl : null;
 }
 
@@ -202,8 +253,8 @@ export function calculateFromTargetConcentration(
     const isIu = input.vialUnit === 'IU';
     return {
         waterMl,
-        drawUnits: roundDrawUnits(drawVolumeMl * 100),
-        drawVolumeMl: Math.round(drawVolumeMl * 1000) / 1000,
+        drawUnits: drawVolumeMl * 100,
+        drawVolumeMl,
         concentrationMgPerMl: !isIu ? targetConcentration : undefined,
         concentrationIuPerMl: isIu ? targetConcentration : undefined,
     };
@@ -233,9 +284,10 @@ function isConcentrationSolveValid(i: PeptideConcentrationSolveInput): boolean {
     return (i.vialUnit === 'IU') === (i.targetUnit === 'IU');
 }
 
-function roundWaterMl(waterMl: number): number {
-    return Math.round(waterMl * 100) / 100;
-}
+/** Prefer 10 u/mg; if that would exceed this, use 5 u/mg instead for a smaller round draw. */
+export const DRAW_UNITS_HIGH_THRESHOLD = 50;
+export const DEFAULT_DRAW_UNITS_PER_MG_REDUCED = 5;
+export const DEFAULT_DRAW_UNITS_PER_IU_REDUCED = 5;
 
 /** Default draw units when Set Draw Volume uses 10 units per mg (or per IU). */
 export function calculateDefaultDrawUnits(
@@ -246,17 +298,79 @@ export function calculateDefaultDrawUnits(
     if (!protocolAmount || protocolAmount <= 0) return null;
     if (vialUnit === 'IU') {
         if (measureUnit !== 'IU') return null;
-        const units = roundDrawUnits(protocolAmount * DEFAULT_DRAW_UNITS_PER_IU);
+        const units = scaleDrawUnitsForAmount(protocolAmount, DEFAULT_DRAW_UNITS_PER_IU, DEFAULT_DRAW_UNITS_PER_IU_REDUCED);
         return units > 0 ? units : DEFAULT_DRAW_UNITS_PER_IU;
     }
     if (measureUnit === 'IU') return null;
     const amountMg = measureUnit === 'mg' ? protocolAmount : protocolAmount / 1000;
-    const units = roundDrawUnits(amountMg * DEFAULT_DRAW_UNITS_PER_MG);
+    const units = scaleDrawUnitsForAmount(amountMg, DEFAULT_DRAW_UNITS_PER_MG, DEFAULT_DRAW_UNITS_PER_MG_REDUCED);
     if (units <= 0) return DEFAULT_DRAW_UNITS_PER_MG;
     if (units < 1) return DEFAULT_DRAW_UNITS_PER_MG;
     return units;
 }
 
-function roundDrawUnits(units: number): number {
-    return Math.round(units * 10) / 10;
+/**
+ * System recommendation for Set Draw Volume. It preserves the normal 10/5 u
+ * policy, then raises the suggestion only when needed to imply at least 1 ml.
+ * Core reverse math remains unclamped so explicit user choices below 1 ml work.
+ */
+export function calculateRecommendedDrawUnits(
+    protocolAmount: number,
+    measureUnit: 'mg' | 'mcg' | 'IU',
+    vialUnit: 'mg' | 'IU',
+    vialAmount?: number,
+    vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
+): number | null {
+    const standard = calculateDefaultDrawUnits(protocolAmount, measureUnit, vialUnit);
+    if (standard == null) return null;
+    if (!vialAmount || !Number.isFinite(vialAmount) || vialAmount <= 0) return standard;
+
+    const protocolInVialUnits = protocolAmountToVialUnits(protocolAmount, measureUnit, vialUnit);
+    if (protocolInVialUnits == null) return null;
+
+    const minimumDrawUnits = (
+        protocolInVialUnits
+        * MIN_RECOMMENDED_WATER_ML
+        * 100
+    ) / vialAmount;
+    // This recommendation is stored in a three-decimal form field. Round the
+    // floor upward at that boundary so its displayed value cannot imply <1 ml.
+    const displayFactor = 10 ** DISPLAY_DECIMALS;
+    const displaySafeMinimum = Math.ceil((minimumDrawUnits * displayFactor) - 1e-9)
+        / displayFactor;
+    const maximumDrawUnits = (
+        protocolInVialUnits
+        * normalizeVialCapacityMl(vialCapacityMl)
+        * 100
+    ) / vialAmount;
+    const displaySafeMaximum = Math.floor((maximumDrawUnits * displayFactor) + 1e-9)
+        / displayFactor;
+    return Math.min(displaySafeMaximum, Math.max(standard, displaySafeMinimum));
+}
+
+function protocolAmountToVialUnits(
+    protocolAmount: number,
+    measureUnit: 'mg' | 'mcg' | 'IU',
+    vialUnit: 'mg' | 'IU',
+): number | null {
+    if (vialUnit === 'IU') return measureUnit === 'IU' ? protocolAmount : null;
+    if (measureUnit === 'IU') return null;
+    return measureUnit === 'mg' ? protocolAmount : protocolAmount / 1000;
+}
+
+/**
+ * 10 units per mg/IU by default. When that would exceed the high threshold,
+ * use the reduced rate (5) so the suggested draw stays easier on a syringe.
+ * Returns exact scaled values (no display rounding).
+ */
+export function scaleDrawUnitsForAmount(
+    amount: number,
+    fullRate: number,
+    reducedRate: number,
+): number {
+    const full = amount * fullRate;
+    if (full > DRAW_UNITS_HIGH_THRESHOLD) {
+        return amount * reducedRate;
+    }
+    return full;
 }

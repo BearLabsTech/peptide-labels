@@ -17,6 +17,23 @@ describe('LabelMathResolver', () => {
         expect(result.mergedInput.concentration).toBe('5mg per ml')
     })
 
+    it('should replace stale Manual Entry concentration from vial ÷ water (not keep prior assist value)', () => {
+        const result = resolveLabelMath({
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            reconstitutionAmount: '2',
+            protocolAmount: '2.5',
+            measureUnit: 'mg',
+            protocolUnits: '25 units',
+            // Leftover from previous Set Draw Volume solve (23.3 / 1.165 → 20)
+            concentration: '20mg per ml',
+            calculatorSolveMode: 'standard',
+        })
+        expect(result.autoConcentration).toBe('10mg per ml')
+        expect(result.mergedInput.concentration).toBe('10mg per ml')
+        expect(result.autoUnits).toBe('25 units')
+    })
+
     it('should perform reverse math and format MG concentration when vial, draw units, and protocol amount are present', () => {
         const result = resolveLabelMath({
             compoundAmount: '10', vialUnit: 'mg',
@@ -99,12 +116,12 @@ describe('LabelMathResolver', () => {
             calculatorSolveMode: 'round_concentration',
             targetConcentration: '7',
         })
-        expect(result.autoWater).toBe('1.43')
-        expect(result.autoUnits).toBe('7.1 units')
+        expect(result.autoWater).toBe('1.429')
+        expect(result.autoUnits).toBe('7.143 units')
         expect(result.autoConcentration).toBe('7mg per ml')
     })
 
-    it('should keep target concentration on label when rounded water would drift', () => {
+    it('should keep target concentration on label when display-rounded water would drift', () => {
         const result = resolveLabelMath({
             compoundAmount: '22',
             vialUnit: 'mg',
@@ -113,10 +130,10 @@ describe('LabelMathResolver', () => {
             calculatorSolveMode: 'round_concentration',
             targetConcentration: '15',
         })
-        expect(result.autoWater).toBe('1.47')
+        expect(result.autoWater).toBe('1.467')
         expect(result.autoConcentration).toBe('15mg per ml')
         expect(result.mergedInput.concentration).toBe('15mg per ml')
-        expect(result.autoUnits).toBe('26.7 units')
+        expect(result.autoUnits).toBe('26.667 units')
     })
 
     it('should use target units mode to derive water without forward math from stale water', () => {
@@ -160,11 +177,11 @@ describe('assist mode authoritative inputs', () => {
                 calculatorSolveMode: 'round_concentration',
                 targetConcentration: '15',
             })
-            // 22 ÷ 15 rounds to 1.47 ml; 22 ÷ 1.47 ≈ 14.97 — must not appear on label
-            expect(result.autoWater).toBe('1.47')
+            // Exact water 22÷15 ≈ 1.4667 (display 1.467); vial÷display-rounded water must not appear on label
+            expect(result.autoWater).toBe('1.467')
             expect(result.autoConcentration).toBe('15mg per ml')
             expect(result.mergedInput.concentration).toBe('15mg per ml')
-            expect(result.autoUnits).toBe('26.7 units')
+            expect(result.autoUnits).toBe('26.667 units')
         })
 
         it('should replace stale concentration and water when target concentration changes', () => {
@@ -180,8 +197,8 @@ describe('assist mode authoritative inputs', () => {
                 protocolUnits: '80 units',
             })
             expect(result.mergedInput.concentration).toBe('15mg per ml')
-            expect(result.mergedInput.reconstitutionAmount).toBe('1.47')
-            expect(result.mergedInput.protocolUnits).toBe('26.7 units')
+            expect(result.mergedInput.reconstitutionAmount).toBe('1.467')
+            expect(result.mergedInput.protocolUnits).toBe('26.667 units')
         })
     })
 
@@ -195,9 +212,10 @@ describe('assist mode authoritative inputs', () => {
                 protocolUnits: '27 units',
                 calculatorSolveMode: 'target_units',
             })
-            // Reverse water for 27 units → 1.49 ml; forward from rounded water would yield ~27.1 units
-            expect(result.autoWater).toBe('1.49')
+            // Exact reverse water 1.485 ml; concentration from exact water, not display-rounded water
+            expect(result.autoWater).toBe('1.485')
             expect(result.mergedInput.protocolUnits).toBe('27 units')
+            expect(result.autoConcentration).toBe('14.815mg per ml')
         })
 
         it('should replace stale draw units and water when user sets a new draw volume', () => {
@@ -212,8 +230,24 @@ describe('assist mode authoritative inputs', () => {
                 concentration: '5mg per ml',
             })
             expect(result.mergedInput.protocolUnits).toBe('27 units')
-            expect(result.mergedInput.reconstitutionAmount).toBe('1.49')
-            expect(result.mergedInput.concentration).toBe('14.77mg per ml')
+            expect(result.mergedInput.reconstitutionAmount).toBe('1.485')
+            expect(result.mergedInput.concentration).toBe('14.815mg per ml')
+        })
+
+        it('should keep clean concentration from exact water when display-rounded water would drift (23.3 / 10mg / 50u)', () => {
+            const result = resolveLabelMath({
+                compoundAmount: '23.3',
+                vialUnit: 'mg',
+                protocolAmount: '10',
+                measureUnit: 'mg',
+                protocolUnits: '50 units',
+                calculatorSolveMode: 'target_units',
+            })
+            // Exact water 1.165 ml → concentration 20; rounding water first to 1.17 would yield ~19.91
+            expect(result.autoWater).toBe('1.165')
+            expect(result.autoConcentration).toBe('20mg per ml')
+            expect(result.mergedInput.concentration).toBe('20mg per ml')
+            expect(result.mergedInput.protocolUnits).toBe('50 units')
         })
     })
 })

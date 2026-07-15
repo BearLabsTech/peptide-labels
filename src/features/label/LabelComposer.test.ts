@@ -3,6 +3,7 @@ import { LabelComposer } from './LabelComposer'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
 import { mmToPx } from './print/dimensions'
 import { computeColumnLayout } from './labelColumnLayout'
+import { LabelLayoutEngine } from './LabelLayoutEngine'
 
 const TITLE_CHAR_WIDTH_EM = 0.95
 
@@ -149,7 +150,7 @@ describe('LabelComposer', () => {
             protocolUnits: '10 units',
             calculatorSolveMode: 'target_units',
         })
-        expect(result.reconstitutionLines).toEqual(['0.67 ml', '29.85mg per ml'])
+        expect(result.reconstitutionLines).toEqual(['0.667 ml', '30mg per ml'])
     })
 
     it('should not print reconstitution in set draw volume mode without a vial amount', () => {
@@ -176,8 +177,8 @@ describe('LabelComposer', () => {
             calculatorSolveMode: 'target_units',
         })
         expect(result.reconstitutionLines.length).toBeGreaterThan(0)
-        expect(result.reconstitutionLines[0]).toBe('0.67 ml')
-        expect(result.reconstitutionLines[1]).toBe('29.85mg per ml')
+        expect(result.reconstitutionLines[0]).toBe('0.667 ml')
+        expect(result.reconstitutionLines[1]).toBe('30mg per ml')
     })
 
     it('should print draw volume with units suffix when only a number is entered', () => {
@@ -186,8 +187,8 @@ describe('LabelComposer', () => {
             compoundName: 'Test Compound',
             compoundAmount: '20',
             vialUnit: 'mg',
-            reconstitutionAmount: '0.67',
-            concentration: '29.85mg per ml',
+            reconstitutionAmount: '0.667',
+            concentration: '30mg per ml',
             protocolAmount: '3',
             measureUnit: 'mg',
             protocolUnits: '10',
@@ -224,9 +225,9 @@ describe('LabelComposer', () => {
             reconstitutionAmount: '4.4',
             protocolUnits: '80 units',
         })
-        expect(result.reconstitutionLines[0]).toBe('1.47 ml')
+        expect(result.reconstitutionLines[0]).toBe('1.467 ml')
         expect(result.reconstitutionLines[1]).toBe('15mg per ml')
-        expect(result.protocolLines[0]).toBe('26.7 units (4mg)')
+        expect(result.protocolLines[0]).toBe('26.667 units (4mg)')
     })
 
     it('should print user draw units on label in set draw volume mode even when rounded water would forward-recalculate different units', () => {
@@ -242,8 +243,26 @@ describe('LabelComposer', () => {
             reconstitutionAmount: '4.4',
             concentration: '5mg per ml',
         })
-        expect(result.reconstitutionLines[0]).toBe('1.49 ml')
+        expect(result.reconstitutionLines[0]).toBe('1.485 ml')
         expect(result.protocolLines[0]).toBe('27 units (4mg)')
+    })
+
+    it('should print Manual Entry concentration from vial ÷ water even when stale assist concentration remains', () => {
+        const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
+        const result = composer.compose({
+            compoundName: 'Test Compound',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            reconstitutionAmount: '2',
+            concentration: '20mg per ml',
+            protocolAmount: '2.5',
+            measureUnit: 'mg',
+            protocolUnits: '25 units',
+            calculatorSolveMode: 'standard',
+        })
+        expect(result.reconstitutionLines[0]).toBe('2 ml')
+        expect(result.reconstitutionLines[1]).toBe('10mg per ml')
+        expect(result.protocolLines[0]).toBe('25 units (2.5mg)')
     })
 
     it('should print water volume with ml unit when only water amount is shown', () => {
@@ -318,7 +337,7 @@ describe('LabelComposer', () => {
     it('itShouldFitFullCenterStackWhenMascotQrAndAllSectionsFilled', () => {
         const target = resolvePrintTarget({ stockId: '40x20-rect', printerId: 'niimbot-b21' })
         const composer = new LabelComposer(target)
-        const engine = (composer as unknown as { layoutEngine: import('./LabelLayoutEngine').LabelLayoutEngine }).layoutEngine
+        const engine = new LabelLayoutEngine(target.effectiveDpi)
         const result = composer.compose({
             compoundName: 'Test Compound',
             compoundAmount: '20',

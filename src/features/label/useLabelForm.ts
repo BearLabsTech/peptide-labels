@@ -1,17 +1,22 @@
-import type { LabelModelInput } from './labelModel'
+import type { LabelFieldUpdater, LabelModelInput } from './labelModel'
 import type { CalculatorSolveMode } from './peptideMath'
-import { resolveLabelMath } from './LabelMathResolver'
 import {
+    DEFAULT_CALCULATOR_SOLVE_MODE,
     applyCalculatorModeSwitch,
     applyFieldUpdates,
     applyProtocolAmountChange,
-    ensureReconstitutionPrintForAssist,
+    applyStandardModeEntry,
+    applyStandardVialAmountChange,
+    applyStandardWaterChange,
+    applyVialCapacityRecommendationChange,
     syncCalculatorModeSwitchFields,
     type CalculatorModeDerivedState,
 } from './calculatorModeSwitch'
-import { hasPositiveDrawUnits, hasPositiveVialAmount, resolveDefaultDrawUnitsLabel } from './peptideMath'
-
-export type SyncAssistReason = 'protocol' | 'vial' | 'measure' | 'draw' | 'mode' | 'target_concentration';
+import { DEFAULT_VIAL_CAPACITY_ML } from './vialCapacity'
+import {
+    resolveAssistModeUpdates,
+    type SyncAssistReason,
+} from './calculatorAssistSync'
 
 export interface LabelFormHandlers {
     handleVialUnitChange: (unit: string) => void;
@@ -22,111 +27,119 @@ export interface LabelFormHandlers {
     handleDrawVolumeChange: (v: string) => void;
     handleCalculatorModeChange: (mode: CalculatorSolveMode) => void;
     handleTargetConcentrationChange: (v: string) => void;
+    handleVialCapacityChange: (vialCapacityMl: number) => void;
 }
 
 function syncAssistModeDerivedFields(
     draft: LabelModelInput,
-    updateField: <K extends keyof LabelModelInput>(field: K, value: LabelModelInput[K]) => void,
+    updateField: LabelFieldUpdater,
     reason: SyncAssistReason = 'mode',
+    vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
 ): void {
-    const mode = draft.calculatorSolveMode || 'standard';
-    if (mode !== 'target_units' && mode !== 'round_concentration') return;
-
-    const hasVial = hasPositiveVialAmount(draft.compoundAmount);
-
-    if (!hasVial) {
-        updateField('reconstitutionAmount', '');
-        updateField('concentration', '');
-        if (mode === 'target_units' && draft.protocolAmount?.trim()) {
-            const defaultUnits = resolveDefaultDrawUnitsLabel(
-                draft.protocolAmount, draft.measureUnit, draft.vialUnit, draft.compoundAmount,
-            );
-            if (defaultUnits && reason !== 'draw') {
-                updateField('protocolUnits', defaultUnits);
-            }
-        }
-        return;
-    }
-
-    const resolved = resolveLabelMath(draft);
-    if (resolved.autoWater) updateField('reconstitutionAmount', resolved.autoWater);
-    if (resolved.autoConcentration) updateField('concentration', resolved.autoConcentration);
-
-    applyFieldUpdates(updateField, ensureReconstitutionPrintForAssist(mode, resolved, draft));
-
-    if (mode === 'round_concentration' && resolved.autoUnits) {
-        updateField('protocolUnits', resolved.autoUnits);
-    }
-    if (mode === 'target_units' && reason !== 'draw') {
-        const defaultUnits = resolveDefaultDrawUnitsLabel(
-            draft.protocolAmount, draft.measureUnit, draft.vialUnit, draft.compoundAmount,
-        );
-        const shouldUpdateDraw = reason === 'protocol' || reason === 'vial' || reason === 'measure'
-            || !hasPositiveDrawUnits(draft.protocolUnits);
-        if (defaultUnits && shouldUpdateDraw) {
-            updateField('protocolUnits', defaultUnits);
-        }
-    }
+    applyFieldUpdates(
+        updateField,
+        resolveAssistModeUpdates(draft, reason, vialCapacityMl),
+    );
 }
 
-export function useLabelForm(
+export function createLabelFormHandlers(
     input: LabelModelInput,
-    updateField: <K extends keyof LabelModelInput>(field: K, value: LabelModelInput[K]) => void,
+    updateField: LabelFieldUpdater,
     derived?: CalculatorModeDerivedState,
+    vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
 ): LabelFormHandlers {
-    const mode = input.calculatorSolveMode || 'standard';
+    const mode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE;
 
     const handleVialUnitChange = (unit: string) => {
         const vialUnit = unit as LabelModelInput['vialUnit'];
+        const measureUnit = vialUnit === 'IU'
+            ? 'IU'
+            : input.measureUnit === 'IU'
+                ? 'mcg'
+                : input.measureUnit;
         updateField('vialUnit', vialUnit);
-        if (vialUnit === 'IU') updateField('measureUnit', 'IU');
-        else if (vialUnit === 'mg' && input.measureUnit === 'IU') updateField('measureUnit', 'mcg');
+        if (measureUnit !== input.measureUnit) updateField('measureUnit', measureUnit);
         if (mode === 'target_units' || mode === 'round_concentration') {
-            syncAssistModeDerivedFields({ ...input, vialUnit }, updateField, 'vial');
+            syncAssistModeDerivedFields(
+                { ...input, vialUnit, measureUnit },
+                updateField,
+                'vial',
+                vialCapacityMl,
+            );
         }
     };
 
     const handleCompoundAmountChange = (v: string) => {
+        if (mode === 'standard') {
+            applyFieldUpdates(updateField, applyStandardVialAmountChange(input, v));
+            return;
+        }
         updateField('compoundAmount', v);
         if (mode === 'target_units' || mode === 'round_concentration') {
-            syncAssistModeDerivedFields({ ...input, compoundAmount: v }, updateField, 'vial');
+            syncAssistModeDerivedFields(
+                { ...input, compoundAmount: v }, updateField, 'vial', vialCapacityMl,
+            );
         }
     };
 
     const handleCalculatorModeChange = (nextMode: CalculatorSolveMode) => {
-        const next = applyCalculatorModeSwitch(input, nextMode, derived);
+        const next = applyCalculatorModeSwitch(input, nextMode, derived, vialCapacityMl);
         syncCalculatorModeSwitchFields(input, next, updateField);
-        syncAssistModeDerivedFields({ ...input, ...next, calculatorSolveMode: nextMode }, updateField, 'mode');
+        if (nextMode === 'standard') {
+            applyFieldUpdates(updateField, applyStandardModeEntry({ ...input, ...next }));
+            return;
+        }
+        syncAssistModeDerivedFields(
+            { ...input, ...next, calculatorSolveMode: nextMode },
+            updateField,
+            'mode',
+            vialCapacityMl,
+        );
     };
 
     const handleTargetConcentrationChange = (v: string) => {
         updateField('targetConcentration', v);
+        updateField('targetConcentrationOrigin', v ? 'user' : 'recommended');
         updateField('reconstitutionAmount', '');
         updateField('concentration', '');
         updateField('protocolUnits', '');
         if (mode === 'round_concentration') {
             syncAssistModeDerivedFields(
-                { ...input, targetConcentration: v, reconstitutionAmount: '', concentration: '', protocolUnits: '', calculatorSolveMode: 'round_concentration' },
+                {
+                    ...input,
+                    targetConcentration: v,
+                    targetConcentrationOrigin: v ? 'user' : 'recommended',
+                    reconstitutionAmount: '',
+                    concentration: '',
+                    protocolUnits: '',
+                    calculatorSolveMode: 'round_concentration',
+                },
                 updateField,
                 'target_concentration',
+                vialCapacityMl,
             );
         }
     };
 
     const handleWaterChange = (v: string) => {
         if (mode === 'round_concentration') return;
+        if (mode === 'standard') {
+            applyFieldUpdates(updateField, applyStandardWaterChange(input, v));
+            return;
+        }
         updateField('reconstitutionAmount', v);
         if (v) updateField('protocolUnits', '');
     };
 
     const handleProtocolAmountChange = (v: string) => {
-        const updates = applyProtocolAmountChange(input, v);
+        const updates = applyProtocolAmountChange(input, v, vialCapacityMl);
         applyFieldUpdates(updateField, updates);
         if (mode === 'round_concentration' || mode === 'target_units') {
             syncAssistModeDerivedFields(
                 { ...input, ...updates, calculatorSolveMode: mode },
                 updateField,
                 'protocol',
+                vialCapacityMl,
             );
         }
     };
@@ -135,21 +148,41 @@ export function useLabelForm(
         const measureUnit = unit as LabelModelInput['measureUnit'];
         updateField('measureUnit', measureUnit);
         if (mode === 'target_units' || mode === 'round_concentration') {
-            syncAssistModeDerivedFields({ ...input, measureUnit }, updateField, 'measure');
+            syncAssistModeDerivedFields(
+                { ...input, measureUnit }, updateField, 'measure', vialCapacityMl,
+            );
         }
     };
 
     const handleDrawVolumeChange = (v: string) => {
         if (mode === 'round_concentration') return;
         updateField('protocolUnits', v);
+        updateField('protocolUnitsOrigin', v ? 'user' : 'recommended');
         if (mode === 'target_units') {
             syncAssistModeDerivedFields(
                 { ...input, protocolUnits: v, reconstitutionAmount: '' },
                 updateField,
                 'draw',
+                vialCapacityMl,
             );
         } else if (v) {
             updateField('reconstitutionAmount', '');
+        }
+    };
+
+    const handleVialCapacityChange = (nextVialCapacityMl: number) => {
+        if (mode === 'target_units' || mode === 'round_concentration') {
+            const recommendationUpdates = applyVialCapacityRecommendationChange(
+                input,
+                nextVialCapacityMl,
+            );
+            applyFieldUpdates(updateField, recommendationUpdates);
+            syncAssistModeDerivedFields(
+                { ...input, ...recommendationUpdates },
+                updateField,
+                'capacity',
+                nextVialCapacityMl,
+            );
         }
     };
 
@@ -162,5 +195,6 @@ export function useLabelForm(
         handleDrawVolumeChange,
         handleCalculatorModeChange,
         handleTargetConcentrationChange,
+        handleVialCapacityChange,
     };
 }

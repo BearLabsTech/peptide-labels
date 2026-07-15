@@ -10,7 +10,21 @@ This document describes what Peptide Labels does today and what is planned next.
 
 Peptide Labels helps you design **small adhesive labels** for peptide (and similar) vials—labels you can print on common **thermal label printers** and stick on the vial itself. Instead of juggling spreadsheets to keep concentration, draw volume, and water volume aligned, you enter what you know and the app **keeps the numbers consistent** on the label you are about to print.
 
-The experience is a single screen: a structured sidebar for everything that might belong on the label, and a **live preview** sized like the real sticker. When your label looks right, you download a **high-contrast image** ready for thermal printing. The app is built so the flow feels obvious without a separate user manual.
+You start on a **landing page** that frames the product for **research use only** (not medical advice) and asks you to acknowledge a versioned user agreement before continuing. From there you choose **Calculator** or **Label designer**. Inside the app you can switch modes anytime; fields you already entered stay filled.
+
+---
+
+### Landing and entry
+
+Before the tools open, a short landing screen presents the product name and two equal paths—**Calculator** or **Label designer**. A blocking agreement explains research-use expectations; acknowledging it is required for the current agreement version. If the agreement text is updated and the version advances, you will be asked to acknowledge again. Closing or ignoring the agreement does not unlock the app.
+
+---
+
+### Calculator mode
+
+Not every visit ends in a printed label. **Calculator mode** gives the same reconstitution math without label chrome—assist modes, compound and protocol inputs, and a clear Results panel with water, concentration, draw units, and a syringe scale (default **1 ml** capacity; you can switch to smaller insulin syringes). The default assist path is **Set Draw Volume**: enter compound amount and protocol amount, get a round draw suggestion (**10 units per mg**, or **5 units per mg** when 10× would exceed 50 units), and let water fall out even when it is uneven. Quick-pick draw values progress predictably in **5-unit steps through 50**, then **10-unit steps through the selected syringe’s capacity**. Assisted defaults keep recommended water between **1 ml** and the selected **vial capacity**, which defaults to **3 ml**; pill-button quick picks offer 3, 5, 10, 20, and 30 ml alongside a custom capacity field that accepts values of at least 1 ml. User-selected values outside that recommended range remain allowed and show a warning when water exceeds vial capacity. You can switch to **Set Concentration** or **Manual Entry** when that fits better. Protocol amount cannot exceed compound amount; oversized draws versus the selected syringe warn without changing your numbers.
+
+When the numbers look right, **Turn this into a label?** asks whether to open the label designer with those values already filled. A mode switch in the header flips between calculator and designer without wiping shared fields.
 
 ---
 
@@ -24,7 +38,7 @@ The preview always reflects what you are building **at true label proportions**,
 
 ### Compound identity
 
-The label answers the first question on every vial: **what is this?** You name the compound and how much is in the vial (milligrams or international units). The **compound name and vial amount print on separate lines** in a **title band above** the logo, section boxes, and testing column—centered on the center column but using the **full label width** for wrapping so long names stay readable. That identity anchors everything else—the calculator, the protocol line, and the filename when you export.
+The label answers the first question on every vial: **what is this?** You name the compound and its **compound amount** (milligrams or international units). The **compound name and compound amount print on separate lines** in a **title band above** the logo, section boxes, and testing column—centered on the center column but using the **full label width** for wrapping so long names stay readable. That identity anchors everything else—the calculator, the protocol line, and the filename when you export.
 
 When you need a clear warning that material has **not been tested**, you can mark the vial as untested. The label shifts to an unmistakable caution treatment so anyone handling the vial sees the risk before they rely on the numbers below it.
 
@@ -32,7 +46,7 @@ When you need a clear warning that material has **not been tested**, you can mar
 
 ### Reconstitution
 
-Mixed vials forget their own story quickly. Reconstitution on the label records **how you prepared it**: how much liquid you used, what kind of liquid (bacteriostatic water, sterile water, saline, or unstated), and **concentration** the app derives from your vial size and water volume so you are not doing mental math at the bench.
+Mixed vials forget their own story quickly. Reconstitution on the label records **how you prepared it**: how much liquid you used, what kind of liquid (bacteriostatic water, sterile water, saline, or unstated), and **concentration** the app derives from compound amount and water volume so you are not doing mental math at the bench.
 
 You can date the mix with a calendar or in your own words (“Mixed Jan 1st”) when that reads better on a small label. Like every other topic, you decide whether the whole reconstitution block prints and which individual lines (water, concentration, date) appear.
 
@@ -42,9 +56,9 @@ You can date the mix with a calendar or in your own words (“Mixed Jan 1st”) 
 
 Inconsistent numbers on a vial label are worse than missing numbers—they look authoritative and mislead. The calculator exists so **one change does not silently desync the rest**.
 
-If you know vial amount, water volume, and protocol amount, the app can work out **draw volume** and concentration for you. If you already know draw volume and protocol amount, it can work out **how much water** you needed. Enter only vial and water and you still get a useful **concentration** line even before protocol is filled in.
+If you know compound amount, water volume, and protocol amount, the app can work out **draw volume** and concentration for you. If you already know draw volume and protocol amount, it can work out **how much water** you needed. Enter only compound amount and water and you still get a useful **concentration** line even before protocol is filled in.
 
-When you know your protocol amount but want simpler bench math, you can choose how the calculator solves for water volume: enter a **target concentration** (mg/ml—or IU/ml for IU vials) and the app fills in water and draw units, or enter **draw units** directly and the app works backward to the water volume you need. In Set Concentration mode, **the concentration you enter is what prints on the label**—water rounds to practical ml, but draw units and the concentration line stay tied to your target, not a back-calculated drift. **Water volume and concentration are not calculated or printed until you enter vial amount**—without that, the app cannot know concentration, so it defaults draw units to a flat **10 units** placeholder rather than guessing wrong math.
+When you know your protocol amount but want simpler bench math, you can choose how the calculator solves for water volume. **Set Draw Volume** is the default: enter **draw units** (suggested at **10 units per mg**, or per IU; when that would exceed **50 units**, the suggestion uses **5 units per mg** / IU instead) and the app works backward to the water volume you need—water need not be a round number. System-generated draw and concentration defaults are adjusted when needed so they recommend water from **1 ml through the selected vial capacity**. This is a recommendation, not a restriction: a draw, target concentration, or Manual Entry water amount chosen by the user remains unchanged outside that range, with a warning when it exceeds vial capacity. **Set Concentration** lets you enter a **target concentration** (mg/ml—or IU/ml for IU compounds); **the concentration you enter is what prints on the label**—math stays full precision, and ml / units / concentration are rounded to **three decimal places for display only**, so draw units and the concentration line stay tied to your target, not a back-calculated drift from a rounded water volume. **Manual Entry** is available when you already know water. **Water volume and concentration are not calculated or printed until you enter compound amount**—without that, the app cannot know concentration, so it defaults draw units to a flat **10 units** placeholder rather than guessing wrong math until compound amount is present.
 
 The app keeps **milligram/microgram** and **IU** worlds consistent: an IU vial pairs with IU on the protocol side. When you change one driving input, related fields refresh in a sensible direction so you are always looking at a coherent set of values, not a patchwork of stale and new numbers. Field order does not matter: enter protocol before vial, or vial before protocol, and the app recalculates once enough information is present.
 
@@ -88,15 +102,15 @@ Typography **scales with label height**—taller stock like 40 × 30 mm uses lar
 
 ### Ready to print
 
-Thermal printers need **sharp black and white**, not subtle grays from a screen capture. Export produces a **monochrome PNG** sized to your selected label dimensions, with physical size metadata embedded for import into apps like Niimbot.
+Thermal printers need **sharp black and white**, not subtle grays from a screen capture. Export produces a **monochrome PNG** sized to your selected label dimensions, with physical size metadata embedded for import into apps like Niimbot. The download shows progress, prevents duplicate export attempts, and reports a recoverable failure instead of leaving the interface stuck.
 
-**Print setup** at the top of the sidebar lets you optionally choose a printer model, vial size, and **label stock**—rounded or rectangular rolls in common sizes—or skip and use the default **40 × 20 mm rounded** stock. The live preview is **what you print**: same padding, corner shape, and dimensions as the downloaded PNG.
+**Print setup** at the top of the sidebar lets you choose the physical **vial capacity**, plus optionally choose a printer model and **label stock**—rounded or rectangular rolls in common sizes—or skip and use the default **40 × 20 mm rounded** stock. Vial capacity is shared with Calculator mode and persists across visits. The live preview is **what you print**: same padding, corner shape, and dimensions as the downloaded PNG.
 
 When you **select a printer**, export resolution matches that device’s native DPI (for example **203 DPI** on Niimbot B21, **300 DPI** on M2, B21 Pro, and B1 Pro). With no printer selected, export stays at **300 DPI** so high-resolution printers and import apps get a sharp file. Label **stock** (not the printer alone) drives corner shape and padding.
 
 The print catalog includes **Niimbot B1 Pro** and **40 × 30 mm** stock (rounded and rectangular), alongside existing B21 / M2 / B21 Pro options and 40 × 20 mm and 50 × 30 mm rolls.
 
-The preview banner shows your active label size and corner shape at a glance. Padding is tighter on **rounded** stock because Niimbot already insets rounded templates.
+The preview banner shows your active label size and corner shape at a glance; selecting it opens **Print setup** even after that section has been collapsed. Padding is tighter on **rounded** stock because Niimbot already insets rounded templates.
 
 The download name reflects your compound when you have named one, so saved files are easy to find later.
 
@@ -108,59 +122,29 @@ Items below are ordered **easiest to hardest** to implement. Where one feature d
 
 ---
 
-### Landing page and entry paths
-
-Before the label designer, the product will offer a **landing page** that sets expectations up front: Peptide Labels is for **research use only**, not medical advice, with clear compliance language and a user agreement to acknowledge before continuing.
-
-From there you will choose how to use the app—**calculator only** or **full label designer**—instead of landing directly on the design screen. That split keeps a lightweight path for people who only need the math today, while leaving room for a broader product (accounts, saved data, more tools) later without rewriting the core flow.
-
----
-
-### Calculator-only mode
-
-Not every visit ends in a printed label. A dedicated **calculator mode** gives you the same consistent reconstitution math without the label chrome—useful at the bench when you only need draw volume or water volume worked out.
-
-When the numbers look right, the app can ask whether you want to **turn this into a label**. Say yes and you move to the label designer with calculator fields **already filled**, so you are not retyping vial amount, water, protocol, and derived values.
-
-*Requires: landing page and entry paths.*
-
----
-
 ### Support the project
 
 The landing page will include an optional way to **contribute** if the app has been useful—no paywall, no required amount. Copy along the lines of *if you got value from the app, consider a $5 contribution* sets a gentle suggestion without prescribing what support should look like; you choose what feels fair.
 
 **Credit card** checkout lowers friction for most people. **Cryptocurrency** will be offered as well for contributors who prefer more **privacy** when supporting community tools. Contributing stays entirely optional and separate from using the calculator or label designer.
 
-*Requires: landing page and entry paths.*
-
 ---
 
 ### User-selected label size
 
-Today you can pick from catalog **label stock** (rounded or rectangular rolls in common sizes) or enter custom width and height.
+Today you can pick from catalog **label stock** (rounded or rectangular rolls in common sizes) or enter custom width and height. Custom mode stays open while you edit and requires positive values before applying the dimensions.
 
 In practice, **thermal printers and adhesive stock still vary** beyond what the catalog lists today. The product will expand stock profiles and make dimension choice clearer as more rolls are validated on real hardware.
 
 ---
 
-### Larger vials (10 ml)
-
-Many users keep **larger vials** that deserve more room on the sticker for lines and QR codes. The product will add a **10 ml vial profile** alongside 3 ml, wired into the same vial-and-label selection flow above so preview and export stay aligned with your printer and stock.
-
-Until then, everything in **Today** assumes the 3 ml profile and today’s default label footprint.
-
-*Requires: user-selected label size (flexible dimensions and preview/export scaling).*
-
----
-
 ### Printer-guided label selection
 
-Manual dimensions help power users; most people just want **“it works on my printer.”** The product will maintain a **curated list of common thermal label printers**. You pick your printer and **vial size** (for example 3 ml or 10 ml); the app suggests the **label size** that typically fits that combination.
+Manual dimensions help power users; most people just want **“it works on my printer.”** The product will maintain a **curated list of common thermal label printers**. You pick your printer and **vial capacity**; the app suggests the **label size** that typically fits that combination.
 
 When a printer supports **more than one plausible stock size** for the same vial, you choose which roll you use—no guesswork, but no false certainty either. This sits alongside free-form dimensions: guided setup when you want it, full control when you need it.
 
-*Requires: user-selected label size; benefits from the 10 ml vial profile when that exists.*
+*Requires: user-selected label size.*
 
 ---
 
@@ -216,7 +200,7 @@ In a later phase, **account creation** will let you sign in and keep a small set
 
 That layer builds on the landing page and calculator/designer split—research-use acknowledgment and lightweight calculator access stay available without an account; saved data is for people who print often and want their bench setup to follow them.
 
-*Requires: landing page and entry paths (and ideally calculator-only mode); largest scope—identity, storage, and persistence.*
+*Requires: largest scope—identity, storage, and persistence. Builds on shipping landing + calculator/designer split.*
 
 ---
 

@@ -1,22 +1,44 @@
-import type { LabelModelInput } from './labelModel'
+import type { LabelFieldUpdater, LabelModelInput } from './labelModel'
 import { resolveLabelMath } from './LabelMathResolver'
-import { useLabelForm } from './useLabelForm'
+import { createLabelFormHandlers } from './useLabelForm'
 import { CompoundSection, SourceSection, ReconstitutionSection, ProtocolSection, MediaSection, TestingSection } from './components/SidebarSections'
 import { PrintSetupSection } from './components/PrintSetupSection'
 import type { PrintSetupSelection } from './print/types'
 
 export interface ControlSidebarProps {
     input: LabelModelInput
-    updateField: <K extends keyof LabelModelInput>(field: K, value: any) => void
+    updateField: LabelFieldUpdater
     printSelection: PrintSetupSelection
     onPrintSelectionChange: (next: PrintSetupSelection) => void
     setupOpen?: boolean
+    onSetupOpenChange?: (open: boolean) => void
 }
 
-export function ControlSidebar({ input, updateField, printSelection, onPrintSelectionChange, setupOpen }: ControlSidebarProps) {
+export function ControlSidebar({
+    input,
+    updateField,
+    printSelection,
+    onPrintSelectionChange,
+    setupOpen,
+    onSetupOpenChange,
+}: ControlSidebarProps) {
     const { autoUnits, autoWater, autoConcentration } = resolveLabelMath(input);
     const derivedState = { autoUnits, autoWater, autoConcentration };
-    const handlers = useLabelForm(input, updateField, { autoConcentration, autoUnits, autoWater });
+    const vialCapacityMl = printSelection.vialCapacityMl ?? 3;
+    const handlers = createLabelFormHandlers(
+        input,
+        updateField,
+        { autoConcentration, autoUnits, autoWater },
+        vialCapacityMl,
+    );
+
+    function handlePrintSelectionChange(next: PrintSetupSelection) {
+        const nextCapacity = next.vialCapacityMl ?? 3;
+        if (nextCapacity !== vialCapacityMl) {
+            handlers.handleVialCapacityChange(nextCapacity);
+        }
+        onPrintSelectionChange(next);
+    }
 
     return (
         <div className="sidebar-panel">
@@ -24,11 +46,19 @@ export function ControlSidebar({ input, updateField, printSelection, onPrintSele
             <div className="sidebar-scroll-area">
                 <PrintSetupSection
                     selection={printSelection}
-                    onChange={onPrintSelectionChange}
+                    onChange={handlePrintSelectionChange}
                     defaultOpen={setupOpen ?? true}
+                    open={setupOpen}
+                    onOpenChange={onSetupOpenChange}
                 />
                 <CompoundSection input={input} updateField={updateField} handlers={handlers} />
-                <ReconstitutionSection input={input} updateField={updateField} derivedState={derivedState} handlers={handlers} />
+                <ReconstitutionSection
+                    input={input}
+                    updateField={updateField}
+                    derivedState={derivedState}
+                    handlers={handlers}
+                    vialCapacityMl={vialCapacityMl}
+                />
                 <ProtocolSection input={input} updateField={updateField} derivedState={derivedState} handlers={handlers} />
                 <MediaSection input={input} updateField={updateField} />
                 <TestingSection input={input} updateField={updateField} />

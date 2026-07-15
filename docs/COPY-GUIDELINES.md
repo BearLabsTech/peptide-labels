@@ -28,6 +28,18 @@ Use context-appropriate alternatives:
 
 ---
 
+## Compound amount and container capacity
+
+Keep substance quantity, vial capacity, and syringe capacity distinct:
+
+- **Compound amount** — the mg or IU contained in the vial.
+- **Vial capacity** — the physical liquid capacity of the vial in ml.
+- **Syringe capacity** — the physical liquid capacity of the syringe in ml.
+
+Do not label the compound amount field only “Vial” or “Vial Amount,” and do not use “Vial size” when the value specifically means liquid capacity.
+
+---
+
 ## Community testing (Test Group)
 
 For community testing references:
@@ -49,6 +61,18 @@ When referring to optional financial support from users (for example on the land
 - Offer **credit card** and **cryptocurrency** as payment options where the product supports contributions (see [FRD.md](./FRD.md)).
 
 **Rationale:** “Contribution” fits optional community support without implying charity, tipping, or a transactional purchase. Keep the same terms in UI, code identifiers, and docs once this ships.
+
+---
+
+## User agreement content
+
+The research-use / user agreement **body** lives in [`src/content/user-agreement.md`](../src/content/user-agreement.md)—not in React components.
+
+- Edit that markdown file to change agreement wording.
+- When the agreement text changes in a way that requires re-acknowledgment, bump [`src/content/userAgreementVersion.ts`](../src/content/userAgreementVersion.ts) (`USER_AGREEMENT_VERSION`) in the **same** change set.
+- Components may contain chrome only (for example “I understand”, “Research” badge labels)—not the legal/product agreement paragraphs.
+
+**Rationale:** Contributors should update copy without hunting through UI code; version bumps force returning users to acknowledge material changes.
 
 ---
 

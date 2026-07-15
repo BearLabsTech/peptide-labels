@@ -7,35 +7,95 @@ const inputStyle: CSSProperties = {
     color: 'var(--color-text-main)', backgroundColor: 'var(--color-surface)'
 }
 
-export interface AccordionSectionProps { title: string; children: ReactNode; defaultOpen?: boolean; }
-export function AccordionSection({ title, children, defaultOpen = false }: AccordionSectionProps) {
-    const [isOpen, setIsOpen] = useState(defaultOpen);
+export interface AccordionSectionProps {
+    title: string
+    children: ReactNode
+    defaultOpen?: boolean
+    open?: boolean
+    onOpenChange?: (open: boolean) => void
+}
+export function AccordionSection({
+    title,
+    children,
+    defaultOpen = false,
+    open,
+    onOpenChange,
+}: AccordionSectionProps) {
     return (
-        <div className="accordion-wrapper">
-            <button onClick={() => setIsOpen(!isOpen)} className={`accordion-btn ${isOpen ? 'active' : ''}`}>
-                <span className="accordion-title">{title}</span>
-                <span className="accordion-icon" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
-            </button>
-            {isOpen && <div style={{ padding: '16px 20px 8px 20px', backgroundColor: 'var(--color-surface)' }}>{children}</div>}
-        </div>
+        <CollapsibleSection
+            title={title}
+            defaultOpen={defaultOpen}
+            open={open}
+            onOpenChange={onOpenChange}
+            classPrefix="accordion"
+            bodyStyle={{ padding: '16px 20px 8px 20px', backgroundColor: 'var(--color-surface)' }}
+        >
+            {children}
+        </CollapsibleSection>
     )
 }
 
 export interface SubAccordionSectionProps { title: string; children: ReactNode; defaultOpen?: boolean; }
 export function SubAccordionSection({ title, children, defaultOpen = false }: SubAccordionSectionProps) {
-    const [isOpen, setIsOpen] = useState(defaultOpen);
     return (
-        <div className="sub-accordion-wrapper">
-            <button type="button" onClick={() => setIsOpen(!isOpen)} className={`sub-accordion-btn ${isOpen ? 'active' : ''}`}>
-                <span className="sub-accordion-title">{title}</span>
-                <span className="sub-accordion-icon" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+        <CollapsibleSection title={title} defaultOpen={defaultOpen} classPrefix="sub-accordion">
+            {children}
+        </CollapsibleSection>
+    )
+}
+
+interface CollapsibleSectionProps {
+    title: string
+    children: ReactNode
+    defaultOpen: boolean
+    open?: boolean
+    onOpenChange?: (open: boolean) => void
+    classPrefix: 'accordion' | 'sub-accordion'
+    bodyStyle?: CSSProperties
+}
+
+function CollapsibleSection({
+    title,
+    children,
+    defaultOpen,
+    open,
+    onOpenChange,
+    classPrefix,
+    bodyStyle,
+}: CollapsibleSectionProps) {
+    const [internalOpen, setInternalOpen] = useState(defaultOpen)
+    const isOpen = open ?? internalOpen
+    const toggleOpen = () => {
+        const next = !isOpen
+        if (open === undefined) setInternalOpen(next)
+        onOpenChange?.(next)
+    }
+    return (
+        <div className={`${classPrefix}-wrapper`}>
+            <button
+                type="button"
+                aria-expanded={isOpen}
+                onClick={toggleOpen}
+                className={`${classPrefix}-btn ${isOpen ? 'active' : ''}`}
+            >
+                <span className={`${classPrefix}-title`}>{title}</span>
+                <span
+                    aria-hidden="true"
+                    className={`${classPrefix}-icon`}
+                    style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                >
+                    ▼
+                </span>
             </button>
-            {isOpen && <div className="sub-accordion-body">{children}</div>}
+            {isOpen && (
+                <div className={`${classPrefix}-body`} style={bodyStyle}>
+                    {children}
+                </div>
+            )}
         </div>
     )
 }
 
-// FIX: Added minHeight to guarantee alignment across flex rows
 interface FieldHeaderProps { label: string; printToggle?: { visible: boolean; onChange: (v: boolean) => void; disabled?: boolean }; rightContent?: ReactNode; }
 function FieldHeader({ label, printToggle, rightContent }: FieldHeaderProps) {
     return (
@@ -63,12 +123,12 @@ export function TextInput({ label, value, onChange, placeholder, disabled, print
     )
 }
 
-export interface SelectInputProps { label: string; value: string; onChange: (v: string) => void; options: readonly string[] | string[]; allowNone?: boolean; printToggle?: { visible: boolean; onChange: (v: boolean) => void; disabled?: boolean }; }
-export function SelectInput({ label, value, onChange, options, allowNone, printToggle }: SelectInputProps) {
+export interface SelectInputProps<T extends string> { label: string; value: T; onChange: (v: T) => void; options: readonly T[]; allowNone?: boolean; printToggle?: { visible: boolean; onChange: (v: boolean) => void; disabled?: boolean }; }
+export function SelectInput<T extends string>({ label, value, onChange, options, allowNone, printToggle }: SelectInputProps<T>) {
     return (
         <div style={{ marginBottom: 16 }}>
             <FieldHeader label={label} printToggle={printToggle} />
-            <select value={value} onChange={e => onChange(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+            <select value={value} onChange={e => onChange(e.target.value as T)} style={{ ...inputStyle, cursor: 'pointer' }}>
                 {allowNone && <option value="">(None)</option>}
                 {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
             </select>
@@ -130,13 +190,17 @@ export function DateField({ label, value, onChange, isFreeText, onFreeTextToggle
 export interface ToggleInputProps { label: string; checked: boolean; onChange: (v: boolean) => void; }
 export function ToggleInput({ label, checked, onChange }: ToggleInputProps) {
     return (
-        <div
+        <label
             style={{ display: 'flex', alignItems: 'center', marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid var(--color-border)', cursor: 'pointer' }}
-            onClick={() => onChange(!checked)}
         >
-            <input type="checkbox" checked={checked} onChange={() => { }} style={{ marginRight: 10, cursor: 'pointer', transform: 'scale(1.1)' }} />
-            <label style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-primary)', cursor: 'pointer' }}>{label}</label>
-        </div>
+            <input
+                type="checkbox"
+                checked={checked}
+                onChange={(event) => onChange(event.target.checked)}
+                style={{ marginRight: 10, cursor: 'pointer', transform: 'scale(1.1)' }}
+            />
+            <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--color-primary)', cursor: 'pointer' }}>{label}</span>
+        </label>
     )
 }
 

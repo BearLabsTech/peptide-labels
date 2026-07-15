@@ -1,40 +1,73 @@
 import type { PrintSetupSelection } from './types'
 import { DEFAULT_STOCK_ID } from './printCatalog'
+import { normalizeVialCapacityMl } from '../vialCapacity'
 
 const STORAGE_KEY = 'peptide-labels-print-setup'
+
+function isPrintSetupSelection(value: unknown): value is PrintSetupSelection {
+  if (typeof value !== 'object' || value == null || Array.isArray(value)) return false
+  const candidate = value as Record<string, unknown>
+  const optionalStringFields = ['printerId', 'stockId', 'labelId'] as const
+  const optionalNumberFields = ['vialCapacityMl', 'vialMl'] as const
+  const optionalDimensionFields = ['widthMm', 'heightMm'] as const
+  return optionalStringFields.every(
+    (field) => candidate[field] == null || typeof candidate[field] === 'string',
+  ) && optionalNumberFields.every(
+    (field) => candidate[field] == null
+      || (typeof candidate[field] === 'number' && Number.isFinite(candidate[field])),
+  ) && optionalDimensionFields.every(
+    (field) => candidate[field] == null
+      || (
+        typeof candidate[field] === 'number'
+        && Number.isFinite(candidate[field])
+        && candidate[field] > 0
+      ),
+  )
+}
 
 function isCustomSizeSelection(selection: PrintSetupSelection): boolean {
   return (
     selection.widthMm != null &&
     selection.heightMm != null &&
+    Number.isFinite(selection.widthMm) &&
+    Number.isFinite(selection.heightMm) &&
+    selection.widthMm > 0 &&
+    selection.heightMm > 0 &&
     selection.stockId == null &&
     selection.labelId == null
   )
 }
 
 export function normalizePrintSetup(selection: PrintSetupSelection): PrintSetupSelection {
-  if (isCustomSizeSelection(selection)) {
-    const { labelId: _legacy, ...rest } = selection
-    return rest
+  const { vialMl: legacyVialCapacity, ...withoutLegacyVialCapacity } = selection
+  const migrated = {
+    ...withoutLegacyVialCapacity,
+    vialCapacityMl: normalizeVialCapacityMl(selection.vialCapacityMl ?? legacyVialCapacity),
+  }
+  const canonical = { ...migrated }
+  delete canonical.labelId
+
+  if (isCustomSizeSelection(migrated)) {
+    return canonical
   }
 
-  if (selection.stockId) {
-    const { labelId: _legacy, ...rest } = selection
-    return rest
+  const catalogSelection = { ...canonical }
+  delete catalogSelection.widthMm
+  delete catalogSelection.heightMm
+
+  if (migrated.stockId) {
+    return catalogSelection
   }
 
-  if (selection.labelId === '50x30') {
-    const { labelId: _legacy, ...rest } = selection
-    return { ...rest, stockId: '50x30-rounded' }
+  if (migrated.labelId === '50x30') {
+    return { ...catalogSelection, stockId: '50x30-rounded' }
   }
 
-  if (selection.labelId === '40x30') {
-    const { labelId: _legacy, ...rest } = selection
-    return { ...rest, stockId: '40x30-rounded' }
+  if (migrated.labelId === '40x30') {
+    return { ...catalogSelection, stockId: '40x30-rounded' }
   }
 
-  const { labelId: _legacy, ...rest } = selection
-  return { ...rest, stockId: DEFAULT_STOCK_ID }
+  return { ...catalogSelection, stockId: DEFAULT_STOCK_ID }
 }
 
 export function loadPrintSetup(): PrintSetupSelection | null {
@@ -42,7 +75,8 @@ export function loadPrintSetup(): PrintSetupSelection | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
-    return normalizePrintSetup(JSON.parse(raw) as PrintSetupSelection)
+    const parsed: unknown = JSON.parse(raw)
+    return isPrintSetupSelection(parsed) ? normalizePrintSetup(parsed) : null
   } catch {
     return null
   }
@@ -50,10 +84,18 @@ export function loadPrintSetup(): PrintSetupSelection | null {
 
 export function savePrintSetup(selection: PrintSetupSelection): void {
   if (typeof localStorage === 'undefined') return
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizePrintSetup(selection)))
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizePrintSetup(selection)))
+  } catch {
+    // Storage can be unavailable in restricted browsing contexts.
+  }
 }
 
 export function clearPrintSetup(): void {
   if (typeof localStorage === 'undefined') return
-  localStorage.removeItem(STORAGE_KEY)
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    // Clearing persisted preferences should not interrupt the app.
+  }
 }

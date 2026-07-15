@@ -1,6 +1,7 @@
 import { CUSTOM_STOCK_PADDING_MM, DEFAULT_DPI, SKIP_DEFAULT_TARGET } from './defaults'
 import { DEFAULT_STOCK_ID, getPrinterById, getStockById } from './printCatalog'
 import type { LabelShape, PrintSetupSelection, PrintTarget } from './types'
+import { normalizeVialCapacityMl } from '../vialCapacity'
 
 /** Skip/default uses 300 DPI; a selected printer uses its native DPI. */
 export function resolveEffectiveDpi(selection: Partial<PrintSetupSelection>): number {
@@ -27,7 +28,7 @@ export function resolvePrintTarget(selection: Partial<PrintSetupSelection> = {})
       stockId: stock.id,
       dimensionId: stock.dimensionId,
       printerId: selection.printerId,
-      vialMl: selection.vialMl ?? SKIP_DEFAULT_TARGET.vialMl,
+      vialCapacityMl: normalizeVialCapacityMl(selection.vialCapacityMl ?? selection.vialMl),
     }
   }
 
@@ -40,7 +41,7 @@ export function resolvePrintTarget(selection: Partial<PrintSetupSelection> = {})
       shape: 'rectangular' satisfies LabelShape,
       cornerRadiusMm: 0,
       printerId: selection.printerId,
-      vialMl: selection.vialMl ?? SKIP_DEFAULT_TARGET.vialMl,
+      vialCapacityMl: normalizeVialCapacityMl(selection.vialCapacityMl ?? selection.vialMl),
     }
   }
 
@@ -48,6 +49,7 @@ export function resolvePrintTarget(selection: Partial<PrintSetupSelection> = {})
     ...SKIP_DEFAULT_TARGET,
     effectiveDpi,
     printerId: selection.printerId,
+    vialCapacityMl: normalizeVialCapacityMl(selection.vialCapacityMl ?? selection.vialMl),
   }
 }
 
@@ -60,6 +62,8 @@ function resolveStock(selection: Partial<PrintSetupSelection>) {
 function resolveCustomDimensions(selection: Partial<PrintSetupSelection>) {
   if (selection.stockId || selection.labelId) return undefined
   if (selection.widthMm == null || selection.heightMm == null) return undefined
+  if (!Number.isFinite(selection.widthMm) || !Number.isFinite(selection.heightMm)) return undefined
+  if (selection.widthMm <= 0 || selection.heightMm <= 0) return undefined
   return { widthMm: selection.widthMm, heightMm: selection.heightMm }
 }
 

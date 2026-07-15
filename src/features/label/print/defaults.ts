@@ -1,5 +1,6 @@
 import { DEFAULT_STOCK_ID, getStockById } from './printCatalog'
 import type { PrintTarget } from './types'
+import { DEFAULT_VIAL_CAPACITY_ML } from '../vialCapacity'
 
 export const DEFAULT_DPI = 300
 
@@ -17,5 +18,5 @@ export const SKIP_DEFAULT_TARGET: PrintTarget = {
   cornerRadiusMm: defaultStock.cornerRadiusMm,
   stockId: defaultStock.id,
   dimensionId: defaultStock.dimensionId,
-  vialMl: 3,
+  vialCapacityMl: DEFAULT_VIAL_CAPACITY_ML,
 }

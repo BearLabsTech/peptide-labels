@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { computeQrRenderSizePx, indicatorsStackHeightPx, qrCaptionHeightPx, testQrGapPx } from './qrRenderSize'
+import {
+  computeQrRenderSizePx,
+  indicatorsStackHeightPx,
+  qrCaptionHeightPx,
+  testQrGapPx,
+  type QrRenderLayoutModel,
+} from './qrRenderSize'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
 import { previewBaseWidthPx, mmToPx } from './print/dimensions'
 
@@ -12,9 +18,9 @@ describe('computeQrRenderSizePx', () => {
       testIndicators: [],
       titleLines: ['TIRZEPATIDE', '20MG'],
       titleFontSizePx: 20,
-    }
+    } satisfies QrRenderLayoutModel
 
-    const qrPx = computeQrRenderSizePx(model as any, printTarget, baseWidthPx)
+    const qrPx = computeQrRenderSizePx(model, printTarget, baseWidthPx)
     expect(qrPx).toBeLessThan(baseWidthPx)
     expect(qrPx).toBeLessThanOrEqual(Math.floor(baseWidthPx * 0.38 * 0.88))
   })
@@ -34,10 +40,10 @@ describe('computeQrRenderSizePx', () => {
       },
       titleLines: ['TEST COMPOUND', '20MG'],
       titleFontSizePx: 14,
-    }
+    } satisfies QrRenderLayoutModel
 
-    const qrPx = computeQrRenderSizePx(model as any, printTarget, baseWidthPx)
-    const stackPx = indicatorsStackHeightPx(model as any)
+    const qrPx = computeQrRenderSizePx(model, printTarget, baseWidthPx)
+    const stackPx = indicatorsStackHeightPx(model)
     const gapPx = testQrGapPx(baseWidthPx)
     const captionPx = qrCaptionHeightPx(baseWidthPx)
     const rowPx = mmToPx(printTarget.labelHeightMm - printTarget.paddingMm * 2, printTarget.effectiveDpi)

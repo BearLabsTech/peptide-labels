@@ -25,18 +25,18 @@ describe('PrintCatalogFilter', () => {
   })
 
   it('should rank 40x20 rounded first for 3 ml vial without removing other stocks', () => {
-    const result = filterCatalog({ vialMl: 3 })
+    const result = filterCatalog({ vialCapacityMl: 3 })
     expect(result.stocks.length).toBe(6)
     expect(result.recommendedStockIds[0]).toBe('40x20-rounded')
   })
 
   it('should rank 50x30 rounded first for 10 ml vial', () => {
-    const result = filterCatalog({ vialMl: 10 })
+    const result = filterCatalog({ vialCapacityMl: 10 })
     expect(result.recommendedStockIds[0]).toBe('50x30-rounded')
   })
 
   it('should intersect printer and vial facets for stocks and recommendations', () => {
-    const result = filterCatalog({ printerId: 'niimbot-m2', vialMl: 3 })
+    const result = filterCatalog({ printerId: 'niimbot-m2', vialCapacityMl: 3 })
     expect(result.stocks.every((s) => s.printerIds.includes('niimbot-m2'))).toBe(true)
     expect(result.recommendedStockIds).toContain('40x20-rounded')
   })

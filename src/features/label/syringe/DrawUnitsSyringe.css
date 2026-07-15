@@ -1,0 +1,52 @@
+:root {
+  --color-primary-soft: color-mix(in srgb, var(--color-primary) 35%, white);
+
+  --color-syringe-fill: var(--color-primary-soft);
+  --color-syringe-fill-strong: var(--color-primary);
+  --color-syringe-stroke: var(--color-secondary);
+  --color-syringe-tick: var(--color-text-muted);
+  --color-syringe-plunger: var(--color-text-main);
+  --color-syringe-barrel: var(--color-border-focus);
+}
+
+.draw-units-syringe {
+  width: 100%;
+  max-width: 420px;
+  display: block;
+}
+
+.draw-units-syringe__barrel {
+  fill: var(--color-surface);
+  stroke: var(--color-syringe-barrel);
+  stroke-width: 2;
+}
+
+.draw-units-syringe__fill {
+  fill: var(--color-syringe-fill);
+}
+
+.draw-units-syringe__stroke {
+  fill: none;
+  stroke: var(--color-syringe-stroke);
+  stroke-width: 2;
+}
+
+.draw-units-syringe__plunger {
+  fill: var(--color-syringe-plunger);
+}
+
+.draw-units-syringe__tick {
+  stroke: var(--color-syringe-tick);
+  stroke-width: 1.25;
+}
+
+.draw-units-syringe__label {
+  fill: var(--color-syringe-tick);
+  font-size: 9px;
+  font-family: var(--font-family);
+}
+
+.draw-units-syringe__marker {
+  stroke: var(--color-syringe-fill-strong);
+  stroke-width: 2.5;
+}

@@ -1,4 +1,4 @@
-import type { LabelModelInput } from './labelModel'
+import type { LabelFieldUpdater, LabelModelInput } from './labelModel'
 import type { CalculatorSolveMode } from './peptideMath'
 import {
     hasPositiveDrawUnits,
@@ -6,7 +6,8 @@ import {
     resolveDefaultDrawUnitsLabel,
     resolveDefaultTargetConcentration,
 } from './peptideMath'
-import type { ResolvedLabelMath } from './LabelMathResolver'
+import { resolveLabelMath, type ResolvedLabelMath } from './LabelMathResolver'
+import { DEFAULT_VIAL_CAPACITY_ML } from './vialCapacity'
 
 export interface CalculatorModeDerivedState {
     autoConcentration?: string;
@@ -15,10 +16,13 @@ export interface CalculatorModeDerivedState {
 }
 
 export const CALCULATOR_MODE_OPTIONS = [
-    'Manual Entry',
-    'Set Concentration',
     'Set Draw Volume',
+    'Set Concentration',
+    'Manual Entry',
 ] as const;
+
+/** Fresh-session default assist mode (calculator and label designer). */
+export const DEFAULT_CALCULATOR_SOLVE_MODE: CalculatorSolveMode = 'target_units';
 
 export type CalculatorModeOption = (typeof CALCULATOR_MODE_OPTIONS)[number];
 
@@ -49,20 +53,43 @@ export function applyCalculatorModeSwitch(
     input: LabelModelInput,
     mode: CalculatorSolveMode,
     derived?: CalculatorModeDerivedState,
-): LabelModelInput {
-    const next: LabelModelInput = { ...input, calculatorSolveMode: mode };
+    vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
+): LabelModelInput & Required<Pick<LabelModelInput, 'calculatorSolveMode'>> {
+    const next: LabelModelInput & Required<Pick<LabelModelInput, 'calculatorSolveMode'>> = {
+        ...input,
+        calculatorSolveMode: mode,
+    };
 
-    if (mode === 'round_concentration' && !input.targetConcentration?.trim()) {
-        next.targetConcentration = resolveDefaultTargetConcentration({
-            ...input,
-            concentration: input.concentration || derived?.autoConcentration,
-        });
+    const canRecommendTarget = hasPositiveVialAmount(input.compoundAmount)
+        || Boolean(input.concentration?.trim());
+    if (
+        mode === 'round_concentration'
+        && !input.targetConcentration?.trim()
+        && canRecommendTarget
+    ) {
+        const generatedDrawSource = input.calculatorSolveMode === 'target_units'
+            && input.protocolUnitsOrigin === 'recommended';
+        const recommendationInput = generatedDrawSource
+            ? { compoundAmount: input.compoundAmount }
+            : {
+                ...input,
+                concentration: input.concentration || derived?.autoConcentration,
+            };
+        next.targetConcentration = resolveDefaultTargetConcentration(
+            recommendationInput,
+            vialCapacityMl,
+        );
+        next.targetConcentrationOrigin = 'recommended';
     }
     if (mode === 'target_units' && !hasPositiveDrawUnits(input.protocolUnits)) {
         const defaultUnits = resolveDefaultDrawUnitsLabel(
             input.protocolAmount, input.measureUnit, input.vialUnit, input.compoundAmount,
+            vialCapacityMl,
         ) || derived?.autoUnits || '';
-        if (defaultUnits) next.protocolUnits = defaultUnits;
+        if (defaultUnits) {
+            next.protocolUnits = defaultUnits;
+            next.protocolUnitsOrigin = 'recommended';
+        }
     }
 
     return next;
@@ -71,8 +98,9 @@ export function applyCalculatorModeSwitch(
 export function applyProtocolAmountChange(
     input: LabelModelInput,
     protocolAmount: string,
+    vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
 ): Partial<LabelModelInput> {
-    const mode = input.calculatorSolveMode || 'standard';
+    const mode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE;
     const next: Partial<LabelModelInput> = { protocolAmount };
 
     if (mode === 'standard') {
@@ -84,11 +112,50 @@ export function applyProtocolAmountChange(
         next.reconstitutionAmount = '';
         const defaultUnits = resolveDefaultDrawUnitsLabel(
             protocolAmount, input.measureUnit, input.vialUnit, input.compoundAmount,
+            vialCapacityMl,
         );
-        if (defaultUnits) next.protocolUnits = defaultUnits;
+        if (defaultUnits) {
+            next.protocolUnits = defaultUnits;
+            next.protocolUnitsOrigin = 'recommended';
+        }
     }
 
     return next;
+}
+
+/** Recalculate only system-generated defaults when physical vial capacity changes. */
+export function applyVialCapacityRecommendationChange(
+    input: LabelModelInput,
+    vialCapacityMl: number,
+): Partial<LabelModelInput> {
+    const mode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE;
+    if (mode === 'target_units') {
+        const canRegenerate = !hasPositiveDrawUnits(input.protocolUnits)
+            || input.protocolUnitsOrigin === 'recommended';
+        if (!canRegenerate) return {};
+        const protocolUnits = resolveDefaultDrawUnitsLabel(
+            input.protocolAmount,
+            input.measureUnit,
+            input.vialUnit,
+            input.compoundAmount,
+            vialCapacityMl,
+        );
+        return protocolUnits ? { protocolUnits, protocolUnitsOrigin: 'recommended' } : {};
+    }
+
+    if (mode === 'round_concentration') {
+        const canRegenerate = !input.targetConcentration?.trim()
+            || input.targetConcentrationOrigin === 'recommended';
+        if (!canRegenerate) return {};
+        return {
+            targetConcentration: resolveDefaultTargetConcentration({
+                compoundAmount: input.compoundAmount,
+            }, vialCapacityMl),
+            targetConcentrationOrigin: 'recommended',
+        };
+    }
+
+    return {};
 }
 
 export function displayWaterAmount(
@@ -110,6 +177,17 @@ export function displayDrawUnits(
     return input.protocolUnits || derived?.autoUnits || '';
 }
 
+/**
+ * Concentration display. Prefer freshly derived values so a leftover assist result
+ * cannot stick after Manual Entry water/vial changes.
+ */
+export function displayConcentration(
+    input: LabelModelInput,
+    derived?: CalculatorModeDerivedState,
+): string {
+    return derived?.autoConcentration || input.concentration || '';
+}
+
 export interface ResolvedCalculatorValues {
     water: string;
     units: string;
@@ -123,26 +201,88 @@ export function readResolvedCalculatorValues(
     return {
         water: input.reconstitutionAmount || resolved.autoWater,
         units: input.protocolUnits || resolved.autoUnits,
-        concentration: input.concentration || resolved.autoConcentration || resolved.mergedInput.concentration || '',
+        concentration: resolved.autoConcentration || input.concentration || resolved.mergedInput.concentration || '',
+    };
+}
+
+/**
+ * Manual Entry water edit: clear draw units (forward math will refill) and
+ * replace concentration from vial ÷ water — never keep a prior assist label.
+ */
+export function applyStandardWaterChange(
+    input: LabelModelInput,
+    waterMl: string,
+): Partial<LabelModelInput> {
+    const protocolUnits = waterMl ? '' : (input.protocolUnits || '');
+    const draft: LabelModelInput = {
+        ...input,
+        calculatorSolveMode: 'standard',
+        reconstitutionAmount: waterMl,
+        protocolUnits,
+        concentration: '',
+    };
+    const resolved = resolveLabelMath(draft);
+    return {
+        reconstitutionAmount: waterMl,
+        protocolUnits,
+        concentration: resolved.autoConcentration || '',
+    };
+}
+
+/** Manual Entry vial edit: refresh concentration from vial ÷ current water. */
+export function applyStandardVialAmountChange(
+    input: LabelModelInput,
+    compoundAmount: string,
+): Partial<LabelModelInput> {
+    const draft: LabelModelInput = {
+        ...input,
+        calculatorSolveMode: 'standard',
+        compoundAmount,
+        concentration: '',
+    };
+    const resolved = resolveLabelMath(draft);
+    return {
+        compoundAmount,
+        concentration: resolved.autoConcentration || '',
+    };
+}
+
+/** When entering Manual Entry, refresh concentration from current water (drop assist leftovers). */
+export function applyStandardModeEntry(input: LabelModelInput): Partial<LabelModelInput> {
+    const draft: LabelModelInput = {
+        ...input,
+        calculatorSolveMode: 'standard',
+        concentration: '',
+    };
+    const resolved = resolveLabelMath(draft);
+    return {
+        calculatorSolveMode: 'standard',
+        concentration: resolved.autoConcentration || '',
     };
 }
 
 export function syncCalculatorModeSwitchFields(
     input: LabelModelInput,
-    next: LabelModelInput,
-    updateField: <K extends keyof LabelModelInput>(field: K, value: LabelModelInput[K]) => void,
+    next: LabelModelInput & Required<Pick<LabelModelInput, 'calculatorSolveMode'>>,
+    updateField: LabelFieldUpdater,
 ): void {
-    updateField('calculatorSolveMode', next.calculatorSolveMode!);
+    updateField('calculatorSolveMode', next.calculatorSolveMode);
     if (next.targetConcentration !== input.targetConcentration) {
         updateField('targetConcentration', next.targetConcentration);
+    }
+    if (next.targetConcentrationOrigin !== input.targetConcentrationOrigin) {
+        updateField('targetConcentrationOrigin', next.targetConcentrationOrigin);
     }
     if (next.protocolUnits !== input.protocolUnits) {
         updateField('protocolUnits', next.protocolUnits);
     }
+    if (next.protocolUnitsOrigin !== input.protocolUnitsOrigin) {
+        updateField('protocolUnitsOrigin', next.protocolUnitsOrigin);
+    }
 }
 
 export function applyFieldUpdates(
-    updateField: <K extends keyof LabelModelInput>(field: K, value: LabelModelInput[K]) => void,
+    updateField: LabelFieldUpdater,
     updates: Partial<LabelModelInput>,
 ): void {
     for (const key of Object.keys(updates) as (keyof LabelModelInput)[]) {

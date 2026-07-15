@@ -3,14 +3,21 @@ import { ColumnWidthSlider } from './ColumnWidthSlider'
 import { RECONSTITUTION_TYPES } from '../peptideMath'
 import {
     CALCULATOR_MODE_OPTIONS,
+    DEFAULT_CALCULATOR_SOLVE_MODE,
     calculatorModeFromLabel,
     calculatorModeLabel,
     concentrationUnitLabel,
+    displayConcentration,
     displayDrawUnits,
     displayWaterAmount,
 } from '../calculatorModeSwitch'
+import {
+    SHOW_SYRINGE_ON_DESIGNER,
+    SyringeAssist,
+    parseSyringeCapacityMl,
+} from '../syringe'
 import { buildQrCodes } from '../coaLinks'
-import type { LabelModelInput } from '../labelModel'
+import type { LabelFieldUpdater, LabelModelInput } from '../labelModel'
 import { LOGO_COLUMN_WIDTH, QR_COLUMN_WIDTH } from '../labelLayoutConstants'
 import {
     TEST_RESULT_FIELDS,
@@ -23,12 +30,15 @@ import {
     type TestType,
 } from '../testIndicators'
 import type { LabelFormHandlers } from '../useLabelForm'
+import { isWaterAboveVialCapacity } from '../calculatorGuards'
+import { VialCapacityWarning } from './VialCapacityWarning'
 
 export interface SectionProps {
     input: LabelModelInput;
-    updateField: <K extends keyof LabelModelInput>(field: K, value: any) => void;
+    updateField: LabelFieldUpdater;
     derivedState?: { autoUnits: string; autoWater: string; autoConcentration: string; };
     handlers?: LabelFormHandlers;
+    vialCapacityMl?: number;
 }
 
 export function CompoundSection({ input, updateField, handlers }: SectionProps) {
@@ -36,13 +46,13 @@ export function CompoundSection({ input, updateField, handlers }: SectionProps) 
         <AccordionSection title="Compound" defaultOpen={true}>
             <TextInput label="Compound Name" value={input.compoundName} onChange={(v) => updateField('compoundName', v)} placeholder="Tirzepatide" />
             <div style={{ display: 'flex', gap: '12px' }}>
-                <div style={{ flex: 1 }}><TextInput label="Vial Amount" value={input.compoundAmount} onChange={handlers!.handleCompoundAmountChange} placeholder="20" /></div>
+                <div style={{ flex: 1 }}><TextInput label="Compound Amount" value={input.compoundAmount} onChange={handlers!.handleCompoundAmountChange} placeholder="20" /></div>
                 <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.vialUnit || 'mg'} onChange={handlers!.handleVialUnitChange} options={['mg', 'IU']} /></div>
             </div>
-            <div style={{ marginTop: 8, padding: '12px', borderRadius: '6px', backgroundColor: input.isUntested ? '#fef2f2' : '#f8fafc', border: `1px solid ${input.isUntested ? '#fee2e2' : '#e2e8f0'}`, display: 'flex', alignItems: 'center', cursor: 'pointer' }} onClick={() => updateField('isUntested', !input.isUntested)}>
-                <input type="checkbox" checked={input.isUntested || false} onChange={() => { }} style={{ marginRight: 10, cursor: 'pointer' }} />
+            <label style={{ marginTop: 8, padding: '12px', borderRadius: '6px', backgroundColor: input.isUntested ? '#fef2f2' : '#f8fafc', border: `1px solid ${input.isUntested ? '#fee2e2' : '#e2e8f0'}`, display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <input type="checkbox" checked={input.isUntested || false} onChange={(event) => updateField('isUntested', event.target.checked)} style={{ marginRight: 10, cursor: 'pointer' }} />
                 <span style={{ fontSize: '0.85rem', fontWeight: 600, color: input.isUntested ? '#991b1b' : '#475569' }}>Mark as UNTESTED (Danger Mode)</span>
-            </div>
+            </label>
         </AccordionSection>
     )
 }
@@ -60,9 +70,15 @@ export function SourceSection({ input, updateField }: SectionProps) {
     )
 }
 
-export function ReconstitutionSection({ input, updateField, derivedState, handlers }: SectionProps) {
+export function ReconstitutionSection({
+    input,
+    updateField,
+    derivedState,
+    handlers,
+    vialCapacityMl = 3,
+}: SectionProps) {
     const isSectionActive = input.showReconstitution !== false;
-    const solveMode = input.calculatorSolveMode || 'standard';
+    const solveMode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE;
     const waterDisabled = solveMode !== 'standard';
     const concUnitLabel = concentrationUnitLabel(input.vialUnit);
     return (
@@ -93,8 +109,11 @@ export function ReconstitutionSection({ input, updateField, derivedState, handle
                 </div>
             )}
             <TextInput label="Water Amount (ml)" value={displayWaterAmount(solveMode, input, derivedState)} onChange={handlers!.handleWaterChange} placeholder="2" disabled={waterDisabled} printToggle={{ visible: input.showWater !== false, onChange: v => updateField('showWater', v), disabled: !isSectionActive }} />
+            {isWaterAboveVialCapacity(input, vialCapacityMl) && (
+                <VialCapacityWarning vialCapacityMl={vialCapacityMl} />
+            )}
             <SelectInput label="Water Type" value={input.reconstitutionType || ''} onChange={(v) => updateField('reconstitutionType', v)} options={RECONSTITUTION_TYPES} allowNone={true} />
-            <TextInput label="Concentration" value={input.concentration || derivedState?.autoConcentration} disabled={true} placeholder="e.g. 10mg per ml" onChange={() => { }} printToggle={{ visible: input.showConcentration !== false, onChange: v => updateField('showConcentration', v), disabled: !isSectionActive }} />
+            <TextInput label="Concentration" value={displayConcentration(input, derivedState)} disabled={true} placeholder="e.g. 10mg per ml" onChange={() => { }} printToggle={{ visible: input.showConcentration !== false, onChange: v => updateField('showConcentration', v), disabled: !isSectionActive }} />
             <DateField label="Reconstitution Date" value={input.reconstitutionDate || ''} onChange={v => updateField('reconstitutionDate', v)} isFreeText={!!input.reconstitutionDateIsFreeText} onFreeTextToggle={v => updateField('reconstitutionDateIsFreeText', v)} printToggle={{ visible: input.showReconDate !== false, onChange: v => updateField('showReconDate', v), disabled: !isSectionActive }} />
         </AccordionSection>
     )
@@ -102,21 +121,34 @@ export function ReconstitutionSection({ input, updateField, derivedState, handle
 
 export function ProtocolSection({ input, updateField, derivedState, handlers }: SectionProps) {
     const isSectionActive = input.showProtocol !== false;
-    const measureUnitOptions = input.vialUnit === 'IU' ? ['IU'] : ['mcg', 'mg'];
-    const solveMode = input.calculatorSolveMode || 'standard';
+    const measureUnitOptions = input.vialUnit === 'IU' ? ['IU'] : ['mg', 'mcg'];
+    const solveMode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE;
     const drawUnitsDisabled = solveMode === 'round_concentration';
+    const hasProtocol = parseFloat(input.protocolAmount || '') > 0;
+    const capacityMl = parseSyringeCapacityMl(input.syringeCapacityMl);
+    const drawLabel = displayDrawUnits(solveMode, input, derivedState);
 
     return (
         <AccordionSection title="Protocol">
             <ToggleInput label="Print Protocol on Label" checked={isSectionActive} onChange={v => updateField('showProtocol', v)} />
             <div style={{ display: 'flex', gap: '12px' }}>
                 <div style={{ flex: 1 }}><TextInput label="Protocol Amount" value={input.protocolAmount} onChange={handlers!.handleProtocolAmountChange} placeholder="500" printToggle={{ visible: input.showProtocolAmount !== false, onChange: v => updateField('showProtocolAmount', v), disabled: !isSectionActive }} /></div>
-                <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.measureUnit || 'mcg'} onChange={handlers!.handleMeasureUnitChange} options={measureUnitOptions} /></div>
+                <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.measureUnit || 'mg'} onChange={handlers!.handleMeasureUnitChange} options={measureUnitOptions} /></div>
             </div>
 
-            <TextInput label="Draw Volume (Units)" value={displayDrawUnits(solveMode, input, derivedState)} onChange={handlers!.handleDrawVolumeChange} placeholder="e.g. 10" disabled={drawUnitsDisabled} printToggle={{ visible: input.showProtocolUnits !== false, onChange: v => updateField('showProtocolUnits', v), disabled: !isSectionActive }} />
+            <TextInput label="Draw Volume (Units)" value={drawLabel} onChange={handlers!.handleDrawVolumeChange} placeholder="e.g. 10" disabled={drawUnitsDisabled} printToggle={{ visible: input.showProtocolUnits !== false, onChange: v => updateField('showProtocolUnits', v), disabled: !isSectionActive }} />
 
             <TextInput label="Frequency" value={input.protocolFrequency} onChange={(v) => updateField('protocolFrequency', v)} placeholder="Weekly" printToggle={{ visible: input.showProtocolFrequency !== false, onChange: v => updateField('showProtocolFrequency', v), disabled: !isSectionActive }} />
+
+            {SHOW_SYRINGE_ON_DESIGNER && hasProtocol && (
+                <div style={{ marginTop: 12 }}>
+                    <SyringeAssist
+                        capacityMl={capacityMl}
+                        onCapacityChange={(next) => updateField('syringeCapacityMl', next)}
+                        drawUnitsLabel={drawLabel}
+                    />
+                </div>
+            )}
         </AccordionSection>
     )
 }

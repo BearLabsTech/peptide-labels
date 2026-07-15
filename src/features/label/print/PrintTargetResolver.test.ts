@@ -10,7 +10,7 @@ describe('PrintTargetResolver', () => {
     expect(target.stockId).toBe('40x20-rounded')
     expect(target.shape).toBe('rounded')
     expect(target.paddingMm).toBe(0.5)
-    expect(target.vialMl).toBe(3)
+    expect(target.vialCapacityMl).toBe(3)
   })
 
   it('should use tighter padding on rounded stock than rectangular', () => {
@@ -70,5 +70,18 @@ describe('PrintTargetResolver', () => {
     expect(target.effectiveDpi).toBe(203)
     expect(target.labelWidthMm).toBe(40)
     expect(target.labelHeightMm).toBe(20)
+  })
+
+  it('should reject incomplete or non-positive custom dimensions', () => {
+    expect(resolvePrintTarget({ widthMm: -40, heightMm: 20 }).stockId).toBe('40x20-rounded')
+    expect(resolvePrintTarget({ widthMm: 40, heightMm: 0 }).stockId).toBe('40x20-rounded')
+    expect(resolvePrintTarget({ widthMm: 40 }).stockId).toBe('40x20-rounded')
+    expect(resolvePrintTarget({ widthMm: Number.POSITIVE_INFINITY, heightMm: 20 }).stockId)
+      .toBe('40x20-rounded')
+  })
+
+  it('should carry custom vial capacity independently of label dimensions', () => {
+    expect(resolvePrintTarget({ vialCapacityMl: 20 }).vialCapacityMl).toBe(20)
+    expect(resolvePrintTarget({ stockId: '50x30-rounded', vialCapacityMl: 5 }).vialCapacityMl).toBe(5)
   })
 })

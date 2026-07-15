@@ -1,8 +1,13 @@
 import type { LabelModelInput, LabelLayoutMode } from './labelModel'
-import { resolveLabelLayoutMode, formatWaterVolumeLabel, formatDrawVolumeLabel } from './labelModel'
-import { LabelLayoutEngine, type BoxedSection } from './LabelLayoutEngine'
+import { resolveLabelLayoutMode } from './labelModel'
+import {
+  LabelLayoutEngine,
+  type BoxedSection,
+  type LabelLayoutInput,
+  type LabelLayoutResult,
+} from './LabelLayoutEngine'
 import { resolveLabelMath } from './LabelMathResolver'
-import { hasPositiveVialAmount } from './peptideMath'
+import { buildLabelContent } from './labelContent'
 import { buildQrCodes, type QrCodeEntry } from './coaLinks'
 import { buildTestIndicators, hasTestingColumnContent, shouldShowCoaQr, type TestIndicatorEntry } from './testIndicators'
 import { computeTestIndicatorLayout, type TestIndicatorLayout } from './testIndicatorLayout'
@@ -42,11 +47,13 @@ export class LabelComposer {
   public compose(rawInput: LabelModelInput): LabelRenderModel {
     const resolved = resolveLabelMath(rawInput);
     const input = resolved.mergedInput;
-    const { title, demotedTitle } = this.buildTitles(input);
-
-    const sourceLines = input.showSource !== false ? this.buildSourceLines(input) : [];
-    const reconstitutionLines = input.showReconstitution !== false ? this.buildReconstitutionLines(input, resolved) : [];
-    const protocolLines = input.showProtocol !== false ? this.buildProtocolLines(input) : [];
+    const {
+      title,
+      demotedTitle,
+      sourceLines,
+      reconstitutionLines,
+      protocolLines,
+    } = buildLabelContent(input, resolved);
 
     const qrCodes = buildQrCodes(input);
     const testIndicators = buildTestIndicators(input);
@@ -129,85 +136,15 @@ export class LabelComposer {
       widthSafety: titleWidthSafety,
     };
 
-    let titleLayout = this.layoutEngine.layout(titleInput);
-    const innerPx = mmToPx(innerHeightMm, this.printTarget.effectiveDpi);
-
-    const bodyInputBase = { boxes, demotedLine: demotedTitle, widthMm: baseWidthMm, labelWidthPx };
-    const layoutBodyAtFont = (bodyHeightMm: number, bodyFontPx: number) => ({
-      fontSizePx: bodyFontPx,
-      wrappedLines: this.layoutEngine.layoutBoxedBody({ ...bodyInputBase, heightMm: bodyHeightMm }).wrappedLines,
-    });
-
-    const stackFits = (
-      tLayout: { wrappedLines: string[]; fontSizePx: number },
-      bLayout: { fontSizePx: number },
-      bodyHeightMm: number,
-    ) =>
-      this.layoutEngine.sectionLabelsFitBoxWidth(baseWidthMm, bLayout.fontSizePx) &&
-      this.layoutEngine.estimateCenterStackHeightPx(
-        tLayout.wrappedLines.length,
-        tLayout.fontSizePx,
-        titleBodyGapMm,
-        { boxes, demotedLine: demotedTitle, widthMm: baseWidthMm, heightMm: bodyHeightMm, labelWidthPx },
-        bLayout.fontSizePx,
-      ) <= innerPx;
-
-    let bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleLayout, titleBodyGapMm);
-    let bodyLayout = this.layoutEngine.layoutBoxedBody({
-      boxes,
-      demotedLine: demotedTitle,
-      widthMm: baseWidthMm,
-      heightMm: bodyHeightMm,
-      labelWidthPx,
-    });
-
-    for (let bodyFont = bodyLayout.fontSizePx; bodyFont >= 8; bodyFont--) {
-      const attempt = layoutBodyAtFont(bodyHeightMm, bodyFont);
-      if (stackFits(titleLayout, attempt, bodyHeightMm)) {
-        bodyLayout = attempt;
-        break;
-      }
-      if (bodyFont === 8) bodyLayout = attempt;
-    }
-
-    if (!stackFits(titleLayout, bodyLayout, bodyHeightMm)) {
-      for (let titleFont = titleLayout.fontSizePx - 1; titleFont >= 8; titleFont--) {
-        const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, titleFont);
-        if (!titleAttempt) continue;
-        bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleAttempt, titleBodyGapMm);
-        const refitBody = this.layoutEngine.layoutBoxedBody({
-          boxes,
-          demotedLine: demotedTitle,
-          widthMm: baseWidthMm,
-          heightMm: bodyHeightMm,
-          labelWidthPx,
-        });
-        for (let bodyFont = refitBody.fontSizePx; bodyFont >= 8; bodyFont--) {
-          const attempt = layoutBodyAtFont(bodyHeightMm, bodyFont);
-          if (stackFits(titleAttempt, attempt, bodyHeightMm)) {
-            titleLayout = titleAttempt;
-            bodyLayout = attempt;
-            break;
-          }
-          if (bodyFont === 8) {
-            titleLayout = titleAttempt;
-            bodyLayout = attempt;
-          }
-        }
-        if (stackFits(titleLayout, bodyLayout, bodyHeightMm)) break;
-      }
-    }
-
-    ({ titleLayout, bodyLayout, bodyHeightMm } = this.boostTitleRelativeToBody({
+    const { titleLayout, bodyLayout } = this.fitTitleAndBodyLayouts({
       titleInput,
-      titleLayout,
-      bodyLayout,
-      bodyHeightMm,
+      boxes,
+      demotedTitle,
+      baseWidthMm,
+      labelWidthPx,
       innerHeightMm,
       titleBodyGapMm,
-      layoutBodyAtFont,
-      stackFits,
-    }));
+    });
 
     const testIndicatorLayout = this.buildTestIndicatorLayout(
       testIndicators, columns, visibleQrCodes, titleLayout,
@@ -226,22 +163,117 @@ export class LabelComposer {
     }
   }
 
+  private fitTitleAndBodyLayouts(params: {
+    titleInput: LabelLayoutInput
+    boxes: BoxedSection[]
+    demotedTitle?: string
+    baseWidthMm: number
+    labelWidthPx: number
+    innerHeightMm: number
+    titleBodyGapMm: number
+  }): { titleLayout: LabelLayoutResult; bodyLayout: LabelLayoutResult } {
+    const {
+      titleInput,
+      boxes,
+      demotedTitle,
+      baseWidthMm,
+      labelWidthPx,
+      innerHeightMm,
+      titleBodyGapMm,
+    } = params
+    let titleLayout = this.layoutEngine.layout(titleInput)
+    const innerPx = mmToPx(innerHeightMm, this.printTarget.effectiveDpi)
+    const bodyInputBase = {
+      boxes,
+      demotedLine: demotedTitle,
+      widthMm: baseWidthMm,
+      labelWidthPx,
+    }
+    const layoutBodyAtFont = (bodyHeightMm: number, bodyFontPx: number): LabelLayoutResult => ({
+      fontSizePx: bodyFontPx,
+      wrappedLines: this.layoutEngine.layoutBoxedBody({
+        ...bodyInputBase,
+        heightMm: bodyHeightMm,
+      }).wrappedLines,
+    })
+    const stackFits = (
+      titleAttempt: LabelLayoutResult,
+      bodyAttempt: LabelLayoutResult,
+      bodyHeightMm: number,
+    ) => (
+      this.layoutEngine.sectionLabelsFitBoxWidth(baseWidthMm, bodyAttempt.fontSizePx)
+      && this.layoutEngine.estimateCenterStackHeightPx(
+        titleAttempt.wrappedLines.length,
+        titleAttempt.fontSizePx,
+        titleBodyGapMm,
+        { ...bodyInputBase, heightMm: bodyHeightMm },
+        bodyAttempt.fontSizePx,
+      ) <= innerPx
+    )
+
+    let bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleLayout, titleBodyGapMm)
+    let bodyLayout = this.layoutEngine.layoutBoxedBody({
+      ...bodyInputBase,
+      heightMm: bodyHeightMm,
+    })
+
+    for (let bodyFont = bodyLayout.fontSizePx; bodyFont >= 8; bodyFont--) {
+      const attempt = layoutBodyAtFont(bodyHeightMm, bodyFont)
+      bodyLayout = attempt
+      if (stackFits(titleLayout, attempt, bodyHeightMm)) break
+    }
+
+    if (!stackFits(titleLayout, bodyLayout, bodyHeightMm)) {
+      for (let titleFont = titleLayout.fontSizePx - 1; titleFont >= 8; titleFont--) {
+        const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, titleFont)
+        if (!titleAttempt) continue
+        bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleAttempt, titleBodyGapMm)
+        const refitBody = this.layoutEngine.layoutBoxedBody({
+          ...bodyInputBase,
+          heightMm: bodyHeightMm,
+        })
+        for (let bodyFont = refitBody.fontSizePx; bodyFont >= 8; bodyFont--) {
+          const attempt = layoutBodyAtFont(bodyHeightMm, bodyFont)
+          titleLayout = titleAttempt
+          bodyLayout = attempt
+          if (stackFits(titleAttempt, attempt, bodyHeightMm)) break
+        }
+        if (stackFits(titleLayout, bodyLayout, bodyHeightMm)) break
+      }
+    }
+
+    const boosted = this.boostTitleRelativeToBody({
+      titleInput,
+      titleLayout,
+      bodyLayout,
+      bodyHeightMm,
+      innerHeightMm,
+      titleBodyGapMm,
+      layoutBodyAtFont,
+      stackFits,
+    })
+    return {
+      titleLayout: boosted.titleLayout,
+      bodyLayout: boosted.bodyLayout,
+    }
+  }
+
   private boostTitleRelativeToBody(params: {
-    titleInput: { lines: string[]; widthMm: number; heightMm: number; charWidthEm: number; widthSafety: number };
-    titleLayout: { wrappedLines: string[]; fontSizePx: number };
-    bodyLayout: { fontSizePx: number; wrappedLines: string[] };
+    titleInput: LabelLayoutInput;
+    titleLayout: LabelLayoutResult;
+    bodyLayout: LabelLayoutResult;
     bodyHeightMm: number;
     innerHeightMm: number;
     titleBodyGapMm: number;
-    layoutBodyAtFont: (bodyHeightMm: number, bodyFontPx: number) => { fontSizePx: number; wrappedLines: string[] };
+    layoutBodyAtFont: (bodyHeightMm: number, bodyFontPx: number) => LabelLayoutResult;
     stackFits: (
-      tLayout: { wrappedLines: string[]; fontSizePx: number },
-      bLayout: { fontSizePx: number },
+      tLayout: LabelLayoutResult,
+      bLayout: LabelLayoutResult,
       bodyHeightMm: number,
     ) => boolean;
   }): {
-    titleLayout: { wrappedLines: string[]; fontSizePx: number };
-    bodyLayout: { fontSizePx: number; wrappedLines: string[] };
+    titleLayout: LabelLayoutResult;
+    bodyLayout: LabelLayoutResult;
     bodyHeightMm: number;
   } {
     const {
@@ -317,86 +349,6 @@ export class LabelComposer {
     const gapPx = mmToPx(titleBodyGapMm, this.printTarget.effectiveDpi)
     const remainingPx = Math.max(0, innerPx - titlePx - gapPx)
     return (remainingPx * 25.4) / this.printTarget.effectiveDpi
-  }
-
-  private formatDate(dateStr: string | undefined, format: string = 'YYYYMMDD'): string {
-    if (!dateStr) return '';
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-    const [y, m, d] = dateStr.split('-');
-    switch (format) {
-      case 'MM/DD/YYYY': return `${m}/${d}/${y}`;
-      case 'DD/MM/YYYY': return `${d}/${m}/${y}`;
-      case 'YYYY-MM-DD': return dateStr;
-      case 'YYYYMMDD':
-      default: return `${y}${m}${d}`;
-    }
-  }
-
-  private buildTitles(input: LabelModelInput) {
-    const amountLine = this.formatAmount(input.compoundAmount, input.vialUnit || 'mg');
-    const nameLine = (input.compoundName || '').trim();
-    const titleLines = [nameLine, amountLine].filter(Boolean);
-    const fullCompound = titleLines.join('\n');
-    if (input.isUntested) return { title: 'DANGER\nUNTESTED', demotedTitle: fullCompound || undefined };
-    return { title: fullCompound, demotedTitle: undefined };
-  }
-
-  private formatAmount(amount: string | undefined, unit: string): string {
-    if (!amount) return '';
-    return `${amount.trim().replace(/(mg|mcg|iu)$/i, '').trim()}${unit}`;
-  }
-
-  private buildSourceLines(input: LabelModelInput): string[] {
-    if (input.showSource === false) return [];
-    const lines: string[] = [];
-    if (input.showVendor !== false && input.vendorName) lines.push(`Vendor: ${input.vendorName}`);
-    if (input.showGroup !== false && input.groupBuyName) lines.push(`Group: ${input.groupBuyName}`);
-    if (input.showBatch !== false && (input.batchNumber || input.batchDate)) {
-      const batchParts = [];
-      if (input.batchNumber) batchParts.push(`Lot: ${input.batchNumber}`);
-      if (input.batchDate) batchParts.push(this.formatDate(input.batchDate, input.dateFormat));
-      lines.push(batchParts.join(' '));
-    }
-    return lines;
-  }
-
-  private buildProtocolLines(input: LabelModelInput): string[] {
-    if (input.showProtocol === false) return [];
-    const lines: string[] = [];
-
-    const unitsStr = input.showProtocolUnits !== false ? formatDrawVolumeLabel(input.protocolUnits) : '';
-    const amtStr = input.showProtocolAmount !== false ? this.formatAmount(input.protocolAmount, input.measureUnit || 'mcg') : '';
-
-    if (unitsStr && amtStr) lines.push(`${unitsStr} (${amtStr})`);
-    else if (unitsStr || amtStr) lines.push(unitsStr || amtStr);
-
-    if (input.showProtocolFrequency !== false && input.protocolFrequency) {
-      lines.push(input.protocolFrequency);
-    }
-    return lines;
-  }
-
-  private buildReconstitutionLines(input: LabelModelInput, resolved?: ReturnType<typeof resolveLabelMath>): string[] {
-    if (input.showReconstitution === false) return [];
-    if (!hasPositiveVialAmount(input.compoundAmount)) return [];
-    const lines: string[] = [];
-
-    const waterAmount = input.reconstitutionAmount || resolved?.autoWater || '';
-    const concentration = input.concentration || resolved?.autoConcentration || '';
-
-    if (input.showWater !== false && (waterAmount || input.reconstitutionType)) {
-      const waterLabel = formatWaterVolumeLabel(waterAmount)
-      lines.push(`${waterLabel} ${input.reconstitutionType || ''}`.trim());
-    }
-
-    if (input.showConcentration !== false && concentration) {
-      lines.push(concentration);
-    }
-
-    if (input.showReconDate !== false && input.reconstitutionDate) {
-      lines.push(`Mixed ${this.formatDate(input.reconstitutionDate, input.dateFormat)}`);
-    }
-    return lines;
   }
 
   private usableHeightMm(): number {

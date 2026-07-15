@@ -1,8 +1,11 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { AccordionSection, TextInput } from './FormInputs'
 import { filterCatalog } from '../print/PrintCatalogFilter'
 import { DEFAULT_STOCK_ID, getStockById } from '../print/printCatalog'
 import type { PrintSetupSelection, Printer, LabelStock } from '../print/types'
+import { VialCapacityControl } from './VialCapacityControl'
+import { normalizeVialCapacityMl } from '../vialCapacity'
+import { parsePositiveMm } from '../print/dimensions'
 
 const inputStyle = {
   width: '100%',
@@ -19,33 +22,60 @@ export interface PrintSetupSectionProps {
   selection: PrintSetupSelection
   onChange: (next: PrintSetupSelection) => void
   defaultOpen?: boolean
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function PrintSetupSection({ selection, onChange, defaultOpen = true }: PrintSetupSectionProps) {
+export function PrintSetupSection({
+  selection,
+  onChange,
+  defaultOpen = true,
+  open,
+  onOpenChange,
+}: PrintSetupSectionProps) {
   const filtered = useMemo(() => filterCatalog(selection), [selection])
-  const useCustomSize = selection.widthMm != null && selection.heightMm != null && !selection.stockId
+  const [customSizeRequested, setCustomSizeRequested] = useState(
+    selection.widthMm != null && selection.heightMm != null && !selection.stockId,
+  )
+  const [customWidth, setCustomWidth] = useState(String(selection.widthMm ?? 40))
+  const [customHeight, setCustomHeight] = useState(String(selection.heightMm ?? 20))
+  const useCustomSize = customSizeRequested
+    || (selection.widthMm != null && selection.heightMm != null && !selection.stockId)
+  const customDimensionsValid = parsePositiveMm(customWidth) != null
+    && parsePositiveMm(customHeight) != null
 
   function update(partial: Partial<PrintSetupSelection>) {
     onChange({ ...selection, ...partial })
   }
 
   function selectCatalogStock(stockId: string) {
+    setCustomSizeRequested(false)
     update({ stockId, labelId: undefined, widthMm: undefined, heightMm: undefined })
   }
 
   function enableCustomSize() {
     const current = selection.stockId ? getStockById(selection.stockId) : undefined
+    const widthMm = current?.widthMm ?? selection.widthMm ?? 40
+    const heightMm = current?.heightMm ?? selection.heightMm ?? 20
+    setCustomSizeRequested(true)
+    setCustomWidth(String(widthMm))
+    setCustomHeight(String(heightMm))
     update({
       stockId: undefined,
       labelId: undefined,
-      widthMm: current?.widthMm ?? 40,
-      heightMm: current?.heightMm ?? 20,
+      widthMm,
+      heightMm,
     })
   }
 
   return (
     <div id="print-setup">
-    <AccordionSection title="Print setup" defaultOpen={defaultOpen}>
+    <AccordionSection
+      title="Print setup"
+      defaultOpen={defaultOpen}
+      open={open}
+      onOpenChange={onOpenChange}
+    >
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
           Printer (optional)
@@ -64,16 +94,12 @@ export function PrintSetupSection({ selection, onChange, defaultOpen = true }: P
 
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
-          Vial size (optional)
+          Vial capacity
         </label>
-        <select
-          value={selection.vialMl?.toString() ?? ''}
-          onChange={(e) => update({ vialMl: e.target.value ? (Number(e.target.value) as 3 | 10) : undefined })}
-          style={{ ...inputStyle, cursor: 'pointer' }}
-        >
-          <option value="">No preference</option>
-          <option value="3">3 ml</option>
-        </select>
+        <VialCapacityControl
+          value={normalizeVialCapacityMl(selection.vialCapacityMl)}
+          onChange={(vialCapacityMl) => update({ vialCapacityMl })}
+        />
       </div>
 
       {!useCustomSize ? (
@@ -120,22 +146,40 @@ export function PrintSetupSection({ selection, onChange, defaultOpen = true }: P
             <div style={{ flex: 1 }}>
               <TextInput
                 label="Width (mm)"
-                value={String(selection.widthMm ?? '')}
-                onChange={(v) => update({ widthMm: Number(v) || undefined, stockId: undefined, labelId: undefined })}
+                value={customWidth}
+                onChange={(value) => {
+                  setCustomWidth(value)
+                  const widthMm = parsePositiveMm(value)
+                  if (widthMm != null) {
+                    update({ widthMm, stockId: undefined, labelId: undefined })
+                  }
+                }}
                 placeholder="40"
               />
             </div>
             <div style={{ flex: 1 }}>
               <TextInput
                 label="Height (mm)"
-                value={String(selection.heightMm ?? '')}
-                onChange={(v) => update({ heightMm: Number(v) || undefined, stockId: undefined, labelId: undefined })}
+                value={customHeight}
+                onChange={(value) => {
+                  setCustomHeight(value)
+                  const heightMm = parsePositiveMm(value)
+                  if (heightMm != null) {
+                    update({ heightMm, stockId: undefined, labelId: undefined })
+                  }
+                }}
                 placeholder="20"
               />
             </div>
           </div>
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', margin: '0 0 12px' }}>
-            Custom size uses rectangular corners and standard padding.
+          <p style={{
+            fontSize: '0.75rem',
+            color: customDimensionsValid ? 'var(--color-text-muted)' : 'var(--color-danger)',
+            margin: '0 0 12px',
+          }}>
+            {customDimensionsValid
+              ? 'Custom size uses rectangular corners and standard padding.'
+              : 'Enter a positive width and height.'}
           </p>
           <button
             type="button"

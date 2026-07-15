@@ -38,6 +38,13 @@
   background-color: var(--color-background);
 }
 
+.label-export-error {
+  margin: 12px 0 0;
+  color: var(--color-danger);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
 /* Preview-only bench — larger than the sticker; not exported */
 .label-stage-mat {
   width: 100%;

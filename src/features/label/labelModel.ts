@@ -7,26 +7,27 @@ export function resolveLabelLayoutMode(input: LabelModelInput): LabelLayoutMode 
   return input.labelLayoutMode ?? DEFAULT_LABEL_LAYOUT_MODE
 }
 
+import { formatDisplayNumber } from './peptideMath'
+
 /** Formats a water volume for label display, always including the ml unit. */
 export function formatWaterVolumeLabel(amount?: string): string {
   if (!amount?.trim()) return ''
   const match = amount.trim().match(/^([\d.]+)/)
   if (!match) return amount.trim()
-  return `${match[1]} ml`
+  const value = parseFloat(match[1])
+  if (!Number.isFinite(value)) return amount.trim()
+  return `${formatDisplayNumber(value)} ml`
 }
 
 /** Formats draw volume for label display, always including the units suffix. */
 export function formatDrawVolumeLabel(drawVolume?: string): string {
   if (!drawVolume?.trim()) return ''
   const trimmed = drawVolume.trim()
-  if (/units/i.test(trimmed)) return trimmed
   const match = trimmed.match(/^([\d.]+)/)
   if (!match) return trimmed
-  return `${match[1]} units`
-}
-
-export interface LabelModel {
-  lines: string[]
+  const value = parseFloat(match[1])
+  if (!Number.isFinite(value)) return trimmed
+  return `${formatDisplayNumber(value)} units`
 }
 
 export interface LabelModelInput {
@@ -38,6 +39,8 @@ export interface LabelModelInput {
   concentration?: string
 
   protocolUnits?: string
+  /** Tracks whether Set Draw Volume may safely regenerate this value. */
+  protocolUnitsOrigin?: 'recommended' | 'user'
   protocolAmount?: string
   protocolFrequency?: string
 
@@ -49,6 +52,10 @@ export interface LabelModelInput {
   calculatorSolveMode?: 'standard' | 'round_concentration' | 'target_units'
   /** Target concentration when calculatorSolveMode is round_concentration (mg/ml or IU/ml). */
   targetConcentration?: string
+  /** Tracks whether Set Concentration may safely regenerate this value. */
+  targetConcentrationOrigin?: 'recommended' | 'user'
+  /** Insulin syringe capacity in ml for draw visualization (not printed). */
+  syringeCapacityMl?: 0.3 | 0.5 | 1.0
 
   // Global Settings
   dateFormat?: 'YYYYMMDD' | 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
@@ -105,61 +112,14 @@ export interface LabelModelInput {
   showConcentration?: boolean
   showReconDate?: boolean
   showProtocolAmount?: boolean
-  showProtocolUnits?: boolean  // NEW
+  showProtocolUnits?: boolean
   showProtocolFrequency?: boolean
   showVendor?: boolean
   showGroup?: boolean
   showBatch?: boolean
 }
 
-export class LabelModelBuilder {
-
-  public build(input: LabelModelInput): LabelModel {
-    const lines: string[] = []
-
-    this.addCompoundName(lines, input)
-    this.addReconstitutionLine(lines, input)
-    this.addConcentration(lines, input)
-    this.addProtocolUnitLine(lines, input)
-    this.addDateLine(lines, input)
-
-    return { lines }
-  }
-
-  private addCompoundName(lines: string[], input: LabelModelInput): void {
-    if (input.compoundName) lines.push(input.compoundName)
-  }
-
-  private addReconstitutionLine(lines: string[], input: LabelModelInput): void {
-    if (!input.compoundAmount) return
-    if (!input.reconstitutionAmount) return
-    if (!input.reconstitutionType) return
-
-    const unit = input.vialUnit ? input.vialUnit : 'mg'
-    const line = `${input.compoundAmount}${unit} - ${input.reconstitutionAmount} ${input.reconstitutionType}`
-    lines.push(line)
-  }
-
-  private addConcentration(lines: string[], input: LabelModelInput): void {
-    if (input.concentration) lines.push(input.concentration)
-  }
-
-  private addProtocolUnitLine(lines: string[], input: LabelModelInput): void {
-    if (!input.protocolUnits) return
-
-    if (!input.protocolAmount) {
-      lines.push(input.protocolUnits)
-      return
-    }
-
-    const line = `${input.protocolUnits} (${input.protocolAmount})`
-    lines.push(line)
-  }
-
-  private addDateLine(lines: string[], input: LabelModelInput): void {
-    if (!input.reconstitutionDate) return
-
-    const line = `Reconstituted ${input.reconstitutionDate}`
-    lines.push(line)
-  }
-}
+export type LabelFieldUpdater = <K extends keyof LabelModelInput>(
+  field: K,
+  value: LabelModelInput[K],
+) => void

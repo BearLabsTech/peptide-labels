@@ -110,10 +110,10 @@ export const PRINT_CATALOG = {
     },
   ] as const satisfies readonly Printer[],
   vialRecommendations: [
-    { vialMl: 3, stockId: '40x20-rounded', rank: 1 },
-    { vialMl: 3, stockId: '50x30-rounded', rank: 2 },
-    { vialMl: 10, stockId: '50x30-rounded', rank: 1 },
-    { vialMl: 10, stockId: '40x20-rounded', rank: 2 },
+    { vialCapacityMl: 3, stockId: '40x20-rounded', rank: 1 },
+    { vialCapacityMl: 3, stockId: '50x30-rounded', rank: 2 },
+    { vialCapacityMl: 10, stockId: '50x30-rounded', rank: 1 },
+    { vialCapacityMl: 10, stockId: '40x20-rounded', rank: 2 },
   ] satisfies readonly VialRecommendation[],
 } as const
 

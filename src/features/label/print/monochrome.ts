@@ -1,6 +1,6 @@
 const MONOCHROME_WHITE_THRESHOLD = 200
 
-/** Pure monochrome threshold for thermal export (black or white only). */
+/** Applies a black-or-white thermal threshold in place. */
 export function applyMonochromeThreshold(data: Uint8ClampedArray): void {
   for (let i = 0; i < data.length; i += 4) {
     const r = data[i]
