@@ -34,6 +34,8 @@ When you open the app, you see how a finished label can look—a sample compound
 
 The preview always reflects what you are building **at true label proportions**, so you are not guessing how cramped lines will be on a tiny sticker. You control **what actually prints**: turn whole topic areas on or off, and within an area choose line by line what appears on the physical vial. That way a minimal label stays minimal, and a detailed traceability label stays detailed—your choice.
 
+On compact screens, the preview and design controls share one continuous scrolling workspace, so every input remains reachable below the preview.
+
 ---
 
 ### Compound identity
