@@ -172,6 +172,20 @@ Beyond the single layout in **Today**, the product will offer **additional templ
 
 ---
 
+### Custom label designs (create, save, share)
+
+Community members already share label art as printer-app templates. Those files are hard to reuse when **compound name**, **compound amount**, or other details change, and there is no shared place to browse designs made for this workflow.
+
+The product will add a **freeform design** path alongside today’s structured designer: place **text, image, QR, and shape boxes** on a stock-sized canvas (drag, resize, rotate—including vertical side text), choose fonts from a curated list, and use **inverted** (white-on-black) text bands when needed. The design author declares which **fields the design accepts** (built-in and custom); someone using the design fills only those fields, then exports a thermal-ready label. Designs are **tied to a specific label size and shape**.
+
+**Mobile is a first-class surface**, same as the rest of the app: authoring, filling slots, saving, importing/exporting a design file, and downloading a print-ready PNG must work well on phones—not as a desktop-only editor with a degraded mobile fallback. On compact screens, expect a Niimbot-like pattern (canvas plus reachable tool drawer / continuous scroll), with touch-friendly select, drag, resize, and rotate.
+
+Saving starts **on the device**. Sharing starts as a **portable design file** you can send in a message (images travel inside the file). Designs stay **private by default**; later, signed-in users can create an unlisted link or **publish** to a browseable library. When a design includes calculated values (water, concentration, draw volume, and so on), the **calculator** will drive those fields—after the authoring and share loop works.
+
+*Local create/save/share-file does not require accounts. Unlisted links, cloud library, and the public gallery require accounts and saved data; cloud persistence may follow freemium rules when membership ships.*
+
+---
+
 ### Compound name as the primary read
 
 On labels with reconstitution, protocol, and source filled in, the **compound name can disappear into the same visual weight as the section blocks**—readable, but not clearly the first thing you see on the vial. That undermines the main job of the sticker: **instant identity** at a glance.
