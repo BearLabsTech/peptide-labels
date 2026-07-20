@@ -3,6 +3,7 @@ import type { LabelModelInput } from './features/label/labelModel'
 import { DEFAULT_CALCULATOR_SOLVE_MODE } from './features/label/calculatorModeSwitch'
 import { LabelDesignerView } from './features/label/LabelDesignerView'
 import { CalculatorView } from './features/label/CalculatorView'
+import { ApplyDesignView } from './features/customDesign/ApplyDesignView'
 import { WorkspaceChrome, type WorkspaceMode } from './features/label/WorkspaceChrome'
 import { LabelHandoffDialog } from './features/label/LabelHandoffDialog'
 import { usePrintSetup } from './features/label/usePrintSetup'
@@ -90,7 +91,7 @@ export default function App() {
             )}
             {view === 'workspace' && (
                 <WorkspaceChrome mode={mode} onModeChange={setMode}>
-                    {mode === 'calculator' ? (
+                    {mode === 'calculator' && (
                         <CalculatorView
                             input={input}
                             updateField={updateField}
@@ -100,7 +101,8 @@ export default function App() {
                             }}
                             onRequestLabelHandoff={() => setHandoffOpen(true)}
                         />
-                    ) : (
+                    )}
+                    {mode === 'designer' && (
                         <LabelDesignerView
                             input={input}
                             updateField={updateField}
@@ -112,6 +114,9 @@ export default function App() {
                             onSetupOpenChange={setSetupOpen}
                             openPrintSetup={openPrintSetup}
                         />
+                    )}
+                    {mode === 'customDesign' && (
+                        <ApplyDesignView printSelection={selection} />
                     )}
                 </WorkspaceChrome>
             )}

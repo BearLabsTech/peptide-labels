@@ -252,6 +252,13 @@
   cursor: pointer;
 }
 
+@media (max-width: 640px) {
+  .workspace-header .mode-segment__btn {
+    padding: 7px 10px;
+    font-size: 0.78rem;
+  }
+}
+
 .mode-segment__btn--active {
   background: var(--color-primary);
   color: white;

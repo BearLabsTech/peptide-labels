@@ -1,7 +1,7 @@
 import { AgreementModal } from './AgreementModal'
 import './LandingPage.css'
 
-export type LandingEntry = 'calculator' | 'designer'
+export type LandingEntry = 'calculator' | 'designer' | 'customDesign'
 
 export interface LandingPageProps {
     needsAcknowledgment: boolean
@@ -34,6 +34,14 @@ export function LandingPage({ needsAcknowledgment, onAcknowledge, onChoose }: La
                         onClick={() => onChoose('designer')}
                     >
                         Label designer
+                    </button>
+                    <button
+                        type="button"
+                        className="btn-primary landing-page__cta landing-page__cta--secondary"
+                        disabled={needsAcknowledgment}
+                        onClick={() => onChoose('customDesign')}
+                    >
+                        Custom design (feature in progress)
                     </button>
                 </div>
             </div>

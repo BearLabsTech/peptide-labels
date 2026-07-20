@@ -26,3 +26,29 @@ export {
   type DesignDocumentValidationResult,
 } from './validateDesignDocument'
 export { SAMPLE_MITOCHONDRIA_DESIGN } from './fixtures/sampleMitochondriaDesign'
+export {
+  areRequiredSlotsFilled,
+  designAssetDataUrl,
+  resolveBoundText,
+  type DesignSlotValues,
+} from './bindDesignSlots'
+export { resolveDesignPrintTarget } from './resolveDesignPrintTarget'
+export { ApplyDesignView } from './ApplyDesignView'
+export { DesignPreview } from './DesignPreview'
+export {
+  PEPTIDE_DESIGN_EXTENSION,
+  PEPTIDE_DESIGN_FORMAT,
+  createDesignPackage,
+  designPackageFilename,
+  downloadDesignPackage,
+  parseDesignPackage,
+  readDesignPackageFile,
+  serializeDesignPackage,
+} from './designPackage'
+export {
+  createIndexedDbDesignLibrary,
+  createMemoryDesignLibrary,
+  prepareDesignForLibrary,
+  touchDesignUpdatedAt,
+  type DesignLibraryStore,
+} from './designLibrary'

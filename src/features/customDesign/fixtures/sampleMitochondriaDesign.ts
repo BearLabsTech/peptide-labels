@@ -1,15 +1,15 @@
 import type { DesignDocument } from '../designDocument'
 
-/**
- * Tiny 1×1 PNG (black pixel) as raw base64 — enough for schema/asset round-trips.
- * Not for visual QA; Slice 1+ fixtures may use richer art.
- */
-const TINY_PNG_BASE64 =
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
+/** Simple black/white oval icon (48×48 PNG) for the sample image box. */
+const MITO_ICON_PNG_BASE64 =
+  'iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAIAAADYYG7QAAAAoUlEQVR4nO3WQRKAMAhD0d7/0rp32gQoVBzzt6B9LhwdV7PG24BnArEEYgnEEoglECsOGrBDIIxIwVm3Y5QAi+/tU1wsspGrsZjQuEJDTctZnQab5oNqDTB9AXRGszIh0PQJUhLoL6ADmUDtXvuOoHafjmoTOhTM2v1+VJj4cXQji2U9yLi3w/Id4dq24+K3DV9ZlEAsgVgCsQRiCcRqB7oBekZQyXesopkAAAAASUVORK5CYII='
 
 /**
  * Golden fixture: 40×20 rounded stock, compound name + amount slots,
  * vertical side text, inverted band, and an embedded image asset.
+ *
+ * Frames are laid out for a readable community-style vial sticker:
+ * vertical RESEARCH on the left, name + inverted amount, icon on the right.
  */
 export const SAMPLE_MITOCHONDRIA_DESIGN: DesignDocument = {
   schemaVersion: 1,
@@ -40,19 +40,30 @@ export const SAMPLE_MITOCHONDRIA_DESIGN: DesignDocument = {
     {
       id: 'asset-mito',
       mimeType: 'image/png',
-      dataBase64: TINY_PNG_BASE64,
+      dataBase64: MITO_ICON_PNG_BASE64,
     },
   ],
   elements: [
     {
+      id: 'el-border',
+      type: 'shape',
+      frame: { xMm: 0.6, yMm: 0.6, widthMm: 38.8, heightMm: 18.8 },
+      rotationDeg: 0,
+      zIndex: 0,
+      shape: 'rect',
+      stroke: true,
+      fill: false,
+    },
+    {
+      // Wide short text box; rotated 270° so it reads up the left edge.
       id: 'el-side-label',
       type: 'text',
-      frame: { xMm: 1, yMm: 2, widthMm: 16, heightMm: 4 },
+      frame: { xMm: -4.5, yMm: 8.4, widthMm: 14, heightMm: 3.2 },
       rotationDeg: 270,
       zIndex: 2,
       content: { kind: 'static', text: 'RESEARCH' },
       fontId: 'sans',
-      fontSizePt: 6,
+      fontSizePt: 5.5,
       bold: true,
       alignH: 'center',
       alignV: 'middle',
@@ -63,12 +74,12 @@ export const SAMPLE_MITOCHONDRIA_DESIGN: DesignDocument = {
     {
       id: 'el-name',
       type: 'text',
-      frame: { xMm: 12, yMm: 2, widthMm: 26, heightMm: 5 },
+      frame: { xMm: 6, yMm: 2.2, widthMm: 22, heightMm: 6 },
       rotationDeg: 0,
       zIndex: 3,
       content: { kind: 'slot', slotKey: 'compoundName' },
       fontId: 'display',
-      fontSizePt: 9,
+      fontSizePt: 8,
       bold: true,
       alignH: 'left',
       alignV: 'middle',
@@ -79,37 +90,27 @@ export const SAMPLE_MITOCHONDRIA_DESIGN: DesignDocument = {
     {
       id: 'el-amount-inverted',
       type: 'text',
-      frame: { xMm: 12, yMm: 8, widthMm: 16, heightMm: 5 },
+      frame: { xMm: 6, yMm: 9.5, widthMm: 18, heightMm: 6.5 },
       rotationDeg: 0,
       zIndex: 3,
       content: { kind: 'slot', slotKey: 'compoundAmount' },
       fontId: 'sans',
-      fontSizePt: 8,
+      fontSizePt: 6.5,
       bold: true,
       alignH: 'center',
       alignV: 'middle',
-      wrap: false,
+      wrap: true,
       fill: 'solid',
       ink: 'reverse',
     },
     {
       id: 'el-mito-image',
       type: 'image',
-      frame: { xMm: 30, yMm: 7, widthMm: 8, heightMm: 10 },
+      frame: { xMm: 26, yMm: 8.5, widthMm: 11, heightMm: 9 },
       rotationDeg: 0,
       zIndex: 1,
       assetId: 'asset-mito',
       objectFit: 'contain',
-    },
-    {
-      id: 'el-border',
-      type: 'shape',
-      frame: { xMm: 0.5, yMm: 0.5, widthMm: 39, heightMm: 19 },
-      rotationDeg: 0,
-      zIndex: 0,
-      shape: 'rect',
-      stroke: true,
-      fill: false,
     },
   ],
 }

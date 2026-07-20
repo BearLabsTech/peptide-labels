@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import './CalculatorView.css'
 
-export type WorkspaceMode = 'calculator' | 'designer'
+export type WorkspaceMode = 'calculator' | 'designer' | 'customDesign'
 
 export interface WorkspaceChromeProps {
     mode: WorkspaceMode
@@ -30,6 +30,14 @@ export function WorkspaceChrome({ mode, onModeChange, children }: WorkspaceChrom
                         onClick={() => onModeChange('designer')}
                     >
                         Label designer
+                    </button>
+                    <button
+                        type="button"
+                        className={mode === 'customDesign' ? 'mode-segment__btn mode-segment__btn--active' : 'mode-segment__btn'}
+                        aria-pressed={mode === 'customDesign'}
+                        onClick={() => onModeChange('customDesign')}
+                    >
+                        Custom design (feature in progress)
                     </button>
                 </div>
             </header>

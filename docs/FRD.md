@@ -10,13 +10,13 @@ This document describes what Peptide Labels does today and what is planned next.
 
 Peptide Labels helps you design **small adhesive labels** for peptide (and similar) vials—labels you can print on common **thermal label printers** and stick on the vial itself. Instead of juggling spreadsheets to keep concentration, draw volume, and water volume aligned, you enter what you know and the app **keeps the numbers consistent** on the label you are about to print.
 
-You start on a **landing page** that frames the product for **research use only** (not medical advice) and asks you to acknowledge a versioned user agreement before continuing. From there you choose **Calculator** or **Label designer**. Inside the app you can switch modes anytime; fields you already entered stay filled.
+You start on a **landing page** that frames the product for **research use only** (not medical advice) and asks you to acknowledge a versioned user agreement before continuing. From there you choose **Calculator**, **Label designer**, or **Custom design (feature in progress)**. Inside the app you can switch modes anytime among those three; fields you already entered in calculator/designer stay filled when you move between those two.
 
 ---
 
 ### Landing and entry
 
-Before the tools open, a short landing screen presents the product name and two equal paths—**Calculator** or **Label designer**. A blocking agreement explains research-use expectations; acknowledging it is required for the current agreement version. If the agreement text is updated and the version advances, you will be asked to acknowledge again. Closing or ignoring the agreement does not unlock the app.
+Before the tools open, a short landing screen presents the product name and three paths—**Calculator**, **Label designer**, or **Custom design (feature in progress)**. A blocking agreement explains research-use expectations; acknowledging it is required for the current agreement version. If the agreement text is updated and the version advances, you will be asked to acknowledge again. Closing or ignoring the agreement does not unlock the app.
 
 ---
 
@@ -35,6 +35,16 @@ When you open the app, you see how a finished label can look—a sample compound
 The preview always reflects what you are building **at true label proportions**, so you are not guessing how cramped lines will be on a tiny sticker. You control **what actually prints**: turn whole topic areas on or off, and within an area choose line by line what appears on the physical vial. That way a minimal label stays minimal, and a detailed traceability label stays detailed—your choice.
 
 On compact screens, the preview and design controls share one continuous scrolling workspace, so every input remains reachable below the preview.
+
+---
+
+### Apply a custom design (sample)
+
+Alongside the structured label designer, **Custom design (feature in progress)** (from the landing page or the header) opens a **sample freeform layout** locked to its label stock size. You fill only the fields that design accepts—for the sample, **compound name** and **compound amount**—and the live preview updates those placed text boxes (including rotated and inverted styles when the design uses them). Empty slots show light placeholders so the layout is obvious before you type. The sample is **fill and export only** for now (moving and resizing boxes comes later). Embedded images in the design show in the preview. When required fields are filled, you download a **monochrome PNG** sized for that stock, using the same thermal export path as the structured designer. On compact screens, preview sits above the fill form in one scrolling workspace.
+
+You can **save designs in a private library on this device**, **export a portable design file** to send in a message, and **import** a file someone shared with you—images travel inside the file, with no account required. Designs stay private by default.
+
+Authoring new layouts in a freeform editor and a public gallery are still ahead.
 
 ---
 
@@ -176,11 +186,9 @@ Beyond the single layout in **Today**, the product will offer **additional templ
 
 Community members already share label art as printer-app templates. Those files are hard to reuse when **compound name**, **compound amount**, or other details change, and there is no shared place to browse designs made for this workflow.
 
-The product will add a **freeform design** path alongside today’s structured designer: place **text, image, QR, and shape boxes** on a stock-sized canvas (drag, resize, rotate—including vertical side text), choose fonts from a curated list, and use **inverted** (white-on-black) text bands when needed. The design author declares which **fields the design accepts** (built-in and custom); someone using the design fills only those fields, then exports a thermal-ready label. Designs are **tied to a specific label size and shape**.
+**Today** ships opening a **sample** freeform design, filling accepted fields, preview/export, plus a **private on-device library** and **portable design files** for message share (see **Apply a custom design**). Still planned: a freeform **editor** to place text, image, QR, and shape boxes (drag, resize, rotate—including vertical side text), curated fonts, inverted bands, author-declared slots (built-in and custom), designs **tied to a specific label size and shape**, private-by-default cloud links, and a browseable gallery. When a design includes calculated values, the **calculator** will drive those fields after the authoring loop works.
 
-**Mobile is a first-class surface**, same as the rest of the app: authoring, filling slots, saving, importing/exporting a design file, and downloading a print-ready PNG must work well on phones—not as a desktop-only editor with a degraded mobile fallback. On compact screens, expect a Niimbot-like pattern (canvas plus reachable tool drawer / continuous scroll), with touch-friendly select, drag, resize, and rotate.
-
-Saving starts **on the device**. Sharing starts as a **portable design file** you can send in a message (images travel inside the file). Designs stay **private by default**; later, signed-in users can create an unlisted link or **publish** to a browseable library. When a design includes calculated values (water, concentration, draw volume, and so on), the **calculator** will drive those fields—after the authoring and share loop works.
+**Mobile is a first-class surface** for every step of this path.
 
 *Local create/save/share-file does not require accounts. Unlisted links, cloud library, and the public gallery require accounts and saved data; cloud persistence may follow freemium rules when membership ships.*
 
