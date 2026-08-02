@@ -37,6 +37,11 @@ export const DEFAULT_DRAW_UNITS_PER_MG = 10;
 export const DEFAULT_DRAW_UNITS_PER_IU = 10;
 export const MIN_RECOMMENDED_WATER_ML = 1;
 
+/** Insulin syringe units per milliliter. */
+export const UNITS_PER_ML = 100;
+/** Micrograms per milligram. */
+export const MCG_PER_MG = 1000;
+
 /** Display-only precision. Never round intermediate math to this — format at the UI/label boundary. */
 export const DISPLAY_DECIMALS = 3;
 
@@ -193,13 +198,13 @@ function isForwardValid(i: PeptideMathInput): boolean {
 
 function getForwardVolumeMl(i: PeptideMathInput): number {
     if (i.vialUnit === 'IU') return i.targetAmount! / (i.vialAmount! / i.waterMl!);
-    const targetMcg = i.targetUnit === 'mg' ? i.targetAmount! * 1000 : i.targetAmount!;
-    return targetMcg / ((i.vialAmount! * 1000) / i.waterMl!);
+    const targetMcg = i.targetUnit === 'mg' ? i.targetAmount! * MCG_PER_MG : i.targetAmount!;
+    return targetMcg / ((i.vialAmount! * MCG_PER_MG) / i.waterMl!);
 }
 
 function formatResult(vol: number, conc: number, isIu: boolean): PeptideMathResult {
     return {
-        drawUnits: vol * 100,
+        drawUnits: vol * UNITS_PER_ML,
         drawVolumeMl: vol,
         concentrationIuPerMl: isIu ? conc : undefined,
         concentrationMgPerMl: !isIu ? conc : undefined
@@ -221,9 +226,9 @@ function isReverseValid(i: PeptideReverseMathInput): boolean {
 }
 
 function getReverseWaterMl(i: PeptideReverseMathInput): number {
-    if (i.vialUnit === 'IU') return (i.drawUnits! * i.vialAmount!) / (i.targetAmount! * 100);
-    const targetMcg = i.targetUnit === 'mg' ? i.targetAmount! * 1000 : i.targetAmount!;
-    return (i.drawUnits! * (i.vialAmount! * 1000)) / (targetMcg * 100);
+    if (i.vialUnit === 'IU') return (i.drawUnits! * i.vialAmount!) / (i.targetAmount! * UNITS_PER_ML);
+    const targetMcg = i.targetUnit === 'mg' ? i.targetAmount! * MCG_PER_MG : i.targetAmount!;
+    return (i.drawUnits! * (i.vialAmount! * MCG_PER_MG)) / (targetMcg * UNITS_PER_ML);
 }
 
 // --- CONCENTRATION-TARGET SOLVE ---
@@ -257,7 +262,7 @@ export function calculateFromTargetConcentration(
     const isIu = input.vialUnit === 'IU';
     return {
         waterMl,
-        drawUnits: drawVolumeMl * 100,
+        drawUnits: drawVolumeMl * UNITS_PER_ML,
         drawVolumeMl,
         concentrationMgPerMl: !isIu ? targetConcentration : undefined,
         concentrationIuPerMl: isIu ? targetConcentration : undefined,
@@ -277,7 +282,7 @@ export function calculateDrawVolumeFromTargetConcentration(
         return targetAmount / targetConcentration;
     }
     if (targetUnit === 'IU') return null;
-    const targetMg = targetUnit === 'mg' ? targetAmount : targetAmount / 1000;
+    const targetMg = targetUnit === 'mg' ? targetAmount : targetAmount / MCG_PER_MG;
     return targetMg / targetConcentration;
 }
 
@@ -306,7 +311,7 @@ export function calculateDefaultDrawUnits(
         return units > 0 ? units : DEFAULT_DRAW_UNITS_PER_IU;
     }
     if (measureUnit === 'IU') return null;
-    const amountMg = measureUnit === 'mg' ? protocolAmount : protocolAmount / 1000;
+    const amountMg = measureUnit === 'mg' ? protocolAmount : protocolAmount / MCG_PER_MG;
     const units = scaleDrawUnitsForAmount(amountMg, DEFAULT_DRAW_UNITS_PER_MG, DEFAULT_DRAW_UNITS_PER_MG_REDUCED);
     if (units <= 0) return DEFAULT_DRAW_UNITS_PER_MG;
     if (units < 1) return DEFAULT_DRAW_UNITS_PER_MG;
@@ -335,7 +340,7 @@ export function calculateRecommendedDrawUnits(
     const minimumDrawUnits = (
         protocolInVialUnits
         * MIN_RECOMMENDED_WATER_ML
-        * 100
+        * UNITS_PER_ML
     ) / vialAmount;
     // This recommendation is stored in a three-decimal form field. Round the
     // floor upward at that boundary so its displayed value cannot imply <1 ml.
@@ -345,7 +350,7 @@ export function calculateRecommendedDrawUnits(
     const maximumDrawUnits = (
         protocolInVialUnits
         * normalizeVialCapacityMl(vialCapacityMl)
-        * 100
+        * UNITS_PER_ML
     ) / vialAmount;
     const displaySafeMaximum = Math.floor((maximumDrawUnits * displayFactor) + 1e-9)
         / displayFactor;
@@ -371,7 +376,7 @@ function protocolAmountToVialUnits(
 ): number | null {
     if (vialUnit === 'IU') return measureUnit === 'IU' ? protocolAmount : null;
     if (measureUnit === 'IU') return null;
-    return measureUnit === 'mg' ? protocolAmount : protocolAmount / 1000;
+    return measureUnit === 'mg' ? protocolAmount : protocolAmount / MCG_PER_MG;
 }
 
 /**

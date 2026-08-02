@@ -1,4 +1,4 @@
-import { IDENTITY_HEADER_TITLE_BAND_GAP_FRAC } from './labelLayoutConstants'
+import { IDENTITY_HEADER_TITLE_BAND_GAP_FRAC, TITLE_LINE_HEIGHT_EM } from './labelLayoutConstants'
 import { testIndicatorsStackHeightPx, type TestIndicatorLayout } from './testIndicatorLayout'
 import { mmToPx } from './print/dimensions'
 import type { PrintTarget } from './print/types'
@@ -15,9 +15,12 @@ export interface QrRenderLayoutModel {
 /** Vertical gap between test indicators and QR when they share the testing column. */
 export const TEST_QR_GAP_FRAC = 0.025
 
+/** Usable fraction of testing-column width after inner padding / thermal rounding. */
+export const QR_WIDTH_SAFETY = 0.88
+
 /** Inner width of the testing column as export pixels (matches layout engine padding trim). */
 function testingColumnInnerPx(model: QrRenderLayoutModel, baseWidthPx: number): number {
-  return Math.floor(baseWidthPx * (model.qrColumnWidthPercent / 100) * 0.88)
+  return Math.floor(baseWidthPx * (model.qrColumnWidthPercent / 100) * QR_WIDTH_SAFETY)
 }
 
 /** Vertical budget for the three-column row (identity header subtracts title band). */
@@ -25,7 +28,7 @@ function rowInnerHeightPx(model: QrRenderLayoutModel, printTarget: PrintTarget):
   let innerPx = mmToPx(printTarget.labelHeightMm - printTarget.paddingMm * 2, printTarget.effectiveDpi)
 
   if (model.titleLines.length > 0) {
-    const titlePx = model.titleLines.length * model.titleFontSizePx * 0.95
+    const titlePx = model.titleLines.length * model.titleFontSizePx * TITLE_LINE_HEIGHT_EM
     const gapPx = mmToPx(printTarget.paddingMm, printTarget.effectiveDpi) * IDENTITY_HEADER_TITLE_BAND_GAP_FRAC
     innerPx = Math.max(0, innerPx - titlePx - gapPx)
   }

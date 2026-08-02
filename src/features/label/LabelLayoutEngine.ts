@@ -1,4 +1,5 @@
 import { mmToPx } from './print/dimensions'
+import { MIN_FONT_SIZE_PX, REF_MAX_FONT_SIZE_PX, TITLE_LINE_HEIGHT_EM } from './labelLayoutConstants'
 
 export interface LabelLayoutInput {
     lines: string[]
@@ -50,11 +51,10 @@ const BODY_HEIGHT_SAFETY = 1.12
 const SECTION_LABEL_LINE_HEIGHT = 1.15
 
 export class LabelLayoutEngine {
-    private readonly MIN_FONT_SIZE_PX = 8;
     private readonly maxFontSizePx: number;
     private readonly dpi: number;
 
-    constructor(dpi: number, maxFontSizePx = 26) {
+    constructor(dpi: number, maxFontSizePx = REF_MAX_FONT_SIZE_PX) {
         this.dpi = dpi;
         this.maxFontSizePx = maxFontSizePx;
     }
@@ -64,7 +64,7 @@ export class LabelLayoutEngine {
     }
 
     public layout(input: LabelLayoutInput): LabelLayoutResult {
-        for (let size = this.maxFontSizePx; size >= this.MIN_FONT_SIZE_PX; size -= 1) {
+        for (let size = this.maxFontSizePx; size >= MIN_FONT_SIZE_PX; size -= 1) {
             const attempt = this.tryLayoutAtSize(input, size)
             if (attempt.fits) return { wrappedLines: attempt.lines, fontSizePx: size }
         }
@@ -74,7 +74,7 @@ export class LabelLayoutEngine {
 
     /** Layout body sections as bordered boxes (matches preview DOM, not flat text). */
     public layoutBoxedBody(input: BoxedBodyLayoutInput): LabelLayoutResult {
-        for (let size = this.maxFontSizePx; size >= this.MIN_FONT_SIZE_PX; size -= 1) {
+        for (let size = this.maxFontSizePx; size >= MIN_FONT_SIZE_PX; size -= 1) {
             const heightPx = this.estimateBoxedBodyHeightPx(input, size)
             const budgetPx = mmToPx(input.heightMm, this.dpi)
             if (heightPx <= budgetPx && this.sectionLabelsFitBoxWidth(input.widthMm, size)) {
@@ -86,8 +86,8 @@ export class LabelLayoutEngine {
         }
 
         return {
-            fontSizePx: this.MIN_FONT_SIZE_PX,
-            wrappedLines: this.flattenBoxLines(input, this.MIN_FONT_SIZE_PX),
+            fontSizePx: MIN_FONT_SIZE_PX,
+            wrappedLines: this.flattenBoxLines(input, MIN_FONT_SIZE_PX),
         }
     }
 
@@ -99,7 +99,7 @@ export class LabelLayoutEngine {
     }
 
     public estimateTitleHeightPx(lineCount: number, fontSizePx: number): number {
-        return lineCount * fontSizePx * 0.95
+        return lineCount * fontSizePx * TITLE_LINE_HEIGHT_EM
     }
 
     private flattenBoxLines(input: BoxedBodyLayoutInput, bodyFontPx: number): string[] {
@@ -169,7 +169,7 @@ export class LabelLayoutEngine {
         const maxChars = this.estimateMaxCharsPerLine(input.widthMm, fontSizePx, charWidthEm, widthSafety)
         const wrapResult = this.wrapLines(input.lines, maxChars)
 
-        if (wrapResult.didChopWord && fontSizePx > this.MIN_FONT_SIZE_PX) {
+        if (wrapResult.didChopWord && fontSizePx > MIN_FONT_SIZE_PX) {
             return { fits: false, lines: [] }
         }
 
@@ -184,9 +184,9 @@ export class LabelLayoutEngine {
     private fallbackToMinSize(input: LabelLayoutInput): LabelLayoutResult {
         const charWidthEm = input.charWidthEm ?? 0.6
         const widthSafety = input.widthSafety ?? 1
-        const maxChars = this.estimateMaxCharsPerLine(input.widthMm, this.MIN_FONT_SIZE_PX, charWidthEm, widthSafety)
+        const maxChars = this.estimateMaxCharsPerLine(input.widthMm, MIN_FONT_SIZE_PX, charWidthEm, widthSafety)
         const wrapResult = this.wrapLines(input.lines, maxChars)
-        return { wrappedLines: wrapResult.lines, fontSizePx: this.MIN_FONT_SIZE_PX }
+        return { wrappedLines: wrapResult.lines, fontSizePx: MIN_FONT_SIZE_PX }
     }
 
     private estimateMaxCharsPerLine(widthMm: number, fontSizePx: number, charWidthEm = 0.6, widthSafety = 1): number {

@@ -12,8 +12,8 @@ import { buildQrCodes, type QrCodeEntry } from './coaLinks'
 import { buildTestIndicators, hasTestingColumnContent, shouldShowCoaQr, type TestIndicatorEntry } from './testIndicators'
 import { computeTestIndicatorLayout, type TestIndicatorLayout } from './testIndicatorLayout'
 import { computeColumnLayout, computeIdentityHeaderTitleWidthMm } from './labelColumnLayout'
-import { maxFontSizePxForLabelHeight, MIN_TITLE_TO_BODY_FONT_RATIO, TITLE_HEIGHT_WEIGHT, TITLE_HEIGHT_WEIGHT_DANGER, IDENTITY_HEADER_TITLE_BAND_GAP_FRAC } from './labelLayoutConstants'
-import { mmToPx } from './print/dimensions'
+import { maxFontSizePxForLabelHeight, MIN_TITLE_TO_BODY_FONT_RATIO, TITLE_HEIGHT_WEIGHT_DANGER, TITLE_HEIGHT_WEIGHT_WITH_BODY, IDENTITY_HEADER_TITLE_BAND_GAP_FRAC, MIN_FONT_SIZE_PX, DANGER_BODY_FONT_SCALE } from './labelLayoutConstants'
+import { mmToPx, pxToMm } from './print/dimensions'
 import type { PrintTarget } from './print/types'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
 
@@ -126,7 +126,7 @@ export class LabelComposer {
 
     const titleHeightWeight = isDanger
       ? TITLE_HEIGHT_WEIGHT_DANGER
-      : Math.min(TITLE_HEIGHT_WEIGHT + 0.06, 0.55)
+      : TITLE_HEIGHT_WEIGHT_WITH_BODY
     const titleLinesUpper = title.split('\n').map((line) => line.toUpperCase());
     const titleInput = {
       lines: titleLinesUpper,
@@ -154,7 +154,7 @@ export class LabelComposer {
       wrappedLines: [...titleLayout.wrappedLines, ...bodyLayout.wrappedLines],
       titleLines: titleLayout.wrappedLines,
       titleFontSizePx: titleLayout.fontSizePx,
-      bodyFontSizePx: isDanger ? (bodyLayout.fontSizePx * 0.8) : bodyLayout.fontSizePx,
+      bodyFontSizePx: isDanger ? (bodyLayout.fontSizePx * DANGER_BODY_FONT_SCALE) : bodyLayout.fontSizePx,
       title, demotedTitle, sourceLines: srcLines, protocolLines: proLines, reconstitutionLines: recLines,
       qrCodes: visibleQrCodes, testIndicators, testIndicatorLayout, customImage: input.customImage, isDangerMode: isDanger,
       logoColumnWidthPercent: columns.logoWidthPercent,
@@ -217,14 +217,14 @@ export class LabelComposer {
       heightMm: bodyHeightMm,
     })
 
-    for (let bodyFont = bodyLayout.fontSizePx; bodyFont >= 8; bodyFont--) {
+    for (let bodyFont = bodyLayout.fontSizePx; bodyFont >= MIN_FONT_SIZE_PX; bodyFont--) {
       const attempt = layoutBodyAtFont(bodyHeightMm, bodyFont)
       bodyLayout = attempt
       if (stackFits(titleLayout, attempt, bodyHeightMm)) break
     }
 
     if (!stackFits(titleLayout, bodyLayout, bodyHeightMm)) {
-      for (let titleFont = titleLayout.fontSizePx - 1; titleFont >= 8; titleFont--) {
+      for (let titleFont = titleLayout.fontSizePx - 1; titleFont >= MIN_FONT_SIZE_PX; titleFont--) {
         const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, titleFont)
         if (!titleAttempt) continue
         bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleAttempt, titleBodyGapMm)
@@ -232,7 +232,7 @@ export class LabelComposer {
           ...bodyInputBase,
           heightMm: bodyHeightMm,
         })
-        for (let bodyFont = refitBody.fontSizePx; bodyFont >= 8; bodyFont--) {
+        for (let bodyFont = refitBody.fontSizePx; bodyFont >= MIN_FONT_SIZE_PX; bodyFont--) {
           const attempt = layoutBodyAtFont(bodyHeightMm, bodyFont)
           titleLayout = titleAttempt
           bodyLayout = attempt
@@ -291,14 +291,14 @@ export class LabelComposer {
       return { titleLayout, bodyLayout, bodyHeightMm };
     }
 
-    for (let titleFont = this.maxFontSizePx; titleFont >= 8; titleFont--) {
+    for (let titleFont = this.maxFontSizePx; titleFont >= MIN_FONT_SIZE_PX; titleFont--) {
       const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, titleFont);
       if (!titleAttempt) continue;
 
       const attemptBodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleAttempt, titleBodyGapMm);
       const maxBodyFont = Math.floor(titleFont / MIN_TITLE_TO_BODY_FONT_RATIO);
 
-      for (let bodyFont = Math.min(maxBodyFont, bodyLayout.fontSizePx); bodyFont >= 8; bodyFont--) {
+      for (let bodyFont = Math.min(maxBodyFont, bodyLayout.fontSizePx); bodyFont >= MIN_FONT_SIZE_PX; bodyFont--) {
         const bodyAttempt = layoutBodyAtFont(attemptBodyHeightMm, bodyFont);
         if (stackFits(titleAttempt, bodyAttempt, attemptBodyHeightMm)) {
           return { titleLayout: titleAttempt, bodyLayout: bodyAttempt, bodyHeightMm: attemptBodyHeightMm };
@@ -324,7 +324,7 @@ export class LabelComposer {
       )
       const gapPx = mmToPx(this.printTarget.paddingMm, this.printTarget.effectiveDpi) * IDENTITY_HEADER_TITLE_BAND_GAP_FRAC
       const rowPx = Math.max(0, mmToPx(innerHeightMm, this.printTarget.effectiveDpi) - titlePx - gapPx)
-      indicatorsHeightMm = (rowPx * 25.4) / this.printTarget.effectiveDpi
+      indicatorsHeightMm = pxToMm(rowPx, this.printTarget.effectiveDpi)
     }
 
     return computeTestIndicatorLayout({
@@ -348,7 +348,7 @@ export class LabelComposer {
     const titlePx = this.layoutEngine.estimateTitleHeightPx(titleLayout.wrappedLines.length, titleLayout.fontSizePx)
     const gapPx = mmToPx(titleBodyGapMm, this.printTarget.effectiveDpi)
     const remainingPx = Math.max(0, innerPx - titlePx - gapPx)
-    return (remainingPx * 25.4) / this.printTarget.effectiveDpi
+    return pxToMm(remainingPx, this.printTarget.effectiveDpi)
   }
 
   private usableHeightMm(): number {

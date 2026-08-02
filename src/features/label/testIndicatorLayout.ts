@@ -30,6 +30,9 @@ const MAX_LABEL_FONT_MM = 2.6
 const MARK_TO_LABEL_RATIO = 1.85
 /** Mark width cap as fraction of column inner width — leave margin so marks do not bleed. */
 const MARK_WIDTH_FRAC = 0.82
+/** Padding trim inside the testing column (distinct from danger-title / CSS pad multipliers). */
+const TEST_INDICATOR_COLUMN_PAD_FRAC = 0.65
+
 /** Matches `.label-test-name` line-height in LabelPreview.css. */
 export const TEST_LABEL_LINE_HEIGHT = 1.1
 
@@ -65,7 +68,7 @@ export function computeTestIndicatorLayout(input: TestIndicatorLayoutInput): Tes
   if (rowHeightMm <= 0) return undefined
 
   // Column element width minus reduced inner left padding (`.label-right-column`).
-  const columnInnerMm = Math.max(0, (input.qrColumnWidthMm - input.paddingMm * 0.65) * WIDTH_SAFETY)
+  const columnInnerMm = Math.max(0, (input.qrColumnWidthMm - input.paddingMm * TEST_INDICATOR_COLUMN_PAD_FRAC) * WIDTH_SAFETY)
   const longestLabel = input.labels.reduce((longest, label) => (label.length > longest.length ? label : longest), '')
   const maxLabelFontForWidthMm = longestLabel.length > 0
     ? columnInnerMm / (longestLabel.length * LABEL_CHAR_WIDTH_EM)

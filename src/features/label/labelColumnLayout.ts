@@ -127,10 +127,13 @@ export function computeIdentityHeaderTitleBreakout(
   }
 }
 
+/** Danger-mode title uses a fraction of the full inner row (distinct from pad multipliers). */
+export const DANGER_TITLE_WIDTH_FRAC = 0.65
+
 export function computeIdentityHeaderTitleWidthMm(
   columns: ColumnLayout,
   isDanger: boolean,
-  dangerWidthFrac = 0.65,
+  dangerWidthFrac = DANGER_TITLE_WIDTH_FRAC,
 ): number {
   return isDanger ? columns.innerRowMm * dangerWidthFrac : columns.innerRowMm
 }

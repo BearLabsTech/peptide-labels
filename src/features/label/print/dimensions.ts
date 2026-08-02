@@ -5,9 +5,17 @@ export function parsePositiveMm(value: string): number | undefined {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
 }
 
+/** Millimeters per inch — the only place this conversion factor should live. */
+export const MM_PER_INCH = 25.4
+
 /** Single source of truth: mm + DPI → pixel count. */
 export function mmToPx(mm: number, dpi: number): number {
-  return Math.round((mm / 25.4) * dpi)
+  return Math.round((mm / MM_PER_INCH) * dpi)
+}
+
+/** Single source of truth: pixel count + DPI → mm. */
+export function pxToMm(px: number, dpi: number): number {
+  return (px * MM_PER_INCH) / dpi
 }
 
 export function resolvePixelSize(

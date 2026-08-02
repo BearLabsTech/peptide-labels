@@ -2,6 +2,7 @@ import {
     calculateReverseWater,
     calculateWaterFromTargetConcentration,
     formatDisplayNumberFixed,
+    MCG_PER_MG,
     parseNumericField,
     resolveMeasureUnit,
 } from './peptideMath'
@@ -18,7 +19,7 @@ export function protocolAmountInVialUnits(input: LabelModelInput): number | null
         return measureUnit === 'IU' ? protocol : null
     }
     if (measureUnit === 'IU') return null
-    return measureUnit === 'mg' ? protocol : protocol / 1000
+    return measureUnit === 'mg' ? protocol : protocol / MCG_PER_MG
 }
 
 /**

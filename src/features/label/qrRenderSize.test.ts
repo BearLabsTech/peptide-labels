@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   computeQrRenderSizePx,
   indicatorsStackHeightPx,
+  QR_WIDTH_SAFETY,
   qrCaptionHeightPx,
   testQrGapPx,
   type QrRenderLayoutModel,
@@ -22,7 +23,7 @@ describe('computeQrRenderSizePx', () => {
 
     const qrPx = computeQrRenderSizePx(model, printTarget, baseWidthPx)
     expect(qrPx).toBeLessThan(baseWidthPx)
-    expect(qrPx).toBeLessThanOrEqual(Math.floor(baseWidthPx * 0.38 * 0.88))
+    expect(qrPx).toBeLessThanOrEqual(Math.floor(baseWidthPx * 0.38 * QR_WIDTH_SAFETY))
   })
 
   it('should leave vertical room below test indicators when QR shares the column', () => {

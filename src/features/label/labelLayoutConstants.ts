@@ -5,9 +5,26 @@ export const REF_MAX_FONT_SIZE_PX = 26
 /** Fraction of inner label height reserved for compound title when body sections print. */
 export const TITLE_HEIGHT_WEIGHT = 0.5
 export const TITLE_HEIGHT_WEIGHT_DANGER = 0.42
+/**
+ * Title height share when body sections are present (non-danger).
+ * Caps `TITLE_HEIGHT_WEIGHT + 0.06` so title and body both get usable vertical room.
+ */
+export const TITLE_HEIGHT_WEIGHT_WITH_BODY = 0.55
+
+/** Danger-mode body font is scaled down relative to the fitted body size. */
+export const DANGER_BODY_FONT_SCALE = 0.8
 
 /** Title font should stay at least this multiple of body font when both print. */
 export const MIN_TITLE_TO_BODY_FONT_RATIO = 1.35
+
+/** Minimum font size for title/body search loops (export pixels). */
+export const MIN_FONT_SIZE_PX = 8
+
+/**
+ * Bold uppercase title line-height as a fraction of font size
+ * (matches `.label-preview-title` in LabelPreview.css). Distinct from glyph-width 0.95.
+ */
+export const TITLE_LINE_HEIGHT_EM = 0.95
 
 /** Gap between title band and main row in identity-header layout (`.label-preview-container--identity-header`). */
 export const IDENTITY_HEADER_TITLE_BAND_GAP_FRAC = 0.75

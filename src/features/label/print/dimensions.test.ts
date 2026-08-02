@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { mmToPx, parsePositiveMm, previewBaseWidthPx, resolvePixelSize } from './dimensions'
+import { mmToPx, parsePositiveMm, previewBaseWidthPx, pxToMm, resolvePixelSize } from './dimensions'
 import { SKIP_DEFAULT_TARGET } from './defaults'
 
 describe('dimensions', () => {
@@ -24,6 +24,12 @@ describe('dimensions', () => {
 
   it('should convert 50x30 mm at 300 DPI to 591x354 pixels', () => {
     expect(resolvePixelSize(50, 30, 300)).toEqual({ widthPx: 591, heightPx: 354 })
+  })
+
+  it('should convert pixels back to mm at the same DPI', () => {
+    // Exact inverse of the px formula (mmToPx rounds; do not round-trip rounded px).
+    expect(pxToMm(300, 300)).toBeCloseTo(25.4, 10)
+    expect(pxToMm(150, 300)).toBeCloseTo(12.7, 10)
   })
 
   it('should use preview base width equal to export width at pixelRatio 1', () => {
