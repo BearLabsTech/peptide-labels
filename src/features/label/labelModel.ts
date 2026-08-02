@@ -33,24 +33,35 @@ export function formatDrawVolumeLabel(drawVolume?: string): string {
   return formatDrawUnitsLabel(value)
 }
 
-export interface LabelModelInput {
+/** What compound is in the vial, and how much — the identity of the thing being labeled. */
+export interface CompoundIdentity {
   readonly compoundName?: string
   readonly compoundAmount?: string
   readonly vialUnit?: 'mg' | 'IU'
+  readonly isUntested?: boolean
+}
+
+/** How the vial was mixed, and the resulting concentration. */
+export interface Reconstitution {
   readonly reconstitutionAmount?: string
   readonly reconstitutionType?: string
   readonly concentration?: string
+  readonly reconstitutionDate?: string
+  readonly reconstitutionDateIsFreeText?: boolean
+}
 
+/** The measured amount, unit, and frequency printed as the usage protocol. */
+export interface Protocol {
+  readonly protocolAmount?: string
   readonly protocolUnits?: string
   /** Tracks whether Set Draw Volume may safely regenerate this value. */
   readonly protocolUnitsOrigin?: 'recommended' | 'user'
-  readonly protocolAmount?: string
   readonly protocolFrequency?: string
-
-  readonly reconstitutionDate?: string
-  readonly reconstitutionDateIsFreeText?: boolean
   readonly measureUnit?: 'mg' | 'mcg' | 'IU'
+}
 
+/** Calculator assist configuration — which solve strategy is active and its target. */
+export interface CalculatorSettings {
   /** Calculator solve strategy for deriving water volume from protocol. */
   readonly calculatorSolveMode?: 'standard' | 'round_concentration' | 'target_units'
   /** Target concentration when calculatorSolveMode is round_concentration (mg/ml or IU/ml). */
@@ -59,20 +70,19 @@ export interface LabelModelInput {
   readonly targetConcentrationOrigin?: 'recommended' | 'user'
   /** Insulin syringe capacity in ml for draw visualization (not printed). */
   readonly syringeCapacityMl?: 0.3 | 0.5 | 1.0
+}
 
-  // Global Settings
-  readonly dateFormat?: 'YYYYMMDD' | 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
-  /** Layout template id; defaults to identity header. */
-  readonly labelLayoutMode?: LabelLayoutMode
-
-  // Source Info
+/** Where the compound and its testing came from. */
+export interface Sourcing {
   readonly vendorName?: string
   readonly groupBuyName?: string
   readonly batchNumber?: string
   readonly batchDate?: string
   readonly batchDateIsFreeText?: boolean
+}
 
-  // COA Links
+/** Links to certificates of analysis, printed as QR codes. */
+export interface CoaLinks {
   readonly vendorCoa?: string
   readonly groupBuyCoa?: string
   readonly testGroupCoa?: string
@@ -83,8 +93,10 @@ export interface LabelModelInput {
   readonly customCoa2Link?: string
   /** When false, COA QR codes stay in the sidebar but do not print. Default true. */
   readonly showCoaQr?: boolean
+}
 
-  // Test result indicators (right testing column)
+/** Pass/fail/not-run indicators for each test type, printed in the testing column. */
+export interface Testing {
   /** When true, print pass/fail/not-run marks for test types not set to Do Not Print. */
   readonly showTestIndicators?: boolean
   readonly testMass?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
@@ -94,23 +106,28 @@ export interface LabelModelInput {
   readonly testSterility?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
   readonly testHeavyMetals?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
   readonly testFentanyl?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+}
 
-  // Media
+/** Global formatting preferences, layout template choice, and logo/media sizing. */
+export interface Presentation {
+  readonly dateFormat?: 'YYYYMMDD' | 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
+  /** Layout template id; defaults to identity header. */
+  readonly labelLayoutMode?: LabelLayoutMode
   readonly customImage?: string
   /** Logo column width as percent of label inner width (15–45). Default 20. */
   readonly logoColumnWidthPercent?: number
   /** Testing column width as percent of label inner width (25–50). Default 38. */
   readonly qrColumnWidthPercent?: number
+}
 
-  // Status
-  readonly isUntested?: boolean
-
-  // Visibility Toggles: Section Level
+/** Which sections and fields print on the label, independent of whether a value is set. */
+export interface PrintVisibility {
+  // Section level
   readonly showSource?: boolean
   readonly showReconstitution?: boolean
   readonly showProtocol?: boolean
 
-  // Visibility Toggles: Granular Field Level
+  // Granular field level
   readonly showWater?: boolean
   readonly showConcentration?: boolean
   readonly showReconDate?: boolean
@@ -121,6 +138,23 @@ export interface LabelModelInput {
   readonly showGroup?: boolean
   readonly showBatch?: boolean
 }
+
+/**
+ * Every field the calculator and label designer read or write, composed from
+ * the cohesive sub-models above. An intersection, not a nested object, so
+ * every existing flat call site (`input.compoundName`, `input.waterMl`, etc.)
+ * keeps compiling unchanged — the sub-models are a grouping of this type's
+ * own fields, not a new nested shape callers must adopt.
+ */
+export type LabelModelInput = CompoundIdentity
+  & Reconstitution
+  & Protocol
+  & CalculatorSettings
+  & Sourcing
+  & CoaLinks
+  & Testing
+  & Presentation
+  & PrintVisibility
 
 export type LabelFieldUpdater = <K extends keyof LabelModelInput>(
   field: K,
