@@ -3,14 +3,21 @@ import { testIndicatorsStackHeightPx, type TestIndicatorLayout } from './testInd
 import { mmToPx } from './print/dimensions'
 import type { PrintTarget } from './print/types'
 
-export interface QrRenderLayoutModel {
+/**
+ * Narrow input for QR sizing — only the counts and geometry fields that affect size.
+ * Passing whole arrays was an `unknown[]` workaround; lengths are what we need.
+ */
+export interface QrRenderSizeInput {
   qrColumnWidthPercent: number
-  qrCodes?: readonly unknown[]
-  testIndicators: readonly unknown[]
+  qrCodeCount: number
+  testIndicatorCount: number
   testIndicatorLayout?: TestIndicatorLayout
   titleLines: readonly string[]
   titleFontSizePx: number
 }
+
+/** @deprecated Use {@link QrRenderSizeInput}. */
+export type QrRenderLayoutModel = QrRenderSizeInput
 
 /** Vertical gap between test indicators and QR when they share the testing column. */
 export const TEST_QR_GAP_FRAC = 0.025
@@ -19,12 +26,12 @@ export const TEST_QR_GAP_FRAC = 0.025
 export const QR_WIDTH_SAFETY = 0.88
 
 /** Inner width of the testing column as export pixels (matches layout engine padding trim). */
-function testingColumnInnerPx(model: QrRenderLayoutModel, baseWidthPx: number): number {
+function testingColumnInnerPx(model: QrRenderSizeInput, baseWidthPx: number): number {
   return Math.floor(baseWidthPx * (model.qrColumnWidthPercent / 100) * QR_WIDTH_SAFETY)
 }
 
 /** Vertical budget for the three-column row (identity header subtracts title band). */
-function rowInnerHeightPx(model: QrRenderLayoutModel, printTarget: PrintTarget): number {
+function rowInnerHeightPx(model: QrRenderSizeInput, printTarget: PrintTarget): number {
   let innerPx = mmToPx(printTarget.labelHeightMm - printTarget.paddingMm * 2, printTarget.effectiveDpi)
 
   if (model.titleLines.length > 0) {
@@ -37,10 +44,10 @@ function rowInnerHeightPx(model: QrRenderLayoutModel, printTarget: PrintTarget):
 }
 
 /** Rendered indicator stack height — matches LabelPreview.css (label line-height 1.1). */
-export function indicatorsStackHeightPx(model: QrRenderLayoutModel): number {
+export function indicatorsStackHeightPx(model: QrRenderSizeInput): number {
   const layout = model.testIndicatorLayout
-  if (!layout || model.testIndicators.length === 0) return 0
-  return testIndicatorsStackHeightPx(layout, model.testIndicators.length)
+  if (!layout || model.testIndicatorCount === 0) return 0
+  return testIndicatorsStackHeightPx(layout, model.testIndicatorCount)
 }
 
 export function testQrGapPx(baseWidthPx: number): number {
@@ -61,22 +68,20 @@ export function qrCaptionHeightPx(baseWidthPx: number): number {
 
 /** QR `size` prop — must fit testing column width and space below indicators. */
 export function computeQrRenderSizePx(
-  model: QrRenderLayoutModel,
+  model: QrRenderSizeInput,
   printTarget: PrintTarget,
   baseWidthPx: number,
 ): number {
   const maxByWidthPx = testingColumnInnerPx(model, baseWidthPx)
   const rowHeightPx = rowInnerHeightPx(model, printTarget)
-  const captionPx = (model.qrCodes?.length ?? 0) > 0 ? qrCaptionHeightPx(baseWidthPx) : 0
+  const captionPx = model.qrCodeCount > 0 ? qrCaptionHeightPx(baseWidthPx) : 0
 
-  if (model.testIndicators.length === 0 || !model.testIndicatorLayout) {
+  if (model.testIndicatorCount === 0 || !model.testIndicatorLayout) {
     return Math.max(16, Math.min(maxByWidthPx, rowHeightPx - captionPx))
   }
 
   const gapPx = testQrGapPx(baseWidthPx)
   const indicatorsPx = indicatorsStackHeightPx(model)
   const maxQrForStackPx = rowHeightPx - indicatorsPx - gapPx - captionPx
-  const qrPx = Math.max(16, Math.min(maxByWidthPx, maxQrForStackPx))
-
-  return qrPx
+  return Math.max(16, Math.min(maxByWidthPx, maxQrForStackPx))
 }

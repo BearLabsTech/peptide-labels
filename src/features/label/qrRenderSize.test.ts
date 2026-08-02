@@ -5,7 +5,7 @@ import {
   QR_WIDTH_SAFETY,
   qrCaptionHeightPx,
   testQrGapPx,
-  type QrRenderLayoutModel,
+  type QrRenderSizeInput,
 } from './qrRenderSize'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
 import { previewBaseWidthPx, mmToPx } from './print/dimensions'
@@ -16,10 +16,11 @@ describe('computeQrRenderSizePx', () => {
     const baseWidthPx = previewBaseWidthPx(printTarget)
     const model = {
       qrColumnWidthPercent: 38,
-      testIndicators: [],
+      qrCodeCount: 0,
+      testIndicatorCount: 0,
       titleLines: ['TIRZEPATIDE', '20MG'],
       titleFontSizePx: 20,
-    } satisfies QrRenderLayoutModel
+    } satisfies QrRenderSizeInput
 
     const qrPx = computeQrRenderSizePx(model, printTarget, baseWidthPx)
     expect(qrPx).toBeLessThan(baseWidthPx)
@@ -31,8 +32,8 @@ describe('computeQrRenderSizePx', () => {
     const baseWidthPx = previewBaseWidthPx(printTarget)
     const model = {
       qrColumnWidthPercent: 38,
-      qrCodes: [{ type: 'Vendor COA', url: 'https://example.com' }],
-      testIndicators: [{ type: 'Purity' as const }, { type: 'Endotoxin' as const }],
+      qrCodeCount: 1,
+      testIndicatorCount: 2,
       testIndicatorLayout: {
         markSizePx: 40,
         labelFontSizePx: 12,
@@ -41,7 +42,7 @@ describe('computeQrRenderSizePx', () => {
       },
       titleLines: ['TEST COMPOUND', '20MG'],
       titleFontSizePx: 14,
-    } satisfies QrRenderLayoutModel
+    } satisfies QrRenderSizeInput
 
     const qrPx = computeQrRenderSizePx(model, printTarget, baseWidthPx)
     const stackPx = indicatorsStackHeightPx(model)

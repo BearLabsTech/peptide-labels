@@ -8,6 +8,7 @@ import { previewBaseWidthPx } from './print/dimensions'
 import type { PrintTarget } from './print/types'
 import { pxToCqw } from './Scaling'
 import { computeQrRenderSizePx, testQrGapPx } from './qrRenderSize'
+import { cssVars } from '../../shared/cssVars'
 import './LabelPreview.css'
 
 interface LabelPreviewProps {
@@ -33,11 +34,11 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
         qrColumnWidthPercent: model.qrColumnWidthPercent,
       })
       const breakout = computeIdentityHeaderTitleBreakout(columns, hasLogo, hasTestingColumn)
-      return {
-        ['--title-axis-pct' as string]: `${breakout.axisFraction * 100}%`,
-        ['--title-breakout-width-pct' as string]: `${breakout.breakoutWidthPct}`,
-        ['--title-breakout-margin-left-pct' as string]: `${breakout.breakoutMarginLeftPct}`,
-      }
+      return cssVars({
+        '--title-axis-pct': `${breakout.axisFraction * 100}%`,
+        '--title-breakout-width-pct': `${breakout.breakoutWidthPct}`,
+        '--title-breakout-margin-left-pct': `${breakout.breakoutMarginLeftPct}`,
+      })
     })()
 
     const titleBandGutter = (widthPercent: number) => (
@@ -47,7 +48,14 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
         aria-hidden="true"
       />
     )
-    const qrRenderSizePx = computeQrRenderSizePx(model, printTarget, baseWidthPx)
+    const qrRenderSizePx = computeQrRenderSizePx({
+      qrColumnWidthPercent: model.qrColumnWidthPercent,
+      qrCodeCount: model.qrCodes.length,
+      testIndicatorCount: model.testIndicators.length,
+      testIndicatorLayout: model.testIndicatorLayout,
+      titleLines: model.titleLines,
+      titleFontSizePx: model.titleFontSizePx,
+    }, printTarget, baseWidthPx)
     const testQrGapStyle =
       model.qrCodes.length > 0 && model.testIndicators.length > 0
         ? { paddingTop: pxToCqw(testQrGapPx(baseWidthPx), baseWidthPx) }
