@@ -7,27 +7,43 @@ export function resolveLabelLayoutMode(input: LabelModelInput): LabelLayoutMode 
   return input.labelLayoutMode ?? DEFAULT_LABEL_LAYOUT_MODE
 }
 
-import { formatDisplayNumber } from './peptideMath'
+import { formatDisplayNumber, formatDrawUnitsLabel } from './peptideMath'
 
-/** Formats a water volume for label display, always including the ml unit. */
+/**
+ * Parse a leading numeric prefix from a display string.
+ * Phase 2 removes this once value and unit are separate typed fields.
+ */
+export function parseNumericDisplayPrefix(raw: string): number | undefined {
+  const match = raw.trim().match(/^([\d.]+)/)
+  if (!match) return undefined
+  const value = parseFloat(match[1])
+  return Number.isFinite(value) ? value : undefined
+}
+
+/**
+ * Formats a water volume for label display, always including the ml unit.
+ * Prefer composing {@link formatDisplayNumber} + `' ml'` at the print call site;
+ * this helper remains for callers that still pass a display string.
+ * Phase 2 removes the regex prefix-parse once value and unit are separate fields.
+ */
 export function formatWaterVolumeLabel(amount?: string): string {
   if (!amount?.trim()) return ''
-  const match = amount.trim().match(/^([\d.]+)/)
-  if (!match) return amount.trim()
-  const value = parseFloat(match[1])
-  if (!Number.isFinite(value)) return amount.trim()
+  const value = parseNumericDisplayPrefix(amount)
+  if (value === undefined) return amount.trim()
   return `${formatDisplayNumber(value)} ml`
 }
 
-/** Formats draw volume for label display, always including the units suffix. */
+/**
+ * Formats draw volume for label display, always including the units suffix.
+ * Delegates suffix formatting to {@link formatDrawUnitsLabel}.
+ * Phase 2 removes the regex prefix-parse once value and unit are separate fields.
+ */
 export function formatDrawVolumeLabel(drawVolume?: string): string {
   if (!drawVolume?.trim()) return ''
   const trimmed = drawVolume.trim()
-  const match = trimmed.match(/^([\d.]+)/)
-  if (!match) return trimmed
-  const value = parseFloat(match[1])
-  if (!Number.isFinite(value)) return trimmed
-  return `${formatDisplayNumber(value)} units`
+  const value = parseNumericDisplayPrefix(trimmed)
+  if (value === undefined) return trimmed
+  return formatDrawUnitsLabel(value)
 }
 
 export interface LabelModelInput {

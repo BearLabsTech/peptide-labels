@@ -1,7 +1,7 @@
 import type { ResolvedLabelMath } from './LabelMathResolver'
 import type { LabelModelInput } from './labelModel'
-import { formatDrawVolumeLabel, formatWaterVolumeLabel } from './labelModel'
-import { hasPositiveVialAmount } from './peptideMath'
+import { formatDrawVolumeLabel, parseNumericDisplayPrefix } from './labelModel'
+import { formatDisplayNumber, hasPositiveVialAmount } from './peptideMath'
 
 export interface LabelContent {
   title: string
@@ -99,7 +99,11 @@ function buildReconstitutionLines(
   const concentration = resolved.autoConcentration || input.concentration || ''
 
   if (input.showWater !== false && (waterAmount || input.reconstitutionType)) {
-    const waterLabel = formatWaterVolumeLabel(waterAmount)
+    // Calculator display uses formatWaterAmountLabel (no unit). Print path adds " ml" here.
+    const waterValue = waterAmount ? parseNumericDisplayPrefix(waterAmount) : undefined
+    const waterLabel = waterValue !== undefined
+      ? `${formatDisplayNumber(waterValue)} ml`
+      : (waterAmount || '').trim()
     lines.push(`${waterLabel} ${input.reconstitutionType || ''}`.trim())
   }
   if (input.showConcentration !== false && concentration) lines.push(concentration)
