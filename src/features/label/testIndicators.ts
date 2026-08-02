@@ -51,10 +51,15 @@ export interface TestIndicatorEntry {
   status: TestPrintStatus
 }
 
+export function parseTestResultStatus(value: unknown): TestResultStatus | undefined {
+  if (typeof value !== 'string') return undefined
+  const match = TEST_STATUS_OPTIONS.find((option) => option.value === value)
+  return match?.value
+}
+
 export function getTestResult(input: LabelModelInput, type: TestType): TestResultStatus {
   const field = TEST_RESULT_FIELDS[type]
-  const value = input[field] as TestResultStatus | undefined
-  return value ?? 'do_not_print'
+  return parseTestResultStatus(input[field]) ?? 'do_not_print'
 }
 
 export function isPrintableTestStatus(status: TestResultStatus): status is TestPrintStatus {

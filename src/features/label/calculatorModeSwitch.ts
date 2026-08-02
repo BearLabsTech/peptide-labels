@@ -36,8 +36,15 @@ const CALCULATOR_LABEL_BY_MODE = Object.fromEntries(
     Object.entries(CALCULATOR_MODE_BY_LABEL).map(([label, mode]) => [mode, label]),
 ) as Record<CalculatorSolveMode, CalculatorModeOption>;
 
+export function parseCalculatorModeOption(label: string): CalculatorModeOption | undefined {
+    return (CALCULATOR_MODE_OPTIONS as readonly string[]).includes(label)
+        ? (label as CalculatorModeOption)
+        : undefined
+}
+
 export function calculatorModeFromLabel(label: string): CalculatorSolveMode {
-    return CALCULATOR_MODE_BY_LABEL[label as CalculatorModeOption];
+    const option = parseCalculatorModeOption(label)
+    return option ? CALCULATOR_MODE_BY_LABEL[option] : DEFAULT_CALCULATOR_SOLVE_MODE
 }
 
 export function calculatorModeLabel(mode: CalculatorSolveMode): CalculatorModeOption {

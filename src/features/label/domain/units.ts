@@ -128,3 +128,21 @@ export function mcgToMg(mcg: number): number {
 export function mgToMcg(mg: number): number {
   return mg * MCG_PER_MG
 }
+
+const VIAL_UNITS = ['mg', 'IU'] as const
+const MEASURE_UNITS = ['mg', 'mcg', 'IU'] as const
+
+export type VialUnit = (typeof VIAL_UNITS)[number]
+export type MeasureUnit = (typeof MEASURE_UNITS)[number]
+
+export function parseVialUnit(value: string): VialUnit | undefined {
+  return (VIAL_UNITS as readonly string[]).includes(value)
+    ? (value as VialUnit)
+    : undefined
+}
+
+export function parseMeasureUnit(value: string): MeasureUnit | undefined {
+  return (MEASURE_UNITS as readonly string[]).includes(value)
+    ? (value as MeasureUnit)
+    : undefined
+}

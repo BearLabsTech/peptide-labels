@@ -5,11 +5,24 @@ import {
   getTestResult,
   hasPrintableTestResults,
   hasTestingColumnContent,
+  parseTestResultStatus,
   shouldShowCoaQr,
   shouldShowTestIndicators,
 } from './testIndicators'
 
 describe('testIndicators', () => {
+  it('should parse a valid test result status', () => {
+    expect(parseTestResultStatus('pass')).toBe('pass')
+  })
+
+  it('should reject an invalid test result status string', () => {
+    expect(parseTestResultStatus('maybe')).toBeUndefined()
+  })
+
+  it('should reject a non-string test result status', () => {
+    expect(parseTestResultStatus(1)).toBeUndefined()
+    expect(parseTestResultStatus(null)).toBeUndefined()
+  })
   it('should default every test type to do not print', () => {
     expect(getTestResult({}, 'Mass')).toBe('do_not_print')
     expect(getTestResult({}, 'Fentanyl')).toBe('do_not_print')

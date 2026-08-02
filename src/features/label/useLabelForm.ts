@@ -17,6 +17,7 @@ import {
     resolveAssistModeUpdates,
     type SyncAssistReason,
 } from './calculatorAssistSync'
+import { parseMeasureUnit, parseVialUnit } from './domain/units'
 
 export interface LabelFormHandlers {
     handleVialUnitChange: (unit: string) => void;
@@ -51,7 +52,8 @@ export function createLabelFormHandlers(
     const mode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE;
 
     const handleVialUnitChange = (unit: string) => {
-        const vialUnit = unit as LabelModelInput['vialUnit'];
+        const vialUnit = parseVialUnit(unit)
+        if (vialUnit === undefined) return
         const measureUnit = vialUnit === 'IU'
             ? 'IU'
             : input.measureUnit === 'IU'
@@ -145,7 +147,8 @@ export function createLabelFormHandlers(
     };
 
     const handleMeasureUnitChange = (unit: string) => {
-        const measureUnit = unit as LabelModelInput['measureUnit'];
+        const measureUnit = parseMeasureUnit(unit)
+        if (measureUnit === undefined) return
         updateField('measureUnit', measureUnit);
         if (mode === 'target_units' || mode === 'round_concentration') {
             syncAssistModeDerivedFields(

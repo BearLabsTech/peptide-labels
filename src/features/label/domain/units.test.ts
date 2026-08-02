@@ -6,6 +6,8 @@ import {
   makeSyringeCapacityMl,
   makeVialCapacityMl,
   makeVolumeMl,
+  parseMeasureUnit,
+  parseVialUnit,
   protocolAmountInVialUnits,
 } from './units'
 
@@ -89,5 +91,22 @@ describe('unit value object constructors', () => {
 
   it('should reject mismatched IU worlds', () => {
     expect(protocolAmountInVialUnits(5, 'mg', 'IU')).toBeNull()
+  })
+
+  it('should parse a valid vial unit', () => {
+    expect(parseVialUnit('mg')).toBe('mg')
+    expect(parseVialUnit('IU')).toBe('IU')
+  })
+
+  it('should reject an invalid vial unit', () => {
+    expect(parseVialUnit('g')).toBeUndefined()
+  })
+
+  it('should parse a valid measure unit', () => {
+    expect(parseMeasureUnit('mcg')).toBe('mcg')
+  })
+
+  it('should reject an invalid measure unit', () => {
+    expect(parseMeasureUnit('grams')).toBeUndefined()
   })
 })

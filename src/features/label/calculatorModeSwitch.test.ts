@@ -15,9 +15,20 @@ import {
     displayConcentration,
     displayDrawUnits,
     displayWaterAmount,
+    parseCalculatorModeOption,
     readResolvedCalculatorValues,
     syncCalculatorModeSwitchFields,
 } from './calculatorModeSwitch'
+
+describe('parseCalculatorModeOption', () => {
+    it('should accept a known calculator mode label', () => {
+        expect(parseCalculatorModeOption('Set Draw Volume')).toBe('Set Draw Volume')
+    })
+
+    it('should reject an unknown calculator mode label', () => {
+        expect(parseCalculatorModeOption('Unknown Mode')).toBeUndefined()
+    })
+})
 
 const EXPECTED = {
     water: '1',
