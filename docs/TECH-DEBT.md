@@ -94,6 +94,15 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 **When fixing:** Preserve user-entered casing in the model; reserve uppercase for section labels (RECONSTITUTION, PROTOCOL, etc.) and danger mode only if product agrees.
 
+### Calculator default mode — two remaining hard-coded literals
+
+**Priority:** Low
+**Status:** Open
+
+**Symptom:** After Phase 2 action 2.1 unified the resolver and UI on one `DEFAULT_CALCULATOR_SOLVE_MODE` constant, `calculatorGuards.ts:59` and `CalculatorView.tsx:59` still hard-code the literal `'target_units'` rather than importing the constant. Both already hold the correct value, so this is not a behavior bug — just a duplicated literal that could drift out of sync with the constant later.
+
+**When fixing:** Replace both literals with an import of `DEFAULT_CALCULATOR_SOLVE_MODE`. Natural to fold into Phase 2's remaining actions (2.2-2.7) since they already touch these files.
+
 ---
 
 ## Resolved
