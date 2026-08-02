@@ -2,13 +2,9 @@
 export const REF_LABEL_HEIGHT_MM = 20
 export const REF_MAX_FONT_SIZE_PX = 26
 
-/** Fraction of inner label height reserved for compound title when body sections print. */
-export const TITLE_HEIGHT_WEIGHT = 0.5
+/** Fraction of inner label height reserved for compound title in danger mode. */
 export const TITLE_HEIGHT_WEIGHT_DANGER = 0.42
-/**
- * Title height share when body sections are present (non-danger).
- * Caps `TITLE_HEIGHT_WEIGHT + 0.06` so title and body both get usable vertical room.
- */
+/** Title height share when body sections are present (non-danger). */
 export const TITLE_HEIGHT_WEIGHT_WITH_BODY = 0.55
 
 /** Danger-mode body font is scaled down relative to the fitted body size. */

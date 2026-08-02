@@ -2,23 +2,24 @@ import { describe, it, expect } from 'vitest'
 import {
   DEFAULT_LABEL_LAYOUT_MODE,
   formatDrawVolumeLabel,
-  formatWaterVolumeLabel,
+  parseNumericDisplayPrefix,
   resolveLabelLayoutMode,
 } from './labelModel'
+import { formatDisplayNumber } from './peptideMath'
 
-describe('formatWaterVolumeLabel', () => {
-  it('should append ml to a bare numeric water amount', () => {
-    expect(formatWaterVolumeLabel('2')).toBe('2 ml')
+describe('parseNumericDisplayPrefix', () => {
+  it('should parse a bare numeric water amount for the print path', () => {
+    expect(parseNumericDisplayPrefix('2')).toBe(2)
+    expect(`${formatDisplayNumber(parseNumericDisplayPrefix('2')!)} ml`).toBe('2 ml')
   })
 
-  it('should normalize water amounts that already include ml', () => {
-    expect(formatWaterVolumeLabel('2ml')).toBe('2 ml')
-    expect(formatWaterVolumeLabel('2 ml')).toBe('2 ml')
+  it('should parse water amounts that already include ml', () => {
+    expect(parseNumericDisplayPrefix('2ml')).toBe(2)
+    expect(parseNumericDisplayPrefix('2 ml')).toBe(2)
   })
 
-  it('should return empty string for missing values', () => {
-    expect(formatWaterVolumeLabel('')).toBe('')
-    expect(formatWaterVolumeLabel(undefined)).toBe('')
+  it('should return undefined for empty input', () => {
+    expect(parseNumericDisplayPrefix('')).toBeUndefined()
   })
 })
 

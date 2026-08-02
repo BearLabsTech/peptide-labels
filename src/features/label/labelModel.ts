@@ -7,7 +7,7 @@ export function resolveLabelLayoutMode(input: LabelModelInput): LabelLayoutMode 
   return input.labelLayoutMode ?? DEFAULT_LABEL_LAYOUT_MODE
 }
 
-import { formatDisplayNumber, formatDrawUnitsLabel } from './peptideMath'
+import { formatDrawUnitsLabel } from './peptideMath'
 
 /**
  * Parse a leading numeric prefix from a display string.
@@ -18,19 +18,6 @@ export function parseNumericDisplayPrefix(raw: string): number | undefined {
   if (!match) return undefined
   const value = parseFloat(match[1])
   return Number.isFinite(value) ? value : undefined
-}
-
-/**
- * Formats a water volume for label display, always including the ml unit.
- * Prefer composing {@link formatDisplayNumber} + `' ml'` at the print call site;
- * this helper remains for callers that still pass a display string.
- * Phase 2 removes the regex prefix-parse once value and unit are separate fields.
- */
-export function formatWaterVolumeLabel(amount?: string): string {
-  if (!amount?.trim()) return ''
-  const value = parseNumericDisplayPrefix(amount)
-  if (value === undefined) return amount.trim()
-  return `${formatDisplayNumber(value)} ml`
 }
 
 /**

@@ -26,7 +26,7 @@ export default defineConfig({
       // Ratchet only: raise these as coverage improves (see docs/CODE-QUALITY.md section E).
       // Never lower a threshold without a note explaining why.
       thresholds: {
-        lines: 75,
+        lines: 76,
         statements: 74,
         branches: 68,
         functions: 74,
