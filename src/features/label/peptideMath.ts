@@ -180,24 +180,44 @@ export interface PeptideMathResult {
 
 export const RECONSTITUTION_TYPES = ['BAC Water', 'Sterile Water', 'Sodium Chloride 0.9%'] as const;
 
+type ValidForwardInput = PeptideMathInput & {
+    vialAmount: number
+    waterMl: number
+    targetAmount: number
+}
+
+type ValidReverseInput = PeptideReverseMathInput & {
+    vialAmount: number
+    drawUnits: number
+    targetAmount: number
+}
+
+type ValidConcentrationSolveInput = PeptideConcentrationSolveInput & {
+    vialAmount: number
+    targetConcentration: number
+    targetAmount: number
+}
+
 // --- FORWARD MATH ---
 export function calculateDrawVolume(input: PeptideMathInput): PeptideMathResult | null {
-    if (!isForwardValid(input)) return null;
-    const volumeMl = getForwardVolumeMl(input);
-    const concentration = input.vialAmount! / input.waterMl!;
-    return formatResult(volumeMl, concentration, input.vialUnit === 'IU');
+    const valid = asValidForwardInput(input);
+    if (!valid) return null;
+    const volumeMl = getForwardVolumeMl(valid);
+    const concentration = valid.vialAmount / valid.waterMl;
+    return formatResult(volumeMl, concentration, valid.vialUnit === 'IU');
 }
 
-function isForwardValid(i: PeptideMathInput): boolean {
-    if (!i.vialAmount || i.vialAmount <= 0) return false;
-    if (!i.waterMl || i.waterMl <= 0 || !i.targetAmount || i.targetAmount <= 0) return false;
-    return (i.vialUnit === 'IU') === (i.targetUnit === 'IU');
+function asValidForwardInput(i: PeptideMathInput): ValidForwardInput | null {
+    if (!i.vialAmount || i.vialAmount <= 0) return null;
+    if (!i.waterMl || i.waterMl <= 0 || !i.targetAmount || i.targetAmount <= 0) return null;
+    if ((i.vialUnit === 'IU') !== (i.targetUnit === 'IU')) return null;
+    return i as ValidForwardInput;
 }
 
-function getForwardVolumeMl(i: PeptideMathInput): number {
-    if (i.vialUnit === 'IU') return i.targetAmount! / (i.vialAmount! / i.waterMl!);
-    const targetMcg = i.targetUnit === 'mg' ? i.targetAmount! * MCG_PER_MG : i.targetAmount!;
-    return targetMcg / ((i.vialAmount! * MCG_PER_MG) / i.waterMl!);
+function getForwardVolumeMl(i: ValidForwardInput): number {
+    if (i.vialUnit === 'IU') return i.targetAmount / (i.vialAmount / i.waterMl);
+    const targetMcg = i.targetUnit === 'mg' ? i.targetAmount * MCG_PER_MG : i.targetAmount;
+    return targetMcg / ((i.vialAmount * MCG_PER_MG) / i.waterMl);
 }
 
 function formatResult(vol: number, conc: number, isIu: boolean): PeptideMathResult {
@@ -212,21 +232,23 @@ function formatResult(vol: number, conc: number, isIu: boolean): PeptideMathResu
 // --- REVERSE MATH ---
 /** Exact water volume — do not round; format with {@link formatWaterAmountLabel} for display. */
 export function calculateReverseWater(input: PeptideReverseMathInput): number | null {
-    if (!isReverseValid(input)) return null;
-    const waterMl = getReverseWaterMl(input);
+    const valid = asValidReverseInput(input);
+    if (!valid) return null;
+    const waterMl = getReverseWaterMl(valid);
     return waterMl > 0 ? waterMl : null;
 }
 
-function isReverseValid(i: PeptideReverseMathInput): boolean {
-    if (!i.vialAmount || i.vialAmount <= 0) return false;
-    if (!i.drawUnits || i.drawUnits <= 0 || !i.targetAmount || i.targetAmount <= 0) return false;
-    return (i.vialUnit === 'IU') === (i.targetUnit === 'IU');
+function asValidReverseInput(i: PeptideReverseMathInput): ValidReverseInput | null {
+    if (!i.vialAmount || i.vialAmount <= 0) return null;
+    if (!i.drawUnits || i.drawUnits <= 0 || !i.targetAmount || i.targetAmount <= 0) return null;
+    if ((i.vialUnit === 'IU') !== (i.targetUnit === 'IU')) return null;
+    return i as ValidReverseInput;
 }
 
-function getReverseWaterMl(i: PeptideReverseMathInput): number {
-    if (i.vialUnit === 'IU') return (i.drawUnits! * i.vialAmount!) / (i.targetAmount! * UNITS_PER_ML);
-    const targetMcg = i.targetUnit === 'mg' ? i.targetAmount! * MCG_PER_MG : i.targetAmount!;
-    return (i.drawUnits! * (i.vialAmount! * MCG_PER_MG)) / (targetMcg * UNITS_PER_ML);
+function getReverseWaterMl(i: ValidReverseInput): number {
+    if (i.vialUnit === 'IU') return (i.drawUnits * i.vialAmount) / (i.targetAmount * UNITS_PER_ML);
+    const targetMcg = i.targetUnit === 'mg' ? i.targetAmount * MCG_PER_MG : i.targetAmount;
+    return (i.drawUnits * (i.vialAmount * MCG_PER_MG)) / (targetMcg * UNITS_PER_ML);
 }
 
 // --- CONCENTRATION-TARGET SOLVE ---
@@ -243,27 +265,27 @@ export function calculateWaterFromTargetConcentration(
 export function calculateFromTargetConcentration(
     input: PeptideConcentrationSolveInput,
 ): PeptideConcentrationSolveResult | null {
-    if (!isConcentrationSolveValid(input)) return null;
+    const valid = asValidConcentrationSolveInput(input);
+    if (!valid) return null;
 
-    const targetConcentration = input.targetConcentration!;
-    const waterMl = calculateWaterFromTargetConcentration(input.vialAmount!, targetConcentration);
+    const waterMl = calculateWaterFromTargetConcentration(valid.vialAmount, valid.targetConcentration);
     if (waterMl == null) return null;
 
     const drawVolumeMl = calculateDrawVolumeFromTargetConcentration(
-        input.targetAmount!,
-        input.targetUnit,
-        targetConcentration,
-        input.vialUnit,
+        valid.targetAmount,
+        valid.targetUnit,
+        valid.targetConcentration,
+        valid.vialUnit,
     );
     if (drawVolumeMl == null) return null;
 
-    const isIu = input.vialUnit === 'IU';
+    const isIu = valid.vialUnit === 'IU';
     return {
         waterMl,
         drawUnits: drawVolumeMl * UNITS_PER_ML,
         drawVolumeMl,
-        concentrationMgPerMl: !isIu ? targetConcentration : undefined,
-        concentrationIuPerMl: isIu ? targetConcentration : undefined,
+        concentrationMgPerMl: !isIu ? valid.targetConcentration : undefined,
+        concentrationIuPerMl: isIu ? valid.targetConcentration : undefined,
     };
 }
 
@@ -284,11 +306,12 @@ export function calculateDrawVolumeFromTargetConcentration(
     return targetMg / targetConcentration;
 }
 
-function isConcentrationSolveValid(i: PeptideConcentrationSolveInput): boolean {
-    if (!i.vialAmount || i.vialAmount <= 0) return false;
-    if (!i.targetConcentration || i.targetConcentration <= 0) return false;
-    if (!i.targetAmount || i.targetAmount <= 0) return false;
-    return (i.vialUnit === 'IU') === (i.targetUnit === 'IU');
+function asValidConcentrationSolveInput(i: PeptideConcentrationSolveInput): ValidConcentrationSolveInput | null {
+    if (!i.vialAmount || i.vialAmount <= 0) return null;
+    if (!i.targetConcentration || i.targetConcentration <= 0) return null;
+    if (!i.targetAmount || i.targetAmount <= 0) return null;
+    if ((i.vialUnit === 'IU') !== (i.targetUnit === 'IU')) return null;
+    return i as ValidConcentrationSolveInput;
 }
 
 /** Prefer 10 u/mg; if that would exceed this, use 5 u/mg instead for a smaller round draw. */
