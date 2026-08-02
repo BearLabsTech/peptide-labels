@@ -2,12 +2,12 @@ import {
     calculateReverseWater,
     calculateWaterFromTargetConcentration,
     formatDisplayNumberFixed,
-    MCG_PER_MG,
     parseNumericField,
     resolveMeasureUnit,
 } from './peptideMath'
 import type { LabelModelInput } from './labelModel'
 import { normalizeVialCapacityMl } from './vialCapacity'
+import { protocolAmountInVialUnits as protocolAmountToVialUnitsBasis } from './domain/units'
 
 /** Convert protocol amount into the vial's unit basis (mg or IU). */
 export function protocolAmountInVialUnits(input: LabelModelInput): number | null {
@@ -15,11 +15,7 @@ export function protocolAmountInVialUnits(input: LabelModelInput): number | null
     if (!(protocol > 0)) return null
     const vialUnit = input.vialUnit || 'mg'
     const measureUnit = resolveMeasureUnit(vialUnit, input.measureUnit)
-    if (vialUnit === 'IU') {
-        return measureUnit === 'IU' ? protocol : null
-    }
-    if (measureUnit === 'IU') return null
-    return measureUnit === 'mg' ? protocol : protocol / MCG_PER_MG
+    return protocolAmountToVialUnitsBasis(protocol, measureUnit, vialUnit)
 }
 
 /**

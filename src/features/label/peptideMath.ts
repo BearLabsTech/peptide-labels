@@ -3,6 +3,9 @@ import {
     nextDrawUnitQuickPick,
     previousDrawUnitQuickPick,
 } from './drawUnitsPolicy'
+import { MCG_PER_MG, UNITS_PER_ML, protocolAmountInVialUnits } from './domain/units'
+
+export { MCG_PER_MG, UNITS_PER_ML } from './domain/units'
 
 export interface PeptideMathInput {
     vialAmount?: number; vialUnit: 'mg' | 'IU'; waterMl?: number;
@@ -36,11 +39,6 @@ export const DEFAULT_TARGET_CONCENTRATION = 10;
 export const DEFAULT_DRAW_UNITS_PER_MG = 10;
 export const DEFAULT_DRAW_UNITS_PER_IU = 10;
 export const MIN_RECOMMENDED_WATER_ML = 1;
-
-/** Insulin syringe units per milliliter. */
-export const UNITS_PER_ML = 100;
-/** Micrograms per milligram. */
-export const MCG_PER_MG = 1000;
 
 /** Display-only precision. Never round intermediate math to this — format at the UI/label boundary. */
 export const DISPLAY_DECIMALS = 3;
@@ -334,7 +332,7 @@ export function calculateRecommendedDrawUnits(
     if (standard == null) return null;
     if (!vialAmount || !Number.isFinite(vialAmount) || vialAmount <= 0) return standard;
 
-    const protocolInVialUnits = protocolAmountToVialUnits(protocolAmount, measureUnit, vialUnit);
+    const protocolInVialUnits = protocolAmountInVialUnits(protocolAmount, measureUnit, vialUnit);
     if (protocolInVialUnits == null) return null;
 
     const minimumDrawUnits = (
@@ -367,16 +365,6 @@ export function calculateRecommendedDrawUnits(
         }
     }
     return Math.min(displaySafeMaximum, Math.max(standard, displaySafeMinimum));
-}
-
-function protocolAmountToVialUnits(
-    protocolAmount: number,
-    measureUnit: 'mg' | 'mcg' | 'IU',
-    vialUnit: 'mg' | 'IU',
-): number | null {
-    if (vialUnit === 'IU') return measureUnit === 'IU' ? protocolAmount : null;
-    if (measureUnit === 'IU') return null;
-    return measureUnit === 'mg' ? protocolAmount : protocolAmount / MCG_PER_MG;
 }
 
 /**

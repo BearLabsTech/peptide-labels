@@ -1,4 +1,4 @@
-import { mmToPx } from './print/dimensions'
+import { mmToPx, pxToMm } from './print/dimensions'
 
 export interface TestIndicatorLayout {
   markSizePx: number
@@ -114,5 +114,5 @@ export function computeTestIndicatorLayout(input: TestIndicatorLayoutInput): Tes
 
 /** Convert export px back to mm for layout assertions. */
 export function labelFontSizePxToMm(fontSizePx: number, effectiveDpi: number): number {
-  return (fontSizePx * 25.4) / effectiveDpi
+  return pxToMm(fontSizePx, effectiveDpi)
 }
