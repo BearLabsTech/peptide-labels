@@ -117,10 +117,15 @@ export const PRINT_CATALOG = {
   ] satisfies readonly VialRecommendation[],
 } as const
 
-export function getPrinterById(id: string): Printer | undefined {
-  return PRINT_CATALOG.printers.find((p) => p.id === id)
+export function getPrinterById(id: string): Readonly<Printer> | undefined {
+  const printer = PRINT_CATALOG.printers.find((p) => p.id === id)
+  if (!printer) return undefined
+  // Live catalog identity is fine under Readonly; copy arrays so a caller cast-mutation cannot poison PRINT_CATALOG.
+  return { ...printer, labelIds: [...printer.labelIds] }
 }
 
-export function getStockById(id: string): LabelStock | undefined {
-  return PRINT_CATALOG.stocks.find((s) => s.id === id)
+export function getStockById(id: string): Readonly<LabelStock> | undefined {
+  const stock = PRINT_CATALOG.stocks.find((s) => s.id === id)
+  if (!stock) return undefined
+  return { ...stock, printerIds: [...stock.printerIds] }
 }

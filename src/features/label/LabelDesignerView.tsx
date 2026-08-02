@@ -63,11 +63,13 @@ export function LabelDesignerView({
     let labelInput: LabelModelInput
     if (isExampleMode) {
         labelInput = getExampleInput(today)
+    } else if (input.reconstitutionAmount && !input.reconstitutionAmount.includes('ml')) {
+        labelInput = {
+            ...input,
+            reconstitutionAmount: `${input.reconstitutionAmount}ml`,
+        }
     } else {
         labelInput = { ...input }
-        if (labelInput.reconstitutionAmount && !labelInput.reconstitutionAmount.includes('ml')) {
-            labelInput.reconstitutionAmount = `${labelInput.reconstitutionAmount}ml`
-        }
     }
 
     const model = composer.compose(labelInput)

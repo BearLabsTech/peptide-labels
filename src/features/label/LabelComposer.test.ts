@@ -17,7 +17,7 @@ function innerRowTitleWidthPx(target: ReturnType<typeof resolvePrintTarget>): nu
     return mmToPx(columns.innerRowMm, target.effectiveDpi)
 }
 
-function longestTitleLinePx(lines: string[], fontSizePx: number): number {
+function longestTitleLinePx(lines: readonly string[], fontSizePx: number): number {
     const tokens = lines.flatMap((line) => line.split(' '))
     return Math.max(...tokens.map((word) => word.length * fontSizePx * TITLE_CHAR_WIDTH_EM))
 }

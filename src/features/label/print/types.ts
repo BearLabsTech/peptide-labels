@@ -6,67 +6,67 @@ export type LabelShape = 'rounded' | 'rectangular'
 
 /** Physical adhesive stock profile (size + corner shape + padding). */
 export interface LabelStock {
-  id: string
-  name: string
+  readonly id: string
+  readonly name: string
   /** Dimension group for printer compatibility (e.g. `40x20`). */
-  dimensionId: string
-  widthMm: number
-  heightMm: number
-  shape: LabelShape
-  cornerRadiusMm: number
-  paddingMm: number
-  printerIds: string[]
+  readonly dimensionId: string
+  readonly widthMm: number
+  readonly heightMm: number
+  readonly shape: LabelShape
+  readonly cornerRadiusMm: number
+  readonly paddingMm: number
+  readonly printerIds: readonly string[]
 }
 
 export interface PrintTarget {
-  labelWidthMm: number
-  labelHeightMm: number
-  effectiveDpi: number
-  paddingMm: number
-  shape: LabelShape
-  cornerRadiusMm: number
-  stockId?: string
-  dimensionId?: string
-  printerId?: string
-  vialCapacityMl: VialCapacityMl
+  readonly labelWidthMm: number
+  readonly labelHeightMm: number
+  readonly effectiveDpi: number
+  readonly paddingMm: number
+  readonly shape: LabelShape
+  readonly cornerRadiusMm: number
+  readonly stockId?: string
+  readonly dimensionId?: string
+  readonly printerId?: string
+  readonly vialCapacityMl: VialCapacityMl
 }
 
 export interface PrintSetupSelection {
-  printerId?: string
-  stockId?: string
+  readonly printerId?: string
+  readonly stockId?: string
   /** @deprecated Legacy; migrated to stockId on load. */
-  labelId?: string
-  widthMm?: number
-  heightMm?: number
-  vialCapacityMl?: VialCapacityMl
+  readonly labelId?: string
+  readonly widthMm?: number
+  readonly heightMm?: number
+  readonly vialCapacityMl?: VialCapacityMl
   /** @deprecated Legacy; migrated to vialCapacityMl on load. */
-  vialMl?: number
+  readonly vialMl?: number
 }
 
 export interface Printer {
-  id: string
-  name: string
+  readonly id: string
+  readonly name: string
   /** Native DPI; used for export when this printer is selected. */
-  dpi: number
-  labelIds: string[]
+  readonly dpi: number
+  readonly labelIds: readonly string[]
 }
 
 export interface VialRecommendation {
-  vialCapacityMl: VialCapacityMl
-  stockId: string
-  rank: number
-  printerId?: string
+  readonly vialCapacityMl: VialCapacityMl
+  readonly stockId: string
+  readonly rank: number
+  readonly printerId?: string
 }
 
 export interface ExportSpec {
-  canvasWidthPx: number
-  canvasHeightPx: number
-  pixelRatio: 1
-  dpi: number
+  readonly canvasWidthPx: number
+  readonly canvasHeightPx: number
+  readonly pixelRatio: 1
+  readonly dpi: number
 }
 
 export interface FilteredCatalog {
-  printers: Printer[]
-  stocks: LabelStock[]
-  recommendedStockIds: string[]
+  readonly printers: readonly Printer[]
+  readonly stocks: readonly LabelStock[]
+  readonly recommendedStockIds: readonly string[]
 }

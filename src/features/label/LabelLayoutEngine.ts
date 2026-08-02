@@ -2,36 +2,36 @@ import { mmToPx } from './print/dimensions'
 import { MIN_FONT_SIZE_PX, REF_MAX_FONT_SIZE_PX, TITLE_LINE_HEIGHT_EM } from './labelLayoutConstants'
 
 export interface LabelLayoutInput {
-    lines: string[]
-    widthMm: number
-    heightMm: number
+    readonly lines: readonly string[]
+    readonly widthMm: number
+    readonly heightMm: number
     /** Average glyph width as a fraction of font size (body default 0.6; bold uppercase title ~0.95). */
-    charWidthEm?: number
+    readonly charWidthEm?: number
     /** Fraction of widthMm to treat as usable (title uses ~0.92 for thermal rounding). */
-    widthSafety?: number
+    readonly widthSafety?: number
 }
 
 export interface LabelLayoutResult {
-    wrappedLines: string[]
-    fontSizePx: number
+    readonly wrappedLines: readonly string[]
+    readonly fontSizePx: number
 }
 
 export interface BoxedSection {
-    lines: string[]
+    readonly lines: readonly string[]
 }
 
 export interface BoxedBodyLayoutInput {
-    boxes: BoxedSection[]
-    demotedLine?: string
-    widthMm: number
-    heightMm: number
-    labelWidthPx: number
+    readonly boxes: readonly BoxedSection[]
+    readonly demotedLine?: string
+    readonly widthMm: number
+    readonly heightMm: number
+    readonly labelWidthPx: number
 }
 
-interface WrapState {
-    lines: string[]
-    current: string
-    didChopWord: boolean
+export interface WrapState {
+    readonly lines: readonly string[]
+    readonly current: string
+    readonly didChopWord: boolean
 }
 
 /** Matches `LabelPreview.css` boxed section chrome (2px top + bottom). */
@@ -196,7 +196,7 @@ export class LabelLayoutEngine {
     }
 
     private longestLineFitsWidth(
-        lines: string[],
+        lines: readonly string[],
         widthMm: number,
         fontSizePx: number,
         charWidthEm: number,
@@ -211,7 +211,7 @@ export class LabelLayoutEngine {
         })
     }
 
-    private wrapLines(lines: string[], maxChars: number): { lines: string[], didChopWord: boolean } {
+    private wrapLines(lines: readonly string[], maxChars: number): { lines: string[], didChopWord: boolean } {
         const result: string[] = []
         let didChopWord = false
 
@@ -232,47 +232,17 @@ export class LabelLayoutEngine {
     }
 
     private wrapByWords(line: string, maxChars: number): { lines: string[], didChopWord: boolean } {
-        const state: WrapState = { lines: [], current: '', didChopWord: false }
+        let state: WrapState = { lines: [], current: '', didChopWord: false }
 
         for (const word of line.split(' ')) {
-            this.processWord(word, maxChars, state)
-        }
-
-        if (state.current) state.lines.push(state.current)
-
-        return { lines: state.lines, didChopWord: state.didChopWord }
-    }
-
-    private processWord(word: string, maxChars: number, state: WrapState): void {
-        const next = this.combine(state.current, word)
-
-        if (next.length <= maxChars) {
-            state.current = next
-            return
+            state = processWord(word, maxChars, state)
         }
 
         if (state.current) {
-            state.lines.push(state.current)
-            state.current = word
-            return
+            return { lines: [...state.lines, state.current], didChopWord: state.didChopWord }
         }
 
-        state.didChopWord = true
-        state.lines.push(...this.wrapLongToken(word, maxChars))
-        state.current = ''
-    }
-
-    private wrapLongToken(token: string, maxChars: number): string[] {
-        const parts: string[] = []
-        for (let i = 0; i < token.length; i += maxChars) {
-            parts.push(token.substring(i, i + maxChars))
-        }
-        return parts
-    }
-
-    private combine(current: string, word: string): string {
-        if (!current) return word
-        return `${current} ${word}`
+        return { lines: [...state.lines], didChopWord: state.didChopWord }
     }
 
     private doesFitHeight(lineCount: number, heightMm: number, fontSizePx: number): boolean {
@@ -281,4 +251,40 @@ export class LabelLayoutEngine {
         const requiredPx = lineCount * lineHeightPx
         return requiredPx <= heightPx
     }
+}
+
+/** Pure word-wrap step — returns a new WrapState; never mutates the input state. */
+export function processWord(word: string, maxChars: number, state: WrapState): WrapState {
+    const next = combineWords(state.current, word)
+
+    if (next.length <= maxChars) {
+        return { lines: state.lines, current: next, didChopWord: state.didChopWord }
+    }
+
+    if (state.current) {
+        return {
+            lines: [...state.lines, state.current],
+            current: word,
+            didChopWord: state.didChopWord,
+        }
+    }
+
+    return {
+        lines: [...state.lines, ...wrapLongToken(word, maxChars)],
+        current: '',
+        didChopWord: true,
+    }
+}
+
+function combineWords(current: string, word: string): string {
+    if (!current) return word
+    return `${current} ${word}`
+}
+
+function wrapLongToken(token: string, maxChars: number): string[] {
+    const parts: string[] = []
+    for (let i = 0; i < token.length; i += maxChars) {
+        parts.push(token.substring(i, i + maxChars))
+    }
+    return parts
 }

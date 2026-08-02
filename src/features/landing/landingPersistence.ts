@@ -3,8 +3,8 @@ import { USER_AGREEMENT_VERSION } from '../../content/userAgreementVersion'
 const STORAGE_KEY = 'peptide-labels.user-agreement'
 
 export interface AgreementAcknowledgment {
-    version: number
-    acknowledgedAt: string
+    readonly version: number
+    readonly acknowledgedAt: string
 }
 
 export function readAgreementAcknowledgment(): AgreementAcknowledgment | null {

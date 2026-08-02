@@ -1,24 +1,24 @@
 import { mmToPx, pxToMm } from './print/dimensions'
 
 export interface TestIndicatorLayout {
-  markSizePx: number
-  labelFontSizePx: number
-  rowGapPx: number
-  labelMarkGapPx: number
+  readonly markSizePx: number
+  readonly labelFontSizePx: number
+  readonly rowGapPx: number
+  readonly labelMarkGapPx: number
 }
 
 export interface TestIndicatorLayoutInput {
-  effectiveDpi: number
-  labelHeightMm: number
-  paddingMm: number
-  qrColumnWidthMm: number
-  rowCount: number
+  readonly effectiveDpi: number
+  readonly labelHeightMm: number
+  readonly paddingMm: number
+  readonly qrColumnWidthMm: number
+  readonly rowCount: number
   /** When true, QR codes share the testing column (reduces indicator height budget). */
-  qrSharesColumn: boolean
+  readonly qrSharesColumn: boolean
   /** Override vertical budget for indicators; defaults to full inner label height. */
-  indicatorsHeightMm?: number
+  readonly indicatorsHeightMm?: number
   /** Full label strings that must fit within the column width. */
-  labels: string[]
+  readonly labels: readonly string[]
 }
 
 /** Arial 800 caps — conservative so wide words like "Heavy Metals" fit. */

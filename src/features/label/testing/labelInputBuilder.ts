@@ -15,68 +15,80 @@ export class LabelInputBuilder {
     private input: LabelModelInput = {}
 
     withCompound(name: string, amount?: string, unit: 'mg' | 'IU' = 'mg'): this {
-        this.input.compoundName = name
-        if (amount !== undefined) this.input.compoundAmount = amount
-        this.input.vialUnit = unit
+        this.input = {
+            ...this.input,
+            compoundName: name,
+            vialUnit: unit,
+            ...(amount !== undefined ? { compoundAmount: amount } : {}),
+        }
         return this
     }
 
     withReconstitution(amountMl: string, type?: string): this {
-        this.input.reconstitutionAmount = amountMl
-        if (type !== undefined) this.input.reconstitutionType = type
+        this.input = {
+            ...this.input,
+            reconstitutionAmount: amountMl,
+            ...(type !== undefined ? { reconstitutionType: type } : {}),
+        }
         return this
     }
 
     withConcentration(label: string): this {
-        this.input.concentration = label
+        this.input = { ...this.input, concentration: label }
         return this
     }
 
     withProtocol(amount: string, measureUnit: 'mg' | 'mcg' | 'IU' = 'mg', frequency?: string): this {
-        this.input.protocolAmount = amount
-        this.input.measureUnit = measureUnit
-        if (frequency !== undefined) this.input.protocolFrequency = frequency
+        this.input = {
+            ...this.input,
+            protocolAmount: amount,
+            measureUnit,
+            ...(frequency !== undefined ? { protocolFrequency: frequency } : {}),
+        }
         return this
     }
 
     withDrawUnits(label: string): this {
-        this.input.protocolUnits = label
+        this.input = { ...this.input, protocolUnits: label }
         return this
     }
 
     inMode(mode: CalculatorSolveMode): this {
-        this.input.calculatorSolveMode = mode
+        this.input = { ...this.input, calculatorSolveMode: mode }
         return this
     }
 
     withTargetConcentration(value: string): this {
-        this.input.targetConcentration = value
+        this.input = { ...this.input, targetConcentration: value }
         return this
     }
 
     withVialCapacity(capacityMl: 0.3 | 0.5 | 1.0): this {
-        this.input.syringeCapacityMl = capacityMl
+        this.input = { ...this.input, syringeCapacityMl: capacityMl }
         return this
     }
 
     withSource(vendorName?: string, batchNumber?: string): this {
-        if (vendorName !== undefined) this.input.vendorName = vendorName
-        if (batchNumber !== undefined) this.input.batchNumber = batchNumber
+        this.input = {
+            ...this.input,
+            ...(vendorName !== undefined ? { vendorName } : {}),
+            ...(batchNumber !== undefined ? { batchNumber } : {}),
+        }
         return this
     }
 
     withCoa(vendorCoa: string): this {
-        this.input.vendorCoa = vendorCoa
+        this.input = { ...this.input, vendorCoa }
         return this
     }
 
     withCustomImage(dataUrl = 'data:image/png;base64,test'): this {
-        this.input.customImage = dataUrl
+        this.input = { ...this.input, customImage: dataUrl }
         return this
     }
 
     untested(): this {
-        this.input.isUntested = true
+        this.input = { ...this.input, isUntested: true }
         return this
     }
 

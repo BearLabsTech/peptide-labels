@@ -14,10 +14,10 @@ import {
 } from './peptideMath'
 
 export interface ResolvedLabelMath {
-    mergedInput: LabelModelInput;
-    autoUnits: string;
-    autoWater: string;
-    autoConcentration: string;
+    readonly mergedInput: LabelModelInput;
+    readonly autoUnits: string;
+    readonly autoWater: string;
+    readonly autoConcentration: string;
 }
 
 interface ParsedLabelMathInput {

@@ -44,6 +44,24 @@ describe('printCatalog', () => {
     expect(b1Pro?.dpi).toBe(300)
     expect(b1Pro?.labelIds).toContain('40x30')
   })
+
+  it('should keep PRINT_CATALOG unaffected when a caller mutates getStockById result arrays', () => {
+    const stock = getStockById(DEFAULT_STOCK_ID)
+    expect(stock).toBeDefined()
+    if (!stock) return
+
+    const catalogStock = PRINT_CATALOG.stocks.find((entry) => entry.id === DEFAULT_STOCK_ID)
+    expect(catalogStock).toBeDefined()
+    if (!catalogStock) return
+
+    const catalogPrinterIdsBefore = [...catalogStock.printerIds]
+    ;(stock.printerIds as string[]).push('injected-printer-id')
+    ;(stock as { name: string }).name = 'mutated-stock-name'
+
+    expect([...catalogStock.printerIds]).toEqual(catalogPrinterIdsBefore)
+    expect(catalogStock.name).toBe('40 × 20 mm — rounded')
+    expect(getStockById(DEFAULT_STOCK_ID)?.name).toBe('40 × 20 mm — rounded')
+  })
 })
 
 describe('printStorage normalizePrintSetup', () => {

@@ -75,4 +75,24 @@ describe('designLibrary memory store', () => {
     await library.remove(saved.id)
     expect(await library.list()).toHaveLength(0)
   })
+
+  it('should keep the stored row unaffected when a caller mutates designLibrary.get() result', async () => {
+    const library = createMemoryDesignLibrary()
+    const saved = prepareDesignForLibrary(SAMPLE_MITOCHONDRIA_DESIGN, () => new Date('2026-07-19T18:00:00.000Z'))
+    await library.put(saved)
+
+    const loaded = await library.get(saved.id)
+    expect(loaded).not.toBeNull()
+    if (!loaded) return
+
+    const originalName = saved.name
+    ;(loaded as { name: string }).name = 'mutated-after-get'
+    if (loaded.assets[0]) {
+      ;(loaded.assets[0] as { dataBase64: string }).dataBase64 = 'mutated-bytes'
+    }
+
+    const stored = await library.get(saved.id)
+    expect(stored?.name).toBe(originalName)
+    expect(stored?.assets).toEqual(saved.assets)
+  })
 })

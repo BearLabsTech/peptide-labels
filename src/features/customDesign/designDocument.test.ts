@@ -10,8 +10,15 @@ import {
 } from './index'
 import type { DesignDocument } from './designDocument'
 
-function cloneDesign(document: DesignDocument): DesignDocument {
-  return structuredClone(document)
+/** Deeply mutable clone for constructing invalid fixtures; production types stay readonly. */
+type DeepWritable<T> = T extends readonly (infer U)[]
+  ? DeepWritable<U>[]
+  : T extends object
+    ? { -readonly [K in keyof T]: DeepWritable<T[K]> }
+    : T
+
+function cloneDesign(document: DesignDocument): DeepWritable<DesignDocument> {
+  return structuredClone(document) as DeepWritable<DesignDocument>
 }
 
 describe('DesignDocument schema', () => {
@@ -44,6 +51,18 @@ describe('validateDesignDocument', () => {
       ).toBe(true)
       expect(result.document.elements.some((el) => el.type === 'image')).toBe(true)
     }
+  })
+
+  it('should return a cloned document so mutating the result does not affect the caller input', () => {
+    const input = cloneDesign(SAMPLE_MITOCHONDRIA_DESIGN)
+    const originalName = input.name
+    const result = validateDesignDocument(input)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+
+    expect(result.document).not.toBe(input)
+    ;(result.document as DeepWritable<DesignDocument>).name = 'mutated-after-validate'
+    expect(input.name).toBe(originalName)
   })
 
   it('should reject an unknown schema version', () => {

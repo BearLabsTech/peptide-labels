@@ -57,7 +57,7 @@ export function createIndexedDbDesignLibrary(): DesignLibraryStore {
         const tx = db.transaction(STORE_NAME, 'readonly')
         const store = tx.objectStore(STORE_NAME)
         const row = await idbRequest(store.get(id))
-        return (row as DesignDocument | undefined) ?? null
+        return row ? structuredClone(row as DesignDocument) : null
       } finally {
         db.close()
       }

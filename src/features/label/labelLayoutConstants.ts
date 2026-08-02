@@ -30,24 +30,24 @@ export const TITLE_LINE_HEIGHT_EM = 0.95
 export const IDENTITY_HEADER_TITLE_BAND_GAP_FRAC = 0.75
 
 export interface ColumnWidthBounds {
-  defaultPercent: number
-  minPercent: number
-  maxPercent: number
+  readonly defaultPercent: number
+  readonly minPercent: number
+  readonly maxPercent: number
 }
 
 /** Logo column — left flex child (`LabelPreview.css`). */
-export const LOGO_COLUMN_WIDTH: ColumnWidthBounds = {
+export const LOGO_COLUMN_WIDTH = {
   defaultPercent: 20,
   minPercent: 15,
   maxPercent: 45,
-}
+} as const satisfies ColumnWidthBounds
 
 /** Testing column (COA QR + test indicators) — right flex child (`LabelPreview.css`). */
-export const QR_COLUMN_WIDTH: ColumnWidthBounds = {
+export const QR_COLUMN_WIDTH = {
   defaultPercent: 38,
   minPercent: 25,
   maxPercent: 50,
-}
+} as const satisfies ColumnWidthBounds
 
 /** Minimum center column share of the flex row (text must stay readable). */
 export const MIN_CENTER_COLUMN_PERCENT = 15

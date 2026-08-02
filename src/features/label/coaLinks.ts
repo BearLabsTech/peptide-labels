@@ -1,8 +1,8 @@
 import type { LabelModelInput } from './labelModel'
 
 export interface QrCodeEntry {
-  type: string
-  url: string
+  readonly type: string
+  readonly url: string
 }
 
 export function buildQrCodes(input: LabelModelInput): QrCodeEntry[] {

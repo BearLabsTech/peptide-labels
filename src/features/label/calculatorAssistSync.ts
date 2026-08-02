@@ -3,7 +3,7 @@ import {
     DEFAULT_CALCULATOR_SOLVE_MODE,
     ensureReconstitutionPrintForAssist,
 } from './calculatorModeSwitch'
-import type { LabelModelInput } from './labelModel'
+import type { LabelModelInput, LabelModelPatch } from './labelModel'
 import {
     hasPositiveDrawUnits,
     hasPositiveVialAmount,
@@ -19,11 +19,11 @@ export function resolveAssistModeUpdates(
     draft: LabelModelInput,
     reason: SyncAssistReason = 'mode',
     vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
-): Partial<LabelModelInput> {
+): LabelModelPatch {
     const mode = draft.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE
     if (mode !== 'target_units' && mode !== 'round_concentration') return {}
 
-    const updates: Partial<LabelModelInput> = {}
+    const updates: LabelModelPatch = {}
     if (!hasPositiveVialAmount(draft.compoundAmount)) {
         updates.reconstitutionAmount = ''
         updates.concentration = ''

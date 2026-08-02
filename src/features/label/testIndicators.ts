@@ -17,7 +17,7 @@ export const TEST_TYPES = [
 export type TestType = (typeof TEST_TYPES)[number]
 
 /** Keys on `LabelModelInput` for each test type's result. */
-export const TEST_RESULT_FIELDS: Record<TestType, keyof LabelModelInput> = {
+export const TEST_RESULT_FIELDS = {
   Mass: 'testMass',
   Purity: 'testPurity',
   LCMS: 'testLcms',
@@ -25,10 +25,10 @@ export const TEST_RESULT_FIELDS: Record<TestType, keyof LabelModelInput> = {
   Sterility: 'testSterility',
   'Heavy Metals': 'testHeavyMetals',
   Fentanyl: 'testFentanyl',
-}
+} as const satisfies Record<TestType, keyof LabelModelInput>
 
 /** Label text printed beside each test mark. */
-export const TEST_DISPLAY_LABELS: Record<TestType, string> = {
+export const TEST_DISPLAY_LABELS = {
   Mass: 'Mass',
   Purity: 'Purity',
   LCMS: 'LC/MS',
@@ -36,19 +36,19 @@ export const TEST_DISPLAY_LABELS: Record<TestType, string> = {
   Sterility: 'Sterility',
   'Heavy Metals': 'Heavy Metals',
   Fentanyl: 'Fentanyl',
-}
+} as const satisfies Record<TestType, string>
 
-export const TEST_STATUS_OPTIONS: { value: TestResultStatus; label: string }[] = [
+export const TEST_STATUS_OPTIONS = [
   { value: 'do_not_print', label: 'Do Not Print' },
   { value: 'pass', label: 'Pass' },
   { value: 'fail', label: 'Fail' },
   { value: 'not_run', label: 'Not Run' },
-]
+] as const satisfies readonly { value: TestResultStatus; label: string }[]
 
 export interface TestIndicatorEntry {
-  type: TestType
-  label: string
-  status: TestPrintStatus
+  readonly type: TestType
+  readonly label: string
+  readonly status: TestPrintStatus
 }
 
 export function parseTestResultStatus(value: unknown): TestResultStatus | undefined {

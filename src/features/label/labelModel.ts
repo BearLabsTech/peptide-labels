@@ -47,95 +47,103 @@ export function formatDrawVolumeLabel(drawVolume?: string): string {
 }
 
 export interface LabelModelInput {
-  compoundName?: string
-  compoundAmount?: string
-  vialUnit?: 'mg' | 'IU'
-  reconstitutionAmount?: string
-  reconstitutionType?: string
-  concentration?: string
+  readonly compoundName?: string
+  readonly compoundAmount?: string
+  readonly vialUnit?: 'mg' | 'IU'
+  readonly reconstitutionAmount?: string
+  readonly reconstitutionType?: string
+  readonly concentration?: string
 
-  protocolUnits?: string
+  readonly protocolUnits?: string
   /** Tracks whether Set Draw Volume may safely regenerate this value. */
-  protocolUnitsOrigin?: 'recommended' | 'user'
-  protocolAmount?: string
-  protocolFrequency?: string
+  readonly protocolUnitsOrigin?: 'recommended' | 'user'
+  readonly protocolAmount?: string
+  readonly protocolFrequency?: string
 
-  reconstitutionDate?: string
-  reconstitutionDateIsFreeText?: boolean
-  measureUnit?: 'mg' | 'mcg' | 'IU'
+  readonly reconstitutionDate?: string
+  readonly reconstitutionDateIsFreeText?: boolean
+  readonly measureUnit?: 'mg' | 'mcg' | 'IU'
 
   /** Calculator solve strategy for deriving water volume from protocol. */
-  calculatorSolveMode?: 'standard' | 'round_concentration' | 'target_units'
+  readonly calculatorSolveMode?: 'standard' | 'round_concentration' | 'target_units'
   /** Target concentration when calculatorSolveMode is round_concentration (mg/ml or IU/ml). */
-  targetConcentration?: string
+  readonly targetConcentration?: string
   /** Tracks whether Set Concentration may safely regenerate this value. */
-  targetConcentrationOrigin?: 'recommended' | 'user'
+  readonly targetConcentrationOrigin?: 'recommended' | 'user'
   /** Insulin syringe capacity in ml for draw visualization (not printed). */
-  syringeCapacityMl?: 0.3 | 0.5 | 1.0
+  readonly syringeCapacityMl?: 0.3 | 0.5 | 1.0
 
   // Global Settings
-  dateFormat?: 'YYYYMMDD' | 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
+  readonly dateFormat?: 'YYYYMMDD' | 'MM/DD/YYYY' | 'DD/MM/YYYY' | 'YYYY-MM-DD'
   /** Layout template id; defaults to identity header. */
-  labelLayoutMode?: LabelLayoutMode
+  readonly labelLayoutMode?: LabelLayoutMode
 
   // Source Info
-  vendorName?: string
-  groupBuyName?: string
-  batchNumber?: string
-  batchDate?: string
-  batchDateIsFreeText?: boolean
+  readonly vendorName?: string
+  readonly groupBuyName?: string
+  readonly batchNumber?: string
+  readonly batchDate?: string
+  readonly batchDateIsFreeText?: boolean
 
   // COA Links
-  vendorCoa?: string
-  groupBuyCoa?: string
-  testGroupCoa?: string
-  myCoa?: string
-  customCoa1Name?: string
-  customCoa1Link?: string
-  customCoa2Name?: string
-  customCoa2Link?: string
+  readonly vendorCoa?: string
+  readonly groupBuyCoa?: string
+  readonly testGroupCoa?: string
+  readonly myCoa?: string
+  readonly customCoa1Name?: string
+  readonly customCoa1Link?: string
+  readonly customCoa2Name?: string
+  readonly customCoa2Link?: string
   /** When false, COA QR codes stay in the sidebar but do not print. Default true. */
-  showCoaQr?: boolean
+  readonly showCoaQr?: boolean
 
   // Test result indicators (right testing column)
   /** When true, print pass/fail/not-run marks for test types not set to Do Not Print. */
-  showTestIndicators?: boolean
-  testMass?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
-  testPurity?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
-  testLcms?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
-  testEndotoxin?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
-  testSterility?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
-  testHeavyMetals?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
-  testFentanyl?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  readonly showTestIndicators?: boolean
+  readonly testMass?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  readonly testPurity?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  readonly testLcms?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  readonly testEndotoxin?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  readonly testSterility?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  readonly testHeavyMetals?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
+  readonly testFentanyl?: 'do_not_print' | 'pass' | 'fail' | 'not_run'
 
   // Media
-  customImage?: string
+  readonly customImage?: string
   /** Logo column width as percent of label inner width (15–45). Default 20. */
-  logoColumnWidthPercent?: number
+  readonly logoColumnWidthPercent?: number
   /** Testing column width as percent of label inner width (25–50). Default 38. */
-  qrColumnWidthPercent?: number
+  readonly qrColumnWidthPercent?: number
 
   // Status
-  isUntested?: boolean
+  readonly isUntested?: boolean
 
   // Visibility Toggles: Section Level
-  showSource?: boolean
-  showReconstitution?: boolean
-  showProtocol?: boolean
+  readonly showSource?: boolean
+  readonly showReconstitution?: boolean
+  readonly showProtocol?: boolean
 
   // Visibility Toggles: Granular Field Level
-  showWater?: boolean
-  showConcentration?: boolean
-  showReconDate?: boolean
-  showProtocolAmount?: boolean
-  showProtocolUnits?: boolean
-  showProtocolFrequency?: boolean
-  showVendor?: boolean
-  showGroup?: boolean
-  showBatch?: boolean
+  readonly showWater?: boolean
+  readonly showConcentration?: boolean
+  readonly showReconDate?: boolean
+  readonly showProtocolAmount?: boolean
+  readonly showProtocolUnits?: boolean
+  readonly showProtocolFrequency?: boolean
+  readonly showVendor?: boolean
+  readonly showGroup?: boolean
+  readonly showBatch?: boolean
 }
 
 export type LabelFieldUpdater = <K extends keyof LabelModelInput>(
   field: K,
   value: LabelModelInput[K],
 ) => void
+
+/**
+ * Mutable field patch for assist/mode updates.
+ * `Partial<LabelModelInput>` keeps `readonly` on each key, which blocks sequential assignment.
+ */
+export type LabelModelPatch = {
+  -readonly [K in keyof LabelModelInput]?: LabelModelInput[K]
+}

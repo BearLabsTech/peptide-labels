@@ -18,15 +18,23 @@ import type { PrintTarget } from './print/types'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
 
 export interface LabelRenderModel {
-  wrappedLines: string[]; titleLines: string[]; titleFontSizePx: number; bodyFontSizePx: number;
-  title: string; demotedTitle?: string; protocolLines: string[];
-  reconstitutionLines: string[]; sourceLines: string[];
-  qrCodes: QrCodeEntry[]; customImage?: string; isDangerMode: boolean;
-  testIndicators: TestIndicatorEntry[];
-  testIndicatorLayout?: TestIndicatorLayout;
-  logoColumnWidthPercent: number;
-  qrColumnWidthPercent: number;
-  labelLayoutMode: LabelLayoutMode;
+  readonly wrappedLines: readonly string[]
+  readonly titleLines: readonly string[]
+  readonly titleFontSizePx: number
+  readonly bodyFontSizePx: number
+  readonly title: string
+  readonly demotedTitle?: string
+  readonly protocolLines: readonly string[]
+  readonly reconstitutionLines: readonly string[]
+  readonly sourceLines: readonly string[]
+  readonly qrCodes: readonly QrCodeEntry[]
+  readonly customImage?: string
+  readonly isDangerMode: boolean
+  readonly testIndicators: readonly TestIndicatorEntry[]
+  readonly testIndicatorLayout?: TestIndicatorLayout
+  readonly logoColumnWidthPercent: number
+  readonly qrColumnWidthPercent: number
+  readonly labelLayoutMode: LabelLayoutMode
 }
 
 /** Bold uppercase title (`font-weight: 900`) — Arial caps run ~0.95em per character. */
@@ -65,11 +73,11 @@ export class LabelComposer {
     input: LabelModelInput,
     title: string,
     demotedTitle: string | undefined,
-    srcLines: string[],
-    recLines: string[],
-    proLines: string[],
-    qrCodes: QrCodeEntry[],
-    testIndicators: TestIndicatorEntry[],
+    srcLines: readonly string[],
+    recLines: readonly string[],
+    proLines: readonly string[],
+    qrCodes: readonly QrCodeEntry[],
+    testIndicators: readonly TestIndicatorEntry[],
   ): LabelRenderModel {
     const hasBody = recLines.length > 0 || proLines.length > 0 || srcLines.length > 0 || !!demotedTitle;
     const isDanger = !!input.isUntested;
@@ -112,8 +120,8 @@ export class LabelComposer {
         testIndicators, columns, visibleQrCodes, titleLayout,
       );
       return {
-        wrappedLines: titleLayout.wrappedLines,
-        titleLines: titleLayout.wrappedLines,
+        wrappedLines: [...titleLayout.wrappedLines],
+        titleLines: [...titleLayout.wrappedLines],
         titleFontSizePx: titleLayout.fontSizePx,
         bodyFontSizePx: titleLayout.fontSizePx,
         title, demotedTitle, sourceLines: srcLines, protocolLines: proLines, reconstitutionLines: recLines,
@@ -152,7 +160,7 @@ export class LabelComposer {
 
     return {
       wrappedLines: [...titleLayout.wrappedLines, ...bodyLayout.wrappedLines],
-      titleLines: titleLayout.wrappedLines,
+      titleLines: [...titleLayout.wrappedLines],
       titleFontSizePx: titleLayout.fontSizePx,
       bodyFontSizePx: isDanger ? (bodyLayout.fontSizePx * DANGER_BODY_FONT_SCALE) : bodyLayout.fontSizePx,
       title, demotedTitle, sourceLines: srcLines, protocolLines: proLines, reconstitutionLines: recLines,
@@ -310,10 +318,10 @@ export class LabelComposer {
   }
 
   private buildTestIndicatorLayout(
-    testIndicators: TestIndicatorEntry[],
+    testIndicators: readonly TestIndicatorEntry[],
     columns: ReturnType<typeof computeColumnLayout>,
-    visibleQrCodes: QrCodeEntry[],
-    titleLayout?: { wrappedLines: string[]; fontSizePx: number },
+    visibleQrCodes: readonly QrCodeEntry[],
+    titleLayout?: { wrappedLines: readonly string[]; fontSizePx: number },
   ): TestIndicatorLayout | undefined {
     const innerHeightMm = this.usableHeightMm()
     let indicatorsHeightMm = innerHeightMm
@@ -341,7 +349,7 @@ export class LabelComposer {
 
   private remainingBodyHeightMm(
     innerHeightMm: number,
-    titleLayout: { wrappedLines: string[]; fontSizePx: number },
+    titleLayout: { wrappedLines: readonly string[]; fontSizePx: number },
     titleBodyGapMm: number,
   ): number {
     const innerPx = mmToPx(innerHeightMm, this.printTarget.effectiveDpi)

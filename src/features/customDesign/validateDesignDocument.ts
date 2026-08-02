@@ -422,5 +422,5 @@ export function validateDesignDocument(input: unknown): DesignDocumentValidation
     return { ok: false, issues }
   }
 
-  return { ok: true, document: input as unknown as DesignDocument }
+  return { ok: true, document: structuredClone(input) as unknown as DesignDocument }
 }

@@ -14,22 +14,22 @@ export const DEFAULT_DESIGN_VISIBILITY: DesignVisibility = 'private'
 
 /** Catalog stock id from the print catalog, or explicit custom dimensions. */
 export type DesignStock =
-  | { kind: 'catalog'; stockId: string }
+  | { readonly kind: 'catalog'; readonly stockId: string }
   | {
-      kind: 'custom'
-      widthMm: number
-      heightMm: number
-      shape: 'rounded' | 'rectangular'
-      cornerRadiusMm: number
-      paddingMm: number
+      readonly kind: 'custom'
+      readonly widthMm: number
+      readonly heightMm: number
+      readonly shape: 'rounded' | 'rectangular'
+      readonly cornerRadiusMm: number
+      readonly paddingMm: number
     }
 
 /** Axis-aligned box frame in millimetres on the label surface. */
 export interface DesignFrame {
-  xMm: number
-  yMm: number
-  widthMm: number
-  heightMm: number
+  readonly xMm: number
+  readonly yMm: number
+  readonly widthMm: number
+  readonly heightMm: number
 }
 
 export type TextAlignH = 'left' | 'center' | 'right'
@@ -69,58 +69,58 @@ export type BuiltInSlotKey = (typeof BUILT_IN_SLOT_KEYS)[number]
 export type DesignSlotValueType = 'text' | 'number' | 'url'
 
 export interface DesignSlot {
-  key: string
-  label: string
-  type: DesignSlotValueType
-  required: boolean
+  readonly key: string
+  readonly label: string
+  readonly type: DesignSlotValueType
+  readonly required: boolean
 }
 
 export type DesignTextContent =
-  | { kind: 'static'; text: string }
-  | { kind: 'slot'; slotKey: string }
+  | { readonly kind: 'static'; readonly text: string }
+  | { readonly kind: 'slot'; readonly slotKey: string }
 
 export type DesignQrContent =
-  | { kind: 'static'; text: string }
-  | { kind: 'slot'; slotKey: string }
+  | { readonly kind: 'static'; readonly text: string }
+  | { readonly kind: 'slot'; readonly slotKey: string }
 
 export interface DesignElementBase {
-  id: string
-  frame: DesignFrame
+  readonly id: string
+  readonly frame: DesignFrame
   /** Degrees clockwise; 90 / 270 common for vertical side text. */
-  rotationDeg: number
-  zIndex: number
+  readonly rotationDeg: number
+  readonly zIndex: number
 }
 
 export interface DesignTextElement extends DesignElementBase {
-  type: 'text'
-  content: DesignTextContent
+  readonly type: 'text'
+  readonly content: DesignTextContent
   /** Id from the curated font list (resolved by the renderer later). */
-  fontId: string
-  fontSizePt: number
-  bold: boolean
-  alignH: TextAlignH
-  alignV: TextAlignV
-  wrap: boolean
-  fill: TextFill
-  ink: TextInk
+  readonly fontId: string
+  readonly fontSizePt: number
+  readonly bold: boolean
+  readonly alignH: TextAlignH
+  readonly alignV: TextAlignV
+  readonly wrap: boolean
+  readonly fill: TextFill
+  readonly ink: TextInk
 }
 
 export interface DesignImageElement extends DesignElementBase {
-  type: 'image'
-  assetId: string
-  objectFit: ImageObjectFit
+  readonly type: 'image'
+  readonly assetId: string
+  readonly objectFit: ImageObjectFit
 }
 
 export interface DesignQrElement extends DesignElementBase {
-  type: 'qr'
-  content: DesignQrContent
+  readonly type: 'qr'
+  readonly content: DesignQrContent
 }
 
 export interface DesignShapeElement extends DesignElementBase {
-  type: 'shape'
-  shape: ShapeKind
-  stroke: boolean
-  fill: boolean
+  readonly type: 'shape'
+  readonly shape: ShapeKind
+  readonly stroke: boolean
+  readonly fill: boolean
 }
 
 export type DesignElement =
@@ -136,22 +136,22 @@ export type DesignAssetMimeType = 'image/png' | 'image/jpeg' | 'image/webp'
  * `dataBase64` is raw base64 without a `data:` URL prefix.
  */
 export interface DesignAsset {
-  id: string
-  mimeType: DesignAssetMimeType
-  dataBase64: string
+  readonly id: string
+  readonly mimeType: DesignAssetMimeType
+  readonly dataBase64: string
 }
 
 export interface DesignDocument {
-  schemaVersion: DesignDocumentSchemaVersion
-  id: string
-  name: string
-  createdAt: string
-  updatedAt: string
-  visibility: DesignVisibility
-  stock: DesignStock
-  slots: DesignSlot[]
-  elements: DesignElement[]
-  assets: DesignAsset[]
+  readonly schemaVersion: DesignDocumentSchemaVersion
+  readonly id: string
+  readonly name: string
+  readonly createdAt: string
+  readonly updatedAt: string
+  readonly visibility: DesignVisibility
+  readonly stock: DesignStock
+  readonly slots: readonly DesignSlot[]
+  readonly elements: readonly DesignElement[]
+  readonly assets: readonly DesignAsset[]
 }
 
 /** Curated font ids for MVP authoring (renderer maps these later). */

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { LabelLayoutEngine } from './LabelLayoutEngine'
+import { LabelLayoutEngine, processWord, type WrapState } from './LabelLayoutEngine'
 import { mmToPx } from './print/dimensions'
 
 describe('LabelLayoutEngine', () => {
@@ -113,5 +113,31 @@ describe('LabelLayoutEngine', () => {
         const longestPx = Math.max(...tokens.map((word) => word.length * result.fontSizePx * 0.95))
         expect(longestPx).toBeLessThanOrEqual(widthPx)
         expect(result.fontSizePx).toBeLessThan(26)
+    })
+})
+
+describe('processWord', () => {
+    const empty: WrapState = { lines: [], current: '', didChopWord: false }
+
+    it('should append a word that fits onto the current line without mutating the input state', () => {
+        const before: WrapState = { lines: ['kept'], current: 'hello', didChopWord: false }
+        const next = processWord('world', 20, before)
+
+        expect(next).toEqual({ lines: ['kept'], current: 'hello world', didChopWord: false })
+        expect(before).toEqual({ lines: ['kept'], current: 'hello', didChopWord: false })
+        expect(next).not.toBe(before)
+    })
+
+    it('should flush the current line when the next word does not fit', () => {
+        const next = processWord('world', 8, { lines: [], current: 'hello', didChopWord: false })
+        expect(next).toEqual({ lines: ['hello'], current: 'world', didChopWord: false })
+    })
+
+    it('should chop an oversized token when the current line is empty', () => {
+        const next = processWord('abcdefghij', 4, empty)
+        expect(next.didChopWord).toBe(true)
+        expect(next.current).toBe('')
+        expect(next.lines).toEqual(['abcd', 'efgh', 'ij'])
+        expect(empty).toEqual({ lines: [], current: '', didChopWord: false })
     })
 })

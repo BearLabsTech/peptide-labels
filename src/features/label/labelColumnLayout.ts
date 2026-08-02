@@ -6,26 +6,26 @@ import {
 } from './labelLayoutConstants'
 
 export interface ColumnLayoutInput {
-  labelWidthMm: number
-  paddingMm: number
-  hasLogo: boolean
-  hasQr: boolean
-  logoColumnWidthPercent?: number
-  qrColumnWidthPercent?: number
+  readonly labelWidthMm: number
+  readonly paddingMm: number
+  readonly hasLogo: boolean
+  readonly hasQr: boolean
+  readonly logoColumnWidthPercent?: number
+  readonly qrColumnWidthPercent?: number
 }
 
 /** Resolved row geometry — mm for layout engine, % for flex side columns (of inner row). */
 export interface ColumnLayout {
-  innerRowMm: number
-  logoWidthMm: number
-  qrWidthMm: number
-  centerWidthMm: number
+  readonly innerRowMm: number
+  readonly logoWidthMm: number
+  readonly qrWidthMm: number
+  readonly centerWidthMm: number
   /** Flex `width` on `.label-left-column` — percent of `.label-preview-container` content box. */
-  logoWidthPercent: number
+  readonly logoWidthPercent: number
   /** Flex `width` on `.label-right-column` — same basis as logo. */
-  qrWidthPercent: number
-  gapMm: number
-  gapCount: number
+  readonly qrWidthPercent: number
+  readonly gapMm: number
+  readonly gapCount: number
 }
 
 function resolveSidePercents(input: ColumnLayoutInput): { logoPercent: number; qrPercent: number } {
@@ -80,9 +80,9 @@ export function computeColumnLayout(input: ColumnLayoutInput): ColumnLayout {
 /** Identity-header title band: axis on center column, span until inner row edge. */
 export interface IdentityHeaderTitleBand {
   /** Horizontal center of the center column, 0–1 from the left inner-row edge. */
-  axisFraction: number
+  readonly axisFraction: number
   /** Max title width centered on {@link axisFraction}, 0–1 of inner row width. */
-  spanFraction: number
+  readonly spanFraction: number
 }
 
 export function computeIdentityHeaderTitleBand(
@@ -103,11 +103,11 @@ export function computeIdentityHeaderTitleBand(
 
 /** Break out of the center flex cell to the full inner row; shift so text centers on the center column axis. */
 export interface IdentityHeaderTitleBreakout {
-  axisFraction: number
+  readonly axisFraction: number
   /** Breakout width as % of the center column flex cell. */
-  breakoutWidthPct: number
+  readonly breakoutWidthPct: number
   /** Negative left margin as % of the center column flex cell. */
-  breakoutMarginLeftPct: number
+  readonly breakoutMarginLeftPct: number
 }
 
 export function computeIdentityHeaderTitleBreakout(

@@ -10,7 +10,7 @@ describe('Result helpers', () => {
   })
 
   it('should pass an error through map unchanged', () => {
-    expect(map(err, (n) => n * 3)).toEqual({ ok: false, error: 'nope' })
+    expect(map(err, (n: number) => n * 3)).toEqual({ ok: false, error: 'nope' })
   })
 
   it('should chain a second fallible step with andThen when ok', () => {

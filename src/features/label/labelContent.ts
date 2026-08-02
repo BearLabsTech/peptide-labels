@@ -4,11 +4,11 @@ import { formatDrawVolumeLabel, parseNumericDisplayPrefix } from './labelModel'
 import { formatDisplayNumber, hasPositiveVialAmount } from './peptideMath'
 
 export interface LabelContent {
-  title: string
-  demotedTitle?: string
-  sourceLines: string[]
-  reconstitutionLines: string[]
-  protocolLines: string[]
+  readonly title: string
+  readonly demotedTitle?: string
+  readonly sourceLines: readonly string[]
+  readonly reconstitutionLines: readonly string[]
+  readonly protocolLines: readonly string[]
 }
 
 export function buildLabelContent(
