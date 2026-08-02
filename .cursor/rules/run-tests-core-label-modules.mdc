@@ -1,6 +1,6 @@
 ---
 description: Run Vitest after editing core label math, layout, or model code
-globs: src/features/label/LabelConfig.ts,src/features/label/peptideMath.ts,src/features/label/LabelMathResolver.ts,src/features/label/LabelComposer.ts,src/features/label/LabelLayoutEngine.ts,src/features/label/labelModel.ts,src/features/label/Scaling.ts
+globs: src/features/label/LabelConfig.ts,src/features/label/peptideMath.ts,src/features/label/LabelMathResolver.ts,src/features/label/LabelComposer.ts,src/features/label/LabelLayoutEngine.ts,src/features/label/labelModel.ts,src/features/label/Scaling.ts,src/features/label/LabelComposer.golden.test.ts,src/features/label/__snapshots__/LabelComposer.golden.test.ts.snap
 alwaysApply: false
 ---
 
@@ -10,4 +10,4 @@ After editing any of these modules, run:
 
 `npm run test:run`
 
-Implementation refactors that preserve behavior should leave tests unchanged and passing. Add or change tests only when **behavior** changes (see `testing-vitest.mdc`).
+Implementation refactors that preserve behavior should leave tests unchanged and passing. Add or change tests only when **behavior** changes (see `testing-vitest.mdc`). This applies most literally to `LabelComposer.golden.test.ts` and its snapshot file: a changed snapshot means a deliberate, called-out output change requiring sign-off, not a file to regenerate with `vitest -u` because it happened to fail.

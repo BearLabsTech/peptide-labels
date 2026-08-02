@@ -13,8 +13,11 @@ Keep these concerns **strictly decoupled**:
 | Math (forward + reverse calculations, units, water, etc.) | `LabelMathResolver.ts` (and `peptideMath.ts` where shared) |
 | String building / layout structure | `LabelComposer.ts`, `LabelLayoutEngine.ts` |
 | On-screen / print rendering | `LabelPreview.tsx` (and related CSS) |
+| Orchestration of I/O (export, save, load) | Use cases in `app`, depending only on port interfaces |
+| Browser APIs (storage, canvas, download, DOM query) | Adapters in `src/platform`, implementing those ports |
+| Derived / display values shown in a component | A pure view-model or presenter function the component calls, per the Humble Object rule in `testing-vitest.mdc` |
 
-Do not move calculation logic into the preview for convenience, or preview-specific hacks into the resolver.
+Do not move calculation logic into the preview for convenience, or preview-specific hacks into the resolver. Do not call a browser API (`localStorage`, `IndexedDB`, `canvas`, `FileReader`, `document.*`) directly from a domain or app module — go through a port so the logic stays testable without a DOM.
 
 ## Defensive math (`LabelMathResolver`)
 

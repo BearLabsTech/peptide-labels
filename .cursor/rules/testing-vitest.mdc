@@ -24,6 +24,43 @@ alwaysApply: false
 ## Assertions
 
 - Prefer **explicit expectations on meaningful outcomes** (values, labels, safety limits). Avoid brittle ties to incidental formatting, log text, or private structure unless that structure is a deliberate public contract.
+- **Characterization/golden files may use `toMatchSnapshot`.** A golden file (name ends `.golden.test.ts`) is exactly the "deliberate public contract" case above — the assertion is "identical to what shipped," not "equal to a value someone reasoned about," and hand-typed literals at that volume are unreliable rather than merely tedious. No other test file may use `toMatchSnapshot`.
+- **`vitest -u` is never an acceptable way to clear a failure**, in a golden file or anywhere else — it is the "loosen assertions without fixing the product" shortcut below, just automated. A snapshot changes only after a deliberate decision that the new output is correct, with a note in the commit saying what changed and why.
+
+## Humble Object: how we make untestable code testable
+
+We do not test React components. That is only workable if components contain
+nothing worth testing. So every decision must live outside the component.
+
+A component (or hook, or any module touching the DOM, storage, network, or
+canvas) must be **humble**: it wires together things that are already tested
+and makes no decisions of its own.
+
+Move out of the component, into a pure module with its own `*.test.ts`:
+
+- **Domain rules and math** -> a domain module.
+- **Derived / display values** (formatting, labels, enabled/disabled, warning
+  text, which section shows) -> a pure `*ViewModel.ts` or presenter function
+  that maps state to render props.
+- **State transitions** -> a pure reducer. The component dispatches events; it
+  does not compute the next state.
+- **Orchestration of I/O** -> a use case that depends on **port interfaces**,
+  tested against in-memory fakes (see `src/test/memoryLocalStorage.ts` for the
+  existing pattern).
+- **Browser APIs** (localStorage, IndexedDB, canvas, FileReader, download,
+  scroll) -> an adapter behind a port. The adapter itself stays thin enough
+  that reading it is sufficient review.
+
+What may remain in a component: JSX structure, event handlers that only call a
+dispatch or use case, `useState` for transient UI-only state (open/closed,
+focus), and CSS class selection driven by an already-computed view model.
+
+**The test for whether a component is humble enough:** if you cannot describe
+a bug that could hide in it without also being caught by a pure unit test,
+it is humble. If you find yourself wishing you could render it in a test,
+that is the signal to extract, not the signal to add a DOM testing library.
+
+Applies to new code and to any component you touch.
 
 ## Math and safety (`peptideMath`, `LabelMathResolver`)
 
