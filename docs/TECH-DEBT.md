@@ -96,6 +96,17 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ---
 
+### Title height weight constant — clamp makes most of its range dead
+
+**Priority:** Low
+**Status:** Open
+
+**Symptom:** `TITLE_HEIGHT_WEIGHT` (`labelLayoutConstants.ts:6`, currently `0.5`) feeds `Math.min(TITLE_HEIGHT_WEIGHT + 0.06, 0.55)` in `LabelComposer.ts:129`. Any value of `0.49` or higher produces the same effective `0.55` — raising the constant further has no effect, and nothing about its definition signals this. Found via golden-test sensitivity verification during the code quality refactor (Phase 0): a deliberate mutation of this constant did not trip the golden tests until the change was large enough to also cross the danger-mode branch.
+
+**When fixing:** Either raise the clamp ceiling to match the constant's intended range, or replace the pair with a single value plus an explicit named ceiling constant so the relationship is visible at the definition site instead of buried in the call site's arithmetic.
+
+---
+
 ## Resolved
 
 *(none yet)*

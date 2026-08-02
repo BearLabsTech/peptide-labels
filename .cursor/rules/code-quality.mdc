@@ -1,0 +1,30 @@
+---
+description: Clean code, SOLID, design patterns, types, testing, boundaries — index into docs/CODE-QUALITY.md
+alwaysApply: true
+---
+
+# Code quality
+
+**Canonical source:** [docs/CODE-QUALITY.md](../../docs/CODE-QUALITY.md)
+
+Read it before non-trivial structural work: a new module, a new abstraction, changing a boundary, or adding a dependency direction. Apply its standards to any code you touch, even when the task is something else.
+
+This is an index of its sections so you can recognize which one applies — read the doc for the actual standard, examples, and rationale.
+
+**A. Structure and design** — layer boundaries and dependency direction; SOLID for this codebase; function/class/component size budgets; which Gang of Four patterns are in deliberate use (and which are deliberately not).
+
+**B. Types and state** — make illegal states unrepresentable; separate authored (user-entered) from derived (calculated) data; immutability by default.
+
+**C. Clarity** — clean naming and comments that explain constraints, not history; one source of truth per fact; ubiquitous language (see `terminology-compliance.mdc` for the vocabulary itself).
+
+**D. Failure** — one error convention (`Result` for expected failure, `throw` for programmer error); every async operation has a named loading/success/failure resolution.
+
+**E. Testing** — behavior over implementation; characterization tests before refactoring risky code; test data builders over inline fixtures; coverage as a ratchet. Mechanics live in `testing-vitest.mdc`, including the Humble Object rule.
+
+**F. Boundaries and enforcement** — module boundaries backed by lint rules, not just habit; accessibility as a standing requirement; ADRs for decisions worth explaining in six months.
+
+**G. Code smell catalogue** — named smells this codebase is prone to (long function, god object, magic number, mixed concerns, shotgun surgery, speculative generality, stale comment, etc.) and the fix for each.
+
+For a full review of the whole codebase against every standard here, use the `code-quality-review` skill rather than doing this ad hoc.
+
+When a standard changes, update `docs/CODE-QUALITY.md` in the same change set. Do not edit only this index or let it diverge from the doc's sections.
