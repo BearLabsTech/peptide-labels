@@ -1,0 +1,1728 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable export spec for 40x20-rect 1`] = `
+{
+  "canvasHeightPx": 236,
+  "canvasWidthPx": 472,
+  "dpi": 300,
+  "pixelRatio": 1,
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "full label with all sections" 1`] = `
+{
+  "bodyFontSizePx": 9,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+    "Weekly",
+  ],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+  ],
+  "sourceLines": [
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 11,
+    "labelMarkGapPx": 1,
+    "markSizePx": 8,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "LC/MS",
+      "status": "not_run",
+      "type": "LCMS",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "TIRZEPATIDE",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+    "20MG",
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+    "25 units (5mg)",
+    "Weekly",
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
+{
+  "bodyFontSizePx": 26,
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 20,
+  "protocolLines": [],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 11,
+    "labelMarkGapPx": 1,
+    "markSizePx": 8,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "fail",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "not_run",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Semaglutide
+10mg",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+  "wrappedLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "long compound name forcing wrap" 1`] = `
+{
+  "bodyFontSizePx": 15,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Very Long Experimental Compound Name That Forces Title Wrapping
+20mg",
+  "titleFontSizePx": 21,
+  "titleLines": [
+    "VERY LONG EXPERIMENTAL",
+    "COMPOUND NAME THAT",
+    "FORCES TITLE WRAPPING",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "VERY LONG EXPERIMENTAL",
+    "COMPOUND NAME THAT",
+    "FORCES TITLE WRAPPING",
+    "20MG",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "minimal name only" 1`] = `
+{
+  "bodyFontSizePx": 26,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "TIRZEPATIDE",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "untested danger mode" 1`] = `
+{
+  "bodyFontSizePx": 15.200000000000001,
+  "customImage": undefined,
+  "demotedTitle": "Retatrutide
+20mg",
+  "isDangerMode": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "DANGER
+UNTESTED",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "DANGER",
+    "UNTESTED",
+  ],
+  "wrappedLines": [
+    "DANGER",
+    "UNTESTED",
+    "Retatrutide
+20mg",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable export spec for 40x20-rounded 1`] = `
+{
+  "canvasHeightPx": 236,
+  "canvasWidthPx": 472,
+  "dpi": 300,
+  "pixelRatio": 1,
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "full label with all sections" 1`] = `
+{
+  "bodyFontSizePx": 11,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+    "Weekly",
+  ],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+  ],
+  "sourceLines": [
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 11,
+    "labelMarkGapPx": 1,
+    "markSizePx": 11,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "LC/MS",
+      "status": "not_run",
+      "type": "LCMS",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "TIRZEPATIDE",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+    "20MG",
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+    "25 units (5mg)",
+    "Weekly",
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
+{
+  "bodyFontSizePx": 26,
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 20,
+  "protocolLines": [],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 11,
+    "labelMarkGapPx": 1,
+    "markSizePx": 11,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "fail",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "not_run",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Semaglutide
+10mg",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+  "wrappedLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "long compound name forcing wrap" 1`] = `
+{
+  "bodyFontSizePx": 16,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Very Long Experimental Compound Name That Forces Title Wrapping
+20mg",
+  "titleFontSizePx": 22,
+  "titleLines": [
+    "VERY LONG EXPERIMENTAL",
+    "COMPOUND NAME THAT",
+    "FORCES TITLE WRAPPING",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "VERY LONG EXPERIMENTAL",
+    "COMPOUND NAME THAT",
+    "FORCES TITLE WRAPPING",
+    "20MG",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "minimal name only" 1`] = `
+{
+  "bodyFontSizePx": 26,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "TIRZEPATIDE",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "untested danger mode" 1`] = `
+{
+  "bodyFontSizePx": 15.200000000000001,
+  "customImage": undefined,
+  "demotedTitle": "Retatrutide
+20mg",
+  "isDangerMode": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "DANGER
+UNTESTED",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "DANGER",
+    "UNTESTED",
+  ],
+  "wrappedLines": [
+    "DANGER",
+    "UNTESTED",
+    "Retatrutide
+20mg",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable export spec for 40x30-rect 1`] = `
+{
+  "canvasHeightPx": 354,
+  "canvasWidthPx": 472,
+  "dpi": 300,
+  "pixelRatio": 1,
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "full label with all sections" 1`] = `
+{
+  "bodyFontSizePx": 18,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+    "Weekly",
+  ],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+  ],
+  "sourceLines": [
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 12,
+    "labelMarkGapPx": 1,
+    "markSizePx": 21,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "LC/MS",
+      "status": "not_run",
+      "type": "LCMS",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "TIRZEPATIDE",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+    "20MG",
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+    "25 units (5mg)",
+    "Weekly",
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
+{
+  "bodyFontSizePx": 39,
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 20,
+  "protocolLines": [],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 12,
+    "labelMarkGapPx": 1,
+    "markSizePx": 21,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "fail",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "not_run",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Semaglutide
+10mg",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+  "wrappedLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "long compound name forcing wrap" 1`] = `
+{
+  "bodyFontSizePx": 18,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Very Long Experimental Compound Name That Forces Title Wrapping
+20mg",
+  "titleFontSizePx": 25,
+  "titleLines": [
+    "VERY LONG",
+    "EXPERIMENTAL",
+    "COMPOUND NAME THAT",
+    "FORCES TITLE",
+    "WRAPPING",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "VERY LONG",
+    "EXPERIMENTAL",
+    "COMPOUND NAME THAT",
+    "FORCES TITLE",
+    "WRAPPING",
+    "20MG",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "minimal name only" 1`] = `
+{
+  "bodyFontSizePx": 39,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "TIRZEPATIDE",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "untested danger mode" 1`] = `
+{
+  "bodyFontSizePx": 22.400000000000002,
+  "customImage": undefined,
+  "demotedTitle": "Retatrutide
+20mg",
+  "isDangerMode": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "DANGER
+UNTESTED",
+  "titleFontSizePx": 38,
+  "titleLines": [
+    "DANGER",
+    "UNTESTED",
+  ],
+  "wrappedLines": [
+    "DANGER",
+    "UNTESTED",
+    "Retatrutide
+20mg",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable export spec for 40x30-rounded 1`] = `
+{
+  "canvasHeightPx": 354,
+  "canvasWidthPx": 472,
+  "dpi": 300,
+  "pixelRatio": 1,
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "full label with all sections" 1`] = `
+{
+  "bodyFontSizePx": 19,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+    "Weekly",
+  ],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+  ],
+  "sourceLines": [
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 13,
+    "labelMarkGapPx": 1,
+    "markSizePx": 23,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "LC/MS",
+      "status": "not_run",
+      "type": "LCMS",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "TIRZEPATIDE",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+    "20MG",
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+    "25 units (5mg)",
+    "Weekly",
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
+{
+  "bodyFontSizePx": 39,
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 20,
+  "protocolLines": [],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 13,
+    "labelMarkGapPx": 1,
+    "markSizePx": 23,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "fail",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "not_run",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Semaglutide
+10mg",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+  "wrappedLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "long compound name forcing wrap" 1`] = `
+{
+  "bodyFontSizePx": 19,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Very Long Experimental Compound Name That Forces Title Wrapping
+20mg",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "VERY LONG",
+    "EXPERIMENTAL",
+    "COMPOUND NAME THAT",
+    "FORCES TITLE",
+    "WRAPPING",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "VERY LONG",
+    "EXPERIMENTAL",
+    "COMPOUND NAME THAT",
+    "FORCES TITLE",
+    "WRAPPING",
+    "20MG",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "minimal name only" 1`] = `
+{
+  "bodyFontSizePx": 39,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "TIRZEPATIDE",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "untested danger mode" 1`] = `
+{
+  "bodyFontSizePx": 22.400000000000002,
+  "customImage": undefined,
+  "demotedTitle": "Retatrutide
+20mg",
+  "isDangerMode": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "DANGER
+UNTESTED",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "DANGER",
+    "UNTESTED",
+  ],
+  "wrappedLines": [
+    "DANGER",
+    "UNTESTED",
+    "Retatrutide
+20mg",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable export spec for 50x30-rect 1`] = `
+{
+  "canvasHeightPx": 354,
+  "canvasWidthPx": 591,
+  "dpi": 300,
+  "pixelRatio": 1,
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "full label with all sections" 1`] = `
+{
+  "bodyFontSizePx": 17,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+    "Weekly",
+  ],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+  ],
+  "sourceLines": [
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 12,
+    "labelMarkGapPx": 1,
+    "markSizePx": 21,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "LC/MS",
+      "status": "not_run",
+      "type": "LCMS",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "TIRZEPATIDE",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+    "20MG",
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+    "25 units (5mg)",
+    "Weekly",
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
+{
+  "bodyFontSizePx": 39,
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 20,
+  "protocolLines": [],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 12,
+    "labelMarkGapPx": 1,
+    "markSizePx": 21,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "fail",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "not_run",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Semaglutide
+10mg",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+  "wrappedLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "long compound name forcing wrap" 1`] = `
+{
+  "bodyFontSizePx": 20,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Very Long Experimental Compound Name That Forces Title Wrapping
+20mg",
+  "titleFontSizePx": 28,
+  "titleLines": [
+    "VERY LONG",
+    "EXPERIMENTAL COMPOUND",
+    "NAME THAT FORCES",
+    "TITLE WRAPPING",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "VERY LONG",
+    "EXPERIMENTAL COMPOUND",
+    "NAME THAT FORCES",
+    "TITLE WRAPPING",
+    "20MG",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "minimal name only" 1`] = `
+{
+  "bodyFontSizePx": 39,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "TIRZEPATIDE",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "untested danger mode" 1`] = `
+{
+  "bodyFontSizePx": 22.400000000000002,
+  "customImage": undefined,
+  "demotedTitle": "Retatrutide
+20mg",
+  "isDangerMode": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "DANGER
+UNTESTED",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "DANGER",
+    "UNTESTED",
+  ],
+  "wrappedLines": [
+    "DANGER",
+    "UNTESTED",
+    "Retatrutide
+20mg",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable export spec for 50x30-rounded 1`] = `
+{
+  "canvasHeightPx": 354,
+  "canvasWidthPx": 591,
+  "dpi": 300,
+  "pixelRatio": 1,
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "full label with all sections" 1`] = `
+{
+  "bodyFontSizePx": 19,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+    "Weekly",
+  ],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+  ],
+  "sourceLines": [
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 13,
+    "labelMarkGapPx": 1,
+    "markSizePx": 23,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "LC/MS",
+      "status": "not_run",
+      "type": "LCMS",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "TIRZEPATIDE",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+    "20MG",
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+    "25 units (5mg)",
+    "Weekly",
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
+{
+  "bodyFontSizePx": 39,
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 20,
+  "protocolLines": [],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 13,
+    "labelMarkGapPx": 1,
+    "markSizePx": 23,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "fail",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "not_run",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Semaglutide
+10mg",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+  "wrappedLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "long compound name forcing wrap" 1`] = `
+{
+  "bodyFontSizePx": 21,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Very Long Experimental Compound Name That Forces Title Wrapping
+20mg",
+  "titleFontSizePx": 29,
+  "titleLines": [
+    "VERY LONG",
+    "EXPERIMENTAL COMPOUND",
+    "NAME THAT FORCES",
+    "TITLE WRAPPING",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "VERY LONG",
+    "EXPERIMENTAL COMPOUND",
+    "NAME THAT FORCES",
+    "TITLE WRAPPING",
+    "20MG",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "minimal name only" 1`] = `
+{
+  "bodyFontSizePx": 39,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "TIRZEPATIDE",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "untested danger mode" 1`] = `
+{
+  "bodyFontSizePx": 22.400000000000002,
+  "customImage": undefined,
+  "demotedTitle": "Retatrutide
+20mg",
+  "isDangerMode": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "DANGER
+UNTESTED",
+  "titleFontSizePx": 39,
+  "titleLines": [
+    "DANGER",
+    "UNTESTED",
+  ],
+  "wrappedLines": [
+    "DANGER",
+    "UNTESTED",
+    "Retatrutide
+20mg",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: skip-default > should produce a stable export spec for skip-default 1`] = `
+{
+  "canvasHeightPx": 236,
+  "canvasWidthPx": 472,
+  "dpi": 300,
+  "pixelRatio": 1,
+}
+`;
+
+exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "full label with all sections" 1`] = `
+{
+  "bodyFontSizePx": 11,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+    "Weekly",
+  ],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+  ],
+  "sourceLines": [
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 11,
+    "labelMarkGapPx": 1,
+    "markSizePx": 11,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "LC/MS",
+      "status": "not_run",
+      "type": "LCMS",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "TIRZEPATIDE",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+    "20MG",
+    "2 ml BAC Water",
+    "10mg per ml",
+    "Mixed 20260621",
+    "25 units (5mg)",
+    "Weekly",
+    "Vendor: Bear Labs",
+    "Group: Group Buy Co",
+    "Lot: BL-2026 20260621",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
+{
+  "bodyFontSizePx": 26,
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 20,
+  "protocolLines": [],
+  "qrCodes": [
+    {
+      "type": "Vendor COA",
+      "url": "https://example.com/coa",
+    },
+  ],
+  "qrColumnWidthPercent": 38,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": {
+    "labelFontSizePx": 11,
+    "labelMarkGapPx": 1,
+    "markSizePx": 11,
+    "rowGapPx": 2,
+  },
+  "testIndicators": [
+    {
+      "label": "Mass",
+      "status": "pass",
+      "type": "Mass",
+    },
+    {
+      "label": "Purity",
+      "status": "fail",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "not_run",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Semaglutide
+10mg",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+  "wrappedLines": [
+    "SEMAGLUTIDE",
+    "10MG",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "long compound name forcing wrap" 1`] = `
+{
+  "bodyFontSizePx": 16,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Very Long Experimental Compound Name That Forces Title Wrapping
+20mg",
+  "titleFontSizePx": 22,
+  "titleLines": [
+    "VERY LONG EXPERIMENTAL",
+    "COMPOUND NAME THAT",
+    "FORCES TITLE WRAPPING",
+    "20MG",
+  ],
+  "wrappedLines": [
+    "VERY LONG EXPERIMENTAL",
+    "COMPOUND NAME THAT",
+    "FORCES TITLE WRAPPING",
+    "20MG",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "minimal name only" 1`] = `
+{
+  "bodyFontSizePx": 26,
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "isDangerMode": false,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "TIRZEPATIDE",
+  ],
+  "wrappedLines": [
+    "TIRZEPATIDE",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "untested danger mode" 1`] = `
+{
+  "bodyFontSizePx": 15.200000000000001,
+  "customImage": undefined,
+  "demotedTitle": "Retatrutide
+20mg",
+  "isDangerMode": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [
+    "25 units (5mg)",
+  ],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [
+    "2 ml",
+    "10mg per ml",
+  ],
+  "sourceLines": [],
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "DANGER
+UNTESTED",
+  "titleFontSizePx": 26,
+  "titleLines": [
+    "DANGER",
+    "UNTESTED",
+  ],
+  "wrappedLines": [
+    "DANGER",
+    "UNTESTED",
+    "Retatrutide
+20mg",
+    "2 ml",
+    "10mg per ml",
+    "25 units (5mg)",
+  ],
+}
+`;

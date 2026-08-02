@@ -24,7 +24,7 @@ function longestTitleLinePx(lines: string[], fontSizePx: number): number {
 
 describe('LabelComposer', () => {
 
-    it('itShouldComposeStandardLayout', () => {
+    it('should compose standard layout', () => {
         const composer = new LabelComposer()
         const result = composer.compose({
             compoundName: 'Tirzepatide',
@@ -37,7 +37,7 @@ describe('LabelComposer', () => {
         expect(result.wrappedLines.length).toBeGreaterThan(0)
     })
 
-    it('itShouldFormatUnitsCorrectlyInTitleAndProtocol', () => {
+    it('should format units correctly in title and protocol', () => {
         const composer = new LabelComposer()
 
         const resultIu = composer.compose({
@@ -62,7 +62,7 @@ describe('LabelComposer', () => {
     })
 
     // --- NEW: Aggressive String Cleaning Test ---
-    it('itShouldStripExistingUnitsFromInputToPreventDoubleUnits', () => {
+    it('should strip existing units from input to prevent double units', () => {
         const composer = new LabelComposer()
 
         const result = composer.compose({
@@ -78,7 +78,7 @@ describe('LabelComposer', () => {
         expect(result.protocolLines).toContain('2IU')
     })
 
-    it('itShouldShrinkBodyTextAndLightenTitleInDangerMode', () => {
+    it('should shrink body text and lighten title in danger mode', () => {
         const composer = new LabelComposer()
 
         const standardResult = composer.compose({
@@ -98,13 +98,13 @@ describe('LabelComposer', () => {
         expect(dangerResult.demotedTitle).toBe('Reta\n20mg')
     })
 
-    it('itShouldAllocateFullHeightToTitleWhenNoBodyExists', () => {
+    it('should allocate full height to title when no body exists', () => {
         const composer = new LabelComposer()
         const result = composer.compose({ compoundName: 'Reta' })
         expect(result.titleFontSizePx).toBeGreaterThan(20)
     })
 
-    it('itShouldUseMoreUsableWidthWhenRoundedStockPaddingIsTighter', () => {
+    it('should use more usable width when rounded stock padding is tighter', () => {
         const tight = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
         const loose = new LabelComposer(resolvePrintTarget({ widthMm: 40, heightMm: 20 }))
         const input = {
@@ -117,7 +117,7 @@ describe('LabelComposer', () => {
         expect(tightTitle).toBeGreaterThanOrEqual(looseTitle)
     })
 
-    it('itShouldWrapLongExampleTitleForStandardLabelWithQr', () => {
+    it('should wrap long example title for standard label with qr', () => {
         const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
         const result = composer.compose({
             compoundName: 'Tirzepatide',
@@ -282,7 +282,7 @@ describe('LabelComposer', () => {
         expect(result.reconstitutionLines[0]).toBe('2 ml')
     })
 
-    it('itShouldShrinkBodyFontWhenAllSectionsAreFilled', () => {
+    it('should shrink body font when all sections are filled', () => {
         const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rect', printerId: 'niimbot-b21' }))
         const result = composer.compose({
             compoundName: 'Test Compound',
@@ -304,7 +304,7 @@ describe('LabelComposer', () => {
         expect(result.bodyFontSizePx).toBeLessThan(26)
     })
 
-    it('itShouldFitTitleLinesWithinInnerRowWhenMascotAndQrFlankCenterColumn', () => {
+    it('should fit title lines within inner row when mascot and qr flank center column', () => {
         const target = resolvePrintTarget({ stockId: '40x20-rect', printerId: 'niimbot-b21' })
         const composer = new LabelComposer(target)
         const result = composer.compose({
@@ -320,7 +320,7 @@ describe('LabelComposer', () => {
         expect(result.titleFontSizePx).toBeLessThanOrEqual(26)
     })
 
-    it('itShouldWrapLongestWordWhenTitleOnlyWithMascotAndQr', () => {
+    it('should wrap longest word when title only with mascot and qr', () => {
         const target = resolvePrintTarget({ stockId: '40x20-rect', printerId: 'niimbot-b21' })
         const composer = new LabelComposer(target)
         const result = composer.compose({
@@ -334,7 +334,7 @@ describe('LabelComposer', () => {
         expect(result.titleFontSizePx).toBeLessThanOrEqual(26)
     })
 
-    it('itShouldFitFullCenterStackWhenMascotQrAndAllSectionsFilled', () => {
+    it('should fit full center stack when mascot qr and all sections filled', () => {
         const target = resolvePrintTarget({ stockId: '40x20-rect', printerId: 'niimbot-b21' })
         const composer = new LabelComposer(target)
         const engine = new LabelLayoutEngine(target.effectiveDpi)
@@ -383,7 +383,7 @@ describe('LabelComposer', () => {
         expect(result.bodyFontSizePx).toBeLessThan(26)
     })
 
-    it('itShouldUseLargerFontOnTallerLabelStockWhenContentIsSparse', () => {
+    it('should use larger font on taller label stock when content is sparse', () => {
         const compact = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
         const tall = new LabelComposer(resolvePrintTarget({ stockId: '40x30-rounded' }))
         const input = {
@@ -400,7 +400,7 @@ describe('LabelComposer', () => {
         expect(tallResult.bodyFontSizePx).toBeGreaterThan(compactResult.bodyFontSizePx)
     })
 
-    it('itShouldShrinkTitleFontWhenWiderLogoColumnStealsCenterWidth', () => {
+    it('should shrink title font when wider logo column steals center width', () => {
         const target = resolvePrintTarget({ stockId: '40x30-rounded' })
         const narrowLogo = new LabelComposer(target)
         const wideLogo = new LabelComposer(target)
@@ -416,7 +416,7 @@ describe('LabelComposer', () => {
         expect(wideResult.logoColumnWidthPercent).toBe(40)
     })
 
-    it('itShouldShrinkTitleFontWhenWiderCoaColumnStealsCenterWidth', () => {
+    it('should shrink title font when wider coa column steals center width', () => {
         const target = resolvePrintTarget({ stockId: '40x30-rounded' })
         const narrowQr = new LabelComposer(target)
         const wideQr = new LabelComposer(target)
@@ -432,7 +432,7 @@ describe('LabelComposer', () => {
         expect(wideResult.qrColumnWidthPercent).toBe(48)
     })
 
-    it('itShouldKeepTitleFontLargerThanBodyWhenSectionsAndSideColumnsPrint', () => {
+    it('should keep title font larger than body when sections and side columns print', () => {
         const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded', printerId: 'niimbot-b1-pro' }))
         const result = composer.compose({
             compoundName: 'Tirzepatide',
@@ -459,7 +459,7 @@ describe('LabelComposer', () => {
         expect(result.titleLines.length).toBeGreaterThanOrEqual(2)
     })
 
-    it('itShouldDefaultToIdentityHeaderLayout', () => {
+    it('should default to identity header layout', () => {
         const target = resolvePrintTarget({ stockId: '40x20-rounded', printerId: 'niimbot-b1-pro' })
         const input = {
             compoundName: 'Tirzepatide',
@@ -486,7 +486,7 @@ describe('LabelComposer', () => {
         expect(result.titleFontSizePx / result.bodyFontSizePx).toBeGreaterThanOrEqual(1.35)
     })
 
-    it('shouldWrapLongCompoundNamesUsingFullInnerRowWidth', () => {
+    it('should wrap long compound names using full inner row width', () => {
         const target = resolvePrintTarget({ stockId: '40x20-rounded', printerId: 'niimbot-b1-pro' })
         const base = {
             compoundName: 'Test Compound!!!!!!!!!!',
@@ -507,7 +507,7 @@ describe('LabelComposer', () => {
         expect(result.titleLines.join(' ')).toContain('COMPOUND')
     })
 
-    it('itShouldExposeResolvedColumnPercentsMatchingComputeColumnLayout', () => {
+    it('should expose resolved column percents matching compute column layout', () => {
         const target = resolvePrintTarget({ stockId: '40x30-rounded' })
         const composer = new LabelComposer(target)
         const result = composer.compose({
@@ -529,7 +529,7 @@ describe('LabelComposer', () => {
         expect(result.qrColumnWidthPercent).toBe(expected.qrWidthPercent)
     })
 
-    it('shouldPrintTestIndicatorsWithoutCoaQrWhenCoaPrintingIsDisabled', () => {
+    it('should print test indicators without coa qr when coa printing is disabled', () => {
         const composer = new LabelComposer()
         const result = composer.compose({
             compoundName: 'Tirzepatide',
@@ -551,7 +551,7 @@ describe('LabelComposer', () => {
         expect(result.testIndicatorLayout!.markSizePx).toBeGreaterThan(result.testIndicatorLayout!.labelFontSizePx)
     })
 
-    it('shouldOmitTestIndicatorLayoutWhenNoTestsPrintOnTheLabel', () => {
+    it('should omit test indicator layout when no tests print on the label', () => {
         const composer = new LabelComposer()
         const result = composer.compose({
             compoundName: 'Test',
@@ -562,7 +562,7 @@ describe('LabelComposer', () => {
         expect(result.testIndicatorLayout).toBeUndefined()
     })
 
-    it('shouldReserveTestingColumnForIndicatorsEvenWithoutCoaLinks', () => {
+    it('should reserve testing column for indicators even without coa links', () => {
         const composer = new LabelComposer()
         const withoutIndicators = composer.compose({ compoundName: 'Test' })
         const withIndicators = composer.compose({

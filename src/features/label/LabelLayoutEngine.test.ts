@@ -3,7 +3,7 @@ import { LabelLayoutEngine } from './LabelLayoutEngine'
 import { mmToPx } from './print/dimensions'
 
 describe('LabelLayoutEngine', () => {
-    it('itShouldReturnSameLinesWhenTheyAlreadyFit', () => {
+    it('should return same lines when they already fit', () => {
         const engine = new LabelLayoutEngine(300)
 
         const result = engine.layout({
@@ -16,7 +16,7 @@ describe('LabelLayoutEngine', () => {
         expect(result.fontSizePx).toBeGreaterThan(0)
     })
 
-    it('itShouldWrapLongLines', () => {
+    it('should wrap long lines', () => {
         const engine = new LabelLayoutEngine(300)
 
         const result = engine.layout({
@@ -28,7 +28,7 @@ describe('LabelLayoutEngine', () => {
         expect(result.wrappedLines.length).toBeGreaterThan(1)
     })
 
-    it('itShouldWrapIntoMultipleLinesWhenLineExceedsWidth', () => {
+    it('should wrap into multiple lines when line exceeds width', () => {
         const engine = new LabelLayoutEngine(300)
 
         const result = engine.layout({
@@ -40,7 +40,7 @@ describe('LabelLayoutEngine', () => {
         expect(result.wrappedLines.length).toBeGreaterThan(1)
     })
 
-    it('itShouldReduceFontSizeWhenTooManyLinesToFitHeight', () => {
+    it('should reduce font size when too many lines to fit height', () => {
         const engine = new LabelLayoutEngine(300)
 
         const result = engine.layout({
@@ -59,7 +59,7 @@ describe('LabelLayoutEngine', () => {
         expect(result.fontSizePx).toBeLessThan(26)
     })
 
-    it('itShouldWrapMoreAggressivelyWhenWidthIsSmaller', () => {
+    it('should wrap more aggressively when width is smaller', () => {
         const engine = new LabelLayoutEngine(300)
 
         const wide = engine.layout({
@@ -77,7 +77,7 @@ describe('LabelLayoutEngine', () => {
         expect(narrow.wrappedLines.length).toBeGreaterThan(wide.wrappedLines.length)
     })
 
-    it('itShouldShrinkBoxedBodyFontWhenSectionsOverflow', () => {
+    it('should shrink boxed body font when sections overflow', () => {
         const engine = new LabelLayoutEngine(300)
         const labelWidthPx = mmToPx(40, 300)
 
@@ -95,7 +95,7 @@ describe('LabelLayoutEngine', () => {
         expect(result.fontSizePx).toBeLessThan(26)
     })
 
-    it('itShouldShrinkBoldTitleToFitCenterColumnWidth', () => {
+    it('should shrink bold title to fit center column width', () => {
         const engine = new LabelLayoutEngine(203)
         const innerMm = 38
         const centerWidthMm = Math.max(1, innerMm * (1 - 0.2 - 0.38) - 2) * 0.92

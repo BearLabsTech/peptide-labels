@@ -97,7 +97,7 @@ describe('computeIdentityHeaderTitleBand', () => {
     expect(wideQr.spanFraction).not.toBe(wideLogo.spanFraction)
   })
 
-  it('shouldBreakTitleOutToFullInnerRowFromCenterColumn', () => {
+  it('should break title out to full inner row from center column', () => {
     const columns = computeColumnLayout({
       labelWidthMm: 40,
       paddingMm: 0.5,

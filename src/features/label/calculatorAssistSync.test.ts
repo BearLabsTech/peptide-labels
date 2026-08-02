@@ -1,13 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { resolveAssistModeUpdates } from './calculatorAssistSync'
 import type { LabelModelInput } from './labelModel'
+import { highCapacityRegressionScenario } from './testing/labelInputBuilder'
 
-const BASE_INPUT: LabelModelInput = {
-    compoundAmount: '100',
-    vialUnit: 'mg',
-    protocolAmount: '1',
-    measureUnit: 'mg',
-}
+/** 100 mg vial / 1 mg protocol — regression fixture for vial-capacity warning behavior. */
+const BASE_INPUT: LabelModelInput = highCapacityRegressionScenario()
 
 describe('resolveAssistModeUpdates', () => {
     it('should not produce assist updates in Manual Entry', () => {

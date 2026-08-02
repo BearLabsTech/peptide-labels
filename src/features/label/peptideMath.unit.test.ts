@@ -382,19 +382,10 @@ describe('calculateDrawVolumeFromTargetConcentration', () => {
 })
 
 describe('authoritative assist inputs', () => {
-    it('should keep target concentration in set concentration solve results', () => {
-        const result = calculateFromTargetConcentration({
-            vialAmount: 22,
-            vialUnit: 'mg',
-            targetConcentration: 15,
-            targetAmount: 4,
-            targetUnit: 'mg',
-        })
-        expect(result?.concentrationMgPerMl).toBe(15)
-        expect(result?.waterMl).toBeCloseTo(22 / 15, 10)
-        expect(result?.drawUnits).toBeCloseTo((4 / 15) * 100, 10)
-    })
-
+    // The set-concentration case (vial 22mg / target 15mg-per-ml / protocol 4mg) is
+    // already covered above by "should use target concentration for draw units
+    // without rounding water for math" — same input, same assertions, plus the
+    // formatted-label checks. This block covers the set-draw-volume analogue only.
     it('should keep draw units when reverse water is exact (not display-rounded) in set draw volume math', () => {
         const waterMl = calculateReverseWater({
             vialAmount: 22,

@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { resolveLabelMath } from './LabelMathResolver'
+import { displayConcentration, displayDrawUnits } from './calculatorModeSwitch'
+import type { LabelModelInput } from './labelModel'
 import {
     isProtocolExceedsVial,
     computeMeasuresPerVialRaw,
@@ -256,18 +258,19 @@ describe('resolver extremes', () => {
     })
 
     it('should keep set-draw math stable with long fractional vial amounts', () => {
-        const result = resolveLabelMath({
+        const input: LabelModelInput = {
             compoundAmount: '12.345678',
             vialUnit: 'mg',
             protocolAmount: '1.2345678',
             measureUnit: 'mg',
             protocolUnits: '33 units',
             calculatorSolveMode: 'target_units',
-        })
+        }
+        const result = resolveLabelMath(input)
         // water = draw/100 * vial/protocol = 0.33 * 10 = 3.3 exact when ratio is 10
         expect(result.autoWater).toBe('3.3')
         expect(result.autoConcentration).toBe('3.741mg per ml')
-        expect(result.mergedInput.protocolUnits).toBe('33 units')
+        expect(displayDrawUnits('target_units', input, result)).toBe('33 units')
     })
 
     it('should derive exact 3× water for IU set-draw defaults', () => {
@@ -369,33 +372,35 @@ describe('pathological strings and extreme ratios', () => {
 
 describe('display must not feed back into assist solves', () => {
     it('should keep target concentration authoritative when water display rounds', () => {
-        const result = resolveLabelMath({
+        const input: LabelModelInput = {
             compoundAmount: '1',
             vialUnit: 'mg',
             protocolAmount: '0.1',
             measureUnit: 'mg',
             calculatorSolveMode: 'round_concentration',
             targetConcentration: '3',
-        })
+        }
+        const result = resolveLabelMath(input)
         // Exact water 1/3; display 0.333 — back-calc would be ~3.003
         expect(result.autoWater).toBe('0.333')
         expect(result.autoConcentration).toBe('3mg per ml')
-        expect(result.mergedInput.concentration).toBe('3mg per ml')
+        expect(displayConcentration(input, result)).toBe('3mg per ml')
         expect(result.autoUnits).toBe('3.333 units')
     })
 
     it('should keep user draw units when reverse water has awkward decimals', () => {
-        const result = resolveLabelMath({
+        const input: LabelModelInput = {
             compoundAmount: '19.7',
             vialUnit: 'mg',
             protocolAmount: '3.3',
             measureUnit: 'mg',
             protocolUnits: '41 units',
             calculatorSolveMode: 'target_units',
-        })
+        }
+        const result = resolveLabelMath(input)
         const exactWater = (41 * 19.7) / (3.3 * 100)
         expect(result.autoWater).toBe(formatWaterAmountLabel(exactWater))
-        expect(result.mergedInput.protocolUnits).toBe('41 units')
+        expect(displayDrawUnits('target_units', input, result)).toBe('41 units')
         expect(result.autoConcentration).toBe(formatConcentrationLabel(19.7 / exactWater, 'mg'))
     })
 })

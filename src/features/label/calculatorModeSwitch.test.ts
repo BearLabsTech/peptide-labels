@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import type { LabelFieldUpdater, LabelModelInput } from './labelModel'
 import type { CalculatorSolveMode } from './peptideMath'
 import { resolveLabelMath } from './LabelMathResolver'
+import { manualEntryScenario } from './testing/labelInputBuilder'
 import {
     applyCalculatorModeSwitch,
     applyFieldUpdates,
@@ -26,15 +27,7 @@ const EXPECTED = {
 
 /** 20 mg vial, 1 ml water, 3 mg protocol — matches common label screenshot scenario. */
 function manualScenario(): LabelModelInput {
-    return {
-        compoundAmount: '20',
-        vialUnit: 'mg',
-        reconstitutionAmount: '1',
-        protocolAmount: '3',
-        measureUnit: 'mg',
-        protocolUnits: '15 units',
-        calculatorSolveMode: 'standard',
-    }
+    return manualEntryScenario()
 }
 
 function switchMode(input: LabelModelInput, mode: CalculatorSolveMode): LabelModelInput {
@@ -325,7 +318,6 @@ describe('calculator mode switching', () => {
 
         const result = resolveLabelMath(withStaleWater)
         expect(result.autoWater).toBe('1')
-        expect(result.mergedInput.reconstitutionAmount).toBe('1')
         expect(result.autoConcentration).toBe('20mg per ml')
         expect(displayWaterAmount('target_units', withStaleWater, result)).toBe('1')
     })
@@ -355,14 +347,14 @@ describe('calculator mode switching', () => {
             targetConcentration: '10',
         }
         const fromConcentration = resolveLabelMath(setConcentration)
-        expect(fromConcentration.mergedInput.reconstitutionAmount).toBe('2.15')
+        expect(displayWaterAmount('round_concentration', setConcentration, fromConcentration)).toBe('2.15')
 
         const setDrawVolume = switchMode(
             { ...setConcentration, reconstitutionAmount: '2' },
             'target_units',
         )
         const fromDrawVolume = resolveLabelMath(setDrawVolume)
-        expect(fromDrawVolume.mergedInput.reconstitutionAmount).toBe('2.15')
+        expect(displayWaterAmount('target_units', setDrawVolume, fromDrawVolume)).toBe('2.15')
         expect(fromDrawVolume.autoWater).toBe('2.15')
         expect(fromDrawVolume.autoConcentration).toBe('10mg per ml')
     })
