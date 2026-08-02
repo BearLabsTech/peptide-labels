@@ -17,6 +17,10 @@ import {
 } from './drawUnitsPolicy'
 
 describe('drawUnitsPresets', () => {
+    it('should freeze DRAW_UNITS_PRESETS so callers cannot mutate the shared list', () => {
+        expect(Object.isFrozen(DRAW_UNITS_PRESETS)).toBe(true)
+    })
+
     it('should offer 5-unit steps through 50 and 10-unit steps through 100', () => {
         expect(DRAW_UNITS_PRESETS).toEqual([
             '5', '10', '15', '20', '25', '30', '35', '40', '45', '50',

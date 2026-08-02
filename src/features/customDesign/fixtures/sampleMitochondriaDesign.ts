@@ -11,7 +11,7 @@ const MITO_ICON_PNG_BASE64 =
  * Frames are laid out for a readable community-style vial sticker:
  * vertical RESEARCH on the left, name + inverted amount, icon on the right.
  */
-export const SAMPLE_MITOCHONDRIA_DESIGN: DesignDocument = {
+export const SAMPLE_MITOCHONDRIA_DESIGN = {
   schemaVersion: 1,
   id: 'design-fixture-mitochondria-40x20',
   name: 'Mitochondria sample',
@@ -113,4 +113,4 @@ export const SAMPLE_MITOCHONDRIA_DESIGN: DesignDocument = {
       objectFit: 'contain',
     },
   ],
-}
+} as const satisfies DesignDocument

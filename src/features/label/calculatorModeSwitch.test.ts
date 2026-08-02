@@ -11,6 +11,7 @@ import {
     applyStandardVialAmountChange,
     applyStandardWaterChange,
     applyVialCapacityRecommendationChange,
+    CALCULATOR_LABEL_BY_MODE,
     ensureReconstitutionPrintForAssist,
     displayConcentration,
     displayDrawUnits,
@@ -27,6 +28,12 @@ describe('parseCalculatorModeOption', () => {
 
     it('should reject an unknown calculator mode label', () => {
         expect(parseCalculatorModeOption('Unknown Mode')).toBeUndefined()
+    })
+})
+
+describe('CALCULATOR_LABEL_BY_MODE', () => {
+    it('should freeze the mode-to-label map so callers cannot mutate it', () => {
+        expect(Object.isFrozen(CALCULATOR_LABEL_BY_MODE)).toBe(true)
     })
 })
 

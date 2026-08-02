@@ -9,7 +9,7 @@ export const CUSTOM_STOCK_PADDING_MM = 1
 
 const defaultStock = getStockById(DEFAULT_STOCK_ID)!
 
-export const SKIP_DEFAULT_TARGET: PrintTarget = {
+export const SKIP_DEFAULT_TARGET = {
   labelWidthMm: defaultStock.widthMm,
   labelHeightMm: defaultStock.heightMm,
   effectiveDpi: DEFAULT_DPI,
@@ -19,4 +19,4 @@ export const SKIP_DEFAULT_TARGET: PrintTarget = {
   stockId: defaultStock.id,
   dimensionId: defaultStock.dimensionId,
   vialCapacityMl: DEFAULT_VIAL_CAPACITY_ML,
-}
+} as const satisfies PrintTarget

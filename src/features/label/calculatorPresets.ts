@@ -9,7 +9,7 @@ export const PROTOCOL_AMOUNT_PRESETS_MG = ['1', '2', '3', '4', '5', '6', '10'] a
 export const PROTOCOL_AMOUNT_PRESETS_MCG = ['100', '250', '500', '750', '1000'] as const
 export const PROTOCOL_AMOUNT_PRESETS_IU = ['10', '25', '50', '100', '200'] as const
 export const WATER_PRESETS_ML = ['0.5', '1', '1.5', '2', '2.5', '3'] as const
-export const DRAW_UNITS_PRESETS = DRAW_UNIT_QUICK_PICKS.map(String)
+export const DRAW_UNITS_PRESETS = Object.freeze(DRAW_UNIT_QUICK_PICKS.map(String))
 
 export function vialAmountPresets(vialUnit: 'mg' | 'IU' | undefined): readonly string[] {
     return vialUnit === 'IU' ? VIAL_AMOUNT_PRESETS_IU : VIAL_AMOUNT_PRESETS_MG
