@@ -1,6 +1,7 @@
 import type { LabelFieldUpdater, LabelModelInput, LabelModelPatch } from './labelModel'
 import type { CalculatorSolveMode } from './peptideMath'
 import {
+    DEFAULT_CALCULATOR_SOLVE_MODE,
     hasPositiveDrawUnits,
     hasPositiveVialAmount,
     resolveDefaultDrawUnitsLabel,
@@ -8,6 +9,8 @@ import {
 } from './peptideMath'
 import { resolveLabelMath, type ResolvedLabelMath } from './LabelMathResolver'
 import { DEFAULT_VIAL_CAPACITY_ML } from './vialCapacity'
+
+export { DEFAULT_CALCULATOR_SOLVE_MODE } from './peptideMath'
 
 export interface CalculatorModeDerivedState {
     autoConcentration?: string;
@@ -20,9 +23,6 @@ export const CALCULATOR_MODE_OPTIONS = [
     'Set Concentration',
     'Manual Entry',
 ] as const;
-
-/** Fresh-session default assist mode (calculator and label designer). */
-export const DEFAULT_CALCULATOR_SOLVE_MODE: CalculatorSolveMode = 'target_units';
 
 export type CalculatorModeOption = (typeof CALCULATOR_MODE_OPTIONS)[number];
 

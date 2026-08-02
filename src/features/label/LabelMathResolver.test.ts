@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { resolveLabelMath, type ResolvedLabelMath } from './LabelMathResolver'
 import { displayConcentration, displayDrawUnits, displayWaterAmount } from './calculatorModeSwitch'
 import type { LabelModelInput } from './labelModel'
+import { DEFAULT_CALCULATOR_SOLVE_MODE } from './peptideMath'
 import { roundConcentrationRoundingTrapScenario, roundTripDriftTrapScenario } from './testing/labelInputBuilder'
 
 /**
@@ -12,7 +13,7 @@ import { roundConcentrationRoundingTrapScenario, roundTripDriftTrapScenario } fr
  * docs/CODE-QUALITY.md section B, "separate authored from derived data").
  */
 function displayedValues(input: LabelModelInput, result: ResolvedLabelMath) {
-    const mode = input.calculatorSolveMode || 'standard'
+    const mode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE
     return {
         water: displayWaterAmount(mode, input, result),
         units: displayDrawUnits(mode, input, result),
@@ -176,6 +177,41 @@ describe('LabelMathResolver', () => {
         expect(result.autoWater).toBe('2')
         expect(result.autoUnits).toBe('10 units')
         expect(result.autoConcentration).toBe('2500IU per ml')
+    })
+
+    it('should solve using the default assist mode when no mode is set', () => {
+        const inputWithoutMode: LabelModelInput = {
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            reconstitutionAmount: '2',
+            protocolAmount: '5',
+            measureUnit: 'mg',
+            protocolUnits: '25 units',
+        }
+        const inputWithExplicitDefault: LabelModelInput = {
+            ...inputWithoutMode,
+            calculatorSolveMode: DEFAULT_CALCULATOR_SOLVE_MODE,
+        }
+
+        const resolvedWithoutMode = resolveLabelMath(inputWithoutMode)
+        const resolvedWithExplicitDefault = resolveLabelMath(inputWithExplicitDefault)
+
+        // The resolver's implicit fallback must agree with the UI's canonical
+        // DEFAULT_CALCULATOR_SOLVE_MODE (calculatorModeSwitch.ts / useLabelForm.ts),
+        // not a different, unexported default of its own.
+        expect(resolvedWithoutMode.autoWater).toBe(resolvedWithExplicitDefault.autoWater)
+        expect(resolvedWithoutMode.autoUnits).toBe(resolvedWithExplicitDefault.autoUnits)
+        expect(resolvedWithoutMode.autoConcentration).toBe(resolvedWithExplicitDefault.autoConcentration)
+
+        // Set Draw Volume (target_units) is the FRD's default assist path: the draw
+        // units already entered are authoritative, so water/concentration are
+        // recomputed from them — not from forward vial/water math, which is what a
+        // silent 'standard' fallback would use instead.
+        expect(resolvedWithoutMode.autoWater).toBe('1')
+        expect(resolvedWithoutMode.autoConcentration).toBe('20mg per ml')
+
+        expect(displayedValues(inputWithoutMode, resolvedWithoutMode))
+            .toEqual(displayedValues(inputWithExplicitDefault, resolvedWithExplicitDefault))
     })
 })
 

@@ -1,5 +1,6 @@
 import type { LabelModelInput } from './labelModel'
 import {
+    DEFAULT_CALCULATOR_SOLVE_MODE,
     calculateDrawVolume,
     calculateReverseWater,
     calculateFromTargetConcentration,
@@ -68,7 +69,7 @@ function parseLabelMathInput(input: LabelModelInput): ParsedLabelMathInput {
         targetConcentration: parseFloat(input.targetConcentration || '0'),
         vialUnit,
         protocolUnit: resolveMeasureUnit(vialUnit, input.measureUnit),
-        mode: (input.calculatorSolveMode || 'standard') as CalculatorSolveMode,
+        mode: input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE,
     };
 }
 

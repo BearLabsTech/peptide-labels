@@ -35,6 +35,14 @@ export interface PeptideConcentrationSolveResult {
 
 export type CalculatorSolveMode = 'standard' | 'round_concentration' | 'target_units';
 
+/**
+ * Fresh-session default assist mode (calculator and label designer) — Set
+ * Draw Volume, per the FRD. Single source of truth: every caller that must
+ * fall back when `LabelModelInput.calculatorSolveMode` is unset imports this
+ * constant rather than hard-coding its own default.
+ */
+export const DEFAULT_CALCULATOR_SOLVE_MODE: CalculatorSolveMode = 'target_units';
+
 export const DEFAULT_TARGET_CONCENTRATION = 10;
 export const DEFAULT_DRAW_UNITS_PER_MG = 10;
 export const DEFAULT_DRAW_UNITS_PER_IU = 10;
