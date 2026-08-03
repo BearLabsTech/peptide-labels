@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { resolveLabelMath } from './LabelMathResolver'
-import { displayConcentration, displayDrawUnits } from './calculatorModeSwitch'
+import { displayConcentration, displayDrawUnits } from './calculatorDisplay'
 import type { LabelModelInput } from './labelModel'
 import {
     isProtocolExceedsCompound,

@@ -6,10 +6,13 @@ import {
     calculatorModeFromLabel,
     calculatorModeLabel,
     concentrationUnitLabel,
+} from './calculatorModeSwitch'
+import {
     displayConcentration,
     displayDrawUnits,
     displayWaterAmount,
-} from './calculatorModeSwitch'
+} from './calculatorDisplay'
+import { SOLVE_STRATEGIES } from './domain/solveStrategy'
 import {
     computeMeasuresPerVialRaw,
     formatMeasuresPerVialDisplay,
@@ -113,6 +116,7 @@ export function useCalculatorViewModel({
     }
     const handlers = createLabelFormHandlers(input, updateField, vialCapacityMl)
     const solveMode = resolveCalculatorMode(input)
+    const { authoritativeField } = SOLVE_STRATEGIES[solveMode]
     const syringeCapacityMl = parseSyringeCapacityMl(input.syringeCapacityMl)
     const blocked = isProtocolExceedsCompound(input)
     const hasCompound = hasPositiveCompoundAmount(input.compoundAmount)
@@ -137,9 +141,9 @@ export function useCalculatorViewModel({
         blocked,
         readyForResults,
         showHint: !hasCompound || !hasProtocol,
-        showDrawField: solveMode === 'target_units',
-        showTargetConcentrationField: solveMode === 'round_concentration',
-        showWaterField: solveMode === 'standard',
+        showDrawField: authoritativeField === 'drawUnits',
+        showTargetConcentrationField: authoritativeField === 'targetConcentration',
+        showWaterField: authoritativeField === 'water',
         showVialCapacityWarning: isWaterAboveVialCapacity(input, vialCapacityMl),
         measureOptions: input.vialUnit === 'IU' ? ['IU'] : ['mg', 'mcg'],
         concentrationUnit: concentrationUnitLabel(input.vialUnit),

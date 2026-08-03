@@ -101,14 +101,16 @@ export function calculatorReducer(state: LabelModelInput, event: CalculatorEvent
             )
 
         case 'ModeChanged': {
-            // The incoming mode's strategy is authoritative for this edit, not the
-            // outgoing one — `oldDerived` (computed from the outgoing mode, before
-            // any field changes below) is the only channel back to it.
             const oldDerived = resolveLabelMath(state)
+            const outgoing = SOLVE_STRATEGIES[resolveCalculatorMode(state)]
             return applyFieldEdit(
                 SOLVE_STRATEGIES[event.mode],
                 state,
-                { kind: 'mode', oldDerived },
+                {
+                    kind: 'mode',
+                    oldDerived,
+                    outgoingWaterFollowsDrawUnits: outgoing.waterFollowsDrawUnitsRecommendation,
+                },
                 event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML,
             )
         }

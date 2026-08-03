@@ -71,7 +71,7 @@ describe('StandardSolve.onFieldChanged', () => {
         const draft: LabelModelInput = {
             compoundAmount: '20', vialUnit: 'mg', reconstitutionAmount: '2', concentration: '20mg per ml', calculatorSolveMode: 'target_units',
         }
-        const next = StandardSolve.onFieldChanged(draft, { kind: 'mode', oldDerived: { autoUnits: '', autoWater: '', autoConcentration: '' } }, 3)
+        const next = StandardSolve.onFieldChanged(draft, { kind: 'mode', oldDerived: { autoUnits: '', autoWater: '', autoConcentration: '' }, outgoingWaterFollowsDrawUnits: true }, 3)
         expect(next.calculatorSolveMode).toBe('standard')
         expect(next.concentration).toBe('10mg per ml')
     })

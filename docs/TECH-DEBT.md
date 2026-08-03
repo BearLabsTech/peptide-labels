@@ -31,24 +31,6 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 
 ---
 
-### Solve-mode branching still lives outside the SolveStrategy registry
-
-**Priority:** Medium
-**Status:** Open — found 2026-08-03 (Phase 8.3 plan-claims verification, finding F1).
-
-**Symptom:** `domain/solveStrategy.ts`'s frozen `SOLVE_STRATEGIES` registry (Phase 2 action 2.6) was meant to be the one place that branches on `calculatorSolveMode`. Four more places still branch on the mode independently:
-
-- `domain/roundConcentrationSolve.ts:42` reads *another* mode's provenance (`draft.protocolUnitsOrigin === 'recommended'` guarded by `draft.calculatorSolveMode === 'target_units'`) — a strategy inspecting a different mode's id, the exact cross-mode coupling the registry was meant to remove.
-- `calculatorModeSwitch.ts` branches on mode in `displayDrawUnits`, `displayWaterAmount`, and `ensureReconstitutionPrintForAssist` — display-precedence rules that differ per mode but live outside the strategy that owns the mode.
-- `calculatorGuards.ts`'s `calculateRequiredWaterMl` re-derives water per mode independently of `SolveStrategy.deriveMath`, so vial-capacity warning math and calculator math are two code paths computing the same fact.
-- `useCalculatorViewModel.ts` and `components/useSidebarSectionsViewModel.ts` branch on mode for field visibility — arguably a UI concern, but it means a fourth solve mode would still touch two view models.
-
-**When fixing:** Decide whether display precedence and field visibility belong on `SolveStrategy` (e.g. `displayPrecedence()` / `visibleFields()` members) or are a legitimate UI-layer exemption from the "no mode branching outside the registry" rule — then remove `roundConcentrationSolve.ts:42`'s cross-mode read (the information it needs, whether the current draw-units value is system-generated, is already carried by `protocolUnitsOrigin` alone), and route `calculateRequiredWaterMl` through `SolveStrategy.deriveMath` instead of re-deriving.
-
-**Standard:** CODE-QUALITY.md section A — Strategy pattern in deliberate use; one place should own a mode's behavior.
-
----
-
 ### View-model components still over the ~120-line soft budget
 
 **Priority:** Low
@@ -76,6 +58,10 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 ---
 
 ## Resolved
+
+### Solve-mode branching still lives outside the SolveStrategy registry
+
+**Resolved:** 2026-08-03. Display precedence, field visibility, required-water math, and cross-mode entry flags now route through `SOLVE_STRATEGIES` members (`waterIsDerived`, `drawUnitsAreDerived`, `authoritativeField`, `requiredWaterMl`, `outgoingWaterFollowsDrawUnits`).
 
 ### mg/IU draw-units disagree below 1 unit
 

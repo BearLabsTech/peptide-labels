@@ -1,10 +1,13 @@
 import { RECONSTITUTION_TYPES, resolveCalculatorMode } from '../peptideMath'
 import {
     concentrationUnitLabel,
+} from '../calculatorModeSwitch'
+import {
     displayConcentration,
     displayDrawUnits,
     displayWaterAmount,
-} from '../calculatorModeSwitch'
+} from '../calculatorDisplay'
+import { SOLVE_STRATEGIES } from '../domain/solveStrategy'
 import { SHOW_SYRINGE_ON_DESIGNER, parseSyringeCapacityMl, type SyringeCapacityMl } from '../syringe'
 import { buildQrCodes } from '../coaLinks'
 import type { LabelFieldUpdater, LabelModelInput } from '../labelModel'
@@ -86,16 +89,17 @@ export function deriveReconstitutionSectionViewModel(
     vialCapacityMl: number,
 ): ReconstitutionSectionViewModel {
     const solveMode = resolveCalculatorMode(input)
+    const { authoritativeField } = SOLVE_STRATEGIES[solveMode]
     return {
         isSectionActive: input.showReconstitution !== false,
         solveMode,
-        waterDisabled: solveMode !== 'standard',
+        waterDisabled: SOLVE_STRATEGIES[solveMode].waterIsDerived,
         concentrationUnitLabel: concentrationUnitLabel(input.vialUnit),
         waterAmount: displayWaterAmount(solveMode, input, derivedState),
         concentrationDisplay: displayConcentration(input, derivedState),
         reconstitutionTypeOptions: RECONSTITUTION_TYPES,
-        showRoundConcentrationHint: solveMode === 'round_concentration',
-        showTargetUnitsHint: solveMode === 'target_units',
+        showRoundConcentrationHint: authoritativeField === 'targetConcentration',
+        showTargetUnitsHint: authoritativeField === 'drawUnits',
         showVialCapacityWarning: isWaterAboveVialCapacity(input, vialCapacityMl),
     }
 }
@@ -110,7 +114,7 @@ export function deriveProtocolSectionViewModel(
         isSectionActive: input.showProtocol !== false,
         measureUnitOptions: input.vialUnit === 'IU' ? ['IU'] : ['mg', 'mcg'],
         solveMode,
-        drawUnitsDisabled: solveMode === 'round_concentration',
+        drawUnitsDisabled: SOLVE_STRATEGIES[solveMode].drawUnitsAreDerived,
         drawLabel: displayDrawUnits(solveMode, input, derivedState),
         showSyringeAssist: SHOW_SYRINGE_ON_DESIGNER && hasProtocol,
         syringeCapacityMl: parseSyringeCapacityMl(input.syringeCapacityMl),

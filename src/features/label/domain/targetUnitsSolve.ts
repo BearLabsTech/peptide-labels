@@ -4,10 +4,14 @@ import {
     hasPositiveDrawUnits,
     hasPositiveCompoundAmount,
     resolveDefaultDrawUnitsLabel,
+    calculateReverseWater,
+    parseNumericField,
+    resolveMeasureUnit,
 } from '../peptideMath'
 import { ensureReconstitutionPrintForAssist, protocolUnitsPatch } from '../calculatorModeSwitch'
 import { calcReverse, deriveGenericMath, hasCompoundAndProtocol, parseLabelMathInput, type ResolvedLabelMath } from './labelMathCore'
 import type { CalculatorFieldEdit, CalculatorFieldKind, SolveStrategy } from './solveStrategy'
+import { makeUnitWorld } from './units'
 
 function deriveMath(draft: LabelModelInput): ResolvedLabelMath {
     const parsed = parseLabelMathInput(draft)
@@ -126,13 +130,32 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
     const resolved = deriveMath(resolvedDraft)
     if (resolved.autoWater) updates.reconstitutionAmount = resolved.autoWater
     if (resolved.autoConcentration) updates.concentration = resolved.autoConcentration
-    Object.assign(updates, ensureReconstitutionPrintForAssist(DEFAULT_CALCULATOR_SOLVE_MODE, resolved, resolvedDraft))
+    Object.assign(updates, ensureReconstitutionPrintForAssist(resolved, resolvedDraft))
 
     return updates
 }
 
+function requiredWaterMl(input: LabelModelInput): number | null {
+    const compoundAmount = parseFloat(input.compoundAmount || '')
+    if (!(compoundAmount > 0)) return null
+    const vialUnit = input.vialUnit || 'mg'
+    const unitWorld = makeUnitWorld(vialUnit, resolveMeasureUnit(vialUnit, input.measureUnit))
+    if (!unitWorld) return null
+    return calculateReverseWater({
+        compoundAmount,
+        unitWorld,
+        drawUnits: parseNumericField(input.protocolUnits),
+        protocolAmount: parseFloat(input.protocolAmount || ''),
+    })
+}
+
 export const TargetUnitsSolve: SolveStrategy = {
     id: DEFAULT_CALCULATOR_SOLVE_MODE,
+    authoritativeField: 'drawUnits',
+    waterIsDerived: true,
+    drawUnitsAreDerived: false,
+    waterFollowsDrawUnitsRecommendation: true,
+    requiredWaterMl,
     deriveMath,
     onFieldChanged,
     recommendDefaults,

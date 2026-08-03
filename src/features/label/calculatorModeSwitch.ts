@@ -23,12 +23,6 @@ export function targetConcentrationPatch(p: Provenance<string>): Pick<LabelModel
     return { targetConcentration: p.value, targetConcentrationOrigin: p.origin }
 }
 
-export interface CalculatorModeDerivedState {
-    autoConcentration?: string;
-    autoUnits?: string;
-    autoWater?: string;
-}
-
 export const CALCULATOR_MODE_OPTIONS = [
     'Set Draw Volume',
     'Set Concentration',
@@ -68,36 +62,6 @@ export function concentrationUnitLabel(vialUnit?: 'mg' | 'IU'): string {
     return vialUnit === 'IU' ? 'IU per ml' : 'mg per ml';
 }
 
-export function displayWaterAmount(
-    mode: CalculatorSolveMode,
-    input: LabelModelInput,
-    derived?: CalculatorModeDerivedState,
-): string {
-    if (mode !== 'standard' && !hasPositiveCompoundAmount(input.compoundAmount)) return '';
-    if (mode !== 'standard') return derived?.autoWater || input.reconstitutionAmount || '';
-    return input.reconstitutionAmount || derived?.autoWater || '';
-}
-
-export function displayDrawUnits(
-    mode: CalculatorSolveMode,
-    input: LabelModelInput,
-    derived?: CalculatorModeDerivedState,
-): string {
-    if (mode === 'round_concentration') return derived?.autoUnits || input.protocolUnits || '';
-    return input.protocolUnits || derived?.autoUnits || '';
-}
-
-/**
- * Concentration display. Prefer freshly derived values so a leftover assist result
- * cannot stick after Manual Entry water/vial changes.
- */
-export function displayConcentration(
-    input: LabelModelInput,
-    derived?: CalculatorModeDerivedState,
-): string {
-    return derived?.autoConcentration || input.concentration || '';
-}
-
 export interface ResolvedCalculatorValues {
     water: string;
     units: string;
@@ -116,11 +80,9 @@ export function readResolvedCalculatorValues(
 }
 
 export function ensureReconstitutionPrintForAssist(
-    mode: CalculatorSolveMode,
     resolved: ResolvedLabelMath,
     input: LabelModelInput,
 ): LabelModelPatch {
-    if (mode !== 'target_units' && mode !== 'round_concentration') return {};
     if (!hasPositiveCompoundAmount(input.compoundAmount)) return {};
     if (!resolved.autoWater && !resolved.autoConcentration) return {};
 

@@ -3,7 +3,7 @@ import {
   displayConcentration,
   displayDrawUnits,
   displayWaterAmount,
-} from './calculatorModeSwitch'
+} from './calculatorDisplay'
 import type { LabelModelInput } from './labelModel'
 import { formatDrawVolumeLabel, parseNumericDisplayPrefix, printableField } from './labelModel'
 import { formatDisplayNumber, hasPositiveCompoundAmount, resolveCalculatorMode } from './peptideMath'

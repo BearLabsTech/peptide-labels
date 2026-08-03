@@ -41,8 +41,17 @@ export type CalculatorFieldEdit =
      * keeps every strategy a leaf module with no dependency on the registry
      * that assembles them, so there is no import cycle back through
      * `LabelMathResolver.ts`.
+     *
+     * `outgoingWaterFollowsDrawUnits` is the outgoing mode's
+     * {@link SolveStrategy.waterFollowsDrawUnitsRecommendation}, passed as a
+     * plain boolean rather than the outgoing strategy itself for the same
+     * leaf-module reason.
      */
-    | { readonly kind: 'mode'; readonly oldDerived: ResolvedLabelMath }
+    | {
+        readonly kind: 'mode'
+        readonly oldDerived: ResolvedLabelMath
+        readonly outgoingWaterFollowsDrawUnits: boolean
+      }
     | { readonly kind: 'targetConcentration' }
     | { readonly kind: 'vialCapacity' }
 
@@ -55,6 +64,39 @@ export type CalculatorFieldEdit =
  */
 export interface SolveStrategy {
     readonly id: CalculatorSolveMode
+
+    /**
+     * The single input field this mode solves from — the only one the
+     * calculator offers as editable. Replaces `mode === 'target_units'`-style
+     * checks in the view models.
+     */
+    readonly authoritativeField: 'water' | 'drawUnits' | 'targetConcentration'
+
+    /**
+     * True when this mode computes the water volume rather than taking it as
+     * authored input. Drives display precedence (a derived value wins over a
+     * stored one) and whether the water field is editable.
+     */
+    readonly waterIsDerived: boolean
+
+    /** Same, for draw volume: true when this mode computes it rather than accepting it. */
+    readonly drawUnitsAreDerived: boolean
+
+    /**
+     * True when this mode's stored water/concentration is a by-product of a
+     * draw-units *recommendation* rather than anything the user authored — so
+     * a mode being entered can tell whether the outgoing mode's stored values
+     * are safe to seed a new recommendation from. See `roundConcentrationSolve`'s
+     * `onModeEntered`.
+     */
+    readonly waterFollowsDrawUnitsRecommendation: boolean
+
+    /**
+     * Exact water this mode's inputs imply, in ml, before any display
+     * rounding — or null when the inputs are incomplete. Used by the
+     * vial-capacity warning, which must not compare against a rounded value.
+     */
+    requiredWaterMl(input: LabelModelInput): number | null
 
     /** Forward/reverse math for this mode, falling back to the shared generic math. */
     deriveMath(draft: LabelModelInput): ResolvedLabelMath

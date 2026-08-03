@@ -55,7 +55,7 @@ describe('RoundConcentrationSolve.onFieldChanged', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', reconstitutionAmount: '1', calculatorSolveMode: 'standard' }
         const next = RoundConcentrationSolve.onFieldChanged(
             draft,
-            { kind: 'mode', oldDerived: { autoUnits: '', autoWater: '', autoConcentration: '' } },
+            { kind: 'mode', oldDerived: { autoUnits: '', autoWater: '', autoConcentration: '' }, outgoingWaterFollowsDrawUnits: false },
             3,
         )
         expect(next.calculatorSolveMode).toBe('round_concentration')
@@ -73,7 +73,7 @@ describe('RoundConcentrationSolve.onFieldChanged', () => {
         }
         const next = RoundConcentrationSolve.onFieldChanged(
             generatedDraw,
-            { kind: 'mode', oldDerived: { autoUnits: '', autoWater: '', autoConcentration: '33.333mg per ml' } },
+            { kind: 'mode', oldDerived: { autoUnits: '', autoWater: '', autoConcentration: '33.333mg per ml' }, outgoingWaterFollowsDrawUnits: true },
             3,
         )
         expect(next.targetConcentration).toBe('33.334')

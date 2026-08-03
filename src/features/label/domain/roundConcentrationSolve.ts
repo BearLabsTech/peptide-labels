@@ -1,5 +1,10 @@
 import type { LabelModelInput, LabelModelPatch } from '../labelModel'
-import { hasPositiveCompoundAmount, resolveDefaultTargetConcentration } from '../peptideMath'
+import {
+    hasPositiveCompoundAmount,
+    resolveDefaultTargetConcentration,
+    calculateWaterFromTargetConcentration,
+    parseNumericField,
+} from '../peptideMath'
 import { ensureReconstitutionPrintForAssist, protocolUnitsPatch, targetConcentrationPatch } from '../calculatorModeSwitch'
 import {
     calcFromConcentration,
@@ -29,17 +34,22 @@ function onProtocolAmountChanged(draft: LabelModelInput, value: string): LabelMo
  * Entering Set Concentration: recommend a target concentration when none
  * exists yet. Prefers the already-authored `concentration` label; when that
  * is empty, prefers the outgoing mode's own derived concentration over a
- * blind vial ÷ stored-water ratio, since a Set Draw Volume exit in
- * particular may be about to replace `protocolUnitsOrigin: 'recommended'`
- * — using its own exact derived value (not the stored, possibly-generated
- * water) avoids seeding the new target from a value tied to a draw-units
- * recommendation about to be discarded.
+ * blind vial ÷ stored-water ratio, since when `outgoingWaterFollowsDrawUnits`
+ * is true the stored water/concentration may be a by-product of a draw-units
+ * recommendation about to be discarded — using the outgoing mode's exact
+ * derived concentration (not the stored, possibly-generated water) avoids
+ * seeding the new target from values tied to that recommendation.
  */
-function onModeEntered(draft: LabelModelInput, vialCapacityMl: number, oldDerived: ResolvedLabelMath): LabelModelInput {
+function onModeEntered(
+    draft: LabelModelInput,
+    vialCapacityMl: number,
+    oldDerived: ResolvedLabelMath,
+    outgoingWaterFollowsDrawUnits: boolean,
+): LabelModelInput {
     let next: LabelModelInput = { ...draft, calculatorSolveMode: 'round_concentration' }
     const canRecommendTarget = hasPositiveCompoundAmount(draft.compoundAmount) || Boolean(draft.concentration?.trim())
     if (!draft.targetConcentration?.trim() && canRecommendTarget) {
-        const generatedDrawSource = draft.calculatorSolveMode === 'target_units' && draft.protocolUnitsOrigin === 'recommended'
+        const generatedDrawSource = outgoingWaterFollowsDrawUnits && draft.protocolUnitsOrigin === 'recommended'
         const recommendationInput = generatedDrawSource
             ? { compoundAmount: draft.compoundAmount }
             : { ...draft, concentration: draft.concentration || oldDerived.autoConcentration }
@@ -71,7 +81,7 @@ function onFieldChanged(draft: LabelModelInput, edit: CalculatorFieldEdit, vialC
     switch (edit.kind) {
         case 'compoundAmount': return { ...draft, compoundAmount: edit.value }
         case 'protocolAmount': return onProtocolAmountChanged(draft, edit.value)
-        case 'mode': return onModeEntered(draft, vialCapacityMl, edit.oldDerived)
+        case 'mode': return onModeEntered(draft, vialCapacityMl, edit.oldDerived, edit.outgoingWaterFollowsDrawUnits)
         case 'vialCapacity': return onVialCapacityChanged(draft, vialCapacityMl)
         // water/drawVolume: Set Concentration is solved from target concentration
         // alone — direct edits to either are not authoritative here, so the mode
@@ -119,7 +129,7 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
     const resolved = deriveMath(resolvedDraft)
     if (resolved.autoWater) updates.reconstitutionAmount = resolved.autoWater
     if (resolved.autoConcentration) updates.concentration = resolved.autoConcentration
-    Object.assign(updates, ensureReconstitutionPrintForAssist('round_concentration', resolved, resolvedDraft))
+    Object.assign(updates, ensureReconstitutionPrintForAssist(resolved, resolvedDraft))
 
     if (resolved.autoUnits) {
         Object.assign(updates, protocolUnitsPatch({
@@ -130,8 +140,19 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
     return updates
 }
 
+function requiredWaterMl(input: LabelModelInput): number | null {
+    const compoundAmount = parseFloat(input.compoundAmount || '')
+    if (!(compoundAmount > 0)) return null
+    return calculateWaterFromTargetConcentration(compoundAmount, parseNumericField(input.targetConcentration))
+}
+
 export const RoundConcentrationSolve: SolveStrategy = {
     id: 'round_concentration',
+    authoritativeField: 'targetConcentration',
+    waterIsDerived: true,
+    drawUnitsAreDerived: true,
+    waterFollowsDrawUnitsRecommendation: false,
+    requiredWaterMl,
     deriveMath,
     onFieldChanged,
     recommendDefaults,

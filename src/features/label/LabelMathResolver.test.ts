@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { resolveLabelMath, type ResolvedLabelMath } from './LabelMathResolver'
-import { displayConcentration, displayDrawUnits, displayWaterAmount } from './calculatorModeSwitch'
+import { displayConcentration, displayDrawUnits, displayWaterAmount } from './calculatorDisplay'
 import type { LabelModelInput } from './labelModel'
 import { DEFAULT_CALCULATOR_SOLVE_MODE } from './peptideMath'
 import { roundConcentrationRoundingTrapScenario, roundTripDriftTrapScenario } from './testing/labelInputBuilder'

@@ -59,7 +59,7 @@ describe('TargetUnitsSolve.onFieldChanged', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', protocolAmount: '3', measureUnit: 'mg', calculatorSolveMode: 'standard' }
         const next = TargetUnitsSolve.onFieldChanged(
             draft,
-            { kind: 'mode', oldDerived: { autoUnits: '', autoWater: '', autoConcentration: '' } },
+            { kind: 'mode', oldDerived: { autoUnits: '', autoWater: '', autoConcentration: '' }, outgoingWaterFollowsDrawUnits: false },
             3,
         )
         expect(next.calculatorSolveMode).toBe('target_units')

@@ -1,4 +1,5 @@
 import type { LabelModelInput, LabelModelPatch } from '../labelModel'
+import { parseNumericField } from '../peptideMath'
 import { protocolUnitsPatch } from '../calculatorModeSwitch'
 import { deriveGenericMath, parseLabelMathInput, type ResolvedLabelMath } from './labelMathCore'
 import type { CalculatorFieldEdit, SolveStrategy } from './solveStrategy'
@@ -57,8 +58,19 @@ function recommendDefaults(): LabelModelPatch {
     return {}
 }
 
+/** Manual Entry's water is the authored field — no compound-amount precondition. */
+function requiredWaterMl(input: LabelModelInput): number | null {
+    const waterMl = parseNumericField(input.reconstitutionAmount)
+    return waterMl > 0 ? waterMl : null
+}
+
 export const StandardSolve: SolveStrategy = {
     id: 'standard',
+    authoritativeField: 'water',
+    waterIsDerived: false,
+    drawUnitsAreDerived: false,
+    waterFollowsDrawUnitsRecommendation: false,
+    requiredWaterMl,
     deriveMath,
     onFieldChanged,
     recommendDefaults,

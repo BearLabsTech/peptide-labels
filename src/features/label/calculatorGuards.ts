@@ -1,36 +1,12 @@
 import {
-    calculateReverseWater,
-    calculateWaterFromTargetConcentration,
     formatDisplayNumberFixed,
-    parseNumericField,
     resolveCalculatorMode,
     resolveMeasureUnit,
 } from './peptideMath'
 import type { LabelModelInput } from './labelModel'
 import { normalizeVialCapacityMl } from './vialCapacity'
 import { makeUnitWorld, protocolAmountInVialUnits as protocolAmountToVialUnitsBasis } from './domain/units'
-
-/**
- * The field that is authoritative for the input's current calculator mode —
- * each variant carries only its own field, so a mode cannot be paired with
- * another mode's authoritative value.
- */
-export type CalculatorModeInput =
-    | { readonly mode: 'standard'; readonly waterMl: number }
-    | { readonly mode: 'target_units'; readonly drawUnits: number }
-    | { readonly mode: 'round_concentration'; readonly targetConcentration: number }
-
-/** Parses only the field that is authoritative for the input's current mode. */
-export function parseCalculatorModeInput(input: LabelModelInput): CalculatorModeInput {
-    const mode = resolveCalculatorMode(input)
-    if (mode === 'standard') {
-        return { mode, waterMl: parseNumericField(input.reconstitutionAmount) }
-    }
-    if (mode === 'round_concentration') {
-        return { mode, targetConcentration: parseNumericField(input.targetConcentration) }
-    }
-    return { mode, drawUnits: parseNumericField(input.protocolUnits) }
-}
+import { SOLVE_STRATEGIES } from './domain/solveStrategy'
 
 /** Convert protocol amount into the vial's unit basis (mg or IU). */
 export function protocolAmountInVialUnits(input: LabelModelInput): number | null {
@@ -76,27 +52,7 @@ export function formatMeasuresPerVialDisplay(raw: number): string {
 
 /** Exact water implied by the current calculator inputs, before display rounding. */
 export function calculateRequiredWaterMl(input: LabelModelInput): number | null {
-    const modeInput = parseCalculatorModeInput(input)
-    if (modeInput.mode === 'standard') {
-        return modeInput.waterMl > 0 ? modeInput.waterMl : null
-    }
-
-    const compoundAmount = parseFloat(input.compoundAmount || '')
-    if (!(compoundAmount > 0)) return null
-
-    if (modeInput.mode === 'round_concentration') {
-        return calculateWaterFromTargetConcentration(compoundAmount, modeInput.targetConcentration)
-    }
-
-    const vialUnit = input.vialUnit || 'mg'
-    const unitWorld = makeUnitWorld(vialUnit, resolveMeasureUnit(vialUnit, input.measureUnit))
-    if (!unitWorld) return null // unrepresentable: UnitWorld pairs vialUnit with measureUnit
-    return calculateReverseWater({
-        compoundAmount: compoundAmount,
-        unitWorld,
-        drawUnits: modeInput.drawUnits,
-        protocolAmount: parseFloat(input.protocolAmount || ''),
-    })
+    return SOLVE_STRATEGIES[resolveCalculatorMode(input)].requiredWaterMl(input)
 }
 
 export function isWaterAboveVialCapacity(

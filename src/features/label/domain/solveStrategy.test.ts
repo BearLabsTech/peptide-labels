@@ -33,7 +33,11 @@ describe('SOLVE_STRATEGIES registry', () => {
             expect(() => strategy.onFieldChanged(draft, { kind: 'protocolUnits', value: '5 units' }, 3)).not.toThrow()
             expect(() => strategy.onFieldChanged(
                 draft,
-                { kind: 'mode', oldDerived: { autoUnits: '', autoWater: '', autoConcentration: '' } },
+                {
+                    kind: 'mode',
+                    oldDerived: { autoUnits: '', autoWater: '', autoConcentration: '' },
+                    outgoingWaterFollowsDrawUnits: false,
+                },
                 3,
             )).not.toThrow()
             expect(() => strategy.onFieldChanged(draft, { kind: 'targetConcentration' }, 3)).not.toThrow()
