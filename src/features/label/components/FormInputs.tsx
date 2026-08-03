@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { ChangeEvent, CSSProperties, ReactNode } from 'react'
+import { readImageFileAsDataUrl } from './readImageFileAsDataUrl'
 
 const inputStyle: CSSProperties = {
     width: '100%', padding: '10px 12px', border: '1px solid var(--color-border)',
@@ -138,22 +139,48 @@ export function SelectInput<T extends string>({ label, value, onChange, options,
 
 export interface ImageUploadProps { label: string; onChange: (base64: string) => void; currentImage?: string; }
 export function ImageUploadInput({ label, onChange, currentImage }: ImageUploadProps) {
-    const [fileName, setFileName] = useState<string | null>(null);
+    const [fileName, setFileName] = useState<string | null>(null)
+    const [isReading, setIsReading] = useState(false)
+    const [uploadError, setUploadError] = useState<string | null>(null)
+
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]; if (!file) return;
-        setFileName(file.name);
-        const reader = new FileReader(); reader.onloadend = () => onChange(reader.result as string);
-        reader.readAsDataURL(file);
+        const file = e.target.files?.[0]
+        if (!file) return
+        setFileName(file.name)
+        setUploadError(null)
+        setIsReading(true)
+        void readImageFileAsDataUrl(file).then((result) => {
+            setIsReading(false)
+            if (!result.ok) {
+                setUploadError(result.error)
+                setFileName(null)
+                return
+            }
+            onChange(result.value)
+        })
     }
-    const handleRemove = () => { setFileName(null); onChange(''); }
+    const handleRemove = () => {
+        setFileName(null)
+        setUploadError(null)
+        onChange('')
+    }
 
     return (
         <div style={{ marginBottom: 16 }}>
             <FieldHeader label={label} />
             {!currentImage ? (
                 <div className="dropzone-container">
-                    <input type="file" accept="image/*" onChange={handleFileChange} className="dropzone-input" />
-                    <div className="dropzone-text">Click to browse or drop image</div>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="dropzone-input"
+                        disabled={isReading}
+                        aria-busy={isReading}
+                    />
+                    <div className="dropzone-text">
+                        {isReading ? 'Reading image…' : 'Click to browse or drop image'}
+                    </div>
                     <div className="dropzone-subtext">Ideal ratio: 1:2 (Portrait) or 1:1 (Square)</div>
                 </div>
             ) : (
@@ -162,6 +189,11 @@ export function ImageUploadInput({ label, onChange, currentImage }: ImageUploadP
                     {fileName && <div className="file-name-badge">{fileName}</div>}
                     <button onClick={handleRemove} style={{ marginTop: 16, padding: '8px 12px', fontSize: '0.85rem', cursor: 'pointer', backgroundColor: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: '1px solid var(--color-danger)', borderRadius: 'var(--radius-sm)', width: '100%', fontWeight: 600, transition: 'all 0.2s' }}>Remove Image</button>
                 </div>
+            )}
+            {uploadError && (
+                <p className="label-export-error" role="alert" style={{ marginTop: 8 }}>
+                    {uploadError}
+                </p>
             )}
         </div>
     )

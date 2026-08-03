@@ -1,8 +1,9 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { installMemoryLocalStorage } from '../test/memoryLocalStorage'
 import {
     clearPrintSetup,
     loadPrintSetup,
+    PRINT_SETUP_SAVE_FAILED_MESSAGE,
     savePrintSetup,
 } from './printStorage'
 
@@ -11,6 +12,7 @@ const STORAGE_KEY = 'peptide-labels-print-setup'
 describe('print setup persistence', () => {
     beforeEach(() => {
         installMemoryLocalStorage()
+        vi.restoreAllMocks()
     })
 
     it('should return null when storage is empty or malformed', () => {
@@ -26,11 +28,11 @@ describe('print setup persistence', () => {
     })
 
     it('should save canonical state and load it unchanged', () => {
-        savePrintSetup({
+        expect(savePrintSetup({
             printerId: 'niimbot-b21',
             stockId: '40x20-rounded',
             vialCapacityMl: 7.5,
-        })
+        })).toEqual({ ok: true, value: undefined })
 
         expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({
             printerId: 'niimbot-b21',
@@ -59,16 +61,22 @@ describe('print setup persistence', () => {
         expect(loadPrintSetup()).toBeNull()
     })
 
-    it('should tolerate storage write and removal failures', () => {
+    it('should surface a settings-could-not-be-saved result when storage writes fail', () => {
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
         localStorage.setItem = () => {
             throw new Error('blocked')
         }
-        expect(() => savePrintSetup({ stockId: '40x20-rounded' })).not.toThrow()
+        expect(savePrintSetup({ stockId: '40x20-rounded' })).toEqual({
+            ok: false,
+            error: PRINT_SETUP_SAVE_FAILED_MESSAGE,
+        })
+        expect(errorSpy).toHaveBeenCalled()
 
         installMemoryLocalStorage()
         localStorage.removeItem = () => {
             throw new Error('blocked')
         }
         expect(() => clearPrintSetup()).not.toThrow()
+        expect(errorSpy).toHaveBeenCalled()
     })
 })

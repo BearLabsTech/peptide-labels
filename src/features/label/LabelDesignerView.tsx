@@ -21,6 +21,7 @@ export interface LabelDesignerViewProps {
     setupOpen: boolean
     onSetupOpenChange: (open: boolean) => void
     openPrintSetup: () => void
+    printPersistError?: string | null
 }
 
 export function LabelDesignerView({
@@ -33,6 +34,7 @@ export function LabelDesignerView({
     setupOpen,
     onSetupOpenChange,
     openPrintSetup,
+    printPersistError = null,
 }: LabelDesignerViewProps) {
     const composer = useMemo(() => new LabelComposer(printTarget), [printTarget])
     const today = getTodayDateString()
@@ -52,6 +54,7 @@ export function LabelDesignerView({
                 onPrintSelectionChange={onPrintSelectionChange}
                 setupOpen={setupOpen}
                 onSetupOpenChange={onSetupOpenChange}
+                printPersistError={printPersistError}
             />
             <LabelStage
                 model={model}

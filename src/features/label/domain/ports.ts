@@ -1,4 +1,5 @@
 import type { ExportSpec } from '../../../print/types'
+import type { Result } from '../../../shared/result'
 
 /**
  * Port interfaces for every I/O boundary this feature (and `customDesign`,
@@ -47,7 +48,8 @@ export interface FileDownloader {
 /** A synchronous string key/value store — the shape `localStorage` already has. */
 export interface KeyValueStore {
     get(key: string): string | null
-    set(key: string, value: string): void
+    /** Returns failure when the underlying store rejects the write (quota, privacy mode, etc.). */
+    set(key: string, value: string): Result<void, string>
     remove(key: string): void
 }
 

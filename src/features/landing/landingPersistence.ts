@@ -1,9 +1,12 @@
 import { USER_AGREEMENT_VERSION } from '../../content/userAgreementVersion'
 import type { KeyValueStore } from '../label/domain/ports'
 import { LocalStorageKeyValueStore } from '../../platform/LocalStorageKeyValueStore'
+import type { Result } from '../../shared/result'
 
 const STORAGE_KEY = 'peptide-labels.user-agreement'
 const defaultStore: KeyValueStore = new LocalStorageKeyValueStore()
+
+export const AGREEMENT_SAVE_FAILED_MESSAGE = 'Settings could not be saved.'
 
 export interface AgreementAcknowledgment {
     readonly version: number
@@ -21,7 +24,8 @@ export function readAgreementAcknowledgment(
             return null
         }
         return { version: parsed.version, acknowledgedAt: parsed.acknowledgedAt }
-    } catch {
+    } catch (error) {
+        console.error('Agreement acknowledgment read failed', error)
         return null
     }
 }
@@ -36,13 +40,16 @@ export function hasCurrentAgreementAcknowledgment(
 export function persistAgreementAcknowledgment(
     now: () => Date = () => new Date(),
     store: KeyValueStore = defaultStore,
-): AgreementAcknowledgment {
+): Result<AgreementAcknowledgment, string> {
     const record: AgreementAcknowledgment = {
         version: USER_AGREEMENT_VERSION,
         acknowledgedAt: now().toISOString(),
     }
-    store.set(STORAGE_KEY, JSON.stringify(record))
-    return record
+    const write = store.set(STORAGE_KEY, JSON.stringify(record))
+    if (!write.ok) {
+        return { ok: false, error: AGREEMENT_SAVE_FAILED_MESSAGE }
+    }
+    return { ok: true, value: record }
 }
 
 export function clearAgreementAcknowledgment(store: KeyValueStore = defaultStore): void {

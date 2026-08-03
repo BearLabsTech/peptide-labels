@@ -1,4 +1,7 @@
 import type { KeyValueStore } from '../features/label/domain/ports'
+import type { Result } from '../shared/result'
+
+const STORAGE_UNAVAILABLE = 'Browser storage is unavailable.'
 
 /** Synchronous key/value store backed by `localStorage`. */
 export class LocalStorageKeyValueStore implements KeyValueStore {
@@ -6,17 +9,22 @@ export class LocalStorageKeyValueStore implements KeyValueStore {
     if (typeof localStorage === 'undefined') return null
     try {
       return localStorage.getItem(key)
-    } catch {
+    } catch (error) {
+      console.error('localStorage get failed', error)
       return null
     }
   }
 
-  set(key: string, value: string): void {
-    if (typeof localStorage === 'undefined') return
+  set(key: string, value: string): Result<void, string> {
+    if (typeof localStorage === 'undefined') {
+      return { ok: false, error: STORAGE_UNAVAILABLE }
+    }
     try {
       localStorage.setItem(key, value)
-    } catch {
-      // Storage can be unavailable in restricted browsing contexts.
+      return { ok: true, value: undefined }
+    } catch (error) {
+      console.error('localStorage set failed', error)
+      return { ok: false, error: STORAGE_UNAVAILABLE }
     }
   }
 
@@ -24,8 +32,8 @@ export class LocalStorageKeyValueStore implements KeyValueStore {
     if (typeof localStorage === 'undefined') return
     try {
       localStorage.removeItem(key)
-    } catch {
-      // Clearing persisted preferences should not interrupt the app.
+    } catch (error) {
+      console.error('localStorage remove failed', error)
     }
   }
 }

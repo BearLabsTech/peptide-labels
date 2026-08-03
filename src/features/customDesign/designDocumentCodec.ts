@@ -20,6 +20,7 @@ export function parseDesignDocument(json: string): ParseDesignDocumentResult {
     parsed = JSON.parse(json)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'invalid JSON'
+    console.error('Design document JSON parse failed', error)
     return {
       ok: false,
       issues: [{ path: '', message: 'JSON parse failed' }],

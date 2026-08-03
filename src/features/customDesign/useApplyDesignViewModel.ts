@@ -272,12 +272,15 @@ export function useApplyDesignViewModel({
   }, [library, design, isBuiltinSample, isInLibrary, refreshLibrary, openDesign, setLibraryError])
 
   const exportDesignFile = useCallback(() => {
+    setIsBusy(true)
+    setStatusMessage(null)
     const result = exportDesignFileToDisk(design)
     if (result.ok) {
       setStatusMessage('Design file downloaded — send it in a message to share.')
     } else {
       setLibraryError(result.error)
     }
+    setIsBusy(false)
   }, [design, setLibraryError])
 
   const removeFromLibrary = useCallback(async () => {

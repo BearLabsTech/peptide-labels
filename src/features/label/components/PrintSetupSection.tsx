@@ -21,6 +21,7 @@ export interface PrintSetupSectionProps {
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  persistError?: string | null
 }
 
 export function PrintSetupSection({
@@ -29,6 +30,7 @@ export function PrintSetupSection({
   defaultOpen = true,
   open,
   onOpenChange,
+  persistError = null,
 }: PrintSetupSectionProps) {
   const vm = usePrintSetupSectionViewModel(selection, onChange)
 
@@ -40,6 +42,11 @@ export function PrintSetupSection({
       open={open}
       onOpenChange={onOpenChange}
     >
+      {persistError && (
+        <p className="label-export-error" role="alert" style={{ marginBottom: 12 }}>
+          {persistError}
+        </p>
+      )}
       <div style={{ marginBottom: 16 }}>
         <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
           Printer (optional)

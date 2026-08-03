@@ -23,12 +23,13 @@ export default function App() {
         setupOpen,
         setSetupOpen,
         openPrintSetup,
+        persistError: printPersistError,
     } = usePrintSetup()
     const [input, setInput] = useState<LabelModelInput>(getEmptyInput)
     const [hasStartedEditing, setHasStartedEditing] = useState(false)
     const [view, setView] = useState<AppView>('landing')
     const [mode, setMode] = useState<WorkspaceMode>('calculator')
-    const { needsAcknowledgment, acknowledge } = useAgreementGate()
+    const { needsAcknowledgment, acknowledge, persistError: agreementPersistError } = useAgreementGate()
     const [handoffOpen, setHandoffOpen] = useState(false)
 
     function updateField<K extends keyof LabelModelInput>(field: K, value: LabelModelInput[K]) {
@@ -49,6 +50,7 @@ export default function App() {
                     needsAcknowledgment={needsAcknowledgment}
                     onAcknowledge={acknowledge}
                     onChoose={handleChoose}
+                    persistError={agreementPersistError}
                 />
             )}
             {view === 'workspace' && (
@@ -76,6 +78,7 @@ export default function App() {
                                 setupOpen={setupOpen}
                                 onSetupOpenChange={setSetupOpen}
                                 openPrintSetup={openPrintSetup}
+                                printPersistError={printPersistError}
                             />
                         )}
                         {mode === 'customDesign' && (

@@ -1,9 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { Scroller } from './domain/ports'
 import { BrowserScroller } from '../../platform/BrowserScroller'
 import type { PrintSetupSelection } from '../../print/types'
 import { resolvePrintTarget } from '../../print/PrintTargetResolver'
-import { loadPrintSetup, normalizePrintSetup, savePrintSetup } from '../../print/printStorage'
+import {
+  loadPrintSetup,
+  normalizePrintSetup,
+  PRINT_SETUP_SAVE_FAILED_MESSAGE,
+  savePrintSetup,
+} from '../../print/printStorage'
 
 const defaultScroller: Scroller = new BrowserScroller()
 
@@ -16,17 +21,24 @@ export function openPrintSetupSection(
   scroller.scrollTo('print-setup')
 }
 
+function persistPrintSelection(selection: PrintSetupSelection): string | null {
+  const result = savePrintSetup(selection)
+  return result.ok ? null : (result.error || PRINT_SETUP_SAVE_FAILED_MESSAGE)
+}
+
 export function usePrintSetup(scroller: Scroller = defaultScroller) {
-  const [selection, setSelection] = useState<PrintSetupSelection>(() =>
+  const [selection, setSelectionState] = useState<PrintSetupSelection>(() =>
     normalizePrintSetup(loadPrintSetup() ?? {}),
   )
   const [setupOpen, setSetupOpen] = useState(false)
+  const [persistError, setPersistError] = useState<string | null>(null)
 
   const printTarget = useMemo(() => resolvePrintTarget(selection), [selection])
 
-  useEffect(() => {
-    savePrintSetup(selection)
-  }, [selection])
+  const setSelection = useCallback((next: PrintSetupSelection) => {
+    setSelectionState(next)
+    setPersistError(persistPrintSelection(next))
+  }, [])
 
   const openPrintSetup = useCallback(() => {
     openPrintSetupSection(setSetupOpen, scroller)
@@ -39,5 +51,6 @@ export function usePrintSetup(scroller: Scroller = defaultScroller) {
     setupOpen,
     setSetupOpen,
     openPrintSetup,
+    persistError,
   }
 }

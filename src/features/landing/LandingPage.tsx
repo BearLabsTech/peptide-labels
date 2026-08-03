@@ -7,9 +7,15 @@ export interface LandingPageProps {
     needsAcknowledgment: boolean
     onAcknowledge: () => void
     onChoose: (entry: LandingEntry) => void
+    persistError?: string | null
 }
 
-export function LandingPage({ needsAcknowledgment, onAcknowledge, onChoose }: LandingPageProps) {
+export function LandingPage({
+    needsAcknowledgment,
+    onAcknowledge,
+    onChoose,
+    persistError = null,
+}: LandingPageProps) {
     return (
         <div className="landing-page">
             <div className="landing-page__content" aria-hidden={needsAcknowledgment || undefined}>
@@ -44,6 +50,11 @@ export function LandingPage({ needsAcknowledgment, onAcknowledge, onChoose }: La
                         Custom design (feature in progress)
                     </button>
                 </div>
+                {persistError && (
+                    <p className="label-export-error" role="alert">
+                        {persistError}
+                    </p>
+                )}
             </div>
             {needsAcknowledgment && <AgreementModal onAcknowledge={onAcknowledge} />}
         </div>

@@ -1,6 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { USER_AGREEMENT_VERSION } from '../../content/userAgreementVersion'
 import {
+    AGREEMENT_SAVE_FAILED_MESSAGE,
     clearAgreementAcknowledgment,
     hasCurrentAgreementAcknowledgment,
     persistAgreementAcknowledgment,
@@ -15,6 +16,7 @@ describe('landingPersistence', () => {
 
     afterEach(() => {
         clearAgreementAcknowledgment()
+        vi.restoreAllMocks()
     })
 
     it('should report missing acknowledgment when nothing is stored', () => {
@@ -25,8 +27,13 @@ describe('landingPersistence', () => {
     it('should treat the current version as acknowledged after persist', () => {
         const fixed = new Date('2026-07-14T12:00:00.000Z')
         const record = persistAgreementAcknowledgment(() => fixed)
-        expect(record.version).toBe(USER_AGREEMENT_VERSION)
-        expect(record.acknowledgedAt).toBe(fixed.toISOString())
+        expect(record).toEqual({
+            ok: true,
+            value: {
+                version: USER_AGREEMENT_VERSION,
+                acknowledgedAt: fixed.toISOString(),
+            },
+        })
         expect(hasCurrentAgreementAcknowledgment()).toBe(true)
     })
 
@@ -53,22 +60,28 @@ describe('landingPersistence', () => {
         delete (globalThis as { localStorage?: Storage }).localStorage
         expect(readAgreementAcknowledgment()).toBeNull()
         expect(persistAgreementAcknowledgment(() => new Date('2026-07-14T12:00:00.000Z'))).toEqual({
-            version: USER_AGREEMENT_VERSION,
-            acknowledgedAt: '2026-07-14T12:00:00.000Z',
+            ok: false,
+            error: AGREEMENT_SAVE_FAILED_MESSAGE,
         })
         expect(() => clearAgreementAcknowledgment()).not.toThrow()
     })
 
-    it('should tolerate storage write and removal failures', () => {
+    it('should surface a settings-could-not-be-saved result when storage writes fail', () => {
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
         localStorage.setItem = () => {
             throw new Error('blocked')
         }
-        expect(() => persistAgreementAcknowledgment()).not.toThrow()
+        expect(persistAgreementAcknowledgment()).toEqual({
+            ok: false,
+            error: AGREEMENT_SAVE_FAILED_MESSAGE,
+        })
+        expect(errorSpy).toHaveBeenCalled()
 
         installMemoryLocalStorage()
         localStorage.removeItem = () => {
             throw new Error('blocked')
         }
         expect(() => clearAgreementAcknowledgment()).not.toThrow()
+        expect(errorSpy).toHaveBeenCalled()
     })
 })

@@ -1,11 +1,13 @@
 import { useCallback, useState } from 'react'
 import {
+  AGREEMENT_SAVE_FAILED_MESSAGE,
   hasCurrentAgreementAcknowledgment,
   persistAgreementAcknowledgment,
 } from './landingPersistence'
 
 export interface AgreementGateState {
   readonly needsAcknowledgment: boolean
+  readonly persistError: string | null
   readonly acknowledge: () => void
 }
 
@@ -17,11 +19,17 @@ export function useAgreementGate(): AgreementGateState {
   const [needsAcknowledgment, setNeedsAcknowledgment] = useState(
     () => !hasCurrentAgreementAcknowledgment(),
   )
+  const [persistError, setPersistError] = useState<string | null>(null)
 
   const acknowledge = useCallback(() => {
-    persistAgreementAcknowledgment()
+    const result = persistAgreementAcknowledgment()
+    if (!result.ok) {
+      setPersistError(result.error || AGREEMENT_SAVE_FAILED_MESSAGE)
+      return
+    }
+    setPersistError(null)
     setNeedsAcknowledgment(false)
   }, [])
 
-  return { needsAcknowledgment, acknowledge }
+  return { needsAcknowledgment, persistError, acknowledge }
 }

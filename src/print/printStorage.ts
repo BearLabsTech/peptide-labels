@@ -3,9 +3,12 @@ import { LocalStorageKeyValueStore } from '../platform/LocalStorageKeyValueStore
 import type { PrintSetupSelection } from './types'
 import { DEFAULT_STOCK_ID } from './printCatalog'
 import { normalizeVialCapacityMl } from '../features/label/vialCapacity'
+import type { Result } from '../shared/result'
 
 const STORAGE_KEY = 'peptide-labels-print-setup'
 const defaultStore: KeyValueStore = new LocalStorageKeyValueStore()
+
+export const PRINT_SETUP_SAVE_FAILED_MESSAGE = 'Settings could not be saved.'
 
 function isPrintSetupSelection(value: unknown): value is PrintSetupSelection {
   if (typeof value !== 'object' || value == null || Array.isArray(value)) return false
@@ -79,7 +82,8 @@ export function loadPrintSetup(store: KeyValueStore = defaultStore): PrintSetupS
     if (!raw) return null
     const parsed: unknown = JSON.parse(raw)
     return isPrintSetupSelection(parsed) ? normalizePrintSetup(parsed) : null
-  } catch {
+  } catch (error) {
+    console.error('Print setup load failed', error)
     return null
   }
 }
@@ -87,8 +91,12 @@ export function loadPrintSetup(store: KeyValueStore = defaultStore): PrintSetupS
 export function savePrintSetup(
   selection: PrintSetupSelection,
   store: KeyValueStore = defaultStore,
-): void {
-  store.set(STORAGE_KEY, JSON.stringify(normalizePrintSetup(selection)))
+): Result<void, string> {
+  const result = store.set(STORAGE_KEY, JSON.stringify(normalizePrintSetup(selection)))
+  if (!result.ok) {
+    return { ok: false, error: PRINT_SETUP_SAVE_FAILED_MESSAGE }
+  }
+  return result
 }
 
 export function clearPrintSetup(store: KeyValueStore = defaultStore): void {

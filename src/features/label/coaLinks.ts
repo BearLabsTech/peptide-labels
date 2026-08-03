@@ -26,6 +26,7 @@ function validCoaUrl(value?: string): string | null {
     const parsed = new URL(trimmed)
     return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? trimmed : null
   } catch {
+    // Expected validation path for non-URL strings — not an I/O failure.
     return null
   }
 }

@@ -123,6 +123,13 @@ export function ApplyDesignView({ printSelection, library }: ApplyDesignViewProp
                   <span className="apply-design__library-item-meta">Built-in sample</span>
                 </button>
               </li>
+              {vm.libraryLoading && (
+                <li>
+                  <p className="apply-design__library-lede" role="status">
+                    Loading your designs…
+                  </p>
+                </li>
+              )}
               {vm.libraryDesigns.map((entry: DesignDocument) => (
                 <li key={entry.id}>
                   <button
@@ -157,8 +164,9 @@ export function ApplyDesignView({ printSelection, library }: ApplyDesignViewProp
                 className="apply-design__secondary-btn"
                 onClick={vm.exportDesignFile}
                 disabled={vm.isBusy}
+                aria-busy={vm.isBusy}
               >
-                Export design file
+                {vm.isBusy ? 'Working…' : 'Export design file'}
               </button>
               <button
                 type="button"
