@@ -10,8 +10,9 @@ export function resolveLabelLayoutMode(input: LabelModelInput): LabelLayoutMode 
 import { formatDrawUnitsLabel } from './peptideMath'
 
 /**
- * Parse a leading numeric prefix from a display string.
- * Phase 2 removes this once value and unit are separate typed fields.
+ * Parse a leading numeric prefix from a display string (e.g. `"2ml"` -> `2`).
+ * Draw/water fields are still authored as free-text strings with an optional
+ * unit suffix; this is the one place that prefix is read back out as a number.
  */
 export function parseNumericDisplayPrefix(raw: string): number | undefined {
   const match = raw.trim().match(/^([\d.]+)/)
@@ -23,7 +24,6 @@ export function parseNumericDisplayPrefix(raw: string): number | undefined {
 /**
  * Formats draw volume for label display, always including the units suffix.
  * Delegates suffix formatting to {@link formatDrawUnitsLabel}.
- * Phase 2 removes the regex prefix-parse once value and unit are separate fields.
  */
 export function formatDrawVolumeLabel(drawVolume?: string): string {
   if (!drawVolume?.trim()) return ''

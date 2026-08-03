@@ -74,7 +74,24 @@ const STOCK_40X30_RECT: LabelStock = {
 
 export const DEFAULT_STOCK_ID = STOCK_40X20_ROUNDED.id
 
-export const PRINT_CATALOG = {
+/**
+ * Recursively freezes an object and every array/object it contains, so no
+ * caller — including one that casts past `readonly` — can mutate a shared
+ * catalog reference and corrupt state for every other holder of it.
+ */
+function deepFreeze<T>(value: T): Readonly<T> {
+  if (Array.isArray(value)) {
+    for (const item of value) deepFreeze(item)
+    return Object.freeze(value)
+  }
+  if (value !== null && typeof value === 'object') {
+    for (const key of Object.keys(value)) deepFreeze((value as Record<string, unknown>)[key])
+    return Object.freeze(value)
+  }
+  return value
+}
+
+export const PRINT_CATALOG = deepFreeze({
   stocks: [
     STOCK_40X20_ROUNDED,
     STOCK_40X20_RECT,
@@ -115,17 +132,13 @@ export const PRINT_CATALOG = {
     { vialCapacityMl: 10, stockId: '50x30-rounded', rank: 1 },
     { vialCapacityMl: 10, stockId: '40x20-rounded', rank: 2 },
   ] satisfies readonly VialRecommendation[],
-} as const
+} as const)
 
+/** The catalog is deep-frozen, so handing out the live entry is safe — nothing can mutate it. */
 export function getPrinterById(id: string): Readonly<Printer> | undefined {
-  const printer = PRINT_CATALOG.printers.find((p) => p.id === id)
-  if (!printer) return undefined
-  // Live catalog identity is fine under Readonly; copy arrays so a caller cast-mutation cannot poison PRINT_CATALOG.
-  return { ...printer, labelIds: [...printer.labelIds] }
+  return PRINT_CATALOG.printers.find((p) => p.id === id)
 }
 
 export function getStockById(id: string): Readonly<LabelStock> | undefined {
-  const stock = PRINT_CATALOG.stocks.find((s) => s.id === id)
-  if (!stock) return undefined
-  return { ...stock, printerIds: [...stock.printerIds] }
+  return PRINT_CATALOG.stocks.find((s) => s.id === id)
 }

@@ -96,9 +96,9 @@ export function protocolAmountChipSuffixFor(
 
 /**
  * Owns every derived value and dispatch wrapper for {@link CalculatorView.tsx}. The math
- * itself already lives in `LabelMathResolver` / `calculatorGuards` / `calculatorModeSwitch`
- * (Phase 2); this hook's job is composing those into the exact render props the view needs,
- * so no domain rule or formatting decision is left encoded in JSX.
+ * itself already lives in `LabelMathResolver` / `calculatorGuards` / `calculatorModeSwitch`;
+ * this hook's job is composing those into the exact render props the view needs, so no
+ * domain rule or formatting decision is left encoded in JSX.
  */
 export function useCalculatorViewModel({
     input,

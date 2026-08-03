@@ -125,9 +125,20 @@ describe('default draw-unit boundaries', () => {
     })
 
     it('should fall back to flat 10 when scaled mcg defaults would be below 1', () => {
+        // Known disagreement: the IU branch above does NOT floor a sub-1-unit result
+        // to a flat placeholder the way this mg branch does (see the IU case in the
+        // next test) - tracked as an open, deliberate decision in docs/TECH-DEBT.md
+        // ("mg/IU draw-units disagree below 1 unit") rather than fixed here, since
+        // the fix changes calculateRecommendedDrawUnits' chosen value for a real
+        // scenario and needs a product call on which end of the recommended water
+        // range it should favor.
         expect(calculateDefaultDrawUnits(50, { vialUnit: 'mg', measureUnit: 'mcg' })).toBe(10)
         expect(calculateDefaultDrawUnits(99, { vialUnit: 'mg', measureUnit: 'mcg' })).toBe(10)
         expect(calculateDefaultDrawUnits(100, { vialUnit: 'mg', measureUnit: 'mcg' })).toBe(1)
+    })
+
+    it('should NOT floor a sub-1-unit IU result the same way the mg branch above does', () => {
+        expect(calculateDefaultDrawUnits(0.05, { vialUnit: 'IU', measureUnit: 'IU' })).toBeCloseTo(0.5)
     })
 })
 

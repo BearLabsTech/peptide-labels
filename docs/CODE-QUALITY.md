@@ -4,7 +4,7 @@
 
 **How to read it:** every standard is stated as a general principle first, in full, so it applies to a module written next year that resembles nothing here. An example follows, always framed as "for instance, in this codebase..." — the example illustrates the principle, it does not define its boundary.
 
-**Why it matters here specifically:** this app is client-side only (no backend to catch mistakes server-side), does safety-critical dosing math (a wrong number can mean a wrong dose), and makes a hard promise that the on-screen preview matches the thermal-printed output exactly. Structure that would be nice-to-have elsewhere is load-bearing here.
+**Why it matters here specifically:** this app is client-side only (no backend to catch mistakes server-side), does safety-critical reconstitution math (a wrong number can mean a wrong measured amount), and makes a hard promise that the on-screen preview matches the thermal-printed output exactly. Structure that would be nice-to-have elsewhere is load-bearing here.
 
 **When to use this doc:**
 
@@ -37,7 +37,7 @@ The acronym alone changes no behavior — each letter below is stated as a concr
 - **Single responsibility.** Test: can you name the module's job without the word "and"? For instance, `LabelMathResolver.ts` computes math and only math; it does not also decide what the label displays.
 - **Open/closed.** Adding a calculator mode or a label template should be a new file plus a registry entry, never edits scattered across several existing modules. This is the reason Phase 2 introduces a `SolveStrategy` registry and Phase 3 introduces `LabelTemplate` — today, adding either requires touching multiple files with a conditional branch each.
 - **Liskov substitution.** Every implementation of a shared interface (every `SolveStrategy`, every `LabelTemplate`) must be fully substitutable for any other. No implementation may throw "not supported" for a method its own interface promises, and none may silently no-op where a sibling implementation does real work. If one variant genuinely cannot honor a method, the interface is wrong and should be split.
-- **Interface segregation.** Depend on the narrowest thing that does the job, not the whole model because it happened to be in scope. For instance, `computeQrRenderSizePx` in `qrRenderSize.ts` takes a whole `QrRenderLayoutModel` typed with `readonly unknown[]` fields just to read two array lengths — the caller shape forced a wide, unsafe parameter. Taking two numbers instead would be both narrower and honest about what the function actually needs (see Phase 1's fix for this).
+- **Interface segregation.** Depend on the narrowest thing that does the job, not the whole model because it happened to be in scope. For instance, `computeQrRenderSizePx` in `qrRenderSize.ts` takes a narrow, fully-typed `QrRenderSizeInput` (`qrCodeCount`, `testIndicatorCount`, etc.) rather than a whole model — before Phase 1's fix, it took a `QrRenderLayoutModel` typed with `readonly unknown[]` fields just to read two array lengths, a wide, unsafe parameter the caller shape had forced on it.
 - **Dependency inversion.** Depend on abstractions only at I/O boundaries, never in domain code. Same principle as "one error convention" below applied to *dependencies* rather than *failures*: ports at the edge, concretions behind them.
 
 ### Small units, with budgets
@@ -85,7 +85,7 @@ For instance, `mergedInput` in `LabelMathResolver.ts` merges authored calculator
 
 State: values that represent a fact about the past (an input already submitted, a catalog entry, an exported spec) should not be mutable after creation. Mutability should be the exception, requested explicitly, not the default nobody thought about.
 
-Today: zero runtime freezing anywhere in `src/`; `PRINT_CATALOG` uses `as const` for compile-time literal narrowing only, which does not stop a runtime mutation of an array element. For instance, Phase 1 adds `Object.freeze` to exported constant catalogs and switches domain types to `readonly` fields so a caller cannot silently mutate a shared object and corrupt state for every other caller holding a reference to it.
+For instance, `PRINT_CATALOG` (`src/print/printCatalog.ts`) is deep-frozen with a small `deepFreeze` helper — every stock, printer, and their nested arrays — so a cast-mutation anywhere downstream throws instead of silently corrupting the one catalog every consumer shares. Exported preset/config objects (`calculatorPresets.ts`, `calculatorModeSwitch.ts`, `domain/solveStrategy.ts`) use `Object.freeze` the same way, each with an `Object.isFrozen` regression test. Domain types use `readonly` fields throughout so a caller cannot mutate a shared object through the type system either.
 
 ---
 

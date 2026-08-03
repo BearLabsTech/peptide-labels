@@ -348,7 +348,11 @@ export function calculateDefaultDrawUnits(
     }
     const amountMg = unitWorld.measureUnit === 'mg' ? protocolAmount : protocolAmount / MCG_PER_MG;
     const units = scaleDrawUnitsForAmount(amountMg, DEFAULT_DRAW_UNITS_PER_MG, DEFAULT_DRAW_UNITS_PER_MG_REDUCED);
-    if (units <= 0) return DEFAULT_DRAW_UNITS_PER_MG;
+    // Below 1 unit, mg falls back to the flat placeholder while the IU branch above
+    // does not (see docs/TECH-DEBT.md "mg/IU draw-units disagree below 1 unit") -
+    // changing this changes calculateRecommendedDrawUnits' quick-pick selection for
+    // very small compound amounts, which needs a deliberate product decision on
+    // which end of the recommended water range it should favor, not a blind fix.
     if (units < 1) return DEFAULT_DRAW_UNITS_PER_MG;
     return units;
 }

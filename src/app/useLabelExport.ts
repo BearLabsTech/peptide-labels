@@ -1,10 +1,7 @@
 import { useCallback, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { exportLabelPng } from './exportLabelPng'
-import {
-  LABEL_EXPORT_ERROR_MESSAGE,
-  exportLabelToPng,
-} from './exportLabelToPng'
+import { exportLabelToPng } from './exportLabelToPng'
 import type { PrintTarget } from '../print/types'
 
 export { LABEL_EXPORT_ERROR_MESSAGE, exportLabelToPng } from './exportLabelToPng'
@@ -44,7 +41,13 @@ export function useLabelExport({
       compoundName?: string,
     ): Promise<{ ok: true } | { ok: false; error: string }> => {
       if (isExporting) {
-        return { ok: false, error: LABEL_EXPORT_ERROR_MESSAGE }
+        // Both current callers (useLabelStageViewModel, useApplyDesignViewModel)
+        // already guard on isExporting before calling exportPng, so this only
+        // fires on a caller that skips that guard or a same-tick double-call
+        // before state propagates. Either way, an export is genuinely already
+        // running - report success (nothing to retry), not LABEL_EXPORT_ERROR_MESSAGE,
+        // which would incorrectly tell the user their download failed.
+        return { ok: true }
       }
       flushSync(() => {
         setIsExporting(true)

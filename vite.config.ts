@@ -44,6 +44,12 @@ export default defineConfig({
       // Never lower a threshold without a note explaining why.
       // Phase 6 exit: measured ~88.55 / 85.73 / 89.02 / 90.12 (stmts/branch/funcs/lines)
       // after designLibrary memory-port tests + typed document construction. Ratchet just under.
+      // Phase 8.4: deleting the unused domain/units.ts value-object factories (Mass,
+      // VolumeMl, ConcentrationPerMl, DrawUnits, VialCapacityMl, SyringeCapacityMl and
+      // their make* constructors), the orphaned print/index.ts barrel, and the unused
+      // QrRenderLayoutModel alias first dipped functions to 88.99 (dead code removed
+      // along with its own tests), then recovered to 89.68 once those tests were
+      // deleted too (denominator shrank more than numerator). Measured 88.46/85.25/89.68/90.13.
       thresholds: {
         lines: 90,
         statements: 88,

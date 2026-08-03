@@ -17,9 +17,6 @@ export interface QrRenderSizeInput {
   titleFontSizePx: number
 }
 
-/** @deprecated Use {@link QrRenderSizeInput}. */
-export type QrRenderLayoutModel = QrRenderSizeInput
-
 /** Vertical gap between test indicators and QR when they share the testing column. */
 export const TEST_QR_GAP_FRAC = 0.025
 

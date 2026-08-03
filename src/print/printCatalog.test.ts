@@ -45,22 +45,30 @@ describe('printCatalog', () => {
     expect(b1Pro?.labelIds).toContain('40x30')
   })
 
-  it('should keep PRINT_CATALOG unaffected when a caller mutates getStockById result arrays', () => {
+  it('should reject a mutation attempt on a getStockById result, not silently drop it', () => {
     const stock = getStockById(DEFAULT_STOCK_ID)
     expect(stock).toBeDefined()
     if (!stock) return
 
-    const catalogStock = PRINT_CATALOG.stocks.find((entry) => entry.id === DEFAULT_STOCK_ID)
-    expect(catalogStock).toBeDefined()
-    if (!catalogStock) return
+    // PRINT_CATALOG is deep-frozen, so the returned entry is the live catalog
+    // object — a mutation attempt throws (strict mode) rather than silently
+    // succeeding against a copy, which is a stronger guarantee than "the
+    // catalog happens to be unaffected".
+    expect(() => (stock.printerIds as string[]).push('injected-printer-id')).toThrow(TypeError)
+    expect(() => {
+      ;(stock as { name: string }).name = 'mutated-stock-name'
+    }).toThrow(TypeError)
 
-    const catalogPrinterIdsBefore = [...catalogStock.printerIds]
-    ;(stock.printerIds as string[]).push('injected-printer-id')
-    ;(stock as { name: string }).name = 'mutated-stock-name'
-
-    expect([...catalogStock.printerIds]).toEqual(catalogPrinterIdsBefore)
-    expect(catalogStock.name).toBe('40 × 20 mm — rounded')
     expect(getStockById(DEFAULT_STOCK_ID)?.name).toBe('40 × 20 mm — rounded')
+  })
+
+  it('should be frozen at every level', () => {
+    expect(Object.isFrozen(PRINT_CATALOG)).toBe(true)
+    expect(Object.isFrozen(PRINT_CATALOG.stocks)).toBe(true)
+    expect(Object.isFrozen(PRINT_CATALOG.stocks[0])).toBe(true)
+    expect(Object.isFrozen(PRINT_CATALOG.stocks[0].printerIds)).toBe(true)
+    expect(Object.isFrozen(PRINT_CATALOG.printers[0].labelIds)).toBe(true)
+    expect(Object.isFrozen(PRINT_CATALOG.vialRecommendations)).toBe(true)
   })
 })
 

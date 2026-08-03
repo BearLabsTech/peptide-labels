@@ -52,6 +52,18 @@ describe('PrintTargetResolver', () => {
     expect(target.stockId).toBe('50x30-rounded')
   })
 
+  it('should migrate legacy labelId 40x30 to rounded stock, matching normalizePrintSetup', () => {
+    // Regression: this resolver used to keep its own legacy labelId->stockId table
+    // that omitted 40x30, so this input fell through to the 40x20 default here while
+    // printStorage's normalizePrintSetup correctly mapped it to 40x30-rounded — a
+    // silent wrong-label-size divergence between the persistence path and this
+    // resolver. Both now share one migration table (normalizePrintSetup).
+    const target = resolvePrintTarget({ labelId: '40x30' })
+    expect(target.stockId).toBe('40x30-rounded')
+    expect(target.labelWidthMm).toBe(40)
+    expect(target.labelHeightMm).toBe(30)
+  })
+
   it('should honor custom mm dimensions with rectangular shape', () => {
     const target = resolvePrintTarget({ widthMm: 50, heightMm: 30 })
     expect(target.effectiveDpi).toBe(300)
