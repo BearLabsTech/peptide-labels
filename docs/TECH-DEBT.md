@@ -21,6 +21,19 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 
 ---
 
+### Shared print module still imports label vial capacity
+
+**Priority:** Low
+**Status:** Open — discovered at Phase 4 exit (2026-08-03).
+
+**Symptom:** After moving `print/` to `src/print/`, several print modules still import `normalizeVialCapacityMl` / `DEFAULT_VIAL_CAPACITY_ML` / `VialCapacityMl` from `src/features/label/vialCapacity.ts`. Shared infrastructure depending on a feature module is the wrong direction and will conflict with Phase 7 layer lint (`src/print` should not reach into `features/label`).
+
+**When fixing:** Move vial-capacity types and normalize helpers into `src/print/` (or a small shared domain module both print and label depend on). Touch `print/types.ts`, `print/defaults.ts`, `print/printStorage.ts`, `print/PrintTargetResolver.ts`.
+
+**Standard:** CODE-QUALITY.md section A / F — module boundaries and dependency direction.
+
+---
+
 ### Print catalog compatibility — two relation sources
 
 **Priority:** Low
