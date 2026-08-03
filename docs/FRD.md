@@ -42,7 +42,7 @@ On compact screens, the preview and design controls share one continuous scrolli
 
 Alongside the structured label designer, **Custom design (feature in progress)** (from the landing page or the header) opens a **sample freeform layout** locked to its label stock size. You fill only the fields that design accepts—for the sample, **compound name** and **compound amount**—and the live preview updates those placed text boxes (including rotated and inverted styles when the design uses them). Empty slots show light placeholders so the layout is obvious before you type. The sample is **fill and export only** for now (moving and resizing boxes comes later). Embedded images in the design show in the preview. When required fields are filled, you download a **monochrome PNG** sized for that stock, using the same thermal export path as the structured designer. On compact screens, preview sits above the fill form in one scrolling workspace.
 
-You can **save designs in a private library on this device**, **export a portable design file** to send in a message, and **import** a file someone shared with you—images travel inside the file, with no account required. Designs stay private by default.
+You can **save designs in a private library on this device**, **export a portable design file** to send in a message, and **import** a file someone shared with you—images travel inside the file, with no account required. Designs stay private by default. If an import is not a valid design package, the app lists the specific problems (path and message) so you can see what is wrong with the file.
 
 Authoring new layouts in a freeform editor and a public gallery are still ahead.
 

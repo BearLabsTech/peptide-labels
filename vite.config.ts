@@ -41,13 +41,13 @@ export default defineConfig({
       ],
       // Ratchet only: raise these as coverage improves (see docs/CODE-QUALITY.md section E).
       // Never lower a threshold without a note explaining why.
-      // Phase 5 exit: measured ~85.63 / 83.48 / 88.75 / 86.93 after excluding humble
-      // React hooks + JSX (pure helpers stay included). Ratchet just under.
+      // Phase 6 exit: measured ~88.55 / 85.73 / 89.02 / 90.12 (stmts/branch/funcs/lines)
+      // after designLibrary memory-port tests + typed document construction. Ratchet just under.
       thresholds: {
-        lines: 86,
-        statements: 85,
-        branches: 83,
-        functions: 88,
+        lines: 90,
+        statements: 88,
+        branches: 85,
+        functions: 89,
       },
     },
   },
