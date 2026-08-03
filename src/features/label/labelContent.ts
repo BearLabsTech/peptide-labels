@@ -46,6 +46,19 @@ export function formatLabelDate(
   }
 }
 
+/**
+ * Ensures `reconstitutionAmount` carries an `ml` suffix before compose.
+ * Immutable — returns the same input when the amount is empty or already
+ * includes `ml`. The content builder still re-parses and formats display
+ * water as `"N ml"`; this keeps the compose input shape the designer
+ * historically passed through.
+ */
+export function withReconstitutionMlSuffix(input: LabelModelInput): LabelModelInput {
+  const amount = input.reconstitutionAmount
+  if (!amount || amount.includes('ml')) return input
+  return { ...input, reconstitutionAmount: `${amount}ml` }
+}
+
 function buildTitles(input: LabelModelInput): Pick<LabelContent, 'title' | 'demotedTitle'> {
   const amountLine = formatAmount(input.compoundAmount, input.vialUnit || 'mg')
   const nameLine = (input.compoundName || '').trim()

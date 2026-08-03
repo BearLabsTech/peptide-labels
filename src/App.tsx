@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import type { LabelModelInput } from './features/label/labelModel'
-import { DEFAULT_CALCULATOR_SOLVE_MODE } from './features/label/calculatorModeSwitch'
+import { getEmptyInput } from './features/label/labelModelFixtures'
 import { LabelDesignerView } from './features/label/LabelDesignerView'
 import { CalculatorView } from './features/label/CalculatorView'
 import { ApplyDesignView } from './features/customDesign/ApplyDesignView'
 import { WorkspaceChrome, type WorkspaceMode } from './features/label/WorkspaceChrome'
 import { LabelHandoffDialog } from './features/label/LabelHandoffDialog'
 import { usePrintSetup } from './features/label/usePrintSetup'
-import { DEFAULT_SYRINGE_CAPACITY_ML } from './features/label/syringe'
 import { LandingPage, type LandingEntry } from './features/landing/LandingPage'
 import {
     hasCurrentAgreementAcknowledgment,
@@ -15,34 +14,6 @@ import {
 } from './features/landing/landingPersistence'
 import './App.css'
 import './features/label/CalculatorView.css'
-
-function getEmptyInput(): LabelModelInput {
-    return {
-        compoundName: '',
-        compoundAmount: '',
-        reconstitutionAmount: '',
-        reconstitutionType: '',
-        concentration: '',
-        protocolUnits: '',
-        protocolAmount: '',
-        protocolFrequency: '',
-        reconstitutionDate: '',
-        measureUnit: 'mg',
-        vendorCoa: '',
-        groupBuyCoa: '',
-        testGroupCoa: '',
-        myCoa: '',
-        customImage: '',
-        isUntested: false,
-        vialUnit: 'mg',
-        dateFormat: 'YYYYMMDD',
-        showSource: true,
-        showReconstitution: true,
-        showProtocol: true,
-        calculatorSolveMode: DEFAULT_CALCULATOR_SOLVE_MODE,
-        syringeCapacityMl: DEFAULT_SYRINGE_CAPACITY_ML,
-    }
-}
 
 type AppView = 'landing' | 'workspace'
 

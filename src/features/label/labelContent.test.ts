@@ -1,7 +1,26 @@
 import { describe, expect, it } from 'vitest'
 import { resolveLabelMath } from './LabelMathResolver'
-import { buildLabelContent, formatLabelDate } from './labelContent'
+import { buildLabelContent, formatLabelDate, withReconstitutionMlSuffix } from './labelContent'
 import type { LabelModelInput } from './labelModel'
+
+describe('withReconstitutionMlSuffix', () => {
+  it('should append ml when the amount has no unit', () => {
+    const input: LabelModelInput = { reconstitutionAmount: '2' }
+    expect(withReconstitutionMlSuffix(input)).toEqual({ reconstitutionAmount: '2ml' })
+  })
+
+  it('should leave amounts that already include ml unchanged', () => {
+    const withUnit: LabelModelInput = { reconstitutionAmount: '2ml' }
+    expect(withReconstitutionMlSuffix(withUnit)).toBe(withUnit)
+  })
+
+  it('should leave empty amounts unchanged', () => {
+    const empty: LabelModelInput = { reconstitutionAmount: '' }
+    expect(withReconstitutionMlSuffix(empty)).toBe(empty)
+    const missing: LabelModelInput = {}
+    expect(withReconstitutionMlSuffix(missing)).toBe(missing)
+  })
+})
 
 describe('formatLabelDate', () => {
   it('should format ISO dates in every supported presentation', () => {
