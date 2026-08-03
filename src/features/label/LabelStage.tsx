@@ -1,9 +1,9 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { LabelPreview } from './LabelPreview'
 import type { LabelRenderModel } from './LabelComposer'
 import type { PrintTarget } from '../../print/types'
 import { PrintTargetBanner } from './components/PrintTargetBanner'
-import { exportLabelPng } from './labelExport'
+import { useLabelStageViewModel } from './useLabelStageViewModel'
 
 export interface LabelStageProps {
     model: LabelRenderModel
@@ -15,21 +15,7 @@ export interface LabelStageProps {
 
 export function LabelStage({ model, printTarget, compoundName, isExampleMode, onChangePrintSetup }: LabelStageProps) {
     const labelRef = useRef<HTMLDivElement>(null)
-    const [isExporting, setIsExporting] = useState(false)
-    const [exportError, setExportError] = useState<string | null>(null)
-
-    async function downloadLabel() {
-        if (!labelRef.current || isExampleMode || isExporting) return
-        setIsExporting(true)
-        setExportError(null)
-        try {
-            await exportLabelPng(labelRef.current, printTarget, compoundName)
-        } catch {
-            setExportError('Couldn’t download the label. Try again.')
-        } finally {
-            setIsExporting(false)
-        }
-    }
+    const vm = useLabelStageViewModel({ printTarget, compoundName, isExampleMode })
 
     return (
         <div className="stage-panel">
@@ -47,11 +33,11 @@ export function LabelStage({ model, printTarget, compoundName, isExampleMode, on
                 />
             </div>
             <DownloadButton
-                onClick={downloadLabel}
-                disabled={isExampleMode || isExporting}
-                isExporting={isExporting}
+                onClick={() => void vm.downloadLabel(labelRef.current)}
+                disabled={vm.downloadDisabled}
+                isExporting={vm.isExporting}
             />
-            {exportError && <p className="label-export-error" role="alert">{exportError}</p>}
+            {vm.exportError && <p className="label-export-error" role="alert">{vm.exportError}</p>}
         </div>
     )
 }
