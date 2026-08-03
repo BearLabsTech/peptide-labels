@@ -5,7 +5,6 @@ import type { LabelRenderModel } from '../labelRenderModel'
 import {
   LabelLayoutEngine,
   type BoxedSection,
-  type LabelLayoutInput,
   type LabelLayoutResult,
 } from '../LabelLayoutEngine'
 import { buildLabelContent } from '../labelContent'
@@ -19,15 +18,14 @@ import {
 import { computeTestIndicatorLayout, type TestIndicatorLayout } from '../testIndicatorLayout'
 import { computeColumnLayout, computeIdentityHeaderTitleWidthMm } from '../labelColumnLayout'
 import {
-  MIN_TITLE_TO_BODY_FONT_RATIO,
   TITLE_HEIGHT_WEIGHT_DANGER,
   TITLE_HEIGHT_WEIGHT_WITH_BODY,
   IDENTITY_HEADER_TITLE_BAND_GAP_FRAC,
-  MIN_FONT_SIZE_PX,
   DANGER_BODY_FONT_SCALE,
 } from '../labelLayoutConstants'
 import { mmToPx, pxToMm } from '../print/dimensions'
 import type { LabelTemplate, LabelTemplateDeps } from './LabelTemplate'
+import { TitleBodyFitter } from './TitleBodyFitter'
 
 /** Bold uppercase title (`font-weight: 900`) — Arial caps run ~0.95em per character. */
 const TITLE_CHAR_WIDTH_EM = 0.95
@@ -70,16 +68,17 @@ type FittedLayouts =
  * Shipped identity-header layout. Implements the {@link LabelTemplate}
  * Template Method skeleton; step bodies are the former `LabelComposer`
  * private methods moved here unchanged so goldens stay byte-identical.
+ * The title/body font-fitting search itself is delegated to {@link TitleBodyFitter}.
  */
 export class IdentityHeaderTemplate implements LabelTemplate {
   private readonly layoutEngine: LabelLayoutEngine
   private readonly printTarget: LabelTemplateDeps['printTarget']
-  private readonly maxFontSizePx: number
+  private readonly titleBodyFitter: TitleBodyFitter
 
   constructor(deps: LabelTemplateDeps) {
     this.layoutEngine = deps.layoutEngine
     this.printTarget = deps.printTarget
-    this.maxFontSizePx = deps.maxFontSizePx
+    this.titleBodyFitter = new TitleBodyFitter(deps.layoutEngine, deps.printTarget.effectiveDpi, deps.maxFontSizePx)
   }
 
   render(input: LabelModelInput, resolved: ResolvedLabelMath): LabelRenderModel {
@@ -185,7 +184,7 @@ export class IdentityHeaderTemplate implements LabelTemplate {
       charWidthEm: TITLE_CHAR_WIDTH_EM,
       widthSafety: titleWidthSafety,
     }
-    const { titleLayout, bodyLayout } = this.fitTitleAndBodyLayouts({
+    const { titleLayout, bodyLayout } = this.titleBodyFitter.findBestFit({
       titleInput,
       boxes,
       demotedTitle,
@@ -253,152 +252,6 @@ export class IdentityHeaderTemplate implements LabelTemplate {
     }
   }
 
-  private fitTitleAndBodyLayouts(params: {
-    titleInput: LabelLayoutInput
-    boxes: BoxedSection[]
-    demotedTitle?: string
-    baseWidthMm: number
-    labelWidthPx: number
-    innerHeightMm: number
-    titleBodyGapMm: number
-  }): { titleLayout: LabelLayoutResult; bodyLayout: LabelLayoutResult } {
-    const {
-      titleInput,
-      boxes,
-      demotedTitle,
-      baseWidthMm,
-      labelWidthPx,
-      innerHeightMm,
-      titleBodyGapMm,
-    } = params
-    let titleLayout = this.layoutEngine.layout(titleInput)
-    const innerPx = mmToPx(innerHeightMm, this.printTarget.effectiveDpi)
-    const bodyInputBase = {
-      boxes,
-      demotedLine: demotedTitle,
-      widthMm: baseWidthMm,
-      labelWidthPx,
-    }
-    const layoutBodyAtFont = (bodyHeightMm: number, bodyFontPx: number): LabelLayoutResult => ({
-      fontSizePx: bodyFontPx,
-      wrappedLines: this.layoutEngine.layoutBoxedBody({
-        ...bodyInputBase,
-        heightMm: bodyHeightMm,
-      }).wrappedLines,
-    })
-    const stackFits = (
-      titleAttempt: LabelLayoutResult,
-      bodyAttempt: LabelLayoutResult,
-      bodyHeightMm: number,
-    ) => (
-      this.layoutEngine.sectionLabelsFitBoxWidth(baseWidthMm, bodyAttempt.fontSizePx)
-      && this.layoutEngine.estimateCenterStackHeightPx(
-        titleAttempt.wrappedLines.length,
-        titleAttempt.fontSizePx,
-        titleBodyGapMm,
-        { ...bodyInputBase, heightMm: bodyHeightMm },
-        bodyAttempt.fontSizePx,
-      ) <= innerPx
-    )
-
-    let bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleLayout, titleBodyGapMm)
-    let bodyLayout = this.layoutEngine.layoutBoxedBody({
-      ...bodyInputBase,
-      heightMm: bodyHeightMm,
-    })
-
-    for (let bodyFont = bodyLayout.fontSizePx; bodyFont >= MIN_FONT_SIZE_PX; bodyFont--) {
-      const attempt = layoutBodyAtFont(bodyHeightMm, bodyFont)
-      bodyLayout = attempt
-      if (stackFits(titleLayout, attempt, bodyHeightMm)) break
-    }
-
-    if (!stackFits(titleLayout, bodyLayout, bodyHeightMm)) {
-      for (let titleFont = titleLayout.fontSizePx - 1; titleFont >= MIN_FONT_SIZE_PX; titleFont--) {
-        const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, titleFont)
-        if (!titleAttempt) continue
-        bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleAttempt, titleBodyGapMm)
-        const refitBody = this.layoutEngine.layoutBoxedBody({
-          ...bodyInputBase,
-          heightMm: bodyHeightMm,
-        })
-        for (let bodyFont = refitBody.fontSizePx; bodyFont >= MIN_FONT_SIZE_PX; bodyFont--) {
-          const attempt = layoutBodyAtFont(bodyHeightMm, bodyFont)
-          titleLayout = titleAttempt
-          bodyLayout = attempt
-          if (stackFits(titleAttempt, attempt, bodyHeightMm)) break
-        }
-        if (stackFits(titleLayout, bodyLayout, bodyHeightMm)) break
-      }
-    }
-
-    const boosted = this.boostTitleRelativeToBody({
-      titleInput,
-      titleLayout,
-      bodyLayout,
-      bodyHeightMm,
-      innerHeightMm,
-      titleBodyGapMm,
-      layoutBodyAtFont,
-      stackFits,
-    })
-    return {
-      titleLayout: boosted.titleLayout,
-      bodyLayout: boosted.bodyLayout,
-    }
-  }
-
-  private boostTitleRelativeToBody(params: {
-    titleInput: LabelLayoutInput
-    titleLayout: LabelLayoutResult
-    bodyLayout: LabelLayoutResult
-    bodyHeightMm: number
-    innerHeightMm: number
-    titleBodyGapMm: number
-    layoutBodyAtFont: (bodyHeightMm: number, bodyFontPx: number) => LabelLayoutResult
-    stackFits: (
-      tLayout: LabelLayoutResult,
-      bLayout: LabelLayoutResult,
-      bodyHeightMm: number,
-    ) => boolean
-  }): {
-    titleLayout: LabelLayoutResult
-    bodyLayout: LabelLayoutResult
-    bodyHeightMm: number
-  } {
-    const {
-      titleInput,
-      titleLayout,
-      bodyLayout,
-      bodyHeightMm,
-      innerHeightMm,
-      titleBodyGapMm,
-      layoutBodyAtFont,
-      stackFits,
-    } = params
-
-    if (titleLayout.fontSizePx >= bodyLayout.fontSizePx * MIN_TITLE_TO_BODY_FONT_RATIO) {
-      return { titleLayout, bodyLayout, bodyHeightMm }
-    }
-
-    for (let titleFont = this.maxFontSizePx; titleFont >= MIN_FONT_SIZE_PX; titleFont--) {
-      const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, titleFont)
-      if (!titleAttempt) continue
-
-      const attemptBodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleAttempt, titleBodyGapMm)
-      const maxBodyFont = Math.floor(titleFont / MIN_TITLE_TO_BODY_FONT_RATIO)
-
-      for (let bodyFont = Math.min(maxBodyFont, bodyLayout.fontSizePx); bodyFont >= MIN_FONT_SIZE_PX; bodyFont--) {
-        const bodyAttempt = layoutBodyAtFont(attemptBodyHeightMm, bodyFont)
-        if (stackFits(titleAttempt, bodyAttempt, attemptBodyHeightMm)) {
-          return { titleLayout: titleAttempt, bodyLayout: bodyAttempt, bodyHeightMm: attemptBodyHeightMm }
-        }
-      }
-    }
-
-    return { titleLayout, bodyLayout, bodyHeightMm }
-  }
-
   private buildTestIndicatorLayout(
     testIndicators: readonly TestIndicatorEntry[],
     columns: ReturnType<typeof computeColumnLayout>,
@@ -427,18 +280,6 @@ export class IdentityHeaderTemplate implements LabelTemplate {
       indicatorsHeightMm,
       labels: testIndicators.map((entry) => entry.label),
     })
-  }
-
-  private remainingBodyHeightMm(
-    innerHeightMm: number,
-    titleLayout: { wrappedLines: readonly string[]; fontSizePx: number },
-    titleBodyGapMm: number,
-  ): number {
-    const innerPx = mmToPx(innerHeightMm, this.printTarget.effectiveDpi)
-    const titlePx = this.layoutEngine.estimateTitleHeightPx(titleLayout.wrappedLines.length, titleLayout.fontSizePx)
-    const gapPx = mmToPx(titleBodyGapMm, this.printTarget.effectiveDpi)
-    const remainingPx = Math.max(0, innerPx - titlePx - gapPx)
-    return pxToMm(remainingPx, this.printTarget.effectiveDpi)
   }
 
   private usableHeightMm(): number {
