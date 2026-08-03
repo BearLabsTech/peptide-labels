@@ -21,7 +21,7 @@ describe('createLabelFormHandlers unit transitions', () => {
             protocolUnits: '10 units',
             protocolUnitsOrigin: 'recommended',
             calculatorSolveMode: 'target_units',
-        }, updateField, undefined, 3)
+        }, updateField, 3)
 
         handlers.handleVialUnitChange('mg')
 
@@ -41,7 +41,7 @@ describe('createLabelFormHandlers unit transitions', () => {
             protocolUnits: '10 units',
             protocolUnitsOrigin: 'recommended',
             calculatorSolveMode: 'target_units',
-        }, updateField, undefined, 3)
+        }, updateField, 3)
 
         handlers.handleVialUnitChange('IU')
 

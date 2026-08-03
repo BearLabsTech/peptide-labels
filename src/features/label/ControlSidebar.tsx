@@ -25,12 +25,7 @@ export function ControlSidebar({
     const { autoUnits, autoWater, autoConcentration } = resolveLabelMath(input);
     const derivedState = { autoUnits, autoWater, autoConcentration };
     const vialCapacityMl = printSelection.vialCapacityMl ?? 3;
-    const handlers = createLabelFormHandlers(
-        input,
-        updateField,
-        { autoConcentration, autoUnits, autoWater },
-        vialCapacityMl,
-    );
+    const handlers = createLabelFormHandlers(input, updateField, vialCapacityMl);
 
     function handlePrintSelectionChange(next: PrintSetupSelection) {
         const nextCapacity = next.vialCapacityMl ?? 3;

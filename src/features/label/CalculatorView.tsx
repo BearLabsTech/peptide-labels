@@ -55,7 +55,7 @@ export function CalculatorView({
         autoWater: resolved.autoWater,
         autoConcentration: resolved.autoConcentration,
     }
-    const handlers = createLabelFormHandlers(input, updateField, derivedState, vialCapacityMl)
+    const handlers = createLabelFormHandlers(input, updateField, vialCapacityMl)
     const solveMode = resolveCalculatorMode(input)
     const capacityMl = parseSyringeCapacityMl(input.syringeCapacityMl)
     const blocked = isProtocolExceedsVial(input)
