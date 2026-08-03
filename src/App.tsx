@@ -9,6 +9,7 @@ import { LabelHandoffDialog } from './features/label/LabelHandoffDialog'
 import { usePrintSetup } from './features/label/usePrintSetup'
 import { LandingPage, type LandingEntry } from './features/landing/LandingPage'
 import { useAgreementGate } from './features/landing/useAgreementGate'
+import { WorkspaceErrorBoundary } from './features/label/WorkspaceErrorBoundary'
 import './App.css'
 import './features/label/CalculatorView.css'
 
@@ -51,35 +52,37 @@ export default function App() {
                 />
             )}
             {view === 'workspace' && (
-                <WorkspaceChrome mode={mode} onModeChange={setMode}>
-                    {mode === 'calculator' && (
-                        <CalculatorView
-                            input={input}
-                            updateField={updateField}
-                            vialCapacityMl={printTarget.vialCapacityMl}
-                            onVialCapacityChange={(vialCapacityMl) => {
-                                setSelection({ ...selection, vialCapacityMl })
-                            }}
-                            onRequestLabelHandoff={() => setHandoffOpen(true)}
-                        />
-                    )}
-                    {mode === 'designer' && (
-                        <LabelDesignerView
-                            input={input}
-                            updateField={updateField}
-                            printSelection={selection}
-                            onPrintSelectionChange={setSelection}
-                            printTarget={printTarget}
-                            isExampleMode={!hasStartedEditing}
-                            setupOpen={setupOpen}
-                            onSetupOpenChange={setSetupOpen}
-                            openPrintSetup={openPrintSetup}
-                        />
-                    )}
-                    {mode === 'customDesign' && (
-                        <ApplyDesignView printSelection={selection} />
-                    )}
-                </WorkspaceChrome>
+                <WorkspaceErrorBoundary>
+                    <WorkspaceChrome mode={mode} onModeChange={setMode}>
+                        {mode === 'calculator' && (
+                            <CalculatorView
+                                input={input}
+                                updateField={updateField}
+                                vialCapacityMl={printTarget.vialCapacityMl}
+                                onVialCapacityChange={(vialCapacityMl) => {
+                                    setSelection({ ...selection, vialCapacityMl })
+                                }}
+                                onRequestLabelHandoff={() => setHandoffOpen(true)}
+                            />
+                        )}
+                        {mode === 'designer' && (
+                            <LabelDesignerView
+                                input={input}
+                                updateField={updateField}
+                                printSelection={selection}
+                                onPrintSelectionChange={setSelection}
+                                printTarget={printTarget}
+                                isExampleMode={!hasStartedEditing}
+                                setupOpen={setupOpen}
+                                onSetupOpenChange={setSetupOpen}
+                                openPrintSetup={openPrintSetup}
+                            />
+                        )}
+                        {mode === 'customDesign' && (
+                            <ApplyDesignView printSelection={selection} />
+                        )}
+                    </WorkspaceChrome>
+                </WorkspaceErrorBoundary>
             )}
             {handoffOpen && (
                 <LabelHandoffDialog

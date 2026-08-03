@@ -1,36 +1,78 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { areRequiredSlotsFilled, resolveBoundText } from './bindDesignSlots'
 import { designFrameStyle } from './designFrameStyle'
 import { fontSizePtToCqw, resolveDesignFontFamily } from './designFonts'
 import { SAMPLE_MITOCHONDRIA_DESIGN } from './fixtures/sampleMitochondriaDesign'
-import { resolveDesignPrintTarget } from './resolveDesignPrintTarget'
+import {
+  resolveDesignPrintTarget,
+  resolveDesignPrintTargetOrDefault,
+} from './resolveDesignPrintTarget'
+import { SKIP_DEFAULT_TARGET } from '../../print/defaults'
 import { buildExportSpec } from '../../print/exportSpec'
 import { mmToPx } from '../../print/dimensions'
+import type { DesignDocument } from './designDocument'
 
 describe('resolveDesignPrintTarget', () => {
   it('should lock the sample design to its catalog stock size for export', () => {
-    const target = resolveDesignPrintTarget(SAMPLE_MITOCHONDRIA_DESIGN)
-    expect(target.stockId).toBe('40x20-rounded')
-    expect(target.labelWidthMm).toBe(40)
-    expect(target.labelHeightMm).toBe(20)
-    expect(target.shape).toBe('rounded')
+    const result = resolveDesignPrintTarget(SAMPLE_MITOCHONDRIA_DESIGN)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.value.stockId).toBe('40x20-rounded')
+    expect(result.value.labelWidthMm).toBe(40)
+    expect(result.value.labelHeightMm).toBe(20)
+    expect(result.value.shape).toBe('rounded')
   })
 
   it('should use a selected printer DPI while keeping the design stock dimensions', () => {
-    const target = resolveDesignPrintTarget(SAMPLE_MITOCHONDRIA_DESIGN, {
+    const result = resolveDesignPrintTarget(SAMPLE_MITOCHONDRIA_DESIGN, {
       printerId: 'niimbot-b21',
     })
-    expect(target.effectiveDpi).toBe(203)
-    expect(target.labelWidthMm).toBe(40)
-    expect(target.labelHeightMm).toBe(20)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.value.effectiveDpi).toBe(203)
+    expect(result.value.labelWidthMm).toBe(40)
+    expect(result.value.labelHeightMm).toBe(20)
   })
 
   it('should produce an export canvas matching the design stock at 300 DPI by default', () => {
-    const target = resolveDesignPrintTarget(SAMPLE_MITOCHONDRIA_DESIGN)
-    const spec = buildExportSpec(target)
+    const result = resolveDesignPrintTarget(SAMPLE_MITOCHONDRIA_DESIGN)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    const spec = buildExportSpec(result.value)
     expect(spec.canvasWidthPx).toBe(mmToPx(40, 300))
     expect(spec.canvasHeightPx).toBe(mmToPx(20, 300))
     expect(spec.dpi).toBe(300)
+  })
+
+  it('should return ok false for an unknown catalog stock id without throwing', () => {
+    const design: DesignDocument = {
+      ...SAMPLE_MITOCHONDRIA_DESIGN,
+      stock: { kind: 'catalog', stockId: 'not-a-real-stock' },
+    }
+    const result = resolveDesignPrintTarget(design)
+    expect(result).toEqual({
+      ok: false,
+      error: { kind: 'unknown_catalog_stock', stockId: 'not-a-real-stock' },
+    })
+  })
+
+  it('should fall back to the skip-default target when the catalog stock is unknown', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const design: DesignDocument = {
+      ...SAMPLE_MITOCHONDRIA_DESIGN,
+      stock: { kind: 'catalog', stockId: 'not-a-real-stock' },
+    }
+    const target = resolveDesignPrintTargetOrDefault(design, {
+      printerId: 'niimbot-b21',
+      vialCapacityMl: 3,
+    })
+    expect(target.labelWidthMm).toBe(SKIP_DEFAULT_TARGET.labelWidthMm)
+    expect(target.labelHeightMm).toBe(SKIP_DEFAULT_TARGET.labelHeightMm)
+    expect(target.stockId).toBe(SKIP_DEFAULT_TARGET.stockId)
+    expect(target.printerId).toBe('niimbot-b21')
+    expect(target.vialCapacityMl).toBe(3)
+    expect(errorSpy).toHaveBeenCalled()
+    errorSpy.mockRestore()
   })
 })
 
@@ -62,10 +104,12 @@ describe('bindDesignSlots', () => {
 
 describe('designFrameStyle and fonts', () => {
   it('should place a rotated frame as percentages of the label', () => {
-    const target = resolveDesignPrintTarget(SAMPLE_MITOCHONDRIA_DESIGN)
+    const result = resolveDesignPrintTarget(SAMPLE_MITOCHONDRIA_DESIGN)
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
     const style = designFrameStyle(
       { xMm: 10, yMm: 5, widthMm: 20, heightMm: 4 },
-      target,
+      result.value,
       270,
       3,
     )

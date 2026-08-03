@@ -15,7 +15,7 @@ import {
   readDesignPackageFile,
 } from './designPackage'
 import { SAMPLE_MITOCHONDRIA_DESIGN } from './fixtures/sampleMitochondriaDesign'
-import { resolveDesignPrintTarget } from './resolveDesignPrintTarget'
+import { resolveDesignPrintTargetOrDefault } from './resolveDesignPrintTarget'
 import { useDesignLibrary } from './useDesignLibrary'
 
 export interface UseApplyDesignViewModelOptions {
@@ -223,7 +223,7 @@ export function useApplyDesignViewModel({
 
   const printTarget = useMemo(
     () =>
-      resolveDesignPrintTarget(design, {
+      resolveDesignPrintTargetOrDefault(design, {
         printerId: printSelection.printerId,
         vialCapacityMl: printSelection.vialCapacityMl ?? printSelection.vialMl,
       }),
