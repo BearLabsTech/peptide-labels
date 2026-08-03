@@ -32,6 +32,15 @@ export interface TitleBodyFitInput {
 
 type BodyInputBase = Omit<BoxedBodyLayoutInput, 'heightMm'>
 
+/** Shared inputs for the three font-search phases after the initial title layout. */
+type FitSearchContext = {
+  readonly titleInput: LabelLayoutInput
+  readonly bodyInputBase: BodyInputBase
+  readonly innerHeightMm: number
+  readonly titleBodyGapMm: number
+  readonly constraints: readonly FitConstraint[]
+}
+
 /** The longest section header ("RECONSTITUTION") must still fit the boxed body's width at the candidate's body font. */
 export function createSectionLabelWidthConstraint(
   layoutEngine: LabelLayoutEngine,
@@ -86,100 +95,102 @@ export class TitleBodyFitter {
   }
 
   findBestFit(input: TitleBodyFitInput): FitCandidate {
+    const ctx = this.createSearchContext(input)
+    const titleLayout = this.layoutEngine.layout(ctx.titleInput)
+    const bodyHeightMm = this.remainingBodyHeightMm(ctx.innerHeightMm, titleLayout, ctx.titleBodyGapMm)
+
+    let candidate = this.shrinkBodyFont(titleLayout, bodyHeightMm, ctx)
+    if (!this.satisfiesAll(candidate, ctx.constraints)) {
+      candidate = this.shrinkTitleThenBody(candidate, ctx)
+    }
+    return this.boostTitleRelativeToBody(candidate, ctx)
+  }
+
+  private createSearchContext(input: TitleBodyFitInput): FitSearchContext {
     const { titleInput, boxes, demotedTitle, baseWidthMm, labelWidthPx, innerHeightMm, titleBodyGapMm } = input
     const bodyInputBase: BodyInputBase = { boxes, demotedLine: demotedTitle, widthMm: baseWidthMm, labelWidthPx }
     const innerHeightPx = mmToPx(innerHeightMm, this.effectiveDpi)
-    const constraints: readonly FitConstraint[] = [
-      createSectionLabelWidthConstraint(this.layoutEngine, baseWidthMm),
-      createStackHeightConstraint(this.layoutEngine, titleBodyGapMm, bodyInputBase, innerHeightPx),
-    ]
-
-    const titleLayout = this.layoutEngine.layout(titleInput)
-    const bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleLayout, titleBodyGapMm)
-
-    let candidate = this.shrinkBodyFont(titleLayout, bodyHeightMm, bodyInputBase, constraints)
-    if (!this.satisfiesAll(candidate, constraints)) {
-      candidate = this.shrinkTitleThenBody(titleInput, candidate, innerHeightMm, titleBodyGapMm, bodyInputBase, constraints)
+    return {
+      titleInput,
+      bodyInputBase,
+      innerHeightMm,
+      titleBodyGapMm,
+      constraints: [
+        createSectionLabelWidthConstraint(this.layoutEngine, baseWidthMm),
+        createStackHeightConstraint(this.layoutEngine, titleBodyGapMm, bodyInputBase, innerHeightPx),
+      ],
     }
-    return this.boostTitleRelativeToBody(titleInput, candidate, innerHeightMm, titleBodyGapMm, bodyInputBase, constraints)
   }
 
   /** Phase 1: title fixed at its own best fit; shrink only the body font until the pair fits (or bottoms out at the minimum). */
   private shrinkBodyFont(
     titleLayout: LabelLayoutResult,
     bodyHeightMm: number,
-    bodyInputBase: BodyInputBase,
-    constraints: readonly FitConstraint[],
+    ctx: FitSearchContext,
   ): FitCandidate {
-    let bodyLayout = this.layoutEngine.layoutBoxedBody({ ...bodyInputBase, heightMm: bodyHeightMm })
+    let bodyLayout = this.layoutEngine.layoutBoxedBody({ ...ctx.bodyInputBase, heightMm: bodyHeightMm })
     for (let bodyFont = bodyLayout.fontSizePx; bodyFont >= MIN_FONT_SIZE_PX; bodyFont--) {
-      bodyLayout = this.layoutBodyAtFont(bodyInputBase, bodyHeightMm, bodyFont)
-      if (this.satisfiesAll({ titleLayout, bodyLayout, bodyHeightMm }, constraints)) break
+      bodyLayout = this.layoutBodyAtFont(ctx.bodyInputBase, bodyHeightMm, bodyFont)
+      if (this.satisfiesAll({ titleLayout, bodyLayout, bodyHeightMm }, ctx.constraints)) break
     }
     return { titleLayout, bodyLayout, bodyHeightMm }
   }
 
   /** Phase 2: if 1 could not make the pair fit, shrink the title too, refitting the body at each title size. */
-  private shrinkTitleThenBody(
-    titleInput: LabelLayoutInput,
-    candidate: FitCandidate,
-    innerHeightMm: number,
-    titleBodyGapMm: number,
-    bodyInputBase: BodyInputBase,
-    constraints: readonly FitConstraint[],
-  ): FitCandidate {
+  private shrinkTitleThenBody(candidate: FitCandidate, ctx: FitSearchContext): FitCandidate {
     let { titleLayout, bodyLayout, bodyHeightMm } = candidate
     for (let titleFont = titleLayout.fontSizePx - 1; titleFont >= MIN_FONT_SIZE_PX; titleFont--) {
-      const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, titleFont)
+      const titleAttempt = this.layoutEngine.layoutAtSize(ctx.titleInput, titleFont)
       if (!titleAttempt) continue
-      bodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleAttempt, titleBodyGapMm)
-      const refitBody = this.layoutEngine.layoutBoxedBody({ ...bodyInputBase, heightMm: bodyHeightMm })
+      bodyHeightMm = this.remainingBodyHeightMm(ctx.innerHeightMm, titleAttempt, ctx.titleBodyGapMm)
+      const refitBody = this.layoutEngine.layoutBoxedBody({ ...ctx.bodyInputBase, heightMm: bodyHeightMm })
       for (let bodyFont = refitBody.fontSizePx; bodyFont >= MIN_FONT_SIZE_PX; bodyFont--) {
         titleLayout = titleAttempt
-        bodyLayout = this.layoutBodyAtFont(bodyInputBase, bodyHeightMm, bodyFont)
-        if (this.satisfiesAll({ titleLayout, bodyLayout, bodyHeightMm }, constraints)) break
+        bodyLayout = this.layoutBodyAtFont(ctx.bodyInputBase, bodyHeightMm, bodyFont)
+        if (this.satisfiesAll({ titleLayout, bodyLayout, bodyHeightMm }, ctx.constraints)) break
       }
-      if (this.satisfiesAll({ titleLayout, bodyLayout, bodyHeightMm }, constraints)) break
+      if (this.satisfiesAll({ titleLayout, bodyLayout, bodyHeightMm }, ctx.constraints)) break
     }
     return { titleLayout, bodyLayout, bodyHeightMm }
   }
 
   /** Phase 3: once something fits, grow the title back toward `MIN_TITLE_TO_BODY_FONT_RATIO` if 1/2 left it too small relative to the body. */
-  private boostTitleRelativeToBody(
-    titleInput: LabelLayoutInput,
-    candidate: FitCandidate,
-    innerHeightMm: number,
-    titleBodyGapMm: number,
-    bodyInputBase: BodyInputBase,
-    constraints: readonly FitConstraint[],
-  ): FitCandidate {
-    const { titleLayout, bodyLayout } = candidate
-
-    if (titleLayout.fontSizePx >= bodyLayout.fontSizePx * MIN_TITLE_TO_BODY_FONT_RATIO) {
+  private boostTitleRelativeToBody(candidate: FitCandidate, ctx: FitSearchContext): FitCandidate {
+    if (candidate.titleLayout.fontSizePx >= candidate.bodyLayout.fontSizePx * MIN_TITLE_TO_BODY_FONT_RATIO) {
       return candidate
     }
 
     for (let titleFont = this.maxFontSizePx; titleFont >= MIN_FONT_SIZE_PX; titleFont--) {
-      const titleAttempt = this.layoutEngine.layoutAtSize(titleInput, titleFont)
-      if (!titleAttempt) continue
-
-      const attemptBodyHeightMm = this.remainingBodyHeightMm(innerHeightMm, titleAttempt, titleBodyGapMm)
-      const maxBodyFont = Math.floor(titleFont / MIN_TITLE_TO_BODY_FONT_RATIO)
-
-      for (let bodyFont = Math.min(maxBodyFont, bodyLayout.fontSizePx); bodyFont >= MIN_FONT_SIZE_PX; bodyFont--) {
-        const bodyAttempt = this.layoutBodyAtFont(bodyInputBase, attemptBodyHeightMm, bodyFont)
-        const attemptCandidate: FitCandidate = {
-          titleLayout: titleAttempt,
-          bodyLayout: bodyAttempt,
-          bodyHeightMm: attemptBodyHeightMm,
-        }
-        if (this.satisfiesAll(attemptCandidate, constraints)) {
-          return attemptCandidate
-        }
-      }
+      const boosted = this.tryBoostAtTitleFont(titleFont, candidate, ctx)
+      if (boosted) return boosted
     }
 
     return candidate
+  }
+
+  private tryBoostAtTitleFont(
+    titleFont: number,
+    baseline: FitCandidate,
+    ctx: FitSearchContext,
+  ): FitCandidate | null {
+    const titleAttempt = this.layoutEngine.layoutAtSize(ctx.titleInput, titleFont)
+    if (!titleAttempt) return null
+
+    const bodyHeightMm = this.remainingBodyHeightMm(ctx.innerHeightMm, titleAttempt, ctx.titleBodyGapMm)
+    const maxBodyFont = Math.min(
+      Math.floor(titleFont / MIN_TITLE_TO_BODY_FONT_RATIO),
+      baseline.bodyLayout.fontSizePx,
+    )
+
+    for (let bodyFont = maxBodyFont; bodyFont >= MIN_FONT_SIZE_PX; bodyFont--) {
+      const attempt: FitCandidate = {
+        titleLayout: titleAttempt,
+        bodyLayout: this.layoutBodyAtFont(ctx.bodyInputBase, bodyHeightMm, bodyFont),
+        bodyHeightMm,
+      }
+      if (this.satisfiesAll(attempt, ctx.constraints)) return attempt
+    }
+    return null
   }
 
   private layoutBodyAtFont(bodyInputBase: BodyInputBase, bodyHeightMm: number, bodyFontPx: number): LabelLayoutResult {

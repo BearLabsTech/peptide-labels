@@ -6,18 +6,22 @@ import { LabelRenderModelBuilder } from '../LabelRenderModelBuilder'
 import {
   LabelLayoutEngine,
   type BoxedSection,
-  type LabelLayoutResult,
+  type LabelLayoutInput,
 } from '../LabelLayoutEngine'
 import { buildLabelContent } from '../labelContent'
-import { buildQrCodes, type QrCodeEntry } from '../coaLinks'
+import { buildQrCodes } from '../coaLinks'
 import {
   buildTestIndicators,
   hasTestingColumnContent,
   shouldShowCoaQr,
-  type TestIndicatorEntry,
 } from '../testIndicators'
 import { computeTestIndicatorLayout, type TestIndicatorLayout } from '../testIndicatorLayout'
-import { computeColumnLayout, computeIdentityHeaderTitleBreakout, computeIdentityHeaderTitleWidthMm } from '../labelColumnLayout'
+import {
+  computeColumnLayout,
+  computeIdentityHeaderTitleBreakout,
+  computeIdentityHeaderTitleWidthMm,
+  type ColumnLayout,
+} from '../labelColumnLayout'
 import {
   TITLE_HEIGHT_WEIGHT_DANGER,
   TITLE_HEIGHT_WEIGHT_WITH_BODY,
@@ -27,43 +31,20 @@ import {
 import { mmToPx, pxToMm } from '../print/dimensions'
 import type { LabelTemplate, LabelTemplateDeps } from './LabelTemplate'
 import { TitleBodyFitter } from './TitleBodyFitter'
+import {
+  bodyBoxesFromContent,
+  titleLinesUpper,
+  type ColumnFeatures,
+  type ColumnPlan,
+  type FittedLayouts,
+  type IndicatorLayoutContext,
+  type RenderAssemblyContext,
+  type ResolvedContent,
+} from './identityHeaderLayout'
 
 /** Bold uppercase title (`font-weight: 900`) — Arial caps run ~0.95em per character. */
 const TITLE_CHAR_WIDTH_EM = 0.95
 const TITLE_WIDTH_FRAC = 0.92
-
-type ResolvedContent = {
-  readonly title: string
-  readonly demotedTitle: string | undefined
-  readonly sourceLines: readonly string[]
-  readonly reconstitutionLines: readonly string[]
-  readonly protocolLines: readonly string[]
-  readonly qrCodes: readonly QrCodeEntry[]
-  readonly testIndicators: readonly TestIndicatorEntry[]
-}
-
-type ColumnPlan = {
-  readonly columns: ReturnType<typeof computeColumnLayout>
-  readonly layoutMode: ReturnType<typeof resolveLabelLayoutMode>
-  readonly hasBody: boolean
-  readonly isDanger: boolean
-  readonly visibleQrCodes: readonly QrCodeEntry[]
-  readonly baseWidthMm: number
-  readonly titleWidthMm: number
-  readonly titleWidthSafety: number
-  readonly innerHeightMm: number
-  readonly labelWidthPx: number
-  readonly titleBodyGapMm: number
-  readonly boxes: BoxedSection[]
-}
-
-type FittedLayouts =
-  | { readonly kind: 'title-only'; readonly titleLayout: LabelLayoutResult }
-  | {
-      readonly kind: 'title-body'
-      readonly titleLayout: LabelLayoutResult
-      readonly bodyLayout: LabelLayoutResult
-    }
 
 /**
  * Shipped identity-header layout. Implements the {@link LabelTemplate}
@@ -84,9 +65,9 @@ export class IdentityHeaderTemplate implements LabelTemplate {
 
   render(input: LabelModelInput, resolved: ResolvedLabelMath): LabelRenderModel {
     const content = this.resolveContent(input, resolved)
-    const columns = this.layoutColumns(input, content)
-    const fitted = this.layoutTitleAndBody(input, content, columns)
-    return this.buildRenderModel(input, content, columns, fitted)
+    const plan = this.layoutColumns(input, content)
+    const fitted = this.layoutTitleAndBody(content, plan)
+    return this.buildRenderModel({ input, content, plan, fitted })
   }
 
   protected resolveContent(input: LabelModelInput, resolved: ResolvedLabelMath): ResolvedContent {
@@ -109,186 +90,182 @@ export class IdentityHeaderTemplate implements LabelTemplate {
   }
 
   protected layoutColumns(input: LabelModelInput, content: ResolvedContent): ColumnPlan {
-    const { reconstitutionLines: recLines, protocolLines: proLines, sourceLines: srcLines, demotedTitle, qrCodes } = content
-    const hasBody = recLines.length > 0 || proLines.length > 0 || srcLines.length > 0 || !!demotedTitle
-    const isDanger = !!input.isUntested
-    const hasLogo = !!input.customImage
-    const showCoaQr = shouldShowCoaQr(input)
-    const visibleQrCodes = showCoaQr ? qrCodes : []
-    const hasRightColumn = hasTestingColumnContent(input, qrCodes.length)
+    const features = this.resolveColumnFeatures(input, content)
     const columns = computeColumnLayout({
       labelWidthMm: this.printTarget.labelWidthMm,
       paddingMm: this.printTarget.paddingMm,
-      hasLogo,
-      hasQr: hasRightColumn,
+      hasLogo: features.hasLogo,
+      hasQr: features.hasRightColumn,
       logoColumnWidthPercent: input.logoColumnWidthPercent,
       qrColumnWidthPercent: input.qrColumnWidthPercent,
     })
+    return this.toColumnPlan(features, columns, bodyBoxesFromContent(content))
+  }
+
+  protected layoutTitleAndBody(content: ResolvedContent, plan: ColumnPlan): FittedLayouts {
+    if (!plan.hasBody) {
+      return this.layoutTitleOnly(content.title, plan)
+    }
+    return this.layoutTitleWithBody(content, plan)
+  }
+
+  protected buildRenderModel(ctx: RenderAssemblyContext): LabelRenderModel {
+    const builder = this.seedRenderModelBuilder(ctx)
+    return this.finishRenderModel(builder, ctx)
+  }
+
+  private resolveColumnFeatures(input: LabelModelInput, content: ResolvedContent): ColumnFeatures {
+    const { reconstitutionLines, protocolLines, sourceLines, demotedTitle, qrCodes } = content
+    const hasBody =
+      reconstitutionLines.length > 0 ||
+      protocolLines.length > 0 ||
+      sourceLines.length > 0 ||
+      !!demotedTitle
+    return {
+      hasBody,
+      isDanger: !!input.isUntested,
+      hasLogo: !!input.customImage,
+      hasRightColumn: hasTestingColumnContent(input, qrCodes.length),
+      visibleQrCodes: shouldShowCoaQr(input) ? qrCodes : [],
+      layoutMode: resolveLabelLayoutMode(input),
+    }
+  }
+
+  private toColumnPlan(
+    features: ColumnFeatures,
+    columns: ColumnLayout,
+    boxes: BoxedSection[],
+  ): ColumnPlan {
     return {
       columns,
-      layoutMode: resolveLabelLayoutMode(input),
-      hasBody,
-      isDanger,
-      visibleQrCodes,
+      layoutMode: features.layoutMode,
+      hasBody: features.hasBody,
+      isDanger: features.isDanger,
+      visibleQrCodes: features.visibleQrCodes,
       baseWidthMm: columns.centerWidthMm * TITLE_WIDTH_FRAC,
-      titleWidthMm: computeIdentityHeaderTitleWidthMm(columns, isDanger),
+      titleWidthMm: computeIdentityHeaderTitleWidthMm(columns, features.isDanger),
       titleWidthSafety: 1,
       innerHeightMm: this.usableHeightMm(),
       labelWidthPx: mmToPx(this.printTarget.labelWidthMm, this.printTarget.effectiveDpi),
       titleBodyGapMm: this.printTarget.paddingMm,
-      boxes: [
-        ...(recLines.length > 0 ? [{ lines: recLines }] : []),
-        ...(proLines.length > 0 ? [{ lines: proLines }] : []),
-        ...(srcLines.length > 0 ? [{ lines: srcLines }] : []),
-      ],
+      boxes,
     }
   }
 
-  protected layoutTitleAndBody(
-    _input: LabelModelInput,
-    content: ResolvedContent,
-    plan: ColumnPlan,
-  ): FittedLayouts {
-    const { title, demotedTitle } = content
-    const {
-      hasBody,
-      isDanger,
-      titleWidthMm,
-      titleWidthSafety,
-      innerHeightMm,
-      baseWidthMm,
-      labelWidthPx,
-      titleBodyGapMm,
-      boxes,
-    } = plan
-
-    if (!hasBody) {
-      return {
-        kind: 'title-only',
-        titleLayout: this.layoutEngine.layout({
-          lines: title.split('\n').map((line) => line.toUpperCase()),
-          widthMm: titleWidthMm,
-          heightMm: innerHeightMm,
-          charWidthEm: TITLE_CHAR_WIDTH_EM,
-          widthSafety: titleWidthSafety,
-        }),
-      }
+  private layoutTitleOnly(title: string, plan: ColumnPlan): FittedLayouts {
+    return {
+      kind: 'title-only',
+      titleLayout: this.layoutEngine.layout(this.titleLayoutInput(title, plan, plan.innerHeightMm)),
     }
+  }
 
-    const titleHeightWeight = isDanger
+  private layoutTitleWithBody(content: ResolvedContent, plan: ColumnPlan): FittedLayouts {
+    const titleHeightWeight = plan.isDanger
       ? TITLE_HEIGHT_WEIGHT_DANGER
       : TITLE_HEIGHT_WEIGHT_WITH_BODY
-    const titleInput = {
-      lines: title.split('\n').map((line) => line.toUpperCase()),
-      widthMm: titleWidthMm,
-      heightMm: innerHeightMm * titleHeightWeight,
-      charWidthEm: TITLE_CHAR_WIDTH_EM,
-      widthSafety: titleWidthSafety,
-    }
     const { titleLayout, bodyLayout } = this.titleBodyFitter.findBestFit({
-      titleInput,
-      boxes,
-      demotedTitle,
-      baseWidthMm,
-      labelWidthPx,
-      innerHeightMm,
-      titleBodyGapMm,
+      titleInput: this.titleLayoutInput(content.title, plan, plan.innerHeightMm * titleHeightWeight),
+      boxes: plan.boxes,
+      demotedTitle: content.demotedTitle,
+      baseWidthMm: plan.baseWidthMm,
+      labelWidthPx: plan.labelWidthPx,
+      innerHeightMm: plan.innerHeightMm,
+      titleBodyGapMm: plan.titleBodyGapMm,
     })
     return { kind: 'title-body', titleLayout, bodyLayout }
   }
 
-  protected buildRenderModel(
-    input: LabelModelInput,
-    content: ResolvedContent,
-    plan: ColumnPlan,
-    fitted: FittedLayouts,
-  ): LabelRenderModel {
-    const {
-      title,
-      demotedTitle,
-      sourceLines: srcLines,
-      reconstitutionLines: recLines,
-      protocolLines: proLines,
-      testIndicators,
-    } = content
-    const {
-      columns,
-      layoutMode,
-      isDanger,
-      visibleQrCodes,
-    } = plan
+  private titleLayoutInput(title: string, plan: ColumnPlan, heightMm: number): LabelLayoutInput {
+    return {
+      lines: titleLinesUpper(title),
+      widthMm: plan.titleWidthMm,
+      heightMm,
+      charWidthEm: TITLE_CHAR_WIDTH_EM,
+      widthSafety: plan.titleWidthSafety,
+    }
+  }
 
-    const titleLayout = fitted.titleLayout
-    const testIndicatorLayout = this.buildTestIndicatorLayout(
-      testIndicators, columns, visibleQrCodes, titleLayout,
-    )
-    const identityHeaderTitleBreakout = computeIdentityHeaderTitleBreakout(
+  private seedRenderModelBuilder(ctx: RenderAssemblyContext): LabelRenderModelBuilder {
+    const { input, content, plan, fitted } = ctx
+    const { columns, visibleQrCodes } = plan
+    const testIndicatorLayout = this.buildTestIndicatorLayout({
+      testIndicators: content.testIndicators,
       columns,
-      columns.logoWidthMm > 0,
-      columns.qrWidthMm > 0,
-    )
-    const builder = new LabelRenderModelBuilder()
-      .withTitle(title, demotedTitle)
+      visibleQrCodes,
+      titleLayout: fitted.titleLayout,
+    })
+    return new LabelRenderModelBuilder()
+      .withTitle(content.title, content.demotedTitle)
       .withBodyLines({
-        sourceLines: srcLines,
-        protocolLines: proLines,
-        reconstitutionLines: recLines,
+        sourceLines: content.sourceLines,
+        protocolLines: content.protocolLines,
+        reconstitutionLines: content.reconstitutionLines,
       })
       .withQrCodes(visibleQrCodes)
-      .withTestIndicators(testIndicators, testIndicatorLayout)
+      .withTestIndicators(content.testIndicators, testIndicatorLayout)
       .withCustomImage(input.customImage)
-      .withDangerMode(isDanger)
-      .withColumnLayout(columns, identityHeaderTitleBreakout)
-      .withLabelLayoutMode(layoutMode)
-      .withTitleTypography([...titleLayout.wrappedLines], titleLayout.fontSizePx)
+      .withDangerMode(plan.isDanger)
+      .withColumnLayout(
+        columns,
+        computeIdentityHeaderTitleBreakout(columns, columns.logoWidthMm > 0, columns.qrWidthMm > 0),
+      )
+      .withLabelLayoutMode(plan.layoutMode)
+      .withTitleTypography([...fitted.titleLayout.wrappedLines], fitted.titleLayout.fontSizePx)
+  }
 
+  private finishRenderModel(
+    builder: LabelRenderModelBuilder,
+    ctx: RenderAssemblyContext,
+  ): LabelRenderModel {
+    const { fitted, plan } = ctx
+    const { titleLayout } = fitted
     if (fitted.kind === 'title-only') {
       return builder
         .withWrappedLines([...titleLayout.wrappedLines])
         .withBodyFontSizePx(titleLayout.fontSizePx)
         .build()
     }
-
-    const { bodyLayout } = fitted
     return builder
-      .withWrappedLines([...titleLayout.wrappedLines, ...bodyLayout.wrappedLines])
+      .withWrappedLines([...titleLayout.wrappedLines, ...fitted.bodyLayout.wrappedLines])
       .withBodyFontSizePx(
-        isDanger ? bodyLayout.fontSizePx * DANGER_BODY_FONT_SCALE : bodyLayout.fontSizePx,
+        plan.isDanger
+          ? fitted.bodyLayout.fontSizePx * DANGER_BODY_FONT_SCALE
+          : fitted.bodyLayout.fontSizePx,
       )
       .build()
   }
 
-  private buildTestIndicatorLayout(
-    testIndicators: readonly TestIndicatorEntry[],
-    columns: ReturnType<typeof computeColumnLayout>,
-    visibleQrCodes: readonly QrCodeEntry[],
-    titleLayout?: { wrappedLines: readonly string[]; fontSizePx: number },
-  ): TestIndicatorLayout | undefined {
-    const innerHeightMm = this.usableHeightMm()
-    let indicatorsHeightMm = innerHeightMm
-    if (titleLayout) {
-      const titlePx = this.layoutEngine.estimateTitleHeightPx(
-        titleLayout.wrappedLines.length,
-        titleLayout.fontSizePx,
-      )
-      const gapPx = mmToPx(this.printTarget.paddingMm, this.printTarget.effectiveDpi) * IDENTITY_HEADER_TITLE_BAND_GAP_FRAC
-      const rowPx = Math.max(0, mmToPx(innerHeightMm, this.printTarget.effectiveDpi) - titlePx - gapPx)
-      indicatorsHeightMm = pxToMm(rowPx, this.printTarget.effectiveDpi)
-    }
-
+  private buildTestIndicatorLayout(ctx: IndicatorLayoutContext): TestIndicatorLayout | undefined {
+    const indicatorsHeightMm = this.indicatorsHeightBelowTitle(ctx.titleLayout)
     return computeTestIndicatorLayout({
       effectiveDpi: this.printTarget.effectiveDpi,
       labelHeightMm: this.printTarget.labelHeightMm,
       paddingMm: this.printTarget.paddingMm,
-      qrColumnWidthMm: columns.qrWidthMm,
-      rowCount: testIndicators.length,
-      qrSharesColumn: visibleQrCodes.length > 0,
+      qrColumnWidthMm: ctx.columns.qrWidthMm,
+      rowCount: ctx.testIndicators.length,
+      qrSharesColumn: ctx.visibleQrCodes.length > 0,
       indicatorsHeightMm,
-      labels: testIndicators.map((entry) => entry.label),
+      labels: ctx.testIndicators.map((entry) => entry.label),
     })
   }
 
+  private indicatorsHeightBelowTitle(titleLayout: {
+    readonly wrappedLines: readonly string[]
+    readonly fontSizePx: number
+  }): number {
+    const innerHeightMm = this.usableHeightMm()
+    const titlePx = this.layoutEngine.estimateTitleHeightPx(
+      titleLayout.wrappedLines.length,
+      titleLayout.fontSizePx,
+    )
+    const gapPx =
+      mmToPx(this.printTarget.paddingMm, this.printTarget.effectiveDpi) *
+      IDENTITY_HEADER_TITLE_BAND_GAP_FRAC
+    const rowPx = Math.max(0, mmToPx(innerHeightMm, this.printTarget.effectiveDpi) - titlePx - gapPx)
+    return pxToMm(rowPx, this.printTarget.effectiveDpi)
+  }
+
   private usableHeightMm(): number {
-    return this.printTarget.labelHeightMm - (this.printTarget.paddingMm * 2)
+    return this.printTarget.labelHeightMm - this.printTarget.paddingMm * 2
   }
 }
