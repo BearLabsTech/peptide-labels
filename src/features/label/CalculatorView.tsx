@@ -117,7 +117,7 @@ export function CalculatorView({
                                         type="text"
                                         inputMode="decimal"
                                         placeholder={vm.concentrationUnit}
-                                        value={input.targetConcentration || ''}
+                                        value={vm.targetConcentrationFieldValue}
                                         aria-label={`Target concentration (${vm.concentrationUnit})`}
                                         onChange={(e) => vm.handlers.handleTargetConcentrationChange(e.target.value)}
                                     />

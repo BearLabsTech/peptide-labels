@@ -25,8 +25,10 @@ export function displayDrawUnits(
     input: LabelModelInput,
     derived?: CalculatorModeDerivedState,
 ): string {
-    if (SOLVE_STRATEGIES[mode].drawUnitsAreDerived) return derived?.autoUnits || input.protocolUnits || ''
-    return input.protocolUnits || derived?.autoUnits || ''
+    if (SOLVE_STRATEGIES[mode].drawUnitsAreDerived) {
+        return input.recommendedProtocolUnits || derived?.autoUnits || input.protocolUnits || ''
+    }
+    return input.protocolUnits || input.recommendedProtocolUnits || derived?.autoUnits || ''
 }
 
 export function displayConcentration(

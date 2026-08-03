@@ -66,6 +66,7 @@ export interface CalculatorViewModel {
     protocolAmountChipSuffix: string
     drawUnitsPresets: string[]
     drawUnitsFieldValue: string
+    targetConcentrationFieldValue: string
     waterPresets: readonly string[]
     results: CalculatorResultMetrics
     syringeDrawUnitsLabel: string
@@ -126,6 +127,9 @@ export function useCalculatorViewModel({
     const water = displayWaterAmount(solveMode, input, derivedState)
     const units = displayDrawUnits(solveMode, input, derivedState)
     const concentration = displayConcentration(input, derivedState)
+    const targetConcentration = input.targetConcentrationOrigin === 'recommended'
+        ? input.recommendedTargetConcentration || input.targetConcentration || ''
+        : input.targetConcentration || input.recommendedTargetConcentration || ''
     const measuresRaw = readyForResults ? computeMeasuresPerVialRaw(input) : null
     const measuresDisplay = measuresRaw != null
         ? formatMeasuresPerVialDisplay(measuresRaw)
@@ -153,6 +157,7 @@ export function useCalculatorViewModel({
         protocolAmountChipSuffix: protocolAmountChipSuffixFor(input.vialUnit, input.measureUnit),
         drawUnitsPresets: drawUnitsPresets(syringeCapacityMl),
         drawUnitsFieldValue: units,
+        targetConcentrationFieldValue: targetConcentration,
         waterPresets: WATER_PRESETS_ML,
         results: {
             protocolAmount: readyForResults

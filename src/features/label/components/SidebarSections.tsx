@@ -77,7 +77,7 @@ export function ReconstitutionSection({
                 <>
                     <TextInput
                         label={`Target concentration (${vm.concentrationUnitLabel})`}
-                        value={input.targetConcentration || ''}
+                        value={vm.targetConcentration}
                         onChange={handlers!.handleTargetConcentrationChange}
                         placeholder="e.g. 10"
                     />
