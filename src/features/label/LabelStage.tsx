@@ -53,9 +53,11 @@ function DownloadButton({
 }) {
     return (
         <button
+            type="button"
             onClick={onClick}
             disabled={disabled}
             className="btn-primary"
+            aria-busy={isExporting}
         >
             {isExporting ? 'Preparing PNG…' : 'Download Label PNG'}
         </button>

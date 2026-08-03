@@ -52,6 +52,7 @@ export function ApplyDesignView({ printSelection, library }: ApplyDesignViewProp
           className="btn-primary apply-design__download"
           onClick={() => void vm.downloadLabelPng(labelRef.current)}
           disabled={!vm.canExportPng || vm.isExporting}
+          aria-busy={vm.isExporting}
         >
           {vm.isExporting ? 'Preparing PNG…' : 'Download Label PNG'}
         </button>
@@ -188,11 +189,16 @@ export function ApplyDesignView({ printSelection, library }: ApplyDesignViewProp
               )}
             </div>
 
+            <p id="apply-design-file-formats" className="visually-hidden">
+              Accepted formats: .peptide-design or application/json design packages.
+            </p>
             <input
               ref={fileInputRef}
               type="file"
               accept=".peptide-design,application/json"
               className="apply-design__file-input"
+              aria-label="Import design file"
+              aria-describedby="apply-design-file-formats"
               onChange={(event) => onImportFileChange(event.target)}
             />
 

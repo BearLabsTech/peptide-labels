@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { loadUserAgreementMarkdown } from './loadUserAgreement'
 import { renderSimpleMarkdown } from './renderSimpleMarkdown'
+import { useDialogAccessibility } from '../label/useDialogAccessibility'
 import './LandingPage.css'
 
 export interface AgreementModalProps {
@@ -9,15 +10,13 @@ export interface AgreementModalProps {
 
 export function AgreementModal({ onAcknowledge }: AgreementModalProps) {
     const buttonRef = useRef<HTMLButtonElement>(null)
+    const dialogRef = useDialogAccessibility({ initialFocusRef: buttonRef })
     const body = renderSimpleMarkdown(loadUserAgreementMarkdown())
-
-    useEffect(() => {
-        buttonRef.current?.focus()
-    }, [])
 
     return (
         <div className="agreement-modal-backdrop" role="presentation">
             <div
+                ref={dialogRef}
                 className="agreement-modal"
                 role="dialog"
                 aria-modal="true"

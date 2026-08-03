@@ -1,4 +1,5 @@
 import { HANDOFF_PROMPT } from './uiStrings'
+import { useDialogAccessibility } from './useDialogAccessibility'
 import './CalculatorView.css'
 
 export interface LabelHandoffDialogProps {
@@ -7,9 +8,17 @@ export interface LabelHandoffDialogProps {
 }
 
 export function LabelHandoffDialog({ onConfirm, onCancel }: LabelHandoffDialogProps) {
+    const dialogRef = useDialogAccessibility({ onEscape: onCancel })
+
     return (
         <div className="handoff-backdrop" role="presentation">
-            <div className="handoff-dialog" role="dialog" aria-modal="true" aria-labelledby="handoff-title">
+            <div
+                ref={dialogRef}
+                className="handoff-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="handoff-title"
+            >
                 <h2 id="handoff-title">{HANDOFF_PROMPT}</h2>
                 <p>Open the label designer with these values?</p>
                 <div className="handoff-dialog__actions">

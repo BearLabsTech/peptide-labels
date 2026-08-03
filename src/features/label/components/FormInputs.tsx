@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import type { ChangeEvent, CSSProperties, ReactNode } from 'react'
 import { readImageFileAsDataUrl } from './readImageFileAsDataUrl'
 import { inputStyle } from './formStyles'
@@ -92,12 +92,22 @@ function CollapsibleSection({
     )
 }
 
-interface FieldHeaderProps { label: string; printToggle?: { visible: boolean; onChange: (v: boolean) => void; disabled?: boolean }; rightContent?: ReactNode; }
-function FieldHeader({ label, printToggle, rightContent }: FieldHeaderProps) {
+interface FieldHeaderProps {
+    label: string
+    htmlFor?: string
+    printToggle?: { visible: boolean; onChange: (v: boolean) => void; disabled?: boolean }
+    rightContent?: ReactNode
+}
+function FieldHeader({ label, htmlFor, printToggle, rightContent }: FieldHeaderProps) {
     return (
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, minHeight: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-main)', opacity: printToggle?.disabled ? 0.5 : 1 }}>{label}</label>
+                <label
+                    htmlFor={htmlFor}
+                    style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-main)', opacity: printToggle?.disabled ? 0.5 : 1 }}
+                >
+                    {label}
+                </label>
                 {printToggle && (
                     <label style={{ fontSize: '0.7rem', color: printToggle.disabled ? 'var(--color-text-muted)' : 'var(--color-primary)', display: 'flex', alignItems: 'center', cursor: printToggle.disabled ? 'not-allowed' : 'pointer', background: 'var(--color-background)', padding: '2px 6px', borderRadius: '4px', border: '1px solid var(--color-border)', opacity: printToggle.disabled ? 0.5 : 1 }}>
                         <input type="checkbox" checked={printToggle.visible !== false} onChange={e => printToggle.onChange(e.target.checked)} disabled={printToggle.disabled} style={{ marginRight: 4, cursor: printToggle.disabled ? 'not-allowed' : 'pointer' }} /> Print
@@ -111,20 +121,29 @@ function FieldHeader({ label, printToggle, rightContent }: FieldHeaderProps) {
 
 export interface TextInputProps { label: string; value?: string; onChange: (v: string) => void; placeholder?: string; disabled?: boolean; printToggle?: { visible: boolean; onChange: (v: boolean) => void; disabled?: boolean }; }
 export function TextInput({ label, value, onChange, placeholder, disabled, printToggle }: TextInputProps) {
+    const id = useId()
     return (
         <div style={{ marginBottom: 16 }}>
-            <FieldHeader label={label} printToggle={printToggle} />
-            <input value={value ?? ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} disabled={disabled} style={{ ...inputStyle, backgroundColor: disabled ? 'var(--color-background)' : 'var(--color-surface)', cursor: disabled ? 'not-allowed' : 'text' }} />
+            <FieldHeader label={label} htmlFor={id} printToggle={printToggle} />
+            <input
+                id={id}
+                value={value ?? ''}
+                onChange={e => onChange(e.target.value)}
+                placeholder={placeholder}
+                disabled={disabled}
+                style={{ ...inputStyle, backgroundColor: disabled ? 'var(--color-background)' : 'var(--color-surface)', cursor: disabled ? 'not-allowed' : 'text' }}
+            />
         </div>
     )
 }
 
 export interface SelectInputProps<T extends string> { label: string; value: T; onChange: (v: T) => void; options: readonly T[]; allowNone?: boolean; printToggle?: { visible: boolean; onChange: (v: boolean) => void; disabled?: boolean }; }
 export function SelectInput<T extends string>({ label, value, onChange, options, allowNone, printToggle }: SelectInputProps<T>) {
+    const id = useId()
     return (
         <div style={{ marginBottom: 16 }}>
-            <FieldHeader label={label} printToggle={printToggle} />
-            <select value={value} onChange={e => onChange(e.target.value as T)} style={{ ...inputStyle, cursor: 'pointer' }}>
+            <FieldHeader label={label} htmlFor={id} printToggle={printToggle} />
+            <select id={id} value={value} onChange={e => onChange(e.target.value as T)} style={{ ...inputStyle, cursor: 'pointer' }}>
                 {allowNone && <option value="">(None)</option>}
                 {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
             </select>
@@ -134,6 +153,7 @@ export function SelectInput<T extends string>({ label, value, onChange, options,
 
 export interface ImageUploadProps { label: string; onChange: (base64: string) => void; currentImage?: string; }
 export function ImageUploadInput({ label, onChange, currentImage }: ImageUploadProps) {
+    const inputId = useId()
     const [fileName, setFileName] = useState<string | null>(null)
     const [isReading, setIsReading] = useState(false)
     const [uploadError, setUploadError] = useState<string | null>(null)
@@ -162,10 +182,11 @@ export function ImageUploadInput({ label, onChange, currentImage }: ImageUploadP
 
     return (
         <div style={{ marginBottom: 16 }}>
-            <FieldHeader label={label} />
+            <FieldHeader label={label} htmlFor={inputId} />
             {!currentImage ? (
                 <div className="dropzone-container">
                     <input
+                        id={inputId}
                         type="file"
                         accept="image/*"
                         onChange={handleFileChange}
@@ -182,7 +203,7 @@ export function ImageUploadInput({ label, onChange, currentImage }: ImageUploadP
                 <div style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '16px', backgroundColor: 'var(--color-background)', textAlign: 'center' }}>
                     <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-main)' }}>Image Selected</div>
                     {fileName && <div className="file-name-badge">{fileName}</div>}
-                    <button onClick={handleRemove} style={{ marginTop: 16, padding: '8px 12px', fontSize: '0.85rem', cursor: 'pointer', backgroundColor: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: '1px solid var(--color-danger)', borderRadius: 'var(--radius-sm)', width: '100%', fontWeight: 600, transition: 'all 0.2s' }}>Remove Image</button>
+                    <button type="button" onClick={handleRemove} style={{ marginTop: 16, padding: '8px 12px', fontSize: '0.85rem', cursor: 'pointer', backgroundColor: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: '1px solid var(--color-danger)', borderRadius: 'var(--radius-sm)', width: '100%', fontWeight: 600, transition: 'all 0.2s' }}>Remove Image</button>
                 </div>
             )}
             {uploadError && (
@@ -196,6 +217,7 @@ export function ImageUploadInput({ label, onChange, currentImage }: ImageUploadP
 
 export interface DateFieldProps { label: string; value: string; onChange: (v: string) => void; isFreeText: boolean; onFreeTextToggle: (v: boolean) => void; printToggle?: { visible: boolean; onChange: (v: boolean) => void; disabled?: boolean }; }
 export function DateField({ label, value, onChange, isFreeText, onFreeTextToggle, printToggle }: DateFieldProps) {
+    const id = useId()
     const rightSide = (
         <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
             <input type="checkbox" checked={isFreeText} onChange={e => onFreeTextToggle(e.target.checked)} style={{ marginRight: 4 }} /> Free text
@@ -204,11 +226,11 @@ export function DateField({ label, value, onChange, isFreeText, onFreeTextToggle
 
     return (
         <div style={{ marginBottom: 16 }}>
-            <FieldHeader label={label} printToggle={printToggle} rightContent={rightSide} />
+            <FieldHeader label={label} htmlFor={id} printToggle={printToggle} rightContent={rightSide} />
             {isFreeText ? (
-                <input value={value} onChange={e => onChange(e.target.value)} placeholder="e.g. Mixed Jan 1st" style={inputStyle} />
+                <input id={id} value={value} onChange={e => onChange(e.target.value)} placeholder="e.g. Mixed Jan 1st" style={inputStyle} />
             ) : (
-                <input type="date" value={value} onChange={e => onChange(e.target.value)} style={inputStyle} />
+                <input id={id} type="date" value={value} onChange={e => onChange(e.target.value)} style={inputStyle} />
             )}
         </div>
     )
@@ -242,10 +264,12 @@ export interface RangeInputProps {
 }
 
 export function RangeInput({ label, value, onChange, min, max, step = 1, formatValue = (v) => String(v) }: RangeInputProps) {
+    const id = useId()
     return (
         <div style={{ marginBottom: 16 }}>
-            <FieldHeader label={label} rightContent={formatValue(value)} />
+            <FieldHeader label={label} htmlFor={id} rightContent={formatValue(value)} />
             <input
+                id={id}
                 type="range"
                 min={min}
                 max={max}
