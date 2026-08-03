@@ -1,7 +1,7 @@
 import { CUSTOM_STOCK_PADDING_MM, DEFAULT_DPI, SKIP_DEFAULT_TARGET } from './defaults'
 import { DEFAULT_STOCK_ID, getPrinterById, getStockById } from './printCatalog'
 import type { LabelShape, PrintSetupSelection, PrintTarget } from './types'
-import { normalizeVialCapacityMl } from '../features/label/vialCapacity'
+import { normalizeVialCapacityMl } from './vialCapacity'
 
 /** Skip/default uses 300 DPI; a selected printer uses its native DPI. */
 export function resolveEffectiveDpi(selection: Partial<PrintSetupSelection>): number {

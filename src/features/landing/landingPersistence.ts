@@ -1,5 +1,5 @@
 import { USER_AGREEMENT_VERSION } from '../../content/userAgreementVersion'
-import type { KeyValueStore } from '../label/domain/ports'
+import type { KeyValueStore } from '../../shared/ports'
 import { LocalStorageKeyValueStore } from '../../platform/LocalStorageKeyValueStore'
 import type { Result } from '../../shared/result'
 

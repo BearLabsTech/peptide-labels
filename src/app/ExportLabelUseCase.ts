@@ -2,7 +2,7 @@ import type {
   FileDownloader,
   ImageProcessor,
   Rasterizer,
-} from '../features/label/domain/ports'
+} from '../shared/ports'
 import { buildExportSpec } from '../print/exportSpec'
 import type { PrintTarget } from '../print/types'
 import { exportFileName } from './exportFileName'

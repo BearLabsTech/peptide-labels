@@ -7,7 +7,7 @@ import {
   touchDesignUpdatedAt,
   type DesignLibraryStore,
 } from './designLibrary'
-import type { FileDownloader } from '../label/domain/ports'
+import type { FileDownloader } from '../../shared/ports'
 import {
   downloadDesignPackage,
   readDesignPackageFile,

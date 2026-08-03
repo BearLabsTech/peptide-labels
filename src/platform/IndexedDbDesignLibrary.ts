@@ -1,4 +1,4 @@
-import type { DesignLibrary } from '../features/label/domain/ports'
+import type { DesignLibrary } from '../shared/ports'
 
 const DB_NAME = 'peptide-labels-designs'
 const DB_VERSION = 1

@@ -1,4 +1,4 @@
-import type { FileDownloader } from '../label/domain/ports'
+import type { FileDownloader } from '../../shared/ports'
 import { BrowserFileDownloader } from '../../platform/BrowserFileDownloader'
 import type { DesignDocument } from './designDocument'
 import { validateDesignDocument, type DesignDocumentValidationIssue } from './validateDesignDocument'

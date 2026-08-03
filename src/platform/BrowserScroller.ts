@@ -1,4 +1,4 @@
-import type { Scroller } from '../features/label/domain/ports'
+import type { Scroller } from '../shared/ports'
 
 /** Scrolls a named element into view on the next animation frame. */
 export class BrowserScroller implements Scroller {

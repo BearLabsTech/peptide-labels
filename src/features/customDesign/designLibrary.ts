@@ -1,4 +1,4 @@
-import type { DesignLibrary } from '../label/domain/ports'
+import type { DesignLibrary } from '../../shared/ports'
 import { createIndexedDbDesignLibrary as createPlatformIndexedDbDesignLibrary } from '../../platform/IndexedDbDesignLibrary'
 import { randomId } from '../../platform/randomId'
 import type { DesignDocument } from './designDocument'

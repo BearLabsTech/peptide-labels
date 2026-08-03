@@ -31,6 +31,7 @@ export default defineConfig({
         'src/features/label/useDialogAccessibility.ts',
         'src/features/label/useLabelStageViewModel.ts',
         'src/features/label/useLabelExport.ts',
+        'src/app/useLabelExport.ts',
         'src/features/label/usePrintSetup.ts',
         'src/features/label/useCalculatorViewModel.ts',
         'src/features/label/components/useSidebarSectionsViewModel.ts',

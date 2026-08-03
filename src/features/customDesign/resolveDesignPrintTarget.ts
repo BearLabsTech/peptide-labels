@@ -1,7 +1,7 @@
 import { DEFAULT_DPI, SKIP_DEFAULT_TARGET } from '../../print/defaults'
 import { getPrinterById, getStockById } from '../../print/printCatalog'
 import type { PrintTarget } from '../../print/types'
-import { DEFAULT_VIAL_CAPACITY_ML, normalizeVialCapacityMl } from '../label/vialCapacity'
+import { DEFAULT_VIAL_CAPACITY_ML, normalizeVialCapacityMl } from '../../print/vialCapacity'
 import type { Result } from '../../shared/result'
 import { unwrapOr } from '../../shared/result'
 import type { DesignDocument, DesignStock } from './designDocument'

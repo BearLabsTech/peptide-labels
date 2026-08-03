@@ -1,5 +1,5 @@
 import { toPng } from 'html-to-image'
-import type { PngBytes, Rasterizer } from '../features/label/domain/ports'
+import type { PngBytes, Rasterizer } from '../shared/ports'
 import type { ExportSpec } from '../print/types'
 
 function dataUrlToPngBytes(dataUrl: string): PngBytes {

@@ -1,4 +1,4 @@
-import type { DesignLibrary } from '../features/label/domain/ports'
+import type { DesignLibrary } from '../shared/ports'
 import type { DesignDocument } from '../features/customDesign/designDocument'
 
 /**

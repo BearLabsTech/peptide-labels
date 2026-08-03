@@ -1,4 +1,4 @@
-import type { FileDownloader } from '../features/label/domain/ports'
+import type { FileDownloader } from '../shared/ports'
 
 /** Triggers a browser download from raw bytes via an object URL. */
 export class BrowserFileDownloader implements FileDownloader {

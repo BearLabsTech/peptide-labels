@@ -1,4 +1,4 @@
-import type { KeyValueStore } from '../features/label/domain/ports'
+import type { KeyValueStore } from '../shared/ports'
 import type { Result } from '../shared/result'
 
 const STORAGE_UNAVAILABLE = 'Browser storage is unavailable.'

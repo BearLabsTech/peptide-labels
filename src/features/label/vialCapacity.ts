@@ -1,11 +1,8 @@
-export type VialCapacityMl = number
-
-export const DEFAULT_VIAL_CAPACITY_ML = 3
-export const MIN_VIAL_CAPACITY_ML = 1
-export const VIAL_CAPACITY_PRESETS_ML = [3, 5, 10, 20, 30] as const
-
-export function normalizeVialCapacityMl(value?: number): VialCapacityMl {
-    return Number.isFinite(value) && value! >= MIN_VIAL_CAPACITY_ML
-        ? value!
-        : DEFAULT_VIAL_CAPACITY_ML
-}
+/** Re-export from shared print module so label UI keeps a short relative import. */
+export {
+  DEFAULT_VIAL_CAPACITY_ML,
+  MIN_VIAL_CAPACITY_ML,
+  VIAL_CAPACITY_PRESETS_ML,
+  normalizeVialCapacityMl,
+  type VialCapacityMl,
+} from '../../print/vialCapacity'

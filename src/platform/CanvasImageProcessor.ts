@@ -1,4 +1,4 @@
-import type { ImageProcessor, PngBytes } from '../features/label/domain/ports'
+import type { ImageProcessor, PngBytes } from '../shared/ports'
 import { applyMonochromeThreshold } from '../print/monochrome'
 import { injectPngPhys } from '../print/pngPhys'
 

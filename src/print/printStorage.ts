@@ -1,8 +1,8 @@
-import type { KeyValueStore } from '../features/label/domain/ports'
+import type { KeyValueStore } from '../shared/ports'
 import { LocalStorageKeyValueStore } from '../platform/LocalStorageKeyValueStore'
 import type { PrintSetupSelection } from './types'
 import { DEFAULT_STOCK_ID } from './printCatalog'
-import { normalizeVialCapacityMl } from '../features/label/vialCapacity'
+import { normalizeVialCapacityMl } from './vialCapacity'
 import type { Result } from '../shared/result'
 
 const STORAGE_KEY = 'peptide-labels-print-setup'

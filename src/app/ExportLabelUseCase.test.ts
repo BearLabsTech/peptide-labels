@@ -4,7 +4,7 @@ import type {
   ImageProcessor,
   PngBytes,
   Rasterizer,
-} from '../features/label/domain/ports'
+} from '../shared/ports'
 import { buildExportSpec } from '../print/exportSpec'
 import { resolvePrintTarget } from '../print/PrintTargetResolver'
 import { ExportLabelUseCase } from './ExportLabelUseCase'
