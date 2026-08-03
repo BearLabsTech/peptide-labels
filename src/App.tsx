@@ -8,10 +8,7 @@ import { WorkspaceChrome, type WorkspaceMode } from './features/label/WorkspaceC
 import { LabelHandoffDialog } from './features/label/LabelHandoffDialog'
 import { usePrintSetup } from './features/label/usePrintSetup'
 import { LandingPage, type LandingEntry } from './features/landing/LandingPage'
-import {
-    hasCurrentAgreementAcknowledgment,
-    persistAgreementAcknowledgment,
-} from './features/landing/landingPersistence'
+import { useAgreementGate } from './features/landing/useAgreementGate'
 import './App.css'
 import './features/label/CalculatorView.css'
 
@@ -30,19 +27,12 @@ export default function App() {
     const [hasStartedEditing, setHasStartedEditing] = useState(false)
     const [view, setView] = useState<AppView>('landing')
     const [mode, setMode] = useState<WorkspaceMode>('calculator')
-    const [needsAcknowledgment, setNeedsAcknowledgment] = useState(
-        () => !hasCurrentAgreementAcknowledgment(),
-    )
+    const { needsAcknowledgment, acknowledge } = useAgreementGate()
     const [handoffOpen, setHandoffOpen] = useState(false)
 
     function updateField<K extends keyof LabelModelInput>(field: K, value: LabelModelInput[K]) {
         setHasStartedEditing(true)
         setInput((prev) => ({ ...prev, [field]: value }))
-    }
-
-    function handleAcknowledge() {
-        persistAgreementAcknowledgment()
-        setNeedsAcknowledgment(false)
     }
 
     function handleChoose(entry: LandingEntry) {
@@ -56,7 +46,7 @@ export default function App() {
             {view === 'landing' && (
                 <LandingPage
                     needsAcknowledgment={needsAcknowledgment}
-                    onAcknowledge={handleAcknowledge}
+                    onAcknowledge={acknowledge}
                     onChoose={handleChoose}
                 />
             )}

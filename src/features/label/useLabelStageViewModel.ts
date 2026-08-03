@@ -1,5 +1,6 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { exportLabelPng } from './labelExport'
+import { useLabelExport } from './useLabelExport'
 import type { PrintTarget } from '../../print/types'
 
 export interface UseLabelStageViewModelOptions {
@@ -17,24 +18,12 @@ export interface LabelStageViewModel {
     downloadLabel: (element: HTMLDivElement | null) => Promise<void>
 }
 
-export async function exportLabelToPng(
-    element: HTMLDivElement,
-    printTarget: PrintTarget,
-    compoundName: string | undefined,
-    exportLabel: typeof exportLabelPng,
-): Promise<{ ok: true } | { ok: false; error: string }> {
-    try {
-        await exportLabel(element, printTarget, compoundName)
-        return { ok: true }
-    } catch {
-        return { ok: false, error: 'Couldn’t download the label. Try again.' }
-    }
-}
+/** Re-export for existing tests that target the pure export helper. */
+export { exportLabelToPng } from './useLabelExport'
 
 /**
  * Owns the export state and orchestration for {@link LabelStage.tsx}. Export itself goes
- * through the existing Phase 4 `exportLabelPng` -> `ExportLabelUseCase` path, not a raw
- * rasterize call.
+ * through {@link useLabelExport} -> `exportLabelPng` -> `ExportLabelUseCase`.
  */
 export function useLabelStageViewModel({
     printTarget,
@@ -42,19 +31,14 @@ export function useLabelStageViewModel({
     isExampleMode = false,
     exportLabel = exportLabelPng,
 }: UseLabelStageViewModelOptions): LabelStageViewModel {
-    const [isExporting, setIsExporting] = useState(false)
-    const [exportError, setExportError] = useState<string | null>(null)
+    const { isExporting, exportError, exportPng } = useLabelExport({ exportLabel })
 
     const downloadLabel = useCallback(
         async (element: HTMLDivElement | null) => {
             if (!element || isExampleMode || isExporting) return
-            setIsExporting(true)
-            setExportError(null)
-            const result = await exportLabelToPng(element, printTarget, compoundName, exportLabel)
-            if (!result.ok) setExportError(result.error)
-            setIsExporting(false)
+            await exportPng(element, printTarget, compoundName)
         },
-        [isExampleMode, isExporting, printTarget, compoundName, exportLabel],
+        [isExampleMode, isExporting, printTarget, compoundName, exportPng],
     )
 
     return {

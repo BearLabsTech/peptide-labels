@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { flushSync } from 'react-dom'
+import { useCallback, useMemo, useState } from 'react'
 import { exportLabelPng } from '../label/labelExport'
+import { useLabelExport } from '../label/useLabelExport'
 import type { PrintSetupSelection, PrintTarget } from '../../print/types'
 import { areRequiredSlotsFilled, type DesignSlotValues } from './bindDesignSlots'
 import type { DesignDocument } from './designDocument'
 import {
-  createIndexedDbDesignLibrary,
   prepareDesignForLibrary,
   touchDesignUpdatedAt,
   type DesignLibraryStore,
@@ -17,6 +16,7 @@ import {
 } from './designPackage'
 import { SAMPLE_MITOCHONDRIA_DESIGN } from './fixtures/sampleMitochondriaDesign'
 import { resolveDesignPrintTarget } from './resolveDesignPrintTarget'
+import { useDesignLibrary } from './useDesignLibrary'
 
 export interface UseApplyDesignViewModelOptions {
   printSelection: PrintSetupSelection
@@ -40,6 +40,7 @@ export interface ApplyDesignViewModel {
   slotValues: DesignSlotValues
   libraryDesigns: DesignDocument[]
   libraryError: string | null
+  libraryLoading: boolean
   statusMessage: string | null
   isExporting: boolean
   exportError: string | null
@@ -105,7 +106,8 @@ export async function refreshLibraryDesigns(
   try {
     onLoaded(await library.list())
     onError(null)
-  } catch {
+  } catch (error) {
+    console.error('Design library load failed', error)
     onError('Couldn’t load your local design library.')
   }
 }
@@ -122,7 +124,8 @@ export async function saveDesignToLibrary(
       : touchDesignUpdatedAt(design)
     await library.put(toSave)
     return { ok: true, saved: toSave }
-  } catch {
+  } catch (error) {
+    console.error('Design library save failed', error)
     return { ok: false, error: 'Couldn’t save the design to your local library.' }
   }
 }
@@ -134,7 +137,8 @@ export async function removeDesignFromLibrary(
   try {
     await library.remove(designId)
     return { ok: true }
-  } catch {
+  } catch (error) {
+    console.error('Design library remove failed', error)
     return { ok: false, error: 'Couldn’t remove the design.' }
   }
 }
@@ -151,7 +155,8 @@ export async function importDesignFile(
     const imported = prepareDesignForLibrary(parsed.document)
     await library.put(imported)
     return { ok: true, imported }
-  } catch {
+  } catch (error) {
+    console.error('Design import failed', error)
     return { ok: false, error: 'Couldn’t import that design file.' }
   }
 }
@@ -163,7 +168,8 @@ export function exportDesignFileToDisk(
   try {
     downloadDesignPackage(design, downloader)
     return { ok: true }
-  } catch {
+  } catch (error) {
+    console.error('Design file export failed', error)
     return { ok: false, error: 'Couldn’t export the design file.' }
   }
 }
@@ -177,7 +183,8 @@ export async function exportApplyDesignLabelPng(
   try {
     await exportLabel(element, printTarget, compoundName)
     return { ok: true }
-  } catch {
+  } catch (error) {
+    console.error('Apply-design PNG export failed', error)
     return { ok: false, error: 'Couldn’t download the label. Try again.' }
   }
 }
@@ -192,20 +199,26 @@ export function useApplyDesignViewModel({
   library: libraryProp,
   exportLabel = exportLabelPng,
 }: UseApplyDesignViewModelOptions): ApplyDesignViewModel {
-  const library = useMemo(
-    () => libraryProp ?? createIndexedDbDesignLibrary(),
-    [libraryProp],
-  )
+  const {
+    library,
+    designs: libraryDesigns,
+    error: libraryError,
+    isLoading: libraryLoading,
+    setError: setLibraryError,
+    refresh: refreshLibrary,
+  } = useDesignLibrary({ library: libraryProp })
+  const {
+    isExporting,
+    exportError,
+    clearExportError,
+    exportPng,
+  } = useLabelExport({ exportLabel })
 
   const [design, setDesign] = useState<DesignDocument>(SAMPLE_MITOCHONDRIA_DESIGN)
   const [slotValues, setSlotValues] = useState<DesignSlotValues>(() =>
     emptySlotValues(SAMPLE_MITOCHONDRIA_DESIGN.slots.map((slot) => slot.key)),
   )
-  const [libraryDesigns, setLibraryDesigns] = useState<DesignDocument[]>([])
-  const [libraryError, setLibraryError] = useState<string | null>(null)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
-  const [isExporting, setIsExporting] = useState(false)
-  const [exportError, setExportError] = useState<string | null>(null)
   const [isBusy, setIsBusy] = useState(false)
 
   const printTarget = useMemo(
@@ -223,22 +236,13 @@ export function useApplyDesignViewModel({
     libraryDesigns,
   )
 
-  const refreshLibrary = useCallback(
-    () => refreshLibraryDesigns(library, setLibraryDesigns, setLibraryError),
-    [library],
-  )
-
-  useEffect(() => {
-    void refreshLibrary()
-  }, [refreshLibrary])
-
   const openDesign = useCallback((next: DesignDocument) => {
     const state = openDesignState(next)
     setDesign(state.design)
     setSlotValues(state.slotValues)
-    setExportError(state.exportError)
+    clearExportError()
     setStatusMessage(state.statusMessage)
-  }, [])
+  }, [clearExportError])
 
   const updateSlot = useCallback((key: string, value: string) => {
     setSlotValues((prev) => ({ ...prev, [key]: value }))
@@ -247,16 +251,10 @@ export function useApplyDesignViewModel({
   const downloadLabelPng = useCallback(
     async (element: HTMLDivElement | null) => {
       if (!element || !canExportPng || isExporting) return
-      setExportError(null)
-      flushSync(() => {
-        setIsExporting(true)
-      })
       const compoundName = slotValues.compoundName?.trim() || design.name
-      const result = await exportApplyDesignLabelPng(element, printTarget, compoundName, exportLabel)
-      if (!result.ok) setExportError(result.error)
-      setIsExporting(false)
+      await exportPng(element, printTarget, compoundName)
     },
-    [canExportPng, isExporting, slotValues.compoundName, design.name, printTarget, exportLabel],
+    [canExportPng, isExporting, slotValues.compoundName, design.name, printTarget, exportPng],
   )
 
   const saveToLibrary = useCallback(async () => {
@@ -271,7 +269,7 @@ export function useApplyDesignViewModel({
       setLibraryError(result.error)
     }
     setIsBusy(false)
-  }, [library, design, isBuiltinSample, isInLibrary, refreshLibrary, openDesign])
+  }, [library, design, isBuiltinSample, isInLibrary, refreshLibrary, openDesign, setLibraryError])
 
   const exportDesignFile = useCallback(() => {
     const result = exportDesignFileToDisk(design)
@@ -280,7 +278,7 @@ export function useApplyDesignViewModel({
     } else {
       setLibraryError(result.error)
     }
-  }, [design])
+  }, [design, setLibraryError])
 
   const removeFromLibrary = useCallback(async () => {
     if (isBuiltinSample || !isInLibrary) return
@@ -294,7 +292,7 @@ export function useApplyDesignViewModel({
       setLibraryError(result.error)
     }
     setIsBusy(false)
-  }, [isBuiltinSample, isInLibrary, library, design.id, refreshLibrary, openDesign])
+  }, [isBuiltinSample, isInLibrary, library, design.id, refreshLibrary, openDesign, setLibraryError])
 
   const importFile = useCallback(
     async (file: File | undefined) => {
@@ -311,7 +309,7 @@ export function useApplyDesignViewModel({
       }
       setIsBusy(false)
     },
-    [library, refreshLibrary, openDesign],
+    [library, refreshLibrary, openDesign, setLibraryError],
   )
 
   return {
@@ -319,6 +317,7 @@ export function useApplyDesignViewModel({
     slotValues,
     libraryDesigns,
     libraryError,
+    libraryLoading,
     statusMessage,
     isExporting,
     exportError,
