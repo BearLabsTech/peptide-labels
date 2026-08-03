@@ -49,7 +49,7 @@ Budgets are a smell detector, not a law — a 40-line function that reads as one
 - Parameters: four before switching to a context/options object.
 - Nesting depth: three levels before extracting a named helper.
 
-For instance, `calculateLayouts` (101 lines) and `fitTitleAndBodyLayouts` (94 lines) in `LabelLayoutEngine.ts`, and `validateElement` (~107 lines) in the custom-design validator, are all well over budget — each is doing several distinct jobs in one function body, which is exactly what the budget is meant to surface.
+For instance, `validateElement` (~107 lines) in the custom-design validator is still well over budget (Phase 6). The old `LabelComposer.calculateLayouts` / `fitTitleAndBodyLayouts` bodies were split across `IdentityHeaderTemplate` + `TitleBodyFitter` in Phase 3 so each step stays near the ~30-line soft budget.
 
 ### Design pattern policy
 

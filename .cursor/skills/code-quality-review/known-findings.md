@@ -18,7 +18,7 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Pattern:** a numeric layout value (ratio, spacing, border width) expressed once in a `.ts` file for fit-prediction purposes and again, independently, in a `.css`/`.tsx` file for rendering — nothing keeps the two in sync.
 
-**Evidence (2026):** `LabelLayoutEngine.ts` font ratios, line height, border width, and section spacing duplicated in `LabelPreview.tsx` / `LabelPreview.css`. Tracked in `docs/TECH-DEBT.md` ("Preview fitting metrics — duplicated between TypeScript and CSS"); scheduled fix is Phase 3's CSS custom-property unification.
+**Evidence (2026):** `LabelLayoutEngine.ts` font ratios, line height, border width, and section spacing duplicated in `LabelPreview.tsx` / `LabelPreview.css`. Tracked in `docs/TECH-DEBT.md` ("Preview fitting metrics — duplicated between TypeScript and CSS"); **Resolved 2026-08-02/03 (Phase 3 action 3.5):** single `LABEL_TYPOGRAPHY` object + CSS custom properties on the label container; preview CSS consumes `var(--label-…)` instead of mirrored literals.
 
 ### A default value declared twice with different values
 
@@ -72,4 +72,4 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Pattern:** a value is computed as `someConstant + delta` and then clamped to a maximum that is reachable well before the constant's nominal "full range" would suggest — edits to the constant above a certain point have zero effect, and nothing about the constant's definition signals this.
 
-**Evidence (2026-08):** found during Phase 0 golden-test sensitivity verification. `TITLE_HEIGHT_WEIGHT` in `labelLayoutConstants.ts` is `0.5`; `LabelComposer.ts` computes the non-danger weight as `Math.min(TITLE_HEIGHT_WEIGHT + 0.06, 0.55)`. Any `TITLE_HEIGHT_WEIGHT` value of `0.49` or higher produces the same effective `0.55` — raising it further silently does nothing. Not yet fixed; tracked in `docs/TECH-DEBT.md`.
+**Evidence (2026-08):** found during Phase 0 golden-test sensitivity verification. `TITLE_HEIGHT_WEIGHT` in `labelLayoutConstants.ts` was `0.5`; `LabelComposer` computed the non-danger weight as `Math.min(TITLE_HEIGHT_WEIGHT + 0.06, 0.55)`. Any `TITLE_HEIGHT_WEIGHT` value of `0.49` or higher produced the same effective `0.55`. **Resolved 2026-08-02 (Phase 1 action 1.1):** replaced with a single named constant `TITLE_HEIGHT_WEIGHT_WITH_BODY = 0.55`.
