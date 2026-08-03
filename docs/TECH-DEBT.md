@@ -11,8 +11,9 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 ### Calculator state — separate authored inputs from derived values
 
 **Priority:** Medium
-**Status:** Partial (updated 2026-08-02) — `CalculatorState = { authored, derived }` landed; `mergedInput` write-back is gone and label/compose paths read each half separately. Plan 2.5 (pure `calculatorReducer`) and 2.6 (`SolveStrategy` registry in `domain/solveStrategy.ts`, replacing the if-ladder in `LabelMathResolver.ts` and the mode branching in `calculatorAssistSync.ts`/`calculatorModeSwitch.ts`) have both landed. `useLabelForm.ts` is now `useReducer` plus dispatch wrappers, and every event computes its next state in one atomic step — the "missed intermediate `updateField`" failure mode this item originally called out is closed.
-What remains: recommended/system-generated values (a fresh target concentration, draw-units label, or recomputed water) are still written back into the same flat `LabelModelInput` fields a user types into (`targetConcentration`, `protocolUnits`, `reconstitutionAmount`, `concentration`), distinguished only by a `*Origin: 'recommended' | 'user'` provenance flag rather than a type-level separation. Closing this fully would mean those recommendations live in `derived` instead and are never assigned into the authored fields at all.
+**Status:** Partial (updated 2026-08-02, Phase 2 closed) — Phase 2 actions 2.1–2.7 are complete: `CalculatorState = { authored, derived }` landed; `mergedInput` write-back is gone; pure `calculatorReducer` + frozen `SolveStrategy` registry live under `domain/`; identifiers match COPY-GUIDELINES vocabulary (`compoundAmount`, `protocolAmount`, `protocolUnits`, `syringeCapacityMl`). `useLabelForm.ts` is `useReducer` plus dispatch wrappers.
+
+What remains (deferred past Phase 2): recommended/system-generated values (a fresh target concentration, draw-units label, or recomputed water) are still written back into the same flat `LabelModelInput` fields a user types into (`targetConcentration`, `protocolUnits`, `reconstitutionAmount`, `concentration`), distinguished only by a `*Origin: 'recommended' | 'user'` provenance flag rather than a type-level separation. Closing this fully would mean those recommendations live in `derived` instead and are never assigned into the authored fields at all.
 
 **Symptom:** `LabelModelInput` still persists some calculator results the assist/sync path writes back, tagged with provenance rather than kept structurally separate.
 
@@ -95,18 +96,13 @@ What remains: recommended/system-generated values (a fresh target concentration,
 
 **When fixing:** Preserve user-entered casing in the model; reserve uppercase for section labels (RECONSTITUTION, PROTOCOL, etc.) and danger mode only if product agrees.
 
-### Calculator default mode — two remaining hard-coded literals
-
-**Priority:** Low
-**Status:** Open
-
-**Symptom:** After Phase 2 action 2.1 unified the resolver and UI on one `DEFAULT_CALCULATOR_SOLVE_MODE` constant, `calculatorGuards.ts:59` and `CalculatorView.tsx:59` still hard-code the literal `'target_units'` rather than importing the constant. Both already hold the correct value, so this is not a behavior bug — just a duplicated literal that could drift out of sync with the constant later.
-
-**When fixing:** Replace both literals with an import of `DEFAULT_CALCULATOR_SOLVE_MODE`. Natural to fold into Phase 2's remaining actions (2.2-2.7) since they already touch these files.
-
 ---
 
 ## Resolved
+
+### Calculator default mode — two remaining hard-coded literals
+
+**Resolved:** 2026-08-02 (Phase 2 exit). `LabelDesignerView` example input and `TargetUnitsSolve` now import `DEFAULT_CALCULATOR_SOLVE_MODE` instead of hard-coding `'target_units'` for defaults/identity. Remaining `'target_units'` literals are intentional mode discriminators (comparisons, fixtures, registry keys), not duplicate defaults.
 
 ### Title height weight constant — clamp makes most of its range dead
 

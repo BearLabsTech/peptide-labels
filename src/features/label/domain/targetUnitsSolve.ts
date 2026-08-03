@@ -1,5 +1,6 @@
 import type { LabelModelInput, LabelModelPatch } from '../labelModel'
 import {
+    DEFAULT_CALCULATOR_SOLVE_MODE,
     hasPositiveDrawUnits,
     hasPositiveCompoundAmount,
     resolveDefaultDrawUnitsLabel,
@@ -43,7 +44,7 @@ function onProtocolUnitsChanged(draft: LabelModelInput, value: string): LabelMod
  * back through the registry to reach "the old mode's math."
  */
 function onModeEntered(draft: LabelModelInput, vialCapacityMl: number): LabelModelInput {
-    let next: LabelModelInput = { ...draft, calculatorSolveMode: 'target_units' }
+    let next: LabelModelInput = { ...draft, calculatorSolveMode: DEFAULT_CALCULATOR_SOLVE_MODE }
     if (!hasPositiveDrawUnits(draft.protocolUnits)) {
         const defaultUnits = resolveDefaultDrawUnitsLabel(
             draft.protocolAmount, draft.measureUnit, draft.vialUnit, draft.compoundAmount, vialCapacityMl,
@@ -125,13 +126,13 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
     const resolved = deriveMath(resolvedDraft)
     if (resolved.autoWater) updates.reconstitutionAmount = resolved.autoWater
     if (resolved.autoConcentration) updates.concentration = resolved.autoConcentration
-    Object.assign(updates, ensureReconstitutionPrintForAssist('target_units', resolved, resolvedDraft))
+    Object.assign(updates, ensureReconstitutionPrintForAssist(DEFAULT_CALCULATOR_SOLVE_MODE, resolved, resolvedDraft))
 
     return updates
 }
 
 export const TargetUnitsSolve: SolveStrategy = {
-    id: 'target_units',
+    id: DEFAULT_CALCULATOR_SOLVE_MODE,
     deriveMath,
     onFieldChanged,
     recommendDefaults,

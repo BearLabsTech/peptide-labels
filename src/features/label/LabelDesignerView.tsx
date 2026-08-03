@@ -3,6 +3,7 @@ import { LabelComposer } from './LabelComposer'
 import type { LabelFieldUpdater, LabelModelInput } from './labelModel'
 import { ControlSidebar } from './ControlSidebar'
 import { LabelStage } from './LabelStage'
+import { DEFAULT_CALCULATOR_SOLVE_MODE } from './peptideMath'
 import type { PrintSetupSelection, PrintTarget } from './print/types'
 import exampleLogoUrl from '../../assets/bear-labs-logo.png'
 
@@ -29,7 +30,7 @@ function getExampleInput(today: string): LabelModelInput {
         showCoaQr: true,
         vendorCoa: 'https://github.com',
         customImage: exampleLogoUrl,
-        calculatorSolveMode: 'target_units',
+        calculatorSolveMode: DEFAULT_CALCULATOR_SOLVE_MODE,
         syringeCapacityMl: 1.0,
     }
 }
