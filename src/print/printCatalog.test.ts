@@ -3,22 +3,22 @@ import { DEFAULT_STOCK_ID, getStockById, PRINT_CATALOG } from './printCatalog'
 import { normalizePrintSetup } from './printStorage'
 
 describe('printCatalog', () => {
-  it('should keep printer, stock, and recommendation references consistent', () => {
-    for (const stock of PRINT_CATALOG.stocks) {
-      for (const printerId of stock.printerIds) {
-        const printer = PRINT_CATALOG.printers.find((entry) => entry.id === printerId)
-        expect(printer, `${stock.id} references unknown printer ${printerId}`).toBeDefined()
-        expect(printer?.labelIds).toContain(stock.dimensionId)
-      }
+  it('should derive the same printer/stock compatibility the two-source catalog declared', () => {
+    // Pinned from the pre-collapse catalog data (commit e832113): every 40x20 and
+    // 50x30 stock worked with all four printers; 40x30 excluded the M2, which has
+    // no 40x30 support. If this changes, the catalog data changed, not the derivation.
+    const expected: Record<string, readonly string[]> = {
+      '40x20': ['niimbot-b21', 'niimbot-m2', 'niimbot-b21-pro', 'niimbot-b1-pro'],
+      '40x30': ['niimbot-b21', 'niimbot-b21-pro', 'niimbot-b1-pro'],
+      '50x30': ['niimbot-b21', 'niimbot-m2', 'niimbot-b21-pro', 'niimbot-b1-pro'],
     }
-
-    for (const printer of PRINT_CATALOG.printers) {
-      for (const dimensionId of printer.labelIds) {
-        const stocks = PRINT_CATALOG.stocks.filter((stock) => stock.dimensionId === dimensionId)
-        expect(stocks.length, `${printer.id} references unknown dimension ${dimensionId}`)
-          .toBeGreaterThan(0)
-        expect(stocks.every((stock) => stock.printerIds.some((id) => id === printer.id))).toBe(true)
-      }
+    for (const stock of PRINT_CATALOG.stocks) {
+      const printers = PRINT_CATALOG.printers
+        .filter((p) => (p.dimensionIds as readonly string[]).includes(stock.dimensionId))
+        .map((p) => p.id)
+      const expectedForDimension = expected[stock.dimensionId]
+      expect(expectedForDimension, `unexpected dimensionId ${stock.dimensionId}`).toBeDefined()
+      expect([...printers].sort()).toEqual([...expectedForDimension].sort())
     }
 
     for (const recommendation of PRINT_CATALOG.vialRecommendations) {
@@ -42,7 +42,7 @@ describe('printCatalog', () => {
   it('should include B1 Pro at 300 DPI with 40x30 support', () => {
     const b1Pro = PRINT_CATALOG.printers.find((p) => p.id === 'niimbot-b1-pro')
     expect(b1Pro?.dpi).toBe(300)
-    expect(b1Pro?.labelIds).toContain('40x30')
+    expect(b1Pro?.dimensionIds).toContain('40x30')
   })
 
   it('should reject a mutation attempt on a getStockById result, not silently drop it', () => {
@@ -50,11 +50,12 @@ describe('printCatalog', () => {
     expect(stock).toBeDefined()
     if (!stock) return
 
+    const printer = PRINT_CATALOG.printers[0]
     // PRINT_CATALOG is deep-frozen, so the returned entry is the live catalog
     // object — a mutation attempt throws (strict mode) rather than silently
     // succeeding against a copy, which is a stronger guarantee than "the
     // catalog happens to be unaffected".
-    expect(() => (stock.printerIds as string[]).push('injected-printer-id')).toThrow(TypeError)
+    expect(() => (printer.dimensionIds as unknown as string[]).push('injected-dimension-id')).toThrow(TypeError)
     expect(() => {
       ;(stock as { name: string }).name = 'mutated-stock-name'
     }).toThrow(TypeError)
@@ -66,8 +67,7 @@ describe('printCatalog', () => {
     expect(Object.isFrozen(PRINT_CATALOG)).toBe(true)
     expect(Object.isFrozen(PRINT_CATALOG.stocks)).toBe(true)
     expect(Object.isFrozen(PRINT_CATALOG.stocks[0])).toBe(true)
-    expect(Object.isFrozen(PRINT_CATALOG.stocks[0].printerIds)).toBe(true)
-    expect(Object.isFrozen(PRINT_CATALOG.printers[0].labelIds)).toBe(true)
+    expect(Object.isFrozen(PRINT_CATALOG.printers[0].dimensionIds)).toBe(true)
     expect(Object.isFrozen(PRINT_CATALOG.vialRecommendations)).toBe(true)
   })
 })

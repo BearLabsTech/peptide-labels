@@ -7,12 +7,13 @@ function and<T>(...specs: Spec<T>[]): Spec<T> {
   return (item) => specs.every((s) => s(item))
 }
 
-function printerSupportsStock(printerId: string): Spec<LabelStock> {
-  return (stock) => stock.printerIds.includes(printerId)
+/** A stock is compatible when its dimension is one the printer supports. */
+function printerSupportsStock(dimensionIds: readonly string[]): Spec<LabelStock> {
+  return (stock) => dimensionIds.includes(stock.dimensionId)
 }
 
 function stockSupportsPrinter(dimensionId: string): Spec<Printer> {
-  return (printer) => printer.labelIds.includes(dimensionId)
+  return (printer) => printer.dimensionIds.includes(dimensionId)
 }
 
 function resolveDimensionFilter(selection: Partial<PrintSetupSelection>): string | undefined {
@@ -37,7 +38,7 @@ export function filterCatalog(selection: Partial<PrintSetupSelection> = {}): Fil
   if (selection.printerId) {
     const printer = getPrinterById(selection.printerId)
     if (printer) {
-      stockSpecs.push(printerSupportsStock(printer.id))
+      stockSpecs.push(printerSupportsStock(printer.dimensionIds))
     }
   }
 

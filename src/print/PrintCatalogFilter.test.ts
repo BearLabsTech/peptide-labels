@@ -11,14 +11,15 @@ describe('PrintCatalogFilter', () => {
 
   it('should filter stocks to those compatible with B21', () => {
     const result = filterCatalog({ printerId: 'niimbot-b21' })
-    expect(result.stocks.every((s) => s.printerIds.includes('niimbot-b21'))).toBe(true)
+    // B21 supports every catalog dimension, so all six stocks remain.
+    expect(result.stocks).toHaveLength(6)
     expect(result.stocks.map((s) => s.id)).toContain('40x20-rounded')
     expect(result.stocks.map((s) => s.id)).toContain('40x20-rect')
   })
 
   it('should filter printers to those supporting 40x20 dimension when stock selected', () => {
     const result = filterCatalog({ stockId: '40x20-rounded' })
-    expect(result.printers.every((p) => p.labelIds.includes('40x20'))).toBe(true)
+    expect(result.printers.every((p) => p.dimensionIds.includes('40x20'))).toBe(true)
     expect(result.printers.map((p) => p.id)).toEqual(
       expect.arrayContaining(['niimbot-b21', 'niimbot-m2', 'niimbot-b21-pro', 'niimbot-b1-pro']),
     )
@@ -37,7 +38,11 @@ describe('PrintCatalogFilter', () => {
 
   it('should intersect printer and vial facets for stocks and recommendations', () => {
     const result = filterCatalog({ printerId: 'niimbot-m2', vialCapacityMl: 3 })
-    expect(result.stocks.every((s) => s.printerIds.includes('niimbot-m2'))).toBe(true)
+    // M2 has no 40x30 support — those two stocks must be gone.
+    expect(result.stocks.map((s) => s.dimensionId)).not.toContain('40x30')
+    expect(result.stocks.every((s) =>
+      ['40x20', '50x30'].includes(s.dimensionId),
+    )).toBe(true)
     expect(result.recommendedStockIds).toContain('40x20-rounded')
   })
 })

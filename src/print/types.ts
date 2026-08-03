@@ -15,7 +15,6 @@ export interface LabelStock {
   readonly shape: LabelShape
   readonly cornerRadiusMm: number
   readonly paddingMm: number
-  readonly printerIds: readonly string[]
 }
 
 export interface PrintTarget {
@@ -48,7 +47,7 @@ export interface Printer {
   readonly name: string
   /** Native DPI; used for export when this printer is selected. */
   readonly dpi: number
-  readonly labelIds: readonly string[]
+  readonly dimensionIds: readonly string[]
 }
 
 export interface VialRecommendation {

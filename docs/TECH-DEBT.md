@@ -76,19 +76,6 @@ The last two are the important signal: this is not an isolated formatting quirk.
 
 ---
 
-### Print catalog compatibility — two relation sources
-
-**Priority:** Low
-**Status:** Open — integrity tests now detect disagreement.
-
-**Symptom:** Stocks list compatible printer IDs while printers separately list supported dimension IDs. New catalog entries require coordinated edits in both directions.
-
-**When fixing:** Keep one canonical printer/stock compatibility relation in `printCatalog.ts` and derive reverse lookups used by `PrintCatalogFilter.ts`.
-
-**Standard:** CODE-QUALITY.md section C — one source of truth per fact.
-
----
-
 ### View-model components still over the ~120-line soft budget
 
 **Priority:** Low
@@ -116,6 +103,10 @@ The last two are the important signal: this is not an isolated formatting quirk.
 ---
 
 ## Resolved
+
+### Print catalog compatibility — two relation sources
+
+**Resolved:** 2026-08-03. Deleted `LabelStock.printerIds`; renamed `Printer.labelIds` → `dimensionIds`. Stock↔printer compatibility is now derived from `printer.dimensionIds.includes(stock.dimensionId)` only.
 
 ### LabelPreview.css keeps stale-prone fallback literals for typography custom properties
 
