@@ -127,9 +127,7 @@ export function useCalculatorViewModel({
     const water = displayWaterAmount(solveMode, input, derivedState)
     const units = displayDrawUnits(solveMode, input, derivedState)
     const concentration = displayConcentration(input, derivedState)
-    const targetConcentration = input.targetConcentrationOrigin === 'recommended'
-        ? input.recommendedTargetConcentration || input.targetConcentration || ''
-        : input.targetConcentration || input.recommendedTargetConcentration || ''
+    const targetConcentration = input.targetConcentration || input.recommendedTargetConcentration || ''
     const measuresRaw = readyForResults ? computeMeasuresPerVialRaw(input) : null
     const measuresDisplay = measuresRaw != null
         ? formatMeasuresPerVialDisplay(measuresRaw)

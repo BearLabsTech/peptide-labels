@@ -13,9 +13,6 @@
  *      valid `UnitWorld` (the defect this file was added to pin).
  *   2. No non-finite value leaks into a string field (`NaN` / `Infinity`).
  *   3. Idempotence — applying an event twice equals applying it once.
- *   4. Provenance — an origin flag never describes a value that is gone
- *      (`protocolUnitsOrigin` / `targetConcentrationOrigin` are never `'user'`
- *      when the matching value is empty). Landed with quality follow-up 5a.
  */
 import { describe, expect, it } from 'vitest'
 import { calculatorReducer, type CalculatorEvent } from './calculatorReducer'
@@ -123,12 +120,6 @@ function assertInvariants(state: LabelModelInput, path: string): void {
         }
     }
 
-    if (!state.protocolUnits?.trim()) {
-        expect(state.protocolUnitsOrigin, `${path}: empty protocolUnits must not carry origin 'user'`).not.toBe('user')
-    }
-    if (!state.targetConcentration?.trim()) {
-        expect(state.targetConcentrationOrigin, `${path}: empty targetConcentration must not carry origin 'user'`).not.toBe('user')
-    }
 }
 
 function stateEqual(a: LabelModelInput, b: LabelModelInput): boolean {

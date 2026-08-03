@@ -61,8 +61,7 @@ function onModeEntered(
     const canRecommendTarget = hasPositiveCompoundAmount(draft.compoundAmount) || Boolean(draft.concentration?.trim())
     if (!draft.targetConcentration?.trim() && canRecommendTarget) {
         const generatedDrawSource = outgoingWaterFollowsDrawUnits
-            && hasPositiveDrawUnits(draft.recommendedProtocolUnits || draft.protocolUnits)
-            && (!hasPositiveDrawUnits(draft.protocolUnits) || draft.protocolUnitsOrigin === 'recommended')
+            && hasPositiveDrawUnits(draft.recommendedProtocolUnits)
         const recommendationInput = generatedDrawSource
             ? { compoundAmount: draft.compoundAmount }
             : { ...draft, concentration: draft.concentration || oldDerived.autoConcentration }
@@ -78,7 +77,7 @@ function onModeEntered(
 
 /** Regenerate the target-concentration recommendation only while it is still system-owned. */
 function onVialCapacityChanged(draft: LabelModelInput, vialCapacityMl: number): LabelModelInput {
-    const canRegenerate = !draft.targetConcentration?.trim() || draft.targetConcentrationOrigin === 'recommended'
+    const canRegenerate = !draft.targetConcentration?.trim()
     if (!canRegenerate) return draft
     return {
         ...draft,
@@ -127,7 +126,7 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
         !draft.targetConcentration?.trim()
         && !draft.recommendedTargetConcentration?.trim()
     )
-        || (field === 'vialCapacity' && draft.targetConcentrationOrigin === 'recommended')
+        || (field === 'vialCapacity' && !draft.targetConcentration?.trim())
     if (shouldRecommendTarget) {
         const recommendationInput = field === 'vialCapacity'
             ? { ...draft, concentration: '', reconstitutionAmount: '' }

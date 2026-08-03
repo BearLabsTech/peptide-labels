@@ -508,34 +508,3 @@ describe('calculatorReducer — VialCapacityChanged', () => {
         expect(unchanged.recommendedTargetConcentration).toBe('')
     })
 })
-
-describe('calculatorReducer — provenance invariants', () => {
-    it('should never leave a provenance origin describing a value that is gone', () => {
-        // Regression: authoring draw units then typing water used to leave
-        // protocolUnitsOrigin: 'user' on an empty protocolUnits.
-        const events: readonly CalculatorEvent[] = [
-            { type: 'VialUnitChanged', unit: 'mg', vialCapacityMl: 3 },
-            { type: 'CompoundAmountChanged', value: '10', vialCapacityMl: 3 },
-            { type: 'WaterChanged', value: '2' },
-            { type: 'ProtocolAmountChanged', value: '2', vialCapacityMl: 3 },
-            { type: 'MeasureUnitChanged', unit: 'mg', vialCapacityMl: 3 },
-            { type: 'ProtocolUnitsChanged', value: '20 units', vialCapacityMl: 3 },
-            { type: 'ModeChanged', mode: 'standard', vialCapacityMl: 3 },
-            { type: 'TargetConcentrationChanged', value: '5', vialCapacityMl: 3 },
-            { type: 'VialCapacityChanged', vialCapacityMl: 3 },
-        ]
-        let state: LabelModelInput = {
-            compoundAmount: '10',
-            vialUnit: 'mg',
-            protocolAmount: '2',
-            measureUnit: 'mg',
-            protocolUnits: '20 units',
-            calculatorSolveMode: 'standard',
-        }
-        for (const event of events) {
-            state = calculatorReducer(state, event)
-            if (!state.protocolUnits?.trim()) expect(state.protocolUnitsOrigin).not.toBe('user')
-            if (!state.targetConcentration?.trim()) expect(state.targetConcentrationOrigin).not.toBe('user')
-        }
-    })
-})

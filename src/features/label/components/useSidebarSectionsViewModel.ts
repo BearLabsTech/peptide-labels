@@ -96,9 +96,7 @@ export function deriveReconstitutionSectionViewModel(
         solveMode,
         waterDisabled: SOLVE_STRATEGIES[solveMode].waterIsDerived,
         concentrationUnitLabel: concentrationUnitLabel(input.vialUnit),
-        targetConcentration: input.targetConcentrationOrigin === 'recommended'
-            ? input.recommendedTargetConcentration || input.targetConcentration || ''
-            : input.targetConcentration || input.recommendedTargetConcentration || '',
+        targetConcentration: input.targetConcentration || input.recommendedTargetConcentration || '',
         waterAmount: displayWaterAmount(solveMode, input, derivedState),
         concentrationDisplay: displayConcentration(input, derivedState),
         reconstitutionTypeOptions: RECONSTITUTION_TYPES,

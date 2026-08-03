@@ -66,8 +66,6 @@ export interface Protocol {
   readonly protocolUnits?: string
   /** Derived draw-volume recommendation; only a strategy writes here. */
   readonly recommendedProtocolUnits?: string
-  /** Tracks whether Set Draw Volume may safely regenerate this value. */
-  readonly protocolUnitsOrigin?: 'recommended' | 'user'
   readonly protocolFrequency?: string
   readonly measureUnit?: 'mg' | 'mcg' | 'IU'
 }
@@ -80,8 +78,6 @@ export interface CalculatorSettings {
   readonly targetConcentration?: string
   /** Derived target-concentration recommendation; only a strategy writes here. */
   readonly recommendedTargetConcentration?: string
-  /** Tracks whether Set Concentration may safely regenerate this value. */
-  readonly targetConcentrationOrigin?: 'recommended' | 'user'
   /** Insulin syringe capacity in ml for draw visualization (not printed). */
   readonly syringeCapacityMl?: 0.3 | 0.5 | 1.0
 }

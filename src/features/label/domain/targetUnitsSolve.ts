@@ -64,7 +64,7 @@ function onModeEntered(draft: LabelModelInput, vialCapacityMl: number): LabelMod
 
 /** Regenerate the draw-units recommendation only while it is still system-owned. */
 function onVialCapacityChanged(draft: LabelModelInput, vialCapacityMl: number): LabelModelInput {
-    const canRegenerate = !hasPositiveDrawUnits(draft.protocolUnits) || draft.protocolUnitsOrigin === 'recommended'
+    const canRegenerate = !hasPositiveDrawUnits(draft.protocolUnits)
     if (!canRegenerate) return draft
     const protocolUnits = resolveDefaultDrawUnitsLabel(
         draft.protocolAmount, draft.measureUnit, draft.vialUnit, draft.compoundAmount, vialCapacityMl,
@@ -122,7 +122,7 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
         )
             || (
                 dependencyChanged
-                && (!hasPositiveDrawUnits(draft.protocolUnits) || draft.protocolUnitsOrigin === 'recommended')
+                && !hasPositiveDrawUnits(draft.protocolUnits)
             )
         if (protocolUnits && shouldUpdateDraw) {
             const patch = recommendedProtocolUnitsPatch(protocolUnits)
