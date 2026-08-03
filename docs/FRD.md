@@ -10,7 +10,7 @@ This document describes what Peptide Labels does today and what is planned next.
 
 Peptide Labels helps you design **small adhesive labels** for peptide (and similar) vials—labels you can print on common **thermal label printers** and stick on the vial itself. Instead of juggling spreadsheets to keep concentration, draw volume, and water volume aligned, you enter what you know and the app **keeps the numbers consistent** on the label you are about to print.
 
-You start on a **landing page** that frames the product for **research use only** (not medical advice) and asks you to acknowledge a versioned user agreement before continuing. From there you choose **Calculator**, **Label designer**, or **Custom design (feature in progress)**. Inside the app you can switch modes anytime among those three; fields you already entered in calculator/designer stay filled when you move between those two.
+You start on a **landing page** that frames the product for **research use only** (not medical advice) and asks you to acknowledge a versioned user agreement before continuing. From there you choose **Calculator**, **Label designer**, or **Custom design (feature in progress)**. Inside the app you can switch modes anytime among those three; fields you already entered in calculator/designer stay filled when you move between those two. Shared quantities (compound amount, draw volume, water volume) and mode names use the same wording and control styling in both calculator and designer so the workspace feels like one product.
 
 ---
 
@@ -131,12 +131,6 @@ The download name reflects your compound when you have named one, so saved files
 ## Planned
 
 Items below are ordered **easiest to hardest** to implement. Where one feature depends on another, the prerequisite comes first.
-
----
-
-### Align calculator and label designer interfaces
-
-Switching modes should feel like moving between two parts of one workspace, not between separate interface systems. The label designer will be brought into closer alignment with the calculator’s cleaner card structure, spacing, control patterns, and responsive behavior while preserving the live preview and print-specific controls.
 
 ---
 

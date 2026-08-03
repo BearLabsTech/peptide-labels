@@ -30,7 +30,7 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Pattern:** a validation or normalization function returns the same object it was handed (or a shared cached object) rather than a fresh value, so a caller mutating its result can silently corrupt what the next caller receives.
 
-**Evidence (2026):** flagged as a category during the initial audit in the custom-design import/validation path. Confirm against current code on next review rather than assuming still present.
+**Evidence (2026):** flagged as a category during the initial audit in the custom-design import/validation path. **Resolved 2026-08-03 (Phase 6 action 6.2):** `validateDesignDocument` builds a fresh typed `DesignDocument` from validator `value`s and never returns the caller input; regression asserts distinct object/array identity.
 
 ### A getter handing out elements of a shared catalog
 
@@ -42,7 +42,7 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Pattern:** a `somethingOrigin` / `isDerived` / `wasAutoFilled`-style flag exists specifically so downstream code can tell whether a field holds a user-entered value or a calculated one — the flag is a symptom that the container should have been two types, not one.
 
-**Evidence (2026):** `LabelModelInput` / `mergedInput` in `LabelMathResolver.ts` (`targetConcentrationOrigin`, `protocolUnitsOrigin`, etc.). Root-caused in `docs/CODE-QUALITY.md` section B ("separate authored from derived data"); Phase 2 removes the shared container.
+**Evidence (2026):** `LabelModelInput` / `mergedInput` in `LabelMathResolver.ts` (`targetConcentrationOrigin`, `protocolUnitsOrigin`, etc.). Root-caused in `docs/CODE-QUALITY.md` section B ("separate authored from derived data"); Phase 2 removed `mergedInput` write-back and introduced `CalculatorState = { authored, derived }`. **Partial:** recommended-origin fields still share authored containers (see `docs/TECH-DEBT.md`).
 
 ### A parse function returning a sentinel for unparseable input
 

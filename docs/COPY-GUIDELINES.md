@@ -26,6 +26,22 @@ Use context-appropriate alternatives:
 
 **Rationale:** “Dose” carries clinical connotations this app does not claim. The label describes preparation and protocol information the user chose to print—not medical advice.
 
+### Canonical code identifiers
+
+Product terms must use one identifier in code (types, props, functions, files). UI copy and identifiers stay aligned.
+
+| Product term | Canonical identifier(s) | Avoid |
+|--------------|-------------------------|-------|
+| Compound amount | `compoundAmount`, `hasPositiveCompoundAmount`, `COMPOUND_AMOUNT_PRESETS_*` | `vialAmount`, “Vial Amount” as the field name |
+| Protocol amount | `protocolAmount` | dose-related names |
+| Draw volume (protocol units) | `protocolUnits`, `DrawVolume` / draw-volume UI helpers | `doseUnits` |
+| Water volume | `reconstitutionAmount` (authored water), concentration derived separately | “Water Amount” as a code name for compound quantity |
+| Vial capacity | `vialCapacityMl`, `normalizeVialCapacityMl`, `DEFAULT_VIAL_CAPACITY_ML` (owned by `src/print/vialCapacity.ts`) | using “vial size” when the value is liquid capacity |
+| Syringe capacity | `syringeCapacityMl` | — |
+| Test Group | `testGroup`, TG / `COA_QR_CAPTIONS` / `COA_FIELD_LABELS` in `uiStrings.ts` | “Group Test” |
+
+When you rename a product term, update this table in the same change set.
+
 ---
 
 ## Compound amount and container capacity

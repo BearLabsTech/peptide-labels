@@ -32,6 +32,8 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 
 **When fixing:** Keep one canonical printer/stock compatibility relation in `printCatalog.ts` and derive reverse lookups used by `PrintCatalogFilter.ts`.
 
+**Standard:** CODE-QUALITY.md section C — one source of truth per fact.
+
 ---
 
 ### Print padding — exported PNG on Niimbot B21 (40×20 rounded stock)
@@ -46,6 +48,8 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 **Still verify on hardware:** Niimbot rounded-template inset vs our padding; asymmetric left margin if it persists after re-print.
 
 **Reference:** B21 phone test on `T40×20-320WHITE` rounded stock.
+
+**Standard:** CODE-QUALITY.md section C — one source of truth; print quality vs hardware also tracked as product verification.
 
 ---
 
@@ -65,6 +69,8 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 
 **Out of scope for current padding/export-size work** unless a change clearly affects both.
 
+**Standard:** CODE-QUALITY.md section G — quality gap vs expected shipped behavior (thermal crispness).
+
 ---
 
 ### View-model components still over the ~120-line soft budget
@@ -76,6 +82,8 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 
 **When fixing:** If this is worth doing, split the JSX itself into smaller named subcomponents per section/panel (e.g. `ApplyDesignView`'s library list, `PrintSetupSection`'s catalog vs. custom panels) — a presentation-only decomposition, not a further view-model extraction. Still open after Phase 5 exit (5.2–5.8); line counts remain in the same band (ApplyDesign ~209, Calculator ~190, PrintSetup ~149, plus SidebarSections / FormInputs markup volume).
 
+**Standard:** CODE-QUALITY.md section A — component ~120-line soft budget.
+
 ---
 
 ### Compound name casing — do not default to all caps
@@ -86,6 +94,8 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 **Symptom:** Compound name on the label is forced to uppercase (`LabelComposer` uppercases before layout; `LabelPreview.css` applies `text-transform: uppercase` on the title). Users may prefer mixed case as entered.
 
 **When fixing:** Preserve user-entered casing in the model; reserve uppercase for section labels (RECONSTITUTION, PROTOCOL, etc.) and danger mode only if product agrees.
+
+**Standard:** CODE-QUALITY.md section C — ubiquitous language / user intent preserved.
 
 ---
 

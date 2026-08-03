@@ -60,6 +60,10 @@ For each standard in [docs/CODE-QUALITY.md](../../../docs/CODE-QUALITY.md): a re
 
 **Module boundaries.** Look for cross-feature imports that reach past a feature's public surface, React imports in non-`.tsx` files, components importing more than two layers down, and barrel files that pull in side effects just by being imported.
 
+- Grep `from ['"].*features/(label|customDesign)` across the other feature — after Phase 7 those should be empty (shared code in `app/`, `print/`, `shared/`).
+- Count `eslint-disable` comments naming `no-restricted-imports` — each is a place the layer rule was suppressed.
+- Grep `as unknown as` after a validation/parse function — the proof the validator produced should build the typed value, not be discarded by a cast (Phase 6.2).
+
 ## G. Smell sweep
 
 Walk the catalogue in section G of `docs/CODE-QUALITY.md` and report per smell, so the review is repeatable rather than dependent on what the reviewer happened to notice this time. Treat the catalogue as open — add a smell to that table when you find one that is not listed there yet.

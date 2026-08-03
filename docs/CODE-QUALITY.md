@@ -50,7 +50,7 @@ Budgets are a smell detector, not a law — a 40-line function that reads as one
 - Parameters: four before switching to a context/options object.
 - Nesting depth: three levels before extracting a named helper.
 
-For instance, `validateElement` (~107 lines) in the custom-design validator is still well over budget (Phase 6). The old `LabelComposer.calculateLayouts` / `fitTitleAndBodyLayouts` bodies were split across `IdentityHeaderTemplate` + `TitleBodyFitter` in Phase 3 so each step stays near the ~30-line soft budget.
+For instance, individual element validators under `elementValidators/` stay near the soft budget; `validateDesignDocument` itself is still a longer orchestration function (Phase 6) and remains a candidate to split further if it grows again. The old `LabelComposer.calculateLayouts` / `fitTitleAndBodyLayouts` bodies were split across `IdentityHeaderTemplate` + `TitleBodyFitter` in Phase 3 so each step stays near the ~30-line soft budget.
 
 ### Design pattern policy
 
@@ -142,7 +142,7 @@ Full testing strategy — including the Humble Object pattern that makes compone
 
 ### Enforced module boundaries
 
-State: the dependency rules in section A are only real if something other than habit enforces them. Phase 7 adds ESLint `no-restricted-imports` rules so a domain module cannot import React or a browser API, and a feature cannot reach into another feature's internals instead of its public surface.
+State: the dependency rules in section A are only real if something other than habit enforces them. Phase 7 adds ESLint `no-restricted-imports` rules so a domain module cannot import React or a platform adapter, a `.tsx` view cannot import `src/platform`, and `label` / `customDesign` cannot import each other (shared code lives in `app/`, `print/`, or `shared/`).
 
 ### Accessibility as a standing requirement
 
