@@ -2,6 +2,7 @@ import type { LabelLayoutMode } from './labelModel'
 import type { QrCodeEntry } from './coaLinks'
 import type { TestIndicatorEntry } from './testIndicators'
 import type { TestIndicatorLayout } from './testIndicatorLayout'
+import type { ColumnLayout, IdentityHeaderTitleBreakout } from './labelColumnLayout'
 
 export interface LabelRenderModel {
   readonly wrappedLines: readonly string[]
@@ -21,4 +22,8 @@ export interface LabelRenderModel {
   readonly logoColumnWidthPercent: number
   readonly qrColumnWidthPercent: number
   readonly labelLayoutMode: LabelLayoutMode
+  /** Resolved three-column geometry from composition — preview must not recompute. */
+  readonly columnLayout: ColumnLayout
+  /** Identity-header title breakout CSS fractions derived from {@link columnLayout}. */
+  readonly identityHeaderTitleBreakout: IdentityHeaderTitleBreakout
 }

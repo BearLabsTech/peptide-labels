@@ -17,7 +17,7 @@ import {
   type TestIndicatorEntry,
 } from '../testIndicators'
 import { computeTestIndicatorLayout, type TestIndicatorLayout } from '../testIndicatorLayout'
-import { computeColumnLayout, computeIdentityHeaderTitleWidthMm } from '../labelColumnLayout'
+import { computeColumnLayout, computeIdentityHeaderTitleBreakout, computeIdentityHeaderTitleWidthMm } from '../labelColumnLayout'
 import {
   TITLE_HEIGHT_WEIGHT_DANGER,
   TITLE_HEIGHT_WEIGHT_WITH_BODY,
@@ -222,6 +222,11 @@ export class IdentityHeaderTemplate implements LabelTemplate {
     const testIndicatorLayout = this.buildTestIndicatorLayout(
       testIndicators, columns, visibleQrCodes, titleLayout,
     )
+    const identityHeaderTitleBreakout = computeIdentityHeaderTitleBreakout(
+      columns,
+      columns.logoWidthMm > 0,
+      columns.qrWidthMm > 0,
+    )
     const builder = new LabelRenderModelBuilder()
       .withTitle(title, demotedTitle)
       .withBodyLines({
@@ -233,7 +238,7 @@ export class IdentityHeaderTemplate implements LabelTemplate {
       .withTestIndicators(testIndicators, testIndicatorLayout)
       .withCustomImage(input.customImage)
       .withDangerMode(isDanger)
-      .withColumnPercents(columns.logoWidthPercent, columns.qrWidthPercent)
+      .withColumnLayout(columns, identityHeaderTitleBreakout)
       .withLabelLayoutMode(layoutMode)
       .withTitleTypography([...titleLayout.wrappedLines], titleLayout.fontSizePx)
 

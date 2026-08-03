@@ -12,8 +12,23 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "full label with all sections" 1`] = `
 {
   "bodyFontSizePx": 9,
+  "columnLayout": {
+    "centerWidthMm": 22.560000000000002,
+    "gapCount": 1,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 14.44,
+    "qrWidthPercent": 38,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.2968421052631579,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 168.43971631205673,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -86,8 +101,23 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
   "bodyFontSizePx": 26,
+  "columnLayout": {
+    "centerWidthMm": 13.959999999999999,
+    "gapCount": 2,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 7.6000000000000005,
+    "logoWidthPercent": 20,
+    "qrWidthMm": 14.44,
+    "qrWidthPercent": 38,
+  },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.41000000000000003,
+    "breakoutMarginLeftPct": -61.60458452722064,
+    "breakoutWidthPct": 272.2063037249284,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 20,
@@ -141,8 +171,23 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
   "bodyFontSizePx": 15,
+  "columnLayout": {
+    "centerWidthMm": 38,
+    "gapCount": 0,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -182,8 +227,23 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "minimal name only" 1`] = `
 {
   "bodyFontSizePx": 26,
+  "columnLayout": {
+    "centerWidthMm": 38,
+    "gapCount": 0,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -208,9 +268,24 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "untested danger mode" 1`] = `
 {
   "bodyFontSizePx": 15.200000000000001,
+  "columnLayout": {
+    "centerWidthMm": 38,
+    "gapCount": 0,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": "Retatrutide
 20mg",
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -257,8 +332,23 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "full label with all sections" 1`] = `
 {
   "bodyFontSizePx": 11,
+  "columnLayout": {
+    "centerWidthMm": 23.68,
+    "gapCount": 1,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 14.82,
+    "qrWidthPercent": 38,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.3035897435897436,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 164.69594594594594,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -331,8 +421,23 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
   "bodyFontSizePx": 26,
+  "columnLayout": {
+    "centerWidthMm": 15.379999999999999,
+    "gapCount": 2,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 7.800000000000001,
+    "logoWidthPercent": 20,
+    "qrWidthMm": 14.82,
+    "qrWidthPercent": 38,
+  },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.41000000000000003,
+    "breakoutMarginLeftPct": -53.966189856957094,
+    "breakoutWidthPct": 253.57607282184657,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 20,
@@ -386,8 +491,23 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
   "bodyFontSizePx": 16,
+  "columnLayout": {
+    "centerWidthMm": 39,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -427,8 +547,23 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "minimal name only" 1`] = `
 {
   "bodyFontSizePx": 26,
+  "columnLayout": {
+    "centerWidthMm": 39,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -453,9 +588,24 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "untested danger mode" 1`] = `
 {
   "bodyFontSizePx": 15.200000000000001,
+  "columnLayout": {
+    "centerWidthMm": 39,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": "Retatrutide
 20mg",
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -502,8 +652,23 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "full label with all sections" 1`] = `
 {
   "bodyFontSizePx": 18,
+  "columnLayout": {
+    "centerWidthMm": 22.560000000000002,
+    "gapCount": 1,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 14.44,
+    "qrWidthPercent": 38,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.2968421052631579,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 168.43971631205673,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -576,8 +741,23 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
   "bodyFontSizePx": 39,
+  "columnLayout": {
+    "centerWidthMm": 13.959999999999999,
+    "gapCount": 2,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 7.6000000000000005,
+    "logoWidthPercent": 20,
+    "qrWidthMm": 14.44,
+    "qrWidthPercent": 38,
+  },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.41000000000000003,
+    "breakoutMarginLeftPct": -61.60458452722064,
+    "breakoutWidthPct": 272.2063037249284,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 20,
@@ -631,8 +811,23 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
   "bodyFontSizePx": 18,
+  "columnLayout": {
+    "centerWidthMm": 38,
+    "gapCount": 0,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -676,8 +871,23 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "minimal name only" 1`] = `
 {
   "bodyFontSizePx": 39,
+  "columnLayout": {
+    "centerWidthMm": 38,
+    "gapCount": 0,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -702,9 +912,24 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "untested danger mode" 1`] = `
 {
   "bodyFontSizePx": 22.400000000000002,
+  "columnLayout": {
+    "centerWidthMm": 38,
+    "gapCount": 0,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": "Retatrutide
 20mg",
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -751,8 +976,23 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "full label with all sections" 1`] = `
 {
   "bodyFontSizePx": 19,
+  "columnLayout": {
+    "centerWidthMm": 23.68,
+    "gapCount": 1,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 14.82,
+    "qrWidthPercent": 38,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.3035897435897436,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 164.69594594594594,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -825,8 +1065,23 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
   "bodyFontSizePx": 39,
+  "columnLayout": {
+    "centerWidthMm": 15.379999999999999,
+    "gapCount": 2,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 7.800000000000001,
+    "logoWidthPercent": 20,
+    "qrWidthMm": 14.82,
+    "qrWidthPercent": 38,
+  },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.41000000000000003,
+    "breakoutMarginLeftPct": -53.966189856957094,
+    "breakoutWidthPct": 253.57607282184657,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 20,
@@ -880,8 +1135,23 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
   "bodyFontSizePx": 19,
+  "columnLayout": {
+    "centerWidthMm": 39,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -925,8 +1195,23 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "minimal name only" 1`] = `
 {
   "bodyFontSizePx": 39,
+  "columnLayout": {
+    "centerWidthMm": 39,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -951,9 +1236,24 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "untested danger mode" 1`] = `
 {
   "bodyFontSizePx": 22.400000000000002,
+  "columnLayout": {
+    "centerWidthMm": 39,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": "Retatrutide
 20mg",
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -1000,8 +1300,23 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "full label with all sections" 1`] = `
 {
   "bodyFontSizePx": 17,
+  "columnLayout": {
+    "centerWidthMm": 28.759999999999998,
+    "gapCount": 1,
+    "gapMm": 1,
+    "innerRowMm": 48,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 18.240000000000002,
+    "qrWidthPercent": 38,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.2995833333333333,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 166.89847009735746,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -1074,8 +1389,23 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
   "bodyFontSizePx": 39,
+  "columnLayout": {
+    "centerWidthMm": 18.159999999999997,
+    "gapCount": 2,
+    "gapMm": 1,
+    "innerRowMm": 48,
+    "logoWidthMm": 9.600000000000001,
+    "logoWidthPercent": 20,
+    "qrWidthMm": 18.240000000000002,
+    "qrWidthPercent": 38,
+  },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.41,
+    "breakoutMarginLeftPct": -58.370044052863456,
+    "breakoutWidthPct": 264.31718061674013,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 20,
@@ -1129,8 +1459,23 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
   "bodyFontSizePx": 20,
+  "columnLayout": {
+    "centerWidthMm": 48,
+    "gapCount": 0,
+    "gapMm": 1,
+    "innerRowMm": 48,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -1172,8 +1517,23 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "minimal name only" 1`] = `
 {
   "bodyFontSizePx": 39,
+  "columnLayout": {
+    "centerWidthMm": 48,
+    "gapCount": 0,
+    "gapMm": 1,
+    "innerRowMm": 48,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -1198,9 +1558,24 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "untested danger mode" 1`] = `
 {
   "bodyFontSizePx": 22.400000000000002,
+  "columnLayout": {
+    "centerWidthMm": 48,
+    "gapCount": 0,
+    "gapMm": 1,
+    "innerRowMm": 48,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": "Retatrutide
 20mg",
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -1247,8 +1622,23 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "full label with all sections" 1`] = `
 {
   "bodyFontSizePx": 19,
+  "columnLayout": {
+    "centerWidthMm": 29.88,
+    "gapCount": 1,
+    "gapMm": 0.5,
+    "innerRowMm": 49,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 18.62,
+    "qrWidthPercent": 38,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.30489795918367346,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 163.98929049531458,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -1321,8 +1711,23 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
   "bodyFontSizePx": 39,
+  "columnLayout": {
+    "centerWidthMm": 19.580000000000002,
+    "gapCount": 2,
+    "gapMm": 0.5,
+    "innerRowMm": 49,
+    "logoWidthMm": 9.8,
+    "logoWidthPercent": 20,
+    "qrWidthMm": 18.62,
+    "qrWidthPercent": 38,
+  },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.4100000000000001,
+    "breakoutMarginLeftPct": -52.6046986721144,
+    "breakoutWidthPct": 250.25536261491314,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 20,
@@ -1376,8 +1781,23 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
   "bodyFontSizePx": 21,
+  "columnLayout": {
+    "centerWidthMm": 49,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 49,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -1419,8 +1839,23 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "minimal name only" 1`] = `
 {
   "bodyFontSizePx": 39,
+  "columnLayout": {
+    "centerWidthMm": 49,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 49,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -1445,9 +1880,24 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "untested danger mode" 1`] = `
 {
   "bodyFontSizePx": 22.400000000000002,
+  "columnLayout": {
+    "centerWidthMm": 49,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 49,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": "Retatrutide
 20mg",
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -1494,8 +1944,23 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "full label with all sections" 1`] = `
 {
   "bodyFontSizePx": 11,
+  "columnLayout": {
+    "centerWidthMm": 23.68,
+    "gapCount": 1,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 14.82,
+    "qrWidthPercent": 38,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.3035897435897436,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 164.69594594594594,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -1568,8 +2033,23 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
   "bodyFontSizePx": 26,
+  "columnLayout": {
+    "centerWidthMm": 15.379999999999999,
+    "gapCount": 2,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 7.800000000000001,
+    "logoWidthPercent": 20,
+    "qrWidthMm": 14.82,
+    "qrWidthPercent": 38,
+  },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.41000000000000003,
+    "breakoutMarginLeftPct": -53.966189856957094,
+    "breakoutWidthPct": 253.57607282184657,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 20,
@@ -1623,8 +2103,23 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
   "bodyFontSizePx": 16,
+  "columnLayout": {
+    "centerWidthMm": 39,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -1664,8 +2159,23 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "minimal name only" 1`] = `
 {
   "bodyFontSizePx": 26,
+  "columnLayout": {
+    "centerWidthMm": 39,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
@@ -1690,9 +2200,24 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "untested danger mode" 1`] = `
 {
   "bodyFontSizePx": 15.200000000000001,
+  "columnLayout": {
+    "centerWidthMm": 39,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
   "customImage": undefined,
   "demotedTitle": "Retatrutide
 20mg",
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
   "isDangerMode": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,

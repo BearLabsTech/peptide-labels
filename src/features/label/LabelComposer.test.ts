@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { LabelComposer } from './LabelComposer'
 import { resolvePrintTarget } from './print/PrintTargetResolver'
 import { mmToPx } from './print/dimensions'
-import { computeColumnLayout } from './labelColumnLayout'
+import { computeColumnLayout, computeIdentityHeaderTitleBreakout } from './labelColumnLayout'
 import { LabelLayoutEngine } from './LabelLayoutEngine'
 
 const TITLE_CHAR_WIDTH_EM = 0.95
@@ -507,7 +507,7 @@ describe('LabelComposer', () => {
         expect(result.titleLines.join(' ')).toContain('COMPOUND')
     })
 
-    it('should expose resolved column percents matching compute column layout', () => {
+    it('should expose resolved column layout and title breakout matching compute helpers', () => {
         const target = resolvePrintTarget({ stockId: '40x30-rounded' })
         const composer = new LabelComposer(target)
         const result = composer.compose({
@@ -525,8 +525,12 @@ describe('LabelComposer', () => {
             logoColumnWidthPercent: 25,
             qrColumnWidthPercent: 40,
         })
+        expect(result.columnLayout).toEqual(expected)
         expect(result.logoColumnWidthPercent).toBe(expected.logoWidthPercent)
         expect(result.qrColumnWidthPercent).toBe(expected.qrWidthPercent)
+        expect(result.identityHeaderTitleBreakout).toEqual(
+            computeIdentityHeaderTitleBreakout(expected, true, true),
+        )
     })
 
     it('should print test indicators without coa qr when coa printing is disabled', () => {

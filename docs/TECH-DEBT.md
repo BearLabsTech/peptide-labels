@@ -43,17 +43,6 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 
 ---
 
-### Label render model — incomplete layout plan
-
-**Priority:** Low
-**Status:** Open
-
-**Symptom:** Composition calculates column geometry but `LabelPreview.tsx` recomputes part of it from percentages and print-target facts. This keeps the renderer coupled to fitting policy.
-
-**When fixing:** Include resolved `ColumnLayout` geometry in `LabelRenderModel` so preview/export render the completed composition plan directly.
-
----
-
 ### Print padding — exported PNG on Niimbot B21 (40×20 rounded stock)
 
 **Priority:** High  
@@ -99,6 +88,10 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 ---
 
 ## Resolved
+
+### Label render model — incomplete layout plan
+
+**Resolved:** 2026-08-02 (Phase 3 action 3.4). `LabelRenderModel` now carries resolved `columnLayout` and `identityHeaderTitleBreakout`; `LabelPreview` reads them and no longer imports `labelColumnLayout`.
 
 ### Calculator default mode — two remaining hard-coded literals
 

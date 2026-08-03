@@ -1,7 +1,6 @@
 import { forwardRef, type CSSProperties } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import type { LabelRenderModel } from './LabelComposer'
-import { computeColumnLayout, computeIdentityHeaderTitleBreakout } from './labelColumnLayout'
 import { TestStatusMark } from './components/TestStatusMark'
 import { labelContentStyle, labelStickerStyle } from './print/labelSurfaceStyle'
 import { previewBaseWidthPx } from './print/dimensions'
@@ -24,22 +23,12 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
     const hasTestingColumn = model.qrCodes.length > 0 || model.testIndicators.length > 0
 
     const baseWidthPx = previewBaseWidthPx(printTarget)
-    const identityTitleBandStyle: CSSProperties = (() => {
-      const columns = computeColumnLayout({
-        labelWidthMm: printTarget.labelWidthMm,
-        paddingMm: printTarget.paddingMm,
-        hasLogo,
-        hasQr: hasTestingColumn,
-        logoColumnWidthPercent: model.logoColumnWidthPercent,
-        qrColumnWidthPercent: model.qrColumnWidthPercent,
-      })
-      const breakout = computeIdentityHeaderTitleBreakout(columns, hasLogo, hasTestingColumn)
-      return cssVars({
-        '--title-axis-pct': `${breakout.axisFraction * 100}%`,
-        '--title-breakout-width-pct': `${breakout.breakoutWidthPct}`,
-        '--title-breakout-margin-left-pct': `${breakout.breakoutMarginLeftPct}`,
-      })
-    })()
+    const { axisFraction, breakoutWidthPct, breakoutMarginLeftPct } = model.identityHeaderTitleBreakout
+    const identityTitleBandStyle: CSSProperties = cssVars({
+      '--title-axis-pct': `${axisFraction * 100}%`,
+      '--title-breakout-width-pct': `${breakoutWidthPct}`,
+      '--title-breakout-margin-left-pct': `${breakoutMarginLeftPct}`,
+    })
 
     const titleBandGutter = (widthPercent: number) => (
       <div

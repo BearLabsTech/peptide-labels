@@ -2,6 +2,7 @@ import type { LabelLayoutMode } from './labelModel'
 import type { QrCodeEntry } from './coaLinks'
 import type { TestIndicatorEntry } from './testIndicators'
 import type { TestIndicatorLayout } from './testIndicatorLayout'
+import type { ColumnLayout, IdentityHeaderTitleBreakout } from './labelColumnLayout'
 import type { LabelRenderModel } from './labelRenderModel'
 
 /**
@@ -20,8 +21,8 @@ export class LabelRenderModelBuilder {
   private testIndicatorLayout: TestIndicatorLayout | undefined
   private customImage: string | undefined
   private isDangerMode = false
-  private logoColumnWidthPercent = 0
-  private qrColumnWidthPercent = 0
+  private columnLayout: ColumnLayout | undefined
+  private identityHeaderTitleBreakout: IdentityHeaderTitleBreakout | undefined
   private labelLayoutMode: LabelLayoutMode = 'identityHeader'
   private titleLines: readonly string[] = []
   private titleFontSizePx = 0
@@ -69,9 +70,12 @@ export class LabelRenderModelBuilder {
     return this
   }
 
-  withColumnPercents(logoColumnWidthPercent: number, qrColumnWidthPercent: number): this {
-    this.logoColumnWidthPercent = logoColumnWidthPercent
-    this.qrColumnWidthPercent = qrColumnWidthPercent
+  withColumnLayout(
+    columnLayout: ColumnLayout,
+    identityHeaderTitleBreakout: IdentityHeaderTitleBreakout,
+  ): this {
+    this.columnLayout = columnLayout
+    this.identityHeaderTitleBreakout = identityHeaderTitleBreakout
     return this
   }
 
@@ -97,6 +101,9 @@ export class LabelRenderModelBuilder {
   }
 
   build(): LabelRenderModel {
+    if (!this.columnLayout || !this.identityHeaderTitleBreakout) {
+      throw new Error('LabelRenderModelBuilder: column layout and title breakout are required')
+    }
     return {
       wrappedLines: this.wrappedLines,
       titleLines: this.titleLines,
@@ -112,9 +119,11 @@ export class LabelRenderModelBuilder {
       testIndicatorLayout: this.testIndicatorLayout,
       customImage: this.customImage,
       isDangerMode: this.isDangerMode,
-      logoColumnWidthPercent: this.logoColumnWidthPercent,
-      qrColumnWidthPercent: this.qrColumnWidthPercent,
+      logoColumnWidthPercent: this.columnLayout.logoWidthPercent,
+      qrColumnWidthPercent: this.columnLayout.qrWidthPercent,
       labelLayoutMode: this.labelLayoutMode,
+      columnLayout: this.columnLayout,
+      identityHeaderTitleBreakout: this.identityHeaderTitleBreakout,
     }
   }
 }
