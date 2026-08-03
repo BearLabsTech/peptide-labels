@@ -52,7 +52,7 @@ describe('validateDesignDocument', () => {
     }
   })
 
-  it('should return a cloned document so mutating the result does not affect the caller input', () => {
+  it('should return a newly built document distinct from the caller input (no shared references)', () => {
     const input = cloneDesign(SAMPLE_MITOCHONDRIA_DESIGN)
     const originalName = input.name
     const result = validateDesignDocument(input)
@@ -60,6 +60,10 @@ describe('validateDesignDocument', () => {
     if (!result.ok) return
 
     expect(result.document).not.toBe(input)
+    expect(result.document.slots).not.toBe(input.slots)
+    expect(result.document.elements).not.toBe(input.elements)
+    expect(result.document.assets).not.toBe(input.assets)
+    expect(result.document.stock).not.toBe(input.stock)
     ;(result.document as DeepWritable<DesignDocument>).name = 'mutated-after-validate'
     expect(input.name).toBe(originalName)
   })

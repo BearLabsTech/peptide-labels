@@ -3,6 +3,7 @@ import {
   type DesignAsset,
   type DesignAssetMimeType,
   type DesignDocument,
+  type DesignElement,
   type DesignSlot,
   type DesignSlotValueType,
   type DesignStock,
@@ -31,17 +32,17 @@ function validateStock(
   stock: unknown,
   path: string,
   issues: DesignDocumentValidationIssue[],
-): stock is DesignStock {
+): DesignStock | null {
   if (!isRecord(stock)) {
     push(issues, path, 'must be an object')
-    return false
+    return null
   }
   if (stock.kind === 'catalog') {
     if (!isNonEmptyString(stock.stockId)) {
       push(issues, `${path}.stockId`, 'must be a non-empty string')
-      return false
+      return null
     }
-    return true
+    return { kind: 'catalog', stockId: stock.stockId }
   }
   if (stock.kind === 'custom') {
     let ok = true
@@ -71,20 +72,28 @@ function validateStock(
       push(issues, `${path}.paddingMm`, 'must be >= 0')
       ok = false
     }
-    return ok
+    if (!ok) return null
+    return {
+      kind: 'custom',
+      widthMm: stock.widthMm as number,
+      heightMm: stock.heightMm as number,
+      shape: stock.shape as 'rounded' | 'rectangular',
+      cornerRadiusMm: stock.cornerRadiusMm as number,
+      paddingMm: stock.paddingMm as number,
+    }
   }
   push(issues, `${path}.kind`, 'must be catalog or custom')
-  return false
+  return null
 }
 
 function validateSlot(
   slot: unknown,
   path: string,
   issues: DesignDocumentValidationIssue[],
-): slot is DesignSlot {
+): DesignSlot | null {
   if (!isRecord(slot)) {
     push(issues, path, 'must be an object')
-    return false
+    return null
   }
   let ok = true
   if (!isNonEmptyString(slot.key)) {
@@ -103,17 +112,23 @@ function validateSlot(
     push(issues, `${path}.required`, 'must be a boolean')
     ok = false
   }
-  return ok
+  if (!ok) return null
+  return {
+    key: slot.key as string,
+    label: slot.label as string,
+    type: slot.type as DesignSlotValueType,
+    required: slot.required as boolean,
+  }
 }
 
 function validateAsset(
   asset: unknown,
   path: string,
   issues: DesignDocumentValidationIssue[],
-): asset is DesignAsset {
+): DesignAsset | null {
   if (!isRecord(asset)) {
     push(issues, path, 'must be an object')
-    return false
+    return null
   }
   let ok = true
   if (!isNonEmptyString(asset.id)) {
@@ -131,12 +146,18 @@ function validateAsset(
     push(issues, `${path}.dataBase64`, 'must be raw base64, not a URL or data URI')
     ok = false
   }
-  return ok
+  if (!ok) return null
+  return {
+    id: asset.id as string,
+    mimeType: asset.mimeType as DesignAssetMimeType,
+    dataBase64: asset.dataBase64 as string,
+  }
 }
 
 /**
  * Validates unknown JSON-shaped input into a DesignDocument.
  * Rejects external image URLs and dangling slot/asset references.
+ * Builds a fresh typed document from proven fields — never returns the caller's input.
  */
 export function validateDesignDocument(input: unknown): DesignDocumentValidationResult {
   const issues: DesignDocumentValidationIssue[] = []
@@ -168,7 +189,7 @@ export function validateDesignDocument(input: unknown): DesignDocumentValidation
     push(issues, 'visibility', 'must be private, unlisted, or public')
   }
 
-  validateStock(input.stock, 'stock', issues)
+  const stock = validateStock(input.stock, 'stock', issues)
 
   if (!Array.isArray(input.slots)) {
     push(issues, 'slots', 'must be an array')
@@ -180,36 +201,43 @@ export function validateDesignDocument(input: unknown): DesignDocumentValidation
     push(issues, 'assets', 'must be an array')
   }
 
-  if (issues.length > 0) {
+  if (issues.length > 0 || stock === null) {
     return { ok: false, issues }
   }
 
-  const slots = input.slots as unknown[]
-  const assets = input.assets as unknown[]
-  const elements = input.elements as unknown[]
+  const slotsInput = input.slots as unknown[]
+  const assetsInput = input.assets as unknown[]
+  const elementsInput = input.elements as unknown[]
 
+  const slots: DesignSlot[] = []
   const slotKeys = new Set<string>()
-  slots.forEach((slot, index) => {
-    if (!validateSlot(slot, `slots[${index}]`, issues)) return
-    if (slotKeys.has(slot.key)) {
-      push(issues, `slots[${index}].key`, `duplicate slot key "${slot.key}"`)
+  slotsInput.forEach((slot, index) => {
+    const validated = validateSlot(slot, `slots[${index}]`, issues)
+    if (!validated) return
+    if (slotKeys.has(validated.key)) {
+      push(issues, `slots[${index}].key`, `duplicate slot key "${validated.key}"`)
       return
     }
-    slotKeys.add(slot.key)
+    slotKeys.add(validated.key)
+    slots.push(validated)
   })
 
+  const assets: DesignAsset[] = []
   const assetIds = new Set<string>()
-  assets.forEach((asset, index) => {
-    if (!validateAsset(asset, `assets[${index}]`, issues)) return
-    if (assetIds.has(asset.id)) {
-      push(issues, `assets[${index}].id`, `duplicate asset id "${asset.id}"`)
+  assetsInput.forEach((asset, index) => {
+    const validated = validateAsset(asset, `assets[${index}]`, issues)
+    if (!validated) return
+    if (assetIds.has(validated.id)) {
+      push(issues, `assets[${index}].id`, `duplicate asset id "${validated.id}"`)
       return
     }
-    assetIds.add(asset.id)
+    assetIds.add(validated.id)
+    assets.push(validated)
   })
 
+  const elements: DesignElement[] = []
   const elementIds = new Set<string>()
-  elements.forEach((element, index) => {
+  elementsInput.forEach((element, index) => {
     const result = validateElement(
       element,
       { path: `elements[${index}]`, slotKeys, assetIds },
@@ -218,14 +246,28 @@ export function validateDesignDocument(input: unknown): DesignDocumentValidation
     if (!result.ok) return
     if (elementIds.has(result.value.id)) {
       push(issues, `elements[${index}].id`, `duplicate element id "${result.value.id}"`)
-    } else {
-      elementIds.add(result.value.id)
+      return
     }
+    elementIds.add(result.value.id)
+    elements.push(result.value)
   })
 
   if (issues.length > 0) {
     return { ok: false, issues }
   }
 
-  return { ok: true, document: structuredClone(input) as unknown as DesignDocument }
+  const document: DesignDocument = {
+    schemaVersion: DESIGN_DOCUMENT_SCHEMA_VERSION,
+    id: input.id as string,
+    name: input.name as string,
+    createdAt: input.createdAt as string,
+    updatedAt: input.updatedAt as string,
+    visibility: input.visibility as DesignVisibility,
+    stock,
+    slots,
+    elements,
+    assets,
+  }
+
+  return { ok: true, document }
 }
