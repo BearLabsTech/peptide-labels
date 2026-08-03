@@ -368,8 +368,11 @@ describe('calculateDefaultDrawUnits', () => {
         expect(calculateDefaultDrawUnits(500, { vialUnit: 'mg', measureUnit: 'mcg' })).toBe(5)
     })
 
-    it('should fall back to 10 units when the scaled default would round to zero', () => {
-        expect(calculateDefaultDrawUnits(3, { vialUnit: 'mg', measureUnit: 'mcg' })).toBe(10)
+    // Decision 2026-08-03: report the honest fractional value rather than
+    // substituting the flat DEFAULT_DRAW_UNITS_PER_MG when the scaled result is
+    // below 1 (matching the IU branch). 3 mcg = 0.003 mg × 10 u/mg = 0.03.
+    it('should keep a fractional draw when the scaled mcg default is below 1', () => {
+        expect(calculateDefaultDrawUnits(3, { vialUnit: 'mg', measureUnit: 'mcg' })).toBeCloseTo(0.03)
     })
 
     it('should default to 10 units per IU for IU vials when that stays at or under 50', () => {

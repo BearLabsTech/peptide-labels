@@ -35,8 +35,9 @@ describe('calculatorReducer — VialUnitChanged', () => {
         const next = dispatch(state, { type: 'VialUnitChanged', unit: 'mg', vialCapacityMl: 3 })
         expect(next.vialUnit).toBe('mg')
         expect(next.measureUnit).toBe('mcg')
-        expect(next.protocolUnits).toBe('0.03 units')
-        expect(next.reconstitutionAmount).toBe('3')
+        // 1 mcg = 0.001 mg × 10 u/mg = 0.01 units; water for that draw at 10 mg compound = 1 ml.
+        expect(next.protocolUnits).toBe('0.01 units')
+        expect(next.reconstitutionAmount).toBe('1')
     })
 
     it('should use IU consistently when switching an mg compound to IU in Set Draw Volume', () => {

@@ -124,20 +124,15 @@ describe('default draw-unit boundaries', () => {
         expect(calculateDefaultDrawUnits(6, { vialUnit: 'mg', measureUnit: 'mg' })).toBe(30)
     })
 
-    it('should fall back to flat 10 when scaled mcg defaults would be below 1', () => {
-        // Known disagreement: the IU branch above does NOT floor a sub-1-unit result
-        // to a flat placeholder the way this mg branch does (see the IU case in the
-        // next test) - tracked as an open, deliberate decision in docs/TECH-DEBT.md
-        // ("mg/IU draw-units disagree below 1 unit") rather than fixed here, since
-        // the fix changes calculateRecommendedDrawUnits' chosen value for a real
-        // scenario and needs a product call on which end of the recommended water
-        // range it should favor.
-        expect(calculateDefaultDrawUnits(50, { vialUnit: 'mg', measureUnit: 'mcg' })).toBe(10)
-        expect(calculateDefaultDrawUnits(99, { vialUnit: 'mg', measureUnit: 'mcg' })).toBe(10)
+    // Decision 2026-08-03: mg and IU both report the honest fractional value.
+    // 50 mcg = 0.05 mg × 10 = 0.5; 99 mcg = 0.99; 100 mcg = 1.
+    it('should keep fractional mcg draws below 1 unit, matching the IU branch', () => {
+        expect(calculateDefaultDrawUnits(50, { vialUnit: 'mg', measureUnit: 'mcg' })).toBeCloseTo(0.5)
+        expect(calculateDefaultDrawUnits(99, { vialUnit: 'mg', measureUnit: 'mcg' })).toBeCloseTo(0.99)
         expect(calculateDefaultDrawUnits(100, { vialUnit: 'mg', measureUnit: 'mcg' })).toBe(1)
     })
 
-    it('should NOT floor a sub-1-unit IU result the same way the mg branch above does', () => {
+    it('should keep a fractional IU draw below 1 unit', () => {
         expect(calculateDefaultDrawUnits(0.05, { vialUnit: 'IU', measureUnit: 'IU' })).toBeCloseTo(0.5)
     })
 })

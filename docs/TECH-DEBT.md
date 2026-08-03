@@ -49,33 +49,6 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 
 ---
 
-### mg/IU draw-units disagree below 1 unit
-
-**Priority:** Low
-**Status:** Open — behavior deliberately preserved during Phase 8 pending a product decision. `peptideMath.ts:352` cites this entry.
-
-**Symptom:** `calculateDefaultDrawUnits` answers the same question two different ways depending on the vial's unit, once the computed draw volume falls below 1 unit:
-
-- The IU branch (`peptideMath.ts:346-347`) keeps a fractional result — 0.5 IU-worth of draw stays `0.5`.
-- The mg branch (`peptideMath.ts:350-357`) replaces any result below 1 with the flat `DEFAULT_DRAW_UNITS_PER_MG` (10), a jump of up to 20×.
-
-Worked example, pinned today by `peptideMath.unit.test.ts:372`: a 3 mcg protocol amount is 0.003 mg, computes 0.03 units, and is reported as **10 units**. This feeds `calculateRecommendedDrawUnits` (`peptideMath.ts:371`), so it moves which draw volume the calculator recommends for very small protocol amounts, and therefore where in the recommended water range that recommendation lands.
-
-**Needs a product decision before any code change.** For a very small protocol amount (3 mcg from a 10 mg vial), should the recommendation be the honest fractional value (0.03 units — not measurable on an insulin syringe) or a usable flat default (10 units — which implies a much more dilute mix than the user asked for)? Neither branch is self-evidently right, which is why the mg branch was left as-is.
-
-**When fixing:** a fix was attempted during Phase 8 and reverted, because changing the `units < 1` guard also changes `calculateRecommendedDrawUnits`' quick-pick selection. Exactly four tests pin the current behavior (measured 2026-08-03 by changing `peptideMath.ts:356` to `return units` and reverting) — each needs a deliberate decision, not blind acceptance:
-
-- `peptideMath.unit.test.ts` → "should fall back to 10 units when the scaled default would round to zero"
-- `peptideMath.edge.test.ts` → "should fall back to flat 10 when scaled mcg defaults would be below 1"
-- `calculatorReducer.test.ts` → "should use the new protocol unit immediately when switching IU to mg in Set Draw Volume"
-- `useLabelForm.test.ts` → "should use the new protocol unit immediately when switching IU to mg"
-
-The last two are the important signal: this is not an isolated formatting quirk. Switching a vial from IU to mg crosses the two branches, so the disagreement is directly observable in the calculator as a jump in the recommended draw volume.
-
-**Standard:** CODE-QUALITY.md section C — one source of truth per fact (two branches of one function answer the same question differently).
-
----
-
 ### View-model components still over the ~120-line soft budget
 
 **Priority:** Low
@@ -103,6 +76,10 @@ The last two are the important signal: this is not an isolated formatting quirk.
 ---
 
 ## Resolved
+
+### mg/IU draw-units disagree below 1 unit
+
+**Resolved:** 2026-08-03. Both branches of `calculateDefaultDrawUnits` now report the honest fractional value. Tiny protocols (e.g. 3 mcg → 0.03 units) can show sub-1 unit recommendations; that is intentional per product decision.
 
 ### Print catalog compatibility — two relation sources
 
