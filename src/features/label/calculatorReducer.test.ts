@@ -156,6 +156,7 @@ describe('calculatorReducer — WaterChanged', () => {
         expect(next.reconstitutionAmount).toBe('2')
         expect(next.concentration).toBe('10mg per ml')
         expect(next.protocolUnits).toBe('')
+        expect(next.protocolUnitsOrigin).toBe('recommended')
     })
 
     it('should keep the previous draw units when Manual Entry water is cleared', () => {
@@ -182,6 +183,7 @@ describe('calculatorReducer — WaterChanged', () => {
         const next = dispatch(state, { type: 'WaterChanged', value: '2' })
         expect(next.reconstitutionAmount).toBe('2')
         expect(next.protocolUnits).toBe('')
+        expect(next.protocolUnitsOrigin).toBe('recommended')
     })
 })
 
@@ -470,5 +472,37 @@ describe('calculatorReducer — VialCapacityChanged', () => {
         const unchanged = dispatch(userAuthored, { type: 'VialCapacityChanged', vialCapacityMl: 3 })
         expect(unchanged.targetConcentration).toBe(userAuthored.targetConcentration)
         expect(unchanged.targetConcentrationOrigin).toBe('user')
+    })
+})
+
+describe('calculatorReducer — provenance invariants', () => {
+    it('should never leave a provenance origin describing a value that is gone', () => {
+        // Regression: authoring draw units then typing water used to leave
+        // protocolUnitsOrigin: 'user' on an empty protocolUnits.
+        const events: readonly CalculatorEvent[] = [
+            { type: 'VialUnitChanged', unit: 'mg', vialCapacityMl: 3 },
+            { type: 'CompoundAmountChanged', value: '10', vialCapacityMl: 3 },
+            { type: 'WaterChanged', value: '2' },
+            { type: 'ProtocolAmountChanged', value: '2', vialCapacityMl: 3 },
+            { type: 'MeasureUnitChanged', unit: 'mg', vialCapacityMl: 3 },
+            { type: 'ProtocolUnitsChanged', value: '20 units', vialCapacityMl: 3 },
+            { type: 'ModeChanged', mode: 'standard', vialCapacityMl: 3 },
+            { type: 'TargetConcentrationChanged', value: '5', vialCapacityMl: 3 },
+            { type: 'VialCapacityChanged', vialCapacityMl: 3 },
+        ]
+        let state: LabelModelInput = {
+            compoundAmount: '10',
+            vialUnit: 'mg',
+            protocolAmount: '2',
+            measureUnit: 'mg',
+            protocolUnits: '20 units',
+            protocolUnitsOrigin: 'user',
+            calculatorSolveMode: 'standard',
+        }
+        for (const event of events) {
+            state = calculatorReducer(state, event)
+            if (!state.protocolUnits?.trim()) expect(state.protocolUnitsOrigin).not.toBe('user')
+            if (!state.targetConcentration?.trim()) expect(state.targetConcentrationOrigin).not.toBe('user')
+        }
     })
 })

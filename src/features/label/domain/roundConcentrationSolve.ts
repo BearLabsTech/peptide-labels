@@ -1,6 +1,7 @@
 import type { LabelModelInput, LabelModelPatch } from '../labelModel'
 import {
     hasPositiveCompoundAmount,
+    hasPositiveDrawUnits,
     resolveDefaultTargetConcentration,
     calculateWaterFromTargetConcentration,
     parseNumericField,
@@ -27,7 +28,12 @@ function deriveMath(draft: LabelModelInput): ResolvedLabelMath {
 }
 
 function onProtocolAmountChanged(draft: LabelModelInput, value: string): LabelModelInput {
-    return { ...draft, protocolAmount: value, reconstitutionAmount: '', protocolUnits: '' }
+    return {
+        ...draft,
+        protocolAmount: value,
+        reconstitutionAmount: '',
+        ...protocolUnitsPatch({ value: '', origin: 'recommended' }),
+    }
 }
 
 /**
@@ -49,7 +55,9 @@ function onModeEntered(
     let next: LabelModelInput = { ...draft, calculatorSolveMode: 'round_concentration' }
     const canRecommendTarget = hasPositiveCompoundAmount(draft.compoundAmount) || Boolean(draft.concentration?.trim())
     if (!draft.targetConcentration?.trim() && canRecommendTarget) {
-        const generatedDrawSource = outgoingWaterFollowsDrawUnits && draft.protocolUnitsOrigin === 'recommended'
+        const generatedDrawSource = outgoingWaterFollowsDrawUnits
+            && hasPositiveDrawUnits(draft.protocolUnits)
+            && draft.protocolUnitsOrigin === 'recommended'
         const recommendationInput = generatedDrawSource
             ? { compoundAmount: draft.compoundAmount }
             : { ...draft, concentration: draft.concentration || oldDerived.autoConcentration }

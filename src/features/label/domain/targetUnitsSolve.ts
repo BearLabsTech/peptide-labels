@@ -21,7 +21,9 @@ function deriveMath(draft: LabelModelInput): ResolvedLabelMath {
 
 function onWaterChanged(draft: LabelModelInput, value: string): LabelModelInput {
     const next: LabelModelInput = { ...draft, reconstitutionAmount: value }
-    return value ? { ...next, protocolUnits: '' } : next
+    return value
+        ? { ...next, ...protocolUnitsPatch({ value: '', origin: 'recommended' }) }
+        : next
 }
 
 function onProtocolAmountChanged(draft: LabelModelInput, value: string, vialCapacityMl: number): LabelModelInput {

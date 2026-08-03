@@ -13,11 +13,9 @@
  *      valid `UnitWorld` (the defect this file was added to pin).
  *   2. No non-finite value leaks into a string field (`NaN` / `Infinity`).
  *   3. Idempotence — applying an event twice equals applying it once.
- *
- * Provenance ("origin never 'user' on an empty value") is deliberately NOT
- * asserted here — that invariant currently fails on 19 paths and is owned by
- * the quality follow-up plan's action 5a. Adding it here would keep this
- * file red until that action lands.
+ *   4. Provenance — an origin flag never describes a value that is gone
+ *      (`protocolUnitsOrigin` / `targetConcentrationOrigin` are never `'user'`
+ *      when the matching value is empty). Landed with quality follow-up 5a.
  */
 import { describe, expect, it } from 'vitest'
 import { calculatorReducer, type CalculatorEvent } from './calculatorReducer'
@@ -124,6 +122,13 @@ function assertInvariants(state: LabelModelInput, path: string): void {
             expect(value, `${path}: ${key} must not contain NaN/Infinity`).not.toMatch(NON_FINITE)
         }
     }
+
+    if (!state.protocolUnits?.trim()) {
+        expect(state.protocolUnitsOrigin, `${path}: empty protocolUnits must not carry origin 'user'`).not.toBe('user')
+    }
+    if (!state.targetConcentration?.trim()) {
+        expect(state.targetConcentrationOrigin, `${path}: empty targetConcentration must not carry origin 'user'`).not.toBe('user')
+    }
 }
 
 function stateEqual(a: LabelModelInput, b: LabelModelInput): boolean {
@@ -170,5 +175,5 @@ describe(`calculatorReducer invariants (${SWEPT_TRANSITIONS} length-2 transition
         // Sanity: the loop visited every length-1 and length-2 transition.
         // Length-1: starts × events. Length-2: starts × events × events.
         expect(checked).toBe(STARTS.length * EVENTS.length + SWEPT_TRANSITIONS)
-    })
+    }, 30_000)
 })

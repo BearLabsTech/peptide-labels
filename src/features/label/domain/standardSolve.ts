@@ -11,9 +11,12 @@ function deriveMath(draft: LabelModelInput): ResolvedLabelMath {
 /** Manual Entry water edit: clear draw units (forward math will refill) and
  * replace concentration from vial ÷ water — never keep a prior assist label. */
 function onWaterChanged(draft: LabelModelInput, value: string): LabelModelInput {
-    const protocolUnits = value ? '' : (draft.protocolUnits || '')
+    const unitsPatch = value
+        ? protocolUnitsPatch({ value: '', origin: 'recommended' })
+        : { protocolUnits: draft.protocolUnits || '' }
+    const protocolUnits = unitsPatch.protocolUnits ?? ''
     const concentration = deriveMath({ ...draft, reconstitutionAmount: value, protocolUnits, concentration: '' }).autoConcentration
-    return { ...draft, reconstitutionAmount: value, protocolUnits, concentration: concentration || '' }
+    return { ...draft, reconstitutionAmount: value, ...unitsPatch, concentration: concentration || '' }
 }
 
 /** Manual Entry vial edit: refresh concentration from vial ÷ current water. */
@@ -39,7 +42,11 @@ function onFieldChanged(draft: LabelModelInput, edit: CalculatorFieldEdit): Labe
     switch (edit.kind) {
         case 'compoundAmount': return onCompoundAmountChanged(draft, edit.value)
         case 'water': return onWaterChanged(draft, edit.value)
-        case 'protocolAmount': return { ...draft, protocolAmount: edit.value, protocolUnits: '' }
+        case 'protocolAmount': return {
+            ...draft,
+            protocolAmount: edit.value,
+            ...protocolUnitsPatch({ value: '', origin: 'recommended' }),
+        }
         case 'protocolUnits': return onProtocolUnitsChanged(draft, edit.value)
         case 'mode': return onModeEntered(draft)
         // vialUnit/measureUnit/targetConcentration/vialCapacity: the reducer already
