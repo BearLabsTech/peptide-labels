@@ -1,14 +1,16 @@
-import type { CSSProperties } from 'react'
-import { cssVars } from '../../shared/cssVars'
-
 /**
  * Single source for the typography metrics `LabelLayoutEngine.ts` uses to
  * predict fit and `LabelPreview.css` uses to render. Before this module,
  * these seven numbers were hand-copied into both places — a purely visual
  * CSS edit could silently disagree with what the engine predicted would fit.
  * Now the engine imports these values directly and the preview emits them
- * as CSS custom properties (see {@link labelTypographyCssVars}), so there is
+ * as CSS custom properties (see `labelTypographyCssVars.ts`), so there is
  * exactly one place to change any of them.
+ *
+ * This module stays free of React imports on purpose: `LabelLayoutEngine.ts`
+ * (pure layout math) sits on its import graph, and `domain-label-architecture.mdc`
+ * treats that engine as core math with no UI-framework dependency. The
+ * `CSSProperties`-typed presenter lives in `labelTypographyCssVars.ts` instead.
  */
 export const LABEL_TYPOGRAPHY = {
   /** Section label ("RECONSTITUTION" etc.) font size, as a fraction of the boxed-section body font size. */
@@ -35,7 +37,7 @@ export const LABEL_TYPOGRAPHY = {
 export type LabelTypographyKey = keyof typeof LABEL_TYPOGRAPHY
 
 /** CSS custom property name that carries each {@link LABEL_TYPOGRAPHY} metric. */
-const CSS_VAR_NAME: Record<LabelTypographyKey, `--${string}`> = {
+export const CSS_VAR_NAME: Record<LabelTypographyKey, `--${string}`> = {
   sectionLabelEm: '--label-section-label-em',
   contentEm: '--label-content-em',
   contentLineHeightEm: '--label-content-line-height',
@@ -51,7 +53,7 @@ const CSS_VAR_NAME: Record<LabelTypographyKey, `--${string}`> = {
  * `borderWidthPx`/`boxPadVerticalCqw`/`boxGapCqw` are used as literal CSS
  * lengths so they carry their unit.
  */
-const CSS_VAR_UNIT: Record<LabelTypographyKey, string> = {
+export const CSS_VAR_UNIT: Record<LabelTypographyKey, string> = {
   sectionLabelEm: '',
   contentEm: '',
   contentLineHeightEm: '',
@@ -64,13 +66,4 @@ const CSS_VAR_UNIT: Record<LabelTypographyKey, string> = {
 /** CSS custom property name for a given metric — exported for the drift-detection test. */
 export function labelTypographyCssVarName(key: LabelTypographyKey): `--${string}` {
   return CSS_VAR_NAME[key]
-}
-
-/** Emit every {@link LABEL_TYPOGRAPHY} metric as a CSS custom property on the label container. */
-export function labelTypographyCssVars(): CSSProperties {
-  const record = {} as Record<`--${string}`, string>
-  for (const key of Object.keys(LABEL_TYPOGRAPHY) as LabelTypographyKey[]) {
-    record[CSS_VAR_NAME[key]] = `${LABEL_TYPOGRAPHY[key]}${CSS_VAR_UNIT[key]}`
-  }
-  return cssVars(record)
 }

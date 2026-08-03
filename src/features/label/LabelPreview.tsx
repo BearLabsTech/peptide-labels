@@ -8,7 +8,7 @@ import type { PrintTarget } from '../../print/types'
 import { pxToCqw } from './Scaling'
 import { computeQrRenderSizePx, testQrGapPx } from './qrRenderSize'
 import { cssVars } from '../../shared/cssVars'
-import { labelTypographyCssVars } from './labelTypography'
+import { labelTypographyCssVars } from './labelTypographyCssVars'
 import './LabelPreview.css'
 
 interface LabelPreviewProps {

@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest'
 import {
   LABEL_TYPOGRAPHY,
   labelTypographyCssVarName,
-  labelTypographyCssVars,
   type LabelTypographyKey,
 } from './labelTypography'
+import { labelTypographyCssVars } from './labelTypographyCssVars'
 
 /**
  * Expected CSS unit suffix per metric. Ratios/line-heights are unitless so
