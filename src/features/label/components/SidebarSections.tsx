@@ -16,6 +16,7 @@ import {
     useSidebarSectionsViewModel,
     type SidebarSectionsDerivedState,
 } from './useSidebarSectionsViewModel'
+import { COA_FIELD_LABELS, FIELD_LABELS } from '../uiStrings'
 
 export interface SectionProps {
     input: LabelModelInput;
@@ -30,7 +31,7 @@ export function CompoundSection({ input, updateField, handlers }: SectionProps) 
         <AccordionSection title="Compound" defaultOpen={true}>
             <TextInput label="Compound Name" value={input.compoundName} onChange={(v) => updateField('compoundName', v)} placeholder="Tirzepatide" />
             <div style={{ display: 'flex', gap: '12px' }}>
-                <div style={{ flex: 1 }}><TextInput label="Compound Amount" value={input.compoundAmount} onChange={handlers!.handleCompoundAmountChange} placeholder="20" /></div>
+                <div style={{ flex: 1 }}><TextInput label={FIELD_LABELS.compoundAmount} value={input.compoundAmount} onChange={handlers!.handleCompoundAmountChange} placeholder="20" /></div>
                 <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.vialUnit || 'mg'} onChange={handlers!.handleVialUnitChange} options={['mg', 'IU']} /></div>
             </div>
             <label style={{ marginTop: 8, padding: '12px', borderRadius: '6px', backgroundColor: input.isUntested ? '#fef2f2' : '#f8fafc', border: `1px solid ${input.isUntested ? '#fee2e2' : '#e2e8f0'}`, display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
@@ -89,7 +90,7 @@ export function ReconstitutionSection({
                     Enter your protocol amount and draw units in the Protocol section. The app fills in water volume for you.
                 </div>
             )}
-            <TextInput label="Water Amount (ml)" value={vm.waterAmount} onChange={handlers!.handleWaterChange} placeholder="2" disabled={vm.waterDisabled} printToggle={{ visible: input.showWater !== false, onChange: v => updateField('showWater', v), disabled: !vm.isSectionActive }} />
+            <TextInput label={FIELD_LABELS.waterVolume} value={vm.waterAmount} onChange={handlers!.handleWaterChange} placeholder="2" disabled={vm.waterDisabled} printToggle={{ visible: input.showWater !== false, onChange: v => updateField('showWater', v), disabled: !vm.isSectionActive }} />
             {vm.showVialCapacityWarning && (
                 <VialCapacityWarning vialCapacityMl={vialCapacityMl} />
             )}
@@ -111,7 +112,7 @@ export function ProtocolSection({ input, updateField, derivedState, handlers }: 
                 <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.measureUnit || 'mg'} onChange={handlers!.handleMeasureUnitChange} options={vm.measureUnitOptions} /></div>
             </div>
 
-            <TextInput label="Draw Volume (Units)" value={vm.drawLabel} onChange={handlers!.handleProtocolUnitsChange} placeholder="e.g. 10" disabled={vm.drawUnitsDisabled} printToggle={{ visible: input.showProtocolUnits !== false, onChange: v => updateField('showProtocolUnits', v), disabled: !vm.isSectionActive }} />
+            <TextInput label={FIELD_LABELS.drawVolume} value={vm.drawLabel} onChange={handlers!.handleProtocolUnitsChange} placeholder="e.g. 10" disabled={vm.drawUnitsDisabled} printToggle={{ visible: input.showProtocolUnits !== false, onChange: v => updateField('showProtocolUnits', v), disabled: !vm.isSectionActive }} />
 
             <TextInput label="Frequency" value={input.protocolFrequency} onChange={(v) => updateField('protocolFrequency', v)} placeholder="Weekly" printToggle={{ visible: input.showProtocolFrequency !== false, onChange: v => updateField('showProtocolFrequency', v), disabled: !vm.isSectionActive }} />
 
@@ -189,10 +190,10 @@ export function TestingSection({ input, updateField }: SectionProps) {
                     COA links are saved here either way; QR codes print only when the toggle above is on.
                 </div>
 
-                <TextInput label="Vendor COA Link" value={input.vendorCoa} onChange={(v) => updateField('vendorCoa', v)} placeholder="https://..." />
-                <TextInput label="Group Buy COA Link" value={input.groupBuyCoa} onChange={(v) => updateField('groupBuyCoa', v)} placeholder="https://..." />
-                <TextInput label="Test Group COA Link" value={input.testGroupCoa} onChange={(v) => updateField('testGroupCoa', v)} placeholder="https://..." />
-                <TextInput label="My COA Link" value={input.myCoa} onChange={(v) => updateField('myCoa', v)} placeholder="https://..." />
+                <TextInput label={COA_FIELD_LABELS.vendor} value={input.vendorCoa} onChange={(v) => updateField('vendorCoa', v)} placeholder="https://..." />
+                <TextInput label={COA_FIELD_LABELS.groupBuy} value={input.groupBuyCoa} onChange={(v) => updateField('groupBuyCoa', v)} placeholder="https://..." />
+                <TextInput label={COA_FIELD_LABELS.testGroup} value={input.testGroupCoa} onChange={(v) => updateField('testGroupCoa', v)} placeholder="https://..." />
+                <TextInput label={COA_FIELD_LABELS.my} value={input.myCoa} onChange={(v) => updateField('myCoa', v)} placeholder="https://..." />
 
                 <SubAccordionSection title="Custom COAs">
                     <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>

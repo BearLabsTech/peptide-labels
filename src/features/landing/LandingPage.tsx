@@ -1,4 +1,5 @@
 import { AgreementModal } from './AgreementModal'
+import { WORKSPACE_MODE_LABELS } from '../label/uiStrings'
 import './LandingPage.css'
 
 export type LandingEntry = 'calculator' | 'designer' | 'customDesign'
@@ -31,7 +32,7 @@ export function LandingPage({
                         disabled={needsAcknowledgment}
                         onClick={() => onChoose('calculator')}
                     >
-                        Calculator
+                        {WORKSPACE_MODE_LABELS.calculator}
                     </button>
                     <button
                         type="button"
@@ -39,7 +40,7 @@ export function LandingPage({
                         disabled={needsAcknowledgment}
                         onClick={() => onChoose('designer')}
                     >
-                        Label designer
+                        {WORKSPACE_MODE_LABELS.designer}
                     </button>
                     <button
                         type="button"
@@ -47,7 +48,7 @@ export function LandingPage({
                         disabled={needsAcknowledgment}
                         onClick={() => onChoose('customDesign')}
                     >
-                        Custom design (feature in progress)
+                        {WORKSPACE_MODE_LABELS.customDesign}
                     </button>
                 </div>
                 {persistError && (

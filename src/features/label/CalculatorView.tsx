@@ -6,6 +6,7 @@ import type { SyringeCapacityMl } from './syringe'
 import { VialCapacityControl } from './components/VialCapacityControl'
 import { VialCapacityWarning } from './components/VialCapacityWarning'
 import { useCalculatorViewModel } from './useCalculatorViewModel'
+import { FIELD_LABELS, HANDOFF_PROMPT } from './uiStrings'
 import './CalculatorView.css'
 
 export interface CalculatorViewProps {
@@ -54,7 +55,7 @@ export function CalculatorView({
                     <h2>Inputs</h2>
                     <div className="calculator-input-rows">
                         <ChipSelect
-                            label="Compound amount"
+                            label={FIELD_LABELS.compoundAmount}
                             value={input.compoundAmount || ''}
                             presets={vm.compoundAmountPresets}
                             chipSuffix={vm.compoundAmountChipSuffix}
@@ -98,7 +99,7 @@ export function CalculatorView({
 
                         {vm.showDrawField && (
                             <ChipSelect
-                                label="Draw"
+                                label={FIELD_LABELS.drawVolumeShort}
                                 value={vm.drawUnitsFieldValue}
                                 presets={vm.drawUnitsPresets}
                                 chipSuffix=" u"
@@ -126,7 +127,7 @@ export function CalculatorView({
 
                         {vm.showWaterField && (
                             <ChipSelect
-                                label="Water"
+                                label={FIELD_LABELS.waterVolumeShort}
                                 value={input.reconstitutionAmount || ''}
                                 presets={vm.waterPresets}
                                 chipSuffix=" ml"
@@ -168,8 +169,8 @@ export function CalculatorView({
                     )}
                     <div className="calculator-results__grid">
                         <ResultMetric label="Protocol amount" value={vm.results.protocolAmount} />
-                        <ResultMetric label="Draw units" value={vm.results.drawUnits} />
-                        <ResultMetric label="Water volume" value={vm.results.waterVolume} />
+                        <ResultMetric label={FIELD_LABELS.drawVolume} value={vm.results.drawUnits} />
+                        <ResultMetric label={FIELD_LABELS.waterVolume} value={vm.results.waterVolume} />
                         <ResultMetric label="Concentration" value={vm.results.concentration} />
                         <ResultMetric label="Measures per vial" value={vm.results.measuresPerVial} />
                     </div>
@@ -183,7 +184,7 @@ export function CalculatorView({
 
                 <div className="calculator-handoff">
                     <button type="button" className="btn-primary" onClick={onRequestLabelHandoff}>
-                        Turn this into a label?
+                        {HANDOFF_PROMPT}
                     </button>
                 </div>
             </div>

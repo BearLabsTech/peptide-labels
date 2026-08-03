@@ -1,4 +1,5 @@
 import type { LabelModelInput } from './labelModel'
+import { COA_QR_CAPTIONS } from './uiStrings'
 
 export interface QrCodeEntry {
   readonly type: string
@@ -7,10 +8,10 @@ export interface QrCodeEntry {
 
 export function buildQrCodes(input: LabelModelInput): QrCodeEntry[] {
   return [
-    { type: 'Vendor COA', url: input.vendorCoa },
-    { type: 'GB COA', url: input.groupBuyCoa },
-    { type: 'TG COA', url: input.testGroupCoa },
-    { type: 'My COA', url: input.myCoa },
+    { type: COA_QR_CAPTIONS.vendor, url: input.vendorCoa },
+    { type: COA_QR_CAPTIONS.groupBuy, url: input.groupBuyCoa },
+    { type: COA_QR_CAPTIONS.testGroup, url: input.testGroupCoa },
+    { type: COA_QR_CAPTIONS.my, url: input.myCoa },
     { type: input.customCoa1Name?.trim() || 'Custom 1', url: input.customCoa1Link },
     { type: input.customCoa2Name?.trim() || 'Custom 2', url: input.customCoa2Link },
   ].flatMap((qr) => {

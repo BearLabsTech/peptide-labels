@@ -38,8 +38,25 @@ Keep substance quantity, vial capacity, and syringe capacity distinct:
 
 Do not label the compound amount field only “Vial” or “Vial Amount,” and do not use “Vial size” when the value specifically means liquid capacity.
 
----
+### Shared field labels (calculator + label designer)
 
+These quantities appear in both the calculator and the label designer. Use one canonical label from [`src/features/label/uiStrings.ts`](../src/features/label/uiStrings.ts) (`FIELD_LABELS`) in every view:
+
+| Quantity | Canonical UI label |
+|----------|--------------------|
+| Compound quantity in the vial | **Compound amount** |
+| Insulin-syringe draw (protocol units) | **Draw volume** |
+| Reconstitution water | **Water volume** |
+
+Do not mix title case / sentence case variants (`Compound Amount` vs `Compound amount`) or alternate names (`Draw units`, `Water Amount (ml)`, bare `Draw` / `Water`) across views. Compact chips use the same `FIELD_LABELS` strings.
+
+Workspace mode names and the calculator→designer handoff prompt also live in `uiStrings.ts` (`WORKSPACE_MODE_LABELS`, `HANDOFF_PROMPT`).
+
+### COA captions vs field labels
+
+On the printed label, Group Buy and Test Group COA QR captions stay short (**GB COA**, **TG COA**) for thermal width. Sidebar input labels use the expanded names (**Group Buy COA Link**, **Test Group COA Link**). Both sets are single-sourced in `uiStrings.ts` (`COA_QR_CAPTIONS`, `COA_FIELD_LABELS`).
+
+---
 ## Community testing (Test Group)
 
 For community testing references:

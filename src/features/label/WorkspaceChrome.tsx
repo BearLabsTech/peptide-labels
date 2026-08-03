@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { WORKSPACE_MODE_LABELS } from './uiStrings'
 import './CalculatorView.css'
 
 export type WorkspaceMode = 'calculator' | 'designer' | 'customDesign'
@@ -21,7 +22,7 @@ export function WorkspaceChrome({ mode, onModeChange, children }: WorkspaceChrom
                         aria-pressed={mode === 'calculator'}
                         onClick={() => onModeChange('calculator')}
                     >
-                        Calculator
+                        {WORKSPACE_MODE_LABELS.calculator}
                     </button>
                     <button
                         type="button"
@@ -29,7 +30,7 @@ export function WorkspaceChrome({ mode, onModeChange, children }: WorkspaceChrom
                         aria-pressed={mode === 'designer'}
                         onClick={() => onModeChange('designer')}
                     >
-                        Label designer
+                        {WORKSPACE_MODE_LABELS.designer}
                     </button>
                     <button
                         type="button"
@@ -37,7 +38,7 @@ export function WorkspaceChrome({ mode, onModeChange, children }: WorkspaceChrom
                         aria-pressed={mode === 'customDesign'}
                         onClick={() => onModeChange('customDesign')}
                     >
-                        Custom design (feature in progress)
+                        {WORKSPACE_MODE_LABELS.customDesign}
                     </button>
                 </div>
             </header>

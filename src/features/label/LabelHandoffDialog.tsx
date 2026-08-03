@@ -1,3 +1,4 @@
+import { HANDOFF_PROMPT } from './uiStrings'
 import './CalculatorView.css'
 
 export interface LabelHandoffDialogProps {
@@ -9,7 +10,7 @@ export function LabelHandoffDialog({ onConfirm, onCancel }: LabelHandoffDialogPr
     return (
         <div className="handoff-backdrop" role="presentation">
             <div className="handoff-dialog" role="dialog" aria-modal="true" aria-labelledby="handoff-title">
-                <h2 id="handoff-title">Turn this into a label?</h2>
+                <h2 id="handoff-title">{HANDOFF_PROMPT}</h2>
                 <p>Open the label designer with these values?</p>
                 <div className="handoff-dialog__actions">
                     <button type="button" className="btn-secondary-inline" onClick={onCancel}>
