@@ -142,7 +142,7 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
     if (resolved.autoUnits) {
         Object.assign(updates, protocolUnitsPatch({
             value: resolved.autoUnits,
-            origin: resolvedDraft.targetConcentrationOrigin === 'recommended' ? 'recommended' : 'user',
+            origin: 'recommended',
         }))
     }
     return updates

@@ -413,6 +413,39 @@ describe('calculatorReducer — TargetConcentrationChanged', () => {
         expect(next.reconstitutionAmount).toBe('1.467')
         expect(next.concentration).toBe('15mg per ml')
         expect(next.protocolUnits).toBe('26.667 units')
+        // Derived draw volume is system-owned even when the target was user-authored —
+        // otherwise switching to Set Draw Volume would refuse to regenerate it.
+        expect(next.protocolUnitsOrigin).toBe('recommended')
+    })
+
+    it('should regenerate a draw volume that Set Concentration derived once capacity changes in Set Draw Volume', () => {
+        // 5b: a derived draw must stay 'recommended' so capacity changes can refresh it.
+        let state: LabelModelInput = {
+            compoundAmount: '10',
+            vialUnit: 'mg',
+            protocolAmount: '2',
+            measureUnit: 'mg',
+            calculatorSolveMode: 'round_concentration',
+        }
+        state = dispatch(state, { type: 'TargetConcentrationChanged', value: '5', vialCapacityMl: 10 })
+        expect(state.protocolUnits).toBe('40 units')
+        expect(state.protocolUnitsOrigin).toBe('recommended')
+
+        state = dispatch(state, { type: 'ModeChanged', mode: 'target_units', vialCapacityMl: 10 })
+        expect(state.protocolUnits).toBe('40 units')
+        expect(state.protocolUnitsOrigin).toBe('recommended')
+
+        const regenerated = dispatch(state, { type: 'VialCapacityChanged', vialCapacityMl: 3 })
+        expect(regenerated.protocolUnits).not.toBe('40 units')
+        expect(regenerated.protocolUnitsOrigin).toBe('recommended')
+
+        // Opposite case: a user-typed draw in Set Draw Volume must stay put.
+        const userAuthored = dispatch(
+            { ...state, protocolUnits: '40 units', protocolUnitsOrigin: 'user' },
+            { type: 'VialCapacityChanged', vialCapacityMl: 3 },
+        )
+        expect(userAuthored.protocolUnits).toBe('40 units')
+        expect(userAuthored.protocolUnitsOrigin).toBe('user')
     })
 
     it('should regenerate a recommended target from the compound amount when cleared to empty', () => {

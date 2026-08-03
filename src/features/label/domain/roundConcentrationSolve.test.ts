@@ -90,6 +90,7 @@ describe('RoundConcentrationSolve.recommendDefaults', () => {
         expect(patch.reconstitutionAmount).toBe('1.467')
         expect(patch.concentration).toBe('15mg per ml')
         expect(patch.protocolUnits).toBe('26.667 units')
+        expect(patch.protocolUnitsOrigin).toBe('recommended')
     })
 
     it('clears water/concentration when the compound amount is empty', () => {
