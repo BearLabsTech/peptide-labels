@@ -1,4 +1,4 @@
-import { exportLabelPng } from '../label/labelExport'
+import { exportLabelPng } from '../../app/exportLabelPng'
 import type { PrintTarget } from '../../print/types'
 import { areRequiredSlotsFilled, type DesignSlotValues } from './bindDesignSlots'
 import type { DesignDocument } from './designDocument'

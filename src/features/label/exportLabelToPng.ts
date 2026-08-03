@@ -1,4 +1,4 @@
-import { exportLabelPng } from './labelExport'
+import { exportLabelPng } from '../../app/exportLabelPng'
 import type { PrintTarget } from '../../print/types'
 
 export const LABEL_EXPORT_ERROR_MESSAGE = 'Couldn’t download the label. Try again.'

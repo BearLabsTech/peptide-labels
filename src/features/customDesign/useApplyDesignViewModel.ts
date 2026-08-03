@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { exportLabelPng } from '../label/labelExport'
+import { exportLabelPng } from '../../app/exportLabelPng'
 import { useLabelExport } from '../label/useLabelExport'
 import type { PrintSetupSelection, PrintTarget } from '../../print/types'
 import type { DesignSlotValues } from './bindDesignSlots'

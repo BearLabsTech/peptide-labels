@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { exportLabelPng } from './labelExport'
+import { exportLabelPng } from '../../app/exportLabelPng'
 import {
   LABEL_EXPORT_ERROR_MESSAGE,
   exportLabelToPng,

@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { exportLabelPng } from './labelExport'
+import { exportLabelPng } from '../../app/exportLabelPng'
 import { useLabelExport } from './useLabelExport'
 import type { PrintTarget } from '../../print/types'
 
