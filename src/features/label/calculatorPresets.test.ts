@@ -4,12 +4,12 @@ import {
     PROTOCOL_AMOUNT_PRESETS_IU,
     PROTOCOL_AMOUNT_PRESETS_MCG,
     PROTOCOL_AMOUNT_PRESETS_MG,
-    VIAL_AMOUNT_PRESETS_IU,
-    VIAL_AMOUNT_PRESETS_MG,
+    COMPOUND_AMOUNT_PRESETS_IU,
+    COMPOUND_AMOUNT_PRESETS_MG,
     drawUnitsPresets,
     isPresetSelected,
     protocolAmountPresets,
-    vialAmountPresets,
+    compoundAmountPresets,
 } from './calculatorPresets'
 import {
     nextDrawUnitQuickPick,
@@ -48,9 +48,9 @@ describe('drawUnitsPresets', () => {
 
 describe('amount presets', () => {
     it('should select compound presets by compound unit', () => {
-        expect(vialAmountPresets('mg')).toBe(VIAL_AMOUNT_PRESETS_MG)
-        expect(vialAmountPresets(undefined)).toBe(VIAL_AMOUNT_PRESETS_MG)
-        expect(vialAmountPresets('IU')).toBe(VIAL_AMOUNT_PRESETS_IU)
+        expect(compoundAmountPresets('mg')).toBe(COMPOUND_AMOUNT_PRESETS_MG)
+        expect(compoundAmountPresets(undefined)).toBe(COMPOUND_AMOUNT_PRESETS_MG)
+        expect(compoundAmountPresets('IU')).toBe(COMPOUND_AMOUNT_PRESETS_IU)
     })
 
     it('should keep protocol presets in the matching unit world', () => {

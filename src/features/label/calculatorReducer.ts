@@ -18,7 +18,7 @@ export type CalculatorEvent =
     | { readonly type: 'WaterChanged'; readonly value: string }
     | { readonly type: 'ProtocolAmountChanged'; readonly value: string; readonly vialCapacityMl?: number }
     | { readonly type: 'MeasureUnitChanged'; readonly unit: string; readonly vialCapacityMl?: number }
-    | { readonly type: 'DrawVolumeChanged'; readonly value: string; readonly vialCapacityMl?: number }
+    | { readonly type: 'ProtocolUnitsChanged'; readonly value: string; readonly vialCapacityMl?: number }
     | { readonly type: 'ModeChanged'; readonly mode: CalculatorSolveMode; readonly vialCapacityMl?: number }
     | { readonly type: 'TargetConcentrationChanged'; readonly value: string; readonly vialCapacityMl?: number }
     | { readonly type: 'VialCapacityChanged'; readonly vialCapacityMl: number }
@@ -90,10 +90,10 @@ export function calculatorReducer(state: LabelModelInput, event: CalculatorEvent
             return applyCurrentModeFieldEdit(withUnit, { kind: 'measureUnit' }, event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML)
         }
 
-        case 'DrawVolumeChanged':
+        case 'ProtocolUnitsChanged':
             return applyCurrentModeFieldEdit(
                 state,
-                { kind: 'drawVolume', value: event.value },
+                { kind: 'protocolUnits', value: event.value },
                 event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML,
             )
 

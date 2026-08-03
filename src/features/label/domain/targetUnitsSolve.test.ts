@@ -19,7 +19,7 @@ describe('TargetUnitsSolve.deriveMath', () => {
 })
 
 describe('TargetUnitsSolve.onFieldChanged', () => {
-    it('recommends 10 units instead of zero when protocol amount is entered with no vial amount yet', () => {
+    it('recommends 10 units instead of zero when protocol amount is entered with no compound amount yet', () => {
         const draft: LabelModelInput = { compoundAmount: '', measureUnit: 'mg', calculatorSolveMode: 'target_units' }
         const next = TargetUnitsSolve.onFieldChanged(draft, { kind: 'protocolAmount', value: '3' }, 3)
         expect(next.protocolUnits).toBe('10 units')
@@ -36,7 +36,7 @@ describe('TargetUnitsSolve.onFieldChanged', () => {
 
     it('treats draw units as user-authored on drawVolume edits', () => {
         const draft: LabelModelInput = { compoundAmount: '22', vialUnit: 'mg', protocolAmount: '4', measureUnit: 'mg', calculatorSolveMode: 'target_units' }
-        const next = TargetUnitsSolve.onFieldChanged(draft, { kind: 'drawVolume', value: '27 units' }, 3)
+        const next = TargetUnitsSolve.onFieldChanged(draft, { kind: 'protocolUnits', value: '27 units' }, 3)
         expect(next.protocolUnits).toBe('27 units')
         expect(next.protocolUnitsOrigin).toBe('user')
     })
@@ -81,7 +81,7 @@ describe('TargetUnitsSolve.recommendDefaults', () => {
         expect(patch.showReconstitution).toBe(true)
     })
 
-    it('clears assist results and recommends a flat draw placeholder when the vial amount is empty', () => {
+    it('clears assist results and recommends a flat draw placeholder when the compound amount is empty', () => {
         const draft: LabelModelInput = { compoundAmount: '', protocolAmount: '1', measureUnit: 'mg', calculatorSolveMode: 'target_units' }
         const patch = TargetUnitsSolve.recommendDefaults(draft, 3, 'compoundAmount')
         expect(patch.reconstitutionAmount).toBe('')

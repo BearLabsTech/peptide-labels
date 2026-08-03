@@ -41,7 +41,12 @@ export interface CompoundIdentity {
   readonly isUntested?: boolean
 }
 
-/** How the vial was mixed, and the resulting concentration. */
+/**
+ * How the vial was mixed, and the resulting concentration.
+ * Water naming layers: `reconstitutionAmount` is the authored/storage field
+ * (label section name); math uses numeric `waterMl`; derived display uses
+ * `autoWater`. Do not invent a fourth name for the same quantity.
+ */
 export interface Reconstitution {
   readonly reconstitutionAmount?: string
   readonly reconstitutionType?: string
@@ -50,7 +55,11 @@ export interface Reconstitution {
   readonly reconstitutionDateIsFreeText?: boolean
 }
 
-/** The measured amount, unit, and frequency printed as the usage protocol. */
+/**
+ * The measured amount, unit, and frequency printed as the usage protocol.
+ * Draw volume on the label/UI is stored as `protocolUnits` (COPY-GUIDELINES);
+ * math uses numeric `drawUnits` / `drawVolumeMl` for the physical quantity.
+ */
 export interface Protocol {
   readonly protocolAmount?: string
   readonly protocolUnits?: string

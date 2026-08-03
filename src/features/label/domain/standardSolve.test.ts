@@ -17,7 +17,7 @@ describe('StandardSolve.deriveMath', () => {
 })
 
 describe('StandardSolve.onFieldChanged', () => {
-    it('refreshes concentration from the new vial amount on compoundAmount edits', () => {
+    it('refreshes concentration from the new compound amount on compoundAmount edits', () => {
         const draft: LabelModelInput = {
             compoundAmount: '20', vialUnit: 'mg', reconstitutionAmount: '2', concentration: '10mg per ml', calculatorSolveMode: 'standard',
         }
@@ -53,7 +53,7 @@ describe('StandardSolve.onFieldChanged', () => {
 
     it('sets draw units as user-authored and clears stale water', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', reconstitutionAmount: '2', calculatorSolveMode: 'standard' }
-        const next = StandardSolve.onFieldChanged(draft, { kind: 'drawVolume', value: '15 units' }, 3)
+        const next = StandardSolve.onFieldChanged(draft, { kind: 'protocolUnits', value: '15 units' }, 3)
         expect(next.protocolUnits).toBe('15 units')
         expect(next.protocolUnitsOrigin).toBe('user')
         expect(next.reconstitutionAmount).toBe('')
@@ -61,7 +61,7 @@ describe('StandardSolve.onFieldChanged', () => {
 
     it('marks draw units as recommended (origin reset) when cleared, without touching water', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', protocolUnits: '15 units', calculatorSolveMode: 'standard' }
-        const next = StandardSolve.onFieldChanged(draft, { kind: 'drawVolume', value: '' }, 3)
+        const next = StandardSolve.onFieldChanged(draft, { kind: 'protocolUnits', value: '' }, 3)
         expect(next.protocolUnits).toBe('')
         expect(next.protocolUnitsOrigin).toBe('recommended')
         expect(next.reconstitutionAmount).toBeUndefined()
@@ -90,7 +90,7 @@ describe('StandardSolve.recommendDefaults', () => {
         const draft: LabelModelInput = { compoundAmount: '', calculatorSolveMode: 'standard' }
         const fields: Array<Parameters<typeof StandardSolve.recommendDefaults>[2]> = [
             'vialUnit', 'compoundAmount', 'water', 'protocolAmount', 'measureUnit',
-            'drawVolume', 'mode', 'targetConcentration', 'vialCapacity',
+            'protocolUnits', 'mode', 'targetConcentration', 'vialCapacity',
         ]
         for (const field of fields) {
             expect(StandardSolve.recommendDefaults(draft, 3, field)).toEqual({})

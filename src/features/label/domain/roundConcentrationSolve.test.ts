@@ -3,7 +3,7 @@ import { RoundConcentrationSolve } from './roundConcentrationSolve'
 import type { LabelModelInput } from '../labelModel'
 
 describe('RoundConcentrationSolve.deriveMath', () => {
-    it('derives exact water from vial amount and target concentration', () => {
+    it('derives exact water from compound amount and target concentration', () => {
         const draft: LabelModelInput = { compoundAmount: '22', vialUnit: 'mg', protocolAmount: '4', measureUnit: 'mg', targetConcentration: '15' }
         const result = RoundConcentrationSolve.deriveMath(draft)
         expect(result.autoWater).toBe('1.467')
@@ -35,7 +35,7 @@ describe('RoundConcentrationSolve.onFieldChanged', () => {
 
     it('vetoes direct draw-volume edits entirely — the draft is returned unchanged', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', targetConcentration: '10', calculatorSolveMode: 'round_concentration' }
-        expect(RoundConcentrationSolve.onFieldChanged(draft, { kind: 'drawVolume', value: '15 units' }, 3)).toBe(draft)
+        expect(RoundConcentrationSolve.onFieldChanged(draft, { kind: 'protocolUnits', value: '15 units' }, 3)).toBe(draft)
     })
 
     it('regenerates the target-concentration recommendation only while it is still system-owned', () => {
@@ -51,7 +51,7 @@ describe('RoundConcentrationSolve.onFieldChanged', () => {
         expect(unchanged).toBe(userAuthored)
     })
 
-    it('recommends a fresh target concentration from the vial amount when entering with none set', () => {
+    it('recommends a fresh target concentration from the compound amount when entering with none set', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', reconstitutionAmount: '1', calculatorSolveMode: 'standard' }
         const next = RoundConcentrationSolve.onFieldChanged(
             draft,
@@ -92,7 +92,7 @@ describe('RoundConcentrationSolve.recommendDefaults', () => {
         expect(patch.protocolUnits).toBe('26.667 units')
     })
 
-    it('clears water/concentration when the vial amount is empty', () => {
+    it('clears water/concentration when the compound amount is empty', () => {
         const draft: LabelModelInput = { compoundAmount: '', calculatorSolveMode: 'round_concentration' }
         const patch = RoundConcentrationSolve.recommendDefaults(draft, 3, 'compoundAmount')
         expect(patch.reconstitutionAmount).toBe('')
@@ -106,6 +106,6 @@ describe('RoundConcentrationSolve.recommendDefaults', () => {
 
     it('is a no-op for a raw draw-volume edit — Set Concentration never recomputes from it', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', targetConcentration: '10', calculatorSolveMode: 'round_concentration' }
-        expect(RoundConcentrationSolve.recommendDefaults(draft, 3, 'drawVolume')).toEqual({})
+        expect(RoundConcentrationSolve.recommendDefaults(draft, 3, 'protocolUnits')).toEqual({})
     })
 })

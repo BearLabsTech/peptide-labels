@@ -124,7 +124,7 @@ export function ProtocolSection({ input, updateField, derivedState, handlers }: 
     const solveMode = resolveCalculatorMode(input);
     const drawUnitsDisabled = solveMode === 'round_concentration';
     const hasProtocol = parseFloat(input.protocolAmount || '') > 0;
-    const capacityMl = parseSyringeCapacityMl(input.syringeCapacityMl);
+    const syringeCapacityMl = parseSyringeCapacityMl(input.syringeCapacityMl);
     const drawLabel = displayDrawUnits(solveMode, input, derivedState);
 
     return (
@@ -135,14 +135,14 @@ export function ProtocolSection({ input, updateField, derivedState, handlers }: 
                 <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.measureUnit || 'mg'} onChange={handlers!.handleMeasureUnitChange} options={measureUnitOptions} /></div>
             </div>
 
-            <TextInput label="Draw Volume (Units)" value={drawLabel} onChange={handlers!.handleDrawVolumeChange} placeholder="e.g. 10" disabled={drawUnitsDisabled} printToggle={{ visible: input.showProtocolUnits !== false, onChange: v => updateField('showProtocolUnits', v), disabled: !isSectionActive }} />
+            <TextInput label="Draw Volume (Units)" value={drawLabel} onChange={handlers!.handleProtocolUnitsChange} placeholder="e.g. 10" disabled={drawUnitsDisabled} printToggle={{ visible: input.showProtocolUnits !== false, onChange: v => updateField('showProtocolUnits', v), disabled: !isSectionActive }} />
 
             <TextInput label="Frequency" value={input.protocolFrequency} onChange={(v) => updateField('protocolFrequency', v)} placeholder="Weekly" printToggle={{ visible: input.showProtocolFrequency !== false, onChange: v => updateField('showProtocolFrequency', v), disabled: !isSectionActive }} />
 
             {SHOW_SYRINGE_ON_DESIGNER && hasProtocol && (
                 <div style={{ marginTop: 12 }}>
                     <SyringeAssist
-                        capacityMl={capacityMl}
+                        syringeCapacityMl={syringeCapacityMl}
                         onCapacityChange={(next) => updateField('syringeCapacityMl', next)}
                         drawUnitsLabel={drawLabel}
                     />

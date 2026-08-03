@@ -153,7 +153,7 @@ describe('LabelComposer', () => {
         expect(result.reconstitutionLines).toEqual(['0.667 ml', '30mg per ml'])
     })
 
-    it('should not print reconstitution in set draw volume mode without a vial amount', () => {
+    it('should not print reconstitution in set draw volume mode without a compound amount', () => {
         const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
         const result = composer.compose({
             compoundName: 'Test Compound',

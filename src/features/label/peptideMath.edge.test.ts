@@ -3,7 +3,7 @@ import { resolveLabelMath } from './LabelMathResolver'
 import { displayConcentration, displayDrawUnits } from './calculatorModeSwitch'
 import type { LabelModelInput } from './labelModel'
 import {
-    isProtocolExceedsVial,
+    isProtocolExceedsCompound,
     computeMeasuresPerVialRaw,
     formatMeasuresPerVialDisplay,
 } from './calculatorGuards'
@@ -55,18 +55,18 @@ describe('forward / reverse round-trips with awkward decimals', () => {
                 ? { vialUnit: 'IU' as const, measureUnit: 'IU' as const }
                 : { vialUnit: 'mg' as const, measureUnit: c.unit }
             const water = calculateReverseWater({
-                vialAmount: c.vial,
+                compoundAmount: c.vial,
                 unitWorld,
                 drawUnits: c.draw,
-                targetAmount: c.protocol,
+                protocolAmount: c.protocol,
             })
             expect(water).not.toBeNull()
 
             const forward = calculateDrawVolume({
-                vialAmount: c.vial,
+                compoundAmount: c.vial,
                 unitWorld,
                 waterMl: water!,
-                targetAmount: c.protocol,
+                protocolAmount: c.protocol,
             })
             expect(forward?.drawUnits).toBeCloseTo(c.draw, 10)
         }
@@ -75,20 +75,20 @@ describe('forward / reverse round-trips with awkward decimals', () => {
     it('should keep concentration clean when display-rounded water would poison math', () => {
         // Classic trap: 23.3 / 20 = 1.165; round water to 1.17 → conc ≈ 19.915
         const exactWater = calculateReverseWater({
-            vialAmount: 23.3,
+            compoundAmount: 23.3,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             drawUnits: 50,
-            targetAmount: 10,
+            protocolAmount: 10,
         })
         expect(exactWater).toBeCloseTo(1.165, 10)
         expect(formatWaterAmountLabel(exactWater!)).toBe('1.165')
         expect(formatConcentrationLabel(23.3 / exactWater!, 'mg')).toBe('20mg per ml')
 
         const poisoned = calculateDrawVolume({
-            vialAmount: 23.3,
+            compoundAmount: 23.3,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             waterMl: roundForDisplay(1.17),
-            targetAmount: 10,
+            protocolAmount: 10,
         })
         expect(poisoned?.concentrationMgPerMl).toBeCloseTo(23.3 / 1.17, 5)
         expect(poisoned?.concentrationMgPerMl).not.toBeCloseTo(20, 2)
@@ -96,10 +96,10 @@ describe('forward / reverse round-trips with awkward decimals', () => {
 
     it('should stay consistent under set-concentration solve with repeating decimals', () => {
         const solved = calculateFromTargetConcentration({
-            vialAmount: 10,
+            compoundAmount: 10,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             targetConcentration: 7,
-            targetAmount: 1 / 3,
+            protocolAmount: 1 / 3,
         })
         expect(solved).not.toBeNull()
         expect(solved!.waterMl).toBeCloseTo(10 / 7, 12)
@@ -137,16 +137,16 @@ describe('nonsense and invalid inputs', () => {
     // vial/measure pairing" for that regression coverage.
     it('should return null for zero and negative inputs', () => {
         expect(calculateDrawVolume({
-            vialAmount: -10, unitWorld: { vialUnit: 'mg', measureUnit: 'mg' }, waterMl: 2, targetAmount: 1,
+            compoundAmount: -10, unitWorld: { vialUnit: 'mg', measureUnit: 'mg' }, waterMl: 2, protocolAmount: 1,
         })).toBeNull()
         expect(calculateDrawVolume({
-            vialAmount: 10, unitWorld: { vialUnit: 'mg', measureUnit: 'mg' }, waterMl: -2, targetAmount: 1,
+            compoundAmount: 10, unitWorld: { vialUnit: 'mg', measureUnit: 'mg' }, waterMl: -2, protocolAmount: 1,
         })).toBeNull()
         expect(calculateDrawVolume({
-            vialAmount: 10, unitWorld: { vialUnit: 'mg', measureUnit: 'mg' }, waterMl: 2, targetAmount: -1,
+            compoundAmount: 10, unitWorld: { vialUnit: 'mg', measureUnit: 'mg' }, waterMl: 2, protocolAmount: -1,
         })).toBeNull()
         expect(calculateFromTargetConcentration({
-            vialAmount: 10, unitWorld: { vialUnit: 'mg', measureUnit: 'mg' }, targetConcentration: -5, targetAmount: 1,
+            compoundAmount: 10, unitWorld: { vialUnit: 'mg', measureUnit: 'mg' }, targetConcentration: -5, protocolAmount: 1,
         })).toBeNull()
         expect(calculateDefaultDrawUnits(-3, { vialUnit: 'mg', measureUnit: 'mg' })).toBeNull()
     })
@@ -188,19 +188,19 @@ describe('protocol vs vial boundaries', () => {
             protocolAmount: '10',
             measureUnit: 'mg' as const,
         }
-        expect(isProtocolExceedsVial(input)).toBe(false)
+        expect(isProtocolExceedsCompound(input)).toBe(false)
         expect(computeMeasuresPerVialRaw(input)).toBe(1)
         expect(formatMeasuresPerVialDisplay(1)).toBe('1.000')
     })
 
     it('should block protocol just over the vial and allow just under', () => {
-        expect(isProtocolExceedsVial({
+        expect(isProtocolExceedsCompound({
             compoundAmount: '10',
             vialUnit: 'mg',
             protocolAmount: '10.0001',
             measureUnit: 'mg',
         })).toBe(true)
-        expect(isProtocolExceedsVial({
+        expect(isProtocolExceedsCompound({
             compoundAmount: '10',
             vialUnit: 'mg',
             protocolAmount: '9.9999',
@@ -209,13 +209,13 @@ describe('protocol vs vial boundaries', () => {
     })
 
     it('should treat mcg protocol that matches vial mg as equal, not exceeding', () => {
-        expect(isProtocolExceedsVial({
+        expect(isProtocolExceedsCompound({
             compoundAmount: '2',
             vialUnit: 'mg',
             protocolAmount: '2000',
             measureUnit: 'mcg',
         })).toBe(false)
-        expect(isProtocolExceedsVial({
+        expect(isProtocolExceedsCompound({
             compoundAmount: '2',
             vialUnit: 'mg',
             protocolAmount: '2001',
@@ -238,7 +238,7 @@ describe('resolver extremes', () => {
         expect(result.autoUnits).toBe('0.01 units')
     })
 
-    it('should handle huge vial amounts with tiny target concentration', () => {
+    it('should handle huge compound amounts with tiny target concentration', () => {
         const result = resolveLabelMath({
             compoundAmount: '1000',
             vialUnit: 'mg',
@@ -252,7 +252,7 @@ describe('resolver extremes', () => {
         expect(result.autoUnits).toBe('2000 units')
     })
 
-    it('should keep set-draw math stable with long fractional vial amounts', () => {
+    it('should keep set-draw math stable with long fractional compound amounts', () => {
         const input: LabelModelInput = {
             compoundAmount: '12.345678',
             vialUnit: 'mg',
@@ -324,7 +324,7 @@ describe('pathological strings and extreme ratios', () => {
     })
 
     it('should still solve when protocol exceeds vial (guard is UI-only)', () => {
-        expect(isProtocolExceedsVial({
+        expect(isProtocolExceedsCompound({
             compoundAmount: '5',
             vialUnit: 'mg',
             protocolAmount: '12',

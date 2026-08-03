@@ -11,10 +11,10 @@ describe('syringe capacity', () => {
         [1, 100],
         [0.5, 50],
         [0.3, 30],
-    ] as const)('should map %s ml to %s units', (capacityMl, maxUnits) => {
-        expect(syringeMaxUnits(capacityMl)).toBe(maxUnits)
-        expect(isDrawOverSyringeCapacity(maxUnits, capacityMl)).toBe(false)
-        expect(isDrawOverSyringeCapacity(maxUnits + 0.001, capacityMl)).toBe(true)
+    ] as const)('should map %s ml to %s units', (syringeCapacityMl, maxUnits) => {
+        expect(syringeMaxUnits(syringeCapacityMl)).toBe(maxUnits)
+        expect(isDrawOverSyringeCapacity(maxUnits, syringeCapacityMl)).toBe(false)
+        expect(isDrawOverSyringeCapacity(maxUnits + 0.001, syringeCapacityMl)).toBe(true)
     })
 
     it('should normalize supported values and reject invalid persisted values', () => {

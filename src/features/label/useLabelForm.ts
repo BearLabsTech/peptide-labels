@@ -9,7 +9,7 @@ export interface LabelFormHandlers {
     handleWaterChange: (v: string) => void;
     handleProtocolAmountChange: (v: string) => void;
     handleMeasureUnitChange: (unit: string) => void;
-    handleDrawVolumeChange: (v: string) => void;
+    handleProtocolUnitsChange: (v: string) => void;
     handleCalculatorModeChange: (mode: CalculatorSolveMode) => void;
     handleTargetConcentrationChange: (v: string) => void;
     handleVialCapacityChange: (vialCapacityMl: number) => void;
@@ -42,7 +42,7 @@ export function createLabelFormHandlers(
         handleWaterChange: (value) => dispatch({ type: 'WaterChanged', value }),
         handleProtocolAmountChange: (value) => dispatch({ type: 'ProtocolAmountChanged', value, vialCapacityMl }),
         handleMeasureUnitChange: (unit) => dispatch({ type: 'MeasureUnitChanged', unit, vialCapacityMl }),
-        handleDrawVolumeChange: (value) => dispatch({ type: 'DrawVolumeChanged', value, vialCapacityMl }),
+        handleProtocolUnitsChange: (value) => dispatch({ type: 'ProtocolUnitsChanged', value, vialCapacityMl }),
         handleCalculatorModeChange: (mode) => dispatch({ type: 'ModeChanged', mode, vialCapacityMl }),
         handleTargetConcentrationChange: (value) => dispatch({ type: 'TargetConcentrationChanged', value, vialCapacityMl }),
         handleVialCapacityChange: (nextVialCapacityMl) =>

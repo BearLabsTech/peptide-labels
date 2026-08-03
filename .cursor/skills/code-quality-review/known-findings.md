@@ -54,7 +54,7 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Pattern:** an internal identifier uses an older or informal term for a concept the product (and `COPY-GUIDELINES.md`) now names differently — readers have to mentally translate between the code's vocabulary and the product's.
 
-**Evidence (2026):** `vialAmount` and related identifiers (`hasPositiveVialAmount`, `hasVialAmount`, `VIAL_AMOUNT_PRESETS_*`) in `peptideMath.ts` / `LabelMathResolver.ts`, while the public model field `compoundAmount` already uses the current term. Scoped for rename in Phase 2 action 2.7. Confirmed by direct grep during step-zero verification (see the refactor plan's "Outcome" section) — this is an example of a finding that was checked and confirmed accurate rather than assumed.
+**Evidence (2026):** Math identifiers formerly used the older compound-quantity names (and related presets/helpers) while the public model already said `compoundAmount`. **Resolved 2026-08-02 (Phase 2 action 2.7):** renamed onto COPY-GUIDELINES vocabulary (`compoundAmount`, `hasPositiveCompoundAmount`, `COMPOUND_AMOUNT_PRESETS_*`, `protocolAmount`, `protocolUnits` field kind, `syringeCapacityMl`).
 
 ### Tests asserting a merged internal model instead of observable output
 

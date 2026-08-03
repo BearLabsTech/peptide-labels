@@ -6,7 +6,7 @@ import {
 } from './calculatorModeSwitch'
 import type { LabelModelInput } from './labelModel'
 import { formatDrawVolumeLabel, parseNumericDisplayPrefix, printableField } from './labelModel'
-import { formatDisplayNumber, hasPositiveVialAmount, resolveCalculatorMode } from './peptideMath'
+import { formatDisplayNumber, hasPositiveCompoundAmount, resolveCalculatorMode } from './peptideMath'
 
 export interface LabelContent {
   readonly title: string
@@ -107,7 +107,7 @@ function buildReconstitutionLines(
   resolved: ResolvedLabelMath,
 ): string[] {
   if (input.showReconstitution === false) return []
-  if (!hasPositiveVialAmount(input.compoundAmount)) return []
+  if (!hasPositiveCompoundAmount(input.compoundAmount)) return []
   const lines: string[] = []
   const mode = resolveCalculatorMode(input)
   // Same preference order as calculator display helpers — authored and derived stay separate.

@@ -13,13 +13,13 @@ import {
 import {
     computeMeasuresPerVialRaw,
     formatMeasuresPerVialDisplay,
-    isProtocolExceedsVial,
+    isProtocolExceedsCompound,
     isWaterAboveVialCapacity,
 } from './calculatorGuards'
 import {
     drawUnitsPresets,
     protocolAmountPresets,
-    vialAmountPresets,
+    compoundAmountPresets,
     WATER_PRESETS_ML,
 } from './calculatorPresets'
 import { ChipSelect } from './components/ChipSelect'
@@ -29,7 +29,7 @@ import {
     SyringeAssist,
     type SyringeCapacityMl,
 } from './syringe'
-import { hasPositiveVialAmount, resolveCalculatorMode } from './peptideMath'
+import { hasPositiveCompoundAmount, resolveCalculatorMode } from './peptideMath'
 import { VialCapacityControl } from './components/VialCapacityControl'
 import { VialCapacityWarning } from './components/VialCapacityWarning'
 import './CalculatorView.css'
@@ -57,11 +57,11 @@ export function CalculatorView({
     }
     const handlers = createLabelFormHandlers(input, updateField, vialCapacityMl)
     const solveMode = resolveCalculatorMode(input)
-    const capacityMl = parseSyringeCapacityMl(input.syringeCapacityMl)
-    const blocked = isProtocolExceedsVial(input)
-    const hasVial = hasPositiveVialAmount(input.compoundAmount)
+    const syringeCapacityMl = parseSyringeCapacityMl(input.syringeCapacityMl)
+    const blocked = isProtocolExceedsCompound(input)
+    const hasCompound = hasPositiveCompoundAmount(input.compoundAmount)
     const hasProtocol = parseFloat(input.protocolAmount || '') > 0
-    const readyForResults = hasVial && hasProtocol && !blocked
+    const readyForResults = hasCompound && hasProtocol && !blocked
 
     const water = displayWaterAmount(solveMode, input, derivedState)
     const units = displayDrawUnits(solveMode, input, derivedState)
@@ -103,7 +103,7 @@ export function CalculatorView({
                         <ChipSelect
                             label="Compound amount"
                             value={input.compoundAmount || ''}
-                            presets={vialAmountPresets(input.vialUnit)}
+                            presets={compoundAmountPresets(input.vialUnit)}
                             chipSuffix={input.vialUnit === 'IU' ? ' IU' : ' mg'}
                             placeholder="Amt"
                             onChange={handlers.handleCompoundAmountChange}
@@ -153,12 +153,12 @@ export function CalculatorView({
                             <ChipSelect
                                 label="Draw"
                                 value={units}
-                                presets={drawUnitsPresets(capacityMl)}
+                                presets={drawUnitsPresets(syringeCapacityMl)}
                                 chipSuffix=" u"
                                 placeholder="Units"
                                 onChange={(v) => {
                                     const n = v.match(/[\d.]+/)?.[0]
-                                    handlers.handleDrawVolumeChange(n ? `${n} units` : '')
+                                    handlers.handleProtocolUnitsChange(n ? `${n} units` : '')
                                 }}
                             />
                         )}
@@ -209,7 +209,7 @@ export function CalculatorView({
 
                 <section className="calculator-card calculator-results">
                     <h2>Results</h2>
-                    {!hasVial || !hasProtocol ? (
+                    {!hasCompound || !hasProtocol ? (
                         <p className="calculator-hint">
                             Enter compound amount and protocol amount to see water, concentration, and draw volume.
                         </p>
@@ -247,7 +247,7 @@ export function CalculatorView({
                     </div>
 
                     <SyringeAssist
-                        capacityMl={capacityMl}
+                        syringeCapacityMl={syringeCapacityMl}
                         onCapacityChange={(next: SyringeCapacityMl) => updateField('syringeCapacityMl', next)}
                         drawUnitsLabel={readyForResults ? units : ''}
                     />

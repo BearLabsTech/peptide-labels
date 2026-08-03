@@ -1,6 +1,6 @@
 import type { LabelModelInput, LabelModelPatch } from './labelModel'
 import type { CalculatorSolveMode } from './peptideMath'
-import { DEFAULT_CALCULATOR_SOLVE_MODE, hasPositiveVialAmount } from './peptideMath'
+import { DEFAULT_CALCULATOR_SOLVE_MODE, hasPositiveCompoundAmount } from './peptideMath'
 import type { ResolvedLabelMath } from './domain/labelMathCore'
 
 export { DEFAULT_CALCULATOR_SOLVE_MODE } from './peptideMath'
@@ -73,7 +73,7 @@ export function displayWaterAmount(
     input: LabelModelInput,
     derived?: CalculatorModeDerivedState,
 ): string {
-    if (mode !== 'standard' && !hasPositiveVialAmount(input.compoundAmount)) return '';
+    if (mode !== 'standard' && !hasPositiveCompoundAmount(input.compoundAmount)) return '';
     if (mode !== 'standard') return derived?.autoWater || input.reconstitutionAmount || '';
     return input.reconstitutionAmount || derived?.autoWater || '';
 }
@@ -121,7 +121,7 @@ export function ensureReconstitutionPrintForAssist(
     input: LabelModelInput,
 ): LabelModelPatch {
     if (mode !== 'target_units' && mode !== 'round_concentration') return {};
-    if (!hasPositiveVialAmount(input.compoundAmount)) return {};
+    if (!hasPositiveCompoundAmount(input.compoundAmount)) return {};
     if (!resolved.autoWater && !resolved.autoConcentration) return {};
 
     const updates: LabelModelPatch = { showReconstitution: true };

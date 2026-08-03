@@ -9,30 +9,30 @@ import {
 import './SyringeAssist.css'
 
 export interface SyringeAssistProps {
-    capacityMl: SyringeCapacityMl
+    syringeCapacityMl: SyringeCapacityMl
     onCapacityChange: (next: SyringeCapacityMl) => void
     drawUnitsLabel?: string
 }
 
 export function SyringeAssist({
-    capacityMl,
+    syringeCapacityMl,
     onCapacityChange,
     drawUnitsLabel,
 }: SyringeAssistProps) {
     const drawUnits = parseNumericField(drawUnitsLabel)
     const hasDraw = drawUnits > 0
-    const over = hasDraw && isDrawOverSyringeCapacity(drawUnits, capacityMl)
+    const over = hasDraw && isDrawOverSyringeCapacity(drawUnits, syringeCapacityMl)
 
     return (
         <div className="syringe-assist">
-            <SyringeCapacityControl value={capacityMl} onChange={onCapacityChange} />
+            <SyringeCapacityControl value={syringeCapacityMl} onChange={onCapacityChange} />
             <DrawUnitsSyringe
                 drawUnits={hasDraw ? drawUnits : null}
-                capacityMl={capacityMl}
+                syringeCapacityMl={syringeCapacityMl}
             />
             {over && (
                 <p className="syringe-assist__warn" role="status">
-                    Draw volume ({drawUnits} units) is above this {syringeMaxUnits(capacityMl)}-unit
+                    Draw volume ({drawUnits} units) is above this {syringeMaxUnits(syringeCapacityMl)}-unit
                     syringe. Pick a larger syringe if needed — the number was not changed.
                 </p>
             )}

@@ -9,20 +9,20 @@ export { MCG_PER_MG, UNITS_PER_ML } from './domain/units'
 export type { UnitWorld } from './domain/units'
 
 export interface PeptideMathInput {
-    vialAmount?: number; unitWorld: UnitWorld; waterMl?: number;
-    targetAmount?: number;
+    compoundAmount?: number; unitWorld: UnitWorld; waterMl?: number;
+    protocolAmount?: number;
 }
 
 export interface PeptideReverseMathInput {
-    vialAmount?: number; unitWorld: UnitWorld; drawUnits?: number;
-    targetAmount?: number;
+    compoundAmount?: number; unitWorld: UnitWorld; drawUnits?: number;
+    protocolAmount?: number;
 }
 
 export interface PeptideConcentrationSolveInput {
-    vialAmount?: number;
+    compoundAmount?: number;
     unitWorld: UnitWorld;
     targetConcentration?: number;
-    targetAmount?: number;
+    protocolAmount?: number;
 }
 
 export interface PeptideConcentrationSolveResult {
@@ -172,12 +172,12 @@ export function hasPositiveDrawUnits(protocolUnits?: string): boolean {
     return parseNumericField(protocolUnits) > 0;
 }
 
-export function hasPositiveVialAmount(compoundAmount?: string): boolean {
-    const vial = parseFloat(compoundAmount || '0');
-    return Number.isFinite(vial) && vial > 0;
+export function hasPositiveCompoundAmount(compoundAmount?: string): boolean {
+    const amount = parseFloat(compoundAmount || '0');
+    return Number.isFinite(amount) && amount > 0;
 }
 
-/** Draw-unit default for Set Draw Volume: flat 10 until vial amount is known, then 10 units per mg/IU. */
+/** Draw-unit default for Set Draw Volume: flat 10 until compound amount is known, then 10 units per mg/IU. */
 export function resolveDefaultDrawUnitsLabel(
     protocolAmount: string | undefined,
     measureUnit: 'mg' | 'mcg' | 'IU' | undefined,
@@ -186,7 +186,7 @@ export function resolveDefaultDrawUnitsLabel(
     vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
 ): string {
     if (!protocolAmount?.trim() || parseFloat(protocolAmount) <= 0) return '';
-    if (!hasPositiveVialAmount(compoundAmount)) {
+    if (!hasPositiveCompoundAmount(compoundAmount)) {
         return formatDrawUnitsLabel(DEFAULT_DRAW_UNITS_PER_MG);
     }
     return formatDefaultDrawUnitsLabel(
@@ -202,21 +202,21 @@ export interface PeptideMathResult {
 export const RECONSTITUTION_TYPES = ['BAC Water', 'Sterile Water', 'Sodium Chloride 0.9%'] as const;
 
 type ValidForwardInput = PeptideMathInput & {
-    vialAmount: number
+    compoundAmount: number
     waterMl: number
-    targetAmount: number
+    protocolAmount: number
 }
 
 type ValidReverseInput = PeptideReverseMathInput & {
-    vialAmount: number
+    compoundAmount: number
     drawUnits: number
-    targetAmount: number
+    protocolAmount: number
 }
 
 type ValidConcentrationSolveInput = PeptideConcentrationSolveInput & {
-    vialAmount: number
+    compoundAmount: number
     targetConcentration: number
-    targetAmount: number
+    protocolAmount: number
 }
 
 // --- FORWARD MATH ---
@@ -224,21 +224,21 @@ export function calculateDrawVolume(input: PeptideMathInput): PeptideMathResult 
     const valid = asValidForwardInput(input);
     if (!valid) return null;
     const volumeMl = getForwardVolumeMl(valid);
-    const concentration = valid.vialAmount / valid.waterMl;
+    const concentration = valid.compoundAmount / valid.waterMl;
     return formatResult(volumeMl, concentration, valid.unitWorld.vialUnit === 'IU');
 }
 
 function asValidForwardInput(i: PeptideMathInput): ValidForwardInput | null {
-    if (!i.vialAmount || i.vialAmount <= 0) return null;
-    if (!i.waterMl || i.waterMl <= 0 || !i.targetAmount || i.targetAmount <= 0) return null;
+    if (!i.compoundAmount || i.compoundAmount <= 0) return null;
+    if (!i.waterMl || i.waterMl <= 0 || !i.protocolAmount || i.protocolAmount <= 0) return null;
     // unrepresentable: UnitWorld pairs vialUnit with measureUnit — no mismatch to guard here.
     return i as ValidForwardInput;
 }
 
 function getForwardVolumeMl(i: ValidForwardInput): number {
-    if (i.unitWorld.vialUnit === 'IU') return i.targetAmount / (i.vialAmount / i.waterMl);
-    const targetMcg = i.unitWorld.measureUnit === 'mg' ? i.targetAmount * MCG_PER_MG : i.targetAmount;
-    return targetMcg / ((i.vialAmount * MCG_PER_MG) / i.waterMl);
+    if (i.unitWorld.vialUnit === 'IU') return i.protocolAmount / (i.compoundAmount / i.waterMl);
+    const targetMcg = i.unitWorld.measureUnit === 'mg' ? i.protocolAmount * MCG_PER_MG : i.protocolAmount;
+    return targetMcg / ((i.compoundAmount * MCG_PER_MG) / i.waterMl);
 }
 
 function formatResult(vol: number, conc: number, isIu: boolean): PeptideMathResult {
@@ -260,26 +260,26 @@ export function calculateReverseWater(input: PeptideReverseMathInput): number | 
 }
 
 function asValidReverseInput(i: PeptideReverseMathInput): ValidReverseInput | null {
-    if (!i.vialAmount || i.vialAmount <= 0) return null;
-    if (!i.drawUnits || i.drawUnits <= 0 || !i.targetAmount || i.targetAmount <= 0) return null;
+    if (!i.compoundAmount || i.compoundAmount <= 0) return null;
+    if (!i.drawUnits || i.drawUnits <= 0 || !i.protocolAmount || i.protocolAmount <= 0) return null;
     // unrepresentable: UnitWorld pairs vialUnit with measureUnit — no mismatch to guard here.
     return i as ValidReverseInput;
 }
 
 function getReverseWaterMl(i: ValidReverseInput): number {
-    if (i.unitWorld.vialUnit === 'IU') return (i.drawUnits * i.vialAmount) / (i.targetAmount * UNITS_PER_ML);
-    const targetMcg = i.unitWorld.measureUnit === 'mg' ? i.targetAmount * MCG_PER_MG : i.targetAmount;
-    return (i.drawUnits * (i.vialAmount * MCG_PER_MG)) / (targetMcg * UNITS_PER_ML);
+    if (i.unitWorld.vialUnit === 'IU') return (i.drawUnits * i.compoundAmount) / (i.protocolAmount * UNITS_PER_ML);
+    const targetMcg = i.unitWorld.measureUnit === 'mg' ? i.protocolAmount * MCG_PER_MG : i.protocolAmount;
+    return (i.drawUnits * (i.compoundAmount * MCG_PER_MG)) / (targetMcg * UNITS_PER_ML);
 }
 
 // --- CONCENTRATION-TARGET SOLVE ---
 /** Exact water from target concentration — format for display at the UI/label boundary. */
 export function calculateWaterFromTargetConcentration(
-    vialAmount: number,
+    compoundAmount: number,
     targetConcentration: number,
 ): number | null {
-    if (!vialAmount || vialAmount <= 0 || !targetConcentration || targetConcentration <= 0) return null;
-    const waterMl = vialAmount / targetConcentration;
+    if (!compoundAmount || compoundAmount <= 0 || !targetConcentration || targetConcentration <= 0) return null;
+    const waterMl = compoundAmount / targetConcentration;
     return waterMl > 0 ? waterMl : null;
 }
 
@@ -289,11 +289,11 @@ export function calculateFromTargetConcentration(
     const valid = asValidConcentrationSolveInput(input);
     if (!valid) return null;
 
-    const waterMl = calculateWaterFromTargetConcentration(valid.vialAmount, valid.targetConcentration);
+    const waterMl = calculateWaterFromTargetConcentration(valid.compoundAmount, valid.targetConcentration);
     if (waterMl == null) return null;
 
     const drawVolumeMl = calculateDrawVolumeFromTargetConcentration(
-        valid.targetAmount,
+        valid.protocolAmount,
         valid.targetConcentration,
         valid.unitWorld,
     );
@@ -311,21 +311,21 @@ export function calculateFromTargetConcentration(
 
 /** Draw volume from target concentration — target is authoritative, not back-calculated vial ÷ rounded water. */
 export function calculateDrawVolumeFromTargetConcentration(
-    targetAmount: number,
+    protocolAmount: number,
     targetConcentration: number,
     unitWorld: UnitWorld,
 ): number | null {
-    if (!targetAmount || targetAmount <= 0 || !targetConcentration || targetConcentration <= 0) return null;
+    if (!protocolAmount || protocolAmount <= 0 || !targetConcentration || targetConcentration <= 0) return null;
     // unrepresentable: UnitWorld pairs vialUnit with measureUnit — no mismatch to guard here.
-    if (unitWorld.vialUnit === 'IU') return targetAmount / targetConcentration;
-    const targetMg = unitWorld.measureUnit === 'mg' ? targetAmount : targetAmount / MCG_PER_MG;
+    if (unitWorld.vialUnit === 'IU') return protocolAmount / targetConcentration;
+    const targetMg = unitWorld.measureUnit === 'mg' ? protocolAmount : protocolAmount / MCG_PER_MG;
     return targetMg / targetConcentration;
 }
 
 function asValidConcentrationSolveInput(i: PeptideConcentrationSolveInput): ValidConcentrationSolveInput | null {
-    if (!i.vialAmount || i.vialAmount <= 0) return null;
+    if (!i.compoundAmount || i.compoundAmount <= 0) return null;
     if (!i.targetConcentration || i.targetConcentration <= 0) return null;
-    if (!i.targetAmount || i.targetAmount <= 0) return null;
+    if (!i.protocolAmount || i.protocolAmount <= 0) return null;
     // unrepresentable: UnitWorld pairs vialUnit with measureUnit — no mismatch to guard here.
     return i as ValidConcentrationSolveInput;
 }
@@ -361,12 +361,12 @@ export function calculateDefaultDrawUnits(
 export function calculateRecommendedDrawUnits(
     protocolAmount: number,
     unitWorld: UnitWorld,
-    vialAmount?: number,
+    compoundAmount?: number,
     vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
 ): number | null {
     const standard = calculateDefaultDrawUnits(protocolAmount, unitWorld);
     if (standard == null) return null;
-    if (!vialAmount || !Number.isFinite(vialAmount) || vialAmount <= 0) return standard;
+    if (!compoundAmount || !Number.isFinite(compoundAmount) || compoundAmount <= 0) return standard;
 
     const protocolInVialUnits = protocolAmountInVialUnits(protocolAmount, unitWorld);
 
@@ -374,7 +374,7 @@ export function calculateRecommendedDrawUnits(
         protocolInVialUnits
         * MIN_RECOMMENDED_WATER_ML
         * UNITS_PER_ML
-    ) / vialAmount;
+    ) / compoundAmount;
     // This recommendation is stored in a three-decimal form field. Round the
     // floor upward at that boundary so its displayed value cannot imply <1 ml.
     const displayFactor = 10 ** DISPLAY_DECIMALS;
@@ -384,7 +384,7 @@ export function calculateRecommendedDrawUnits(
         protocolInVialUnits
         * normalizeVialCapacityMl(vialCapacityMl)
         * UNITS_PER_ML
-    ) / vialAmount;
+    ) / compoundAmount;
     const displaySafeMaximum = Math.floor((maximumDrawUnits * displayFactor) + 1e-9)
         / displayFactor;
     if (standard < displaySafeMinimum) {

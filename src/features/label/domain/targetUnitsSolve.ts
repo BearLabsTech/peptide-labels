@@ -1,16 +1,16 @@
 import type { LabelModelInput, LabelModelPatch } from '../labelModel'
 import {
     hasPositiveDrawUnits,
-    hasPositiveVialAmount,
+    hasPositiveCompoundAmount,
     resolveDefaultDrawUnitsLabel,
 } from '../peptideMath'
 import { ensureReconstitutionPrintForAssist, protocolUnitsPatch } from '../calculatorModeSwitch'
-import { calcReverse, deriveGenericMath, hasVialAndProtocol, parseLabelMathInput, type ResolvedLabelMath } from './labelMathCore'
+import { calcReverse, deriveGenericMath, hasCompoundAndProtocol, parseLabelMathInput, type ResolvedLabelMath } from './labelMathCore'
 import type { CalculatorFieldEdit, CalculatorFieldKind, SolveStrategy } from './solveStrategy'
 
 function deriveMath(draft: LabelModelInput): ResolvedLabelMath {
     const parsed = parseLabelMathInput(draft)
-    if (hasVialAndProtocol(parsed) && parsed.drawUnits > 0) return calcReverse(parsed)
+    if (hasCompoundAndProtocol(parsed) && parsed.drawUnits > 0) return calcReverse(parsed)
     return deriveGenericMath(parsed)
 }
 
@@ -28,7 +28,7 @@ function onProtocolAmountChanged(draft: LabelModelInput, value: string, vialCapa
     return next
 }
 
-function onDrawVolumeChanged(draft: LabelModelInput, value: string): LabelModelInput {
+function onProtocolUnitsChanged(draft: LabelModelInput, value: string): LabelModelInput {
     return { ...draft, ...protocolUnitsPatch({ value, origin: value ? 'user' : 'recommended' }) }
 }
 
@@ -70,7 +70,7 @@ function onFieldChanged(draft: LabelModelInput, edit: CalculatorFieldEdit, vialC
         case 'compoundAmount': return { ...draft, compoundAmount: edit.value }
         case 'water': return onWaterChanged(draft, edit.value)
         case 'protocolAmount': return onProtocolAmountChanged(draft, edit.value, vialCapacityMl)
-        case 'drawVolume': return onDrawVolumeChanged(draft, edit.value)
+        case 'protocolUnits': return onProtocolUnitsChanged(draft, edit.value)
         case 'mode': return onModeEntered(draft, vialCapacityMl)
         case 'vialCapacity': return onVialCapacityChanged(draft, vialCapacityMl)
         // vialUnit/measureUnit/targetConcentration: the reducer already applied the
@@ -90,10 +90,10 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
     if (field === 'water' || field === 'targetConcentration') return {}
 
     const updates: LabelModelPatch = {}
-    if (!hasPositiveVialAmount(draft.compoundAmount)) {
+    if (!hasPositiveCompoundAmount(draft.compoundAmount)) {
         updates.reconstitutionAmount = ''
         updates.concentration = ''
-        if (draft.protocolAmount?.trim() && field !== 'drawVolume') {
+        if (draft.protocolAmount?.trim() && field !== 'protocolUnits') {
             const protocolUnits = resolveDefaultDrawUnitsLabel(
                 draft.protocolAmount, draft.measureUnit, draft.vialUnit, draft.compoundAmount, vialCapacityMl,
             )
@@ -103,7 +103,7 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
     }
 
     let resolvedDraft = draft
-    if (field !== 'drawVolume') {
+    if (field !== 'protocolUnits') {
         const protocolUnits = resolveDefaultDrawUnitsLabel(
             draft.protocolAmount, draft.measureUnit, draft.vialUnit, draft.compoundAmount, vialCapacityMl,
         )

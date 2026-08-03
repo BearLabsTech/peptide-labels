@@ -54,10 +54,10 @@ describe('parseNumericField', () => {
 describe('calculateDrawVolume', () => {
     it('should compute draw units from vial, water, and mcg protocol amount', () => {
         const result = calculateDrawVolume({
-            vialAmount: 10,
+            compoundAmount: 10,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             waterMl: 2,
-            targetAmount: 500,
+            protocolAmount: 500,
         })
         expect(result).toEqual({
             drawUnits: 10,
@@ -69,10 +69,10 @@ describe('calculateDrawVolume', () => {
 
     it('should compute draw units when protocol amount is in mg', () => {
         const result = calculateDrawVolume({
-            vialAmount: 20,
+            compoundAmount: 20,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             waterMl: 2,
-            targetAmount: 2.5,
+            protocolAmount: 2.5,
         })
         expect(result?.drawUnits).toBe(25)
         expect(result?.drawVolumeMl).toBe(0.25)
@@ -81,40 +81,40 @@ describe('calculateDrawVolume', () => {
 
     it('should compute draw units for IU vials and IU protocol amounts', () => {
         const result = calculateDrawVolume({
-            vialAmount: 5000,
+            compoundAmount: 5000,
             unitWorld: { vialUnit: 'IU', measureUnit: 'IU' },
             waterMl: 2,
-            targetAmount: 250,
+            protocolAmount: 250,
         })
         expect(result?.drawUnits).toBe(10)
         expect(result?.concentrationIuPerMl).toBe(2500)
         expect(result?.concentrationMgPerMl).toBeUndefined()
     })
 
-    it('should return null when vial amount is missing or non-positive', () => {
+    it('should return null when compound amount is missing or non-positive', () => {
         expect(calculateDrawVolume({
-            vialAmount: 0,
+            compoundAmount: 0,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             waterMl: 2,
-            targetAmount: 500,
+            protocolAmount: 500,
         })).toBeNull()
     })
 
     it('should return null when water volume is missing or non-positive', () => {
         expect(calculateDrawVolume({
-            vialAmount: 10,
+            compoundAmount: 10,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             waterMl: 0,
-            targetAmount: 500,
+            protocolAmount: 500,
         })).toBeNull()
     })
 
     it('should return null when protocol amount is missing or non-positive', () => {
         expect(calculateDrawVolume({
-            vialAmount: 10,
+            compoundAmount: 10,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             waterMl: 2,
-            targetAmount: -1,
+            protocolAmount: -1,
         })).toBeNull()
     })
 
@@ -128,37 +128,37 @@ describe('calculateDrawVolume', () => {
 describe('calculateReverseWater', () => {
     it('should compute water volume from vial, draw units, and mcg protocol amount', () => {
         expect(calculateReverseWater({
-            vialAmount: 10,
+            compoundAmount: 10,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             drawUnits: 10,
-            targetAmount: 500,
+            protocolAmount: 500,
         })).toBe(2)
     })
 
     it('should compute water volume when protocol amount is in mg', () => {
         expect(calculateReverseWater({
-            vialAmount: 20,
+            compoundAmount: 20,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             drawUnits: 25,
-            targetAmount: 2.5,
+            protocolAmount: 2.5,
         })).toBe(2)
     })
 
     it('should compute water volume for IU vials', () => {
         expect(calculateReverseWater({
-            vialAmount: 5000,
+            compoundAmount: 5000,
             unitWorld: { vialUnit: 'IU', measureUnit: 'IU' },
             drawUnits: 10,
-            targetAmount: 250,
+            protocolAmount: 250,
         })).toBe(2)
     })
 
     it('should return null when draw units are missing or non-positive', () => {
         expect(calculateReverseWater({
-            vialAmount: 10,
+            compoundAmount: 10,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             drawUnits: 0,
-            targetAmount: 500,
+            protocolAmount: 500,
         })).toBeNull()
     })
 
@@ -167,7 +167,7 @@ describe('calculateReverseWater', () => {
 })
 
 describe('calculateWaterFromTargetConcentration', () => {
-    it('should derive water volume from vial amount and target concentration', () => {
+    it('should derive water volume from compound amount and target concentration', () => {
         expect(calculateWaterFromTargetConcentration(20, 10)).toBe(2)
         expect(calculateWaterFromTargetConcentration(21.5, 10)).toBe(2.15)
     })
@@ -181,10 +181,10 @@ describe('calculateWaterFromTargetConcentration', () => {
 describe('calculateFromTargetConcentration', () => {
     it('should derive water and draw units from a round mg/ml target', () => {
         const result = calculateFromTargetConcentration({
-            vialAmount: 10,
+            compoundAmount: 10,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             targetConcentration: 5,
-            targetAmount: 500,
+            protocolAmount: 500,
         })
         expect(result).toEqual({
             waterMl: 2,
@@ -197,10 +197,10 @@ describe('calculateFromTargetConcentration', () => {
 
     it('should derive water and draw units for a 10 mg/ml target with mg protocol amount', () => {
         const result = calculateFromTargetConcentration({
-            vialAmount: 20,
+            compoundAmount: 20,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             targetConcentration: 10,
-            targetAmount: 2.5,
+            protocolAmount: 2.5,
         })
         expect(result?.waterMl).toBe(2)
         expect(result?.drawUnits).toBe(25)
@@ -209,10 +209,10 @@ describe('calculateFromTargetConcentration', () => {
 
     it('should derive water and draw units for IU vials using IU per ml', () => {
         const result = calculateFromTargetConcentration({
-            vialAmount: 5000,
+            compoundAmount: 5000,
             unitWorld: { vialUnit: 'IU', measureUnit: 'IU' },
             targetConcentration: 2500,
-            targetAmount: 250,
+            protocolAmount: 250,
         })
         expect(result?.waterMl).toBe(2)
         expect(result?.drawUnits).toBe(10)
@@ -221,10 +221,10 @@ describe('calculateFromTargetConcentration', () => {
 
     it('should accept any positive target concentration', () => {
         const result = calculateFromTargetConcentration({
-            vialAmount: 10,
+            compoundAmount: 10,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             targetConcentration: 7,
-            targetAmount: 500,
+            protocolAmount: 500,
         })
         expect(result?.waterMl).toBeCloseTo(10 / 7, 10)
         expect(result?.drawUnits).toBeCloseTo((0.5 / 7) * 100, 10)
@@ -235,10 +235,10 @@ describe('calculateFromTargetConcentration', () => {
 
     it('should use target concentration for draw units without rounding water for math', () => {
         const result = calculateFromTargetConcentration({
-            vialAmount: 22,
+            compoundAmount: 22,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             targetConcentration: 15,
-            targetAmount: 4,
+            protocolAmount: 4,
         })
         expect(result?.waterMl).toBeCloseTo(22 / 15, 10)
         expect(result?.concentrationMgPerMl).toBe(15)
@@ -249,10 +249,10 @@ describe('calculateFromTargetConcentration', () => {
 
     it('should keep exact water volume (display formats to three decimals separately)', () => {
         const result = calculateFromTargetConcentration({
-            vialAmount: 15,
+            compoundAmount: 15,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             targetConcentration: 10,
-            targetAmount: 500,
+            protocolAmount: 500,
         })
         expect(result?.waterMl).toBe(1.5)
         expect(result?.drawUnits).toBe(5)
@@ -261,24 +261,24 @@ describe('calculateFromTargetConcentration', () => {
 
     it('should return null when required inputs are missing or invalid', () => {
         expect(calculateFromTargetConcentration({
-            vialAmount: 0,
+            compoundAmount: 0,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             targetConcentration: 10,
-            targetAmount: 500,
+            protocolAmount: 500,
         })).toBeNull()
 
         expect(calculateFromTargetConcentration({
-            vialAmount: 10,
+            compoundAmount: 10,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             targetConcentration: 0,
-            targetAmount: 500,
+            protocolAmount: 500,
         })).toBeNull()
 
         expect(calculateFromTargetConcentration({
-            vialAmount: 10,
+            compoundAmount: 10,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             targetConcentration: 10,
-            targetAmount: 0,
+            protocolAmount: 0,
         })).toBeNull()
     })
 
@@ -287,37 +287,37 @@ describe('calculateFromTargetConcentration', () => {
 
     it('should stay consistent with forward math after concentration solve', () => {
         const solved = calculateFromTargetConcentration({
-            vialAmount: 30,
+            compoundAmount: 30,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             targetConcentration: 15,
-            targetAmount: 750,
+            protocolAmount: 750,
         })
         expect(solved).not.toBeNull()
         expect(solved!.concentrationMgPerMl).toBe(15)
 
         const forward = calculateDrawVolume({
-            vialAmount: 30,
+            compoundAmount: 30,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             waterMl: solved!.waterMl,
-            targetAmount: 750,
+            protocolAmount: 750,
         })
         expect(forward?.drawUnits).toBe(solved!.drawUnits)
     })
 
     it('should stay consistent with reverse math when solved draw units are reused', () => {
         const solved = calculateFromTargetConcentration({
-            vialAmount: 10,
+            compoundAmount: 10,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             targetConcentration: 5,
-            targetAmount: 500,
+            protocolAmount: 500,
         })
         expect(solved).not.toBeNull()
 
         const reverseWater = calculateReverseWater({
-            vialAmount: 10,
+            compoundAmount: 10,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mcg' },
             drawUnits: solved!.drawUnits,
-            targetAmount: 500,
+            protocolAmount: 500,
         })
         expect(reverseWater).toBe(solved!.waterMl)
     })
@@ -341,19 +341,19 @@ describe('authoritative assist inputs', () => {
     // formatted-label checks. This block covers the set-draw-volume analogue only.
     it('should keep draw units when reverse water is exact (not display-rounded) in set draw volume math', () => {
         const waterMl = calculateReverseWater({
-            vialAmount: 22,
+            compoundAmount: 22,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             drawUnits: 27,
-            targetAmount: 4,
+            protocolAmount: 4,
         })
         expect(waterMl).toBeCloseTo(1.485, 10)
         expect(formatWaterAmountLabel(waterMl!)).toBe('1.485')
 
         const forward = calculateDrawVolume({
-            vialAmount: 22,
+            compoundAmount: 22,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             waterMl: waterMl!,
-            targetAmount: 4,
+            protocolAmount: 4,
         })
         expect(forward?.drawUnits).toBeCloseTo(27, 10)
     })
@@ -421,10 +421,10 @@ describe('calculateRecommendedDrawUnits', () => {
         expect(recommended).toBe(20)
 
         const water = calculateReverseWater({
-            vialAmount: 6.0001,
+            compoundAmount: 6.0001,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             drawUnits: recommended!,
-            targetAmount: 1,
+            protocolAmount: 1,
         })
         expect(water).toBeGreaterThanOrEqual(1)
     })
@@ -443,14 +443,14 @@ describe('calculateRecommendedDrawUnits', () => {
 
         const recommended = calculateRecommendedDrawUnits(1, { vialUnit: 'mg', measureUnit: 'mg' }, 100, 3)!
         expect(calculateReverseWater({
-            vialAmount: 100,
+            compoundAmount: 100,
             unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             drawUnits: recommended,
-            targetAmount: 1,
+            protocolAmount: 1,
         })).toBe(3)
     })
 
-    it('should keep the old policy when vial amount is not known', () => {
+    it('should keep the old policy when compound amount is not known', () => {
         expect(calculateRecommendedDrawUnits(1, { vialUnit: 'mg', measureUnit: 'mg' })).toBe(10)
         expect(calculateRecommendedDrawUnits(500, { vialUnit: 'mg', measureUnit: 'mcg' }, 0)).toBe(5)
     })
@@ -461,17 +461,17 @@ describe('calculateRecommendedDrawUnits', () => {
 })
 
 describe('resolveDefaultDrawUnitsLabel', () => {
-    it('should return flat 10 units when vial amount is missing', () => {
+    it('should return flat 10 units when compound amount is missing', () => {
         expect(resolveDefaultDrawUnitsLabel('5', 'mg', 'mg', '')).toBe('10 units')
         expect(resolveDefaultDrawUnitsLabel('5', 'mcg', 'mg', undefined)).toBe('10 units')
     })
 
-    it('should scale from protocol amount once vial amount is known', () => {
+    it('should scale from protocol amount once compound amount is known', () => {
         expect(resolveDefaultDrawUnitsLabel('5', 'mg', 'mg', '20')).toBe('50 units')
         expect(resolveDefaultDrawUnitsLabel('500', 'mcg', 'mg', '10')).toBe('5 units')
     })
 
-    it('should recommend draw units that imply at least 1 ml once vial amount is known', () => {
+    it('should recommend draw units that imply at least 1 ml once compound amount is known', () => {
         expect(resolveDefaultDrawUnitsLabel('1', 'mg', 'mg', '5')).toBe('20 units')
         expect(resolveDefaultDrawUnitsLabel('1.25', 'mg', 'mg', '7.5')).toBe('20 units')
         expect(resolveDefaultDrawUnitsLabel('500', 'mcg', 'mg', '5')).toBe('10 units')

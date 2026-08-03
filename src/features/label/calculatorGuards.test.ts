@@ -3,20 +3,20 @@ import {
     computeMeasuresPerVialRaw,
     calculateRequiredWaterMl,
     formatMeasuresPerVialDisplay,
-    isProtocolExceedsVial,
+    isProtocolExceedsCompound,
     isWaterAboveVialCapacity,
 } from './calculatorGuards'
 import type { LabelModelInput } from './labelModel'
 
 describe('calculatorGuards', () => {
-    it('should block when protocol amount in mg exceeds vial amount', () => {
+    it('should block when protocol amount in mg exceeds compound amount', () => {
         const input: LabelModelInput = {
             compoundAmount: '10',
             vialUnit: 'mg',
             protocolAmount: '20',
             measureUnit: 'mg',
         }
-        expect(isProtocolExceedsVial(input)).toBe(true)
+        expect(isProtocolExceedsCompound(input)).toBe(true)
     })
 
     it('should block when protocol mcg exceeds vial mg on a shared basis', () => {
@@ -26,7 +26,7 @@ describe('calculatorGuards', () => {
             protocolAmount: '6000',
             measureUnit: 'mcg',
         }
-        expect(isProtocolExceedsVial(input)).toBe(true)
+        expect(isProtocolExceedsCompound(input)).toBe(true)
     })
 
     it('should allow protocol amounts that fit within the vial', () => {
@@ -36,7 +36,7 @@ describe('calculatorGuards', () => {
             protocolAmount: '4',
             measureUnit: 'mg',
         }
-        expect(isProtocolExceedsVial(input)).toBe(false)
+        expect(isProtocolExceedsCompound(input)).toBe(false)
     })
 
     it('should compute raw measures per vial without rounding', () => {

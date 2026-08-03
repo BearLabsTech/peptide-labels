@@ -1,12 +1,12 @@
 import type { LabelModelInput, LabelModelPatch } from '../labelModel'
-import { hasPositiveVialAmount, resolveDefaultTargetConcentration } from '../peptideMath'
+import { hasPositiveCompoundAmount, resolveDefaultTargetConcentration } from '../peptideMath'
 import { ensureReconstitutionPrintForAssist, protocolUnitsPatch, targetConcentrationPatch } from '../calculatorModeSwitch'
 import {
     calcFromConcentration,
     calcWaterFromTargetConcentration,
     deriveGenericMath,
     hasProtocolAmount,
-    hasVialAmount,
+    hasCompoundAmount,
     parseLabelMathInput,
     type ResolvedLabelMath,
 } from './labelMathCore'
@@ -14,7 +14,7 @@ import type { CalculatorFieldEdit, CalculatorFieldKind, SolveStrategy } from './
 
 function deriveMath(draft: LabelModelInput): ResolvedLabelMath {
     const parsed = parseLabelMathInput(draft)
-    if (hasVialAmount(parsed) && parsed.targetConcentration > 0) {
+    if (hasCompoundAmount(parsed) && parsed.targetConcentration > 0) {
         if (hasProtocolAmount(parsed)) return calcFromConcentration(draft, parsed)
         return calcWaterFromTargetConcentration(parsed)
     }
@@ -37,7 +37,7 @@ function onProtocolAmountChanged(draft: LabelModelInput, value: string): LabelMo
  */
 function onModeEntered(draft: LabelModelInput, vialCapacityMl: number, oldDerived: ResolvedLabelMath): LabelModelInput {
     let next: LabelModelInput = { ...draft, calculatorSolveMode: 'round_concentration' }
-    const canRecommendTarget = hasPositiveVialAmount(draft.compoundAmount) || Boolean(draft.concentration?.trim())
+    const canRecommendTarget = hasPositiveCompoundAmount(draft.compoundAmount) || Boolean(draft.concentration?.trim())
     if (!draft.targetConcentration?.trim() && canRecommendTarget) {
         const generatedDrawSource = draft.calculatorSolveMode === 'target_units' && draft.protocolUnitsOrigin === 'recommended'
         const recommendationInput = generatedDrawSource
@@ -80,7 +80,7 @@ function onFieldChanged(draft: LabelModelInput, edit: CalculatorFieldEdit, vialC
         // mode-independent raw change; any recommendation runs afterward in
         // recommendDefaults.
         case 'water':
-        case 'drawVolume':
+        case 'protocolUnits':
         case 'vialUnit':
         case 'measureUnit':
         case 'targetConcentration':
@@ -92,10 +92,10 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
     // water/drawVolume are vetoed outright in onFieldChanged above (the draft
     // is unchanged); recommending anything from that unchanged draft would
     // resurrect a computation the original event never triggered.
-    if (field === 'water' || field === 'drawVolume') return {}
+    if (field === 'water' || field === 'protocolUnits') return {}
 
     const updates: LabelModelPatch = {}
-    if (!hasPositiveVialAmount(draft.compoundAmount)) {
+    if (!hasPositiveCompoundAmount(draft.compoundAmount)) {
         updates.reconstitutionAmount = ''
         updates.concentration = ''
         return updates

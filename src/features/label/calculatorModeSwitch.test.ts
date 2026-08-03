@@ -45,7 +45,7 @@ describe('ensureReconstitutionPrintForAssist', () => {
         })
     })
 
-    it('should not enable reconstitution print toggles without a vial amount', () => {
+    it('should not enable reconstitution print toggles without a compound amount', () => {
         const input: LabelModelInput = {
             protocolAmount: '5',
             measureUnit: 'mg',
@@ -58,7 +58,7 @@ describe('ensureReconstitutionPrintForAssist', () => {
 })
 
 describe('calculator display helpers', () => {
-    it('should hide assist water in the sidebar until vial amount is entered', () => {
+    it('should hide assist water in the sidebar until compound amount is entered', () => {
         const input: LabelModelInput = {
             protocolAmount: '5',
             measureUnit: 'mg',

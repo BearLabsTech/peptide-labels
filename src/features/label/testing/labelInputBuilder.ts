@@ -63,8 +63,8 @@ export class LabelInputBuilder {
         return this
     }
 
-    withVialCapacity(capacityMl: 0.3 | 0.5 | 1.0): this {
-        this.input = { ...this.input, syringeCapacityMl: capacityMl }
+    withSyringeCapacity(syringeCapacityMl: 0.3 | 0.5 | 1.0): this {
+        this.input = { ...this.input, syringeCapacityMl }
         return this
     }
 

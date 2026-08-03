@@ -3,7 +3,7 @@ import './DrawUnitsSyringe.css'
 
 export interface DrawUnitsSyringeProps {
     drawUnits: number | null
-    capacityMl: SyringeCapacityMl
+    syringeCapacityMl: SyringeCapacityMl
 }
 
 const BARREL_X = 36
@@ -11,8 +11,8 @@ const BARREL_Y = 28
 const BARREL_W = 280
 const BARREL_H = 36
 
-export function DrawUnitsSyringe({ drawUnits, capacityMl }: DrawUnitsSyringeProps) {
-    const maxUnits = syringeMaxUnits(capacityMl)
+export function DrawUnitsSyringe({ drawUnits, syringeCapacityMl }: DrawUnitsSyringeProps) {
+    const maxUnits = syringeMaxUnits(syringeCapacityMl)
     const clamped = drawUnits == null || !(drawUnits > 0)
         ? 0
         : Math.min(drawUnits, maxUnits)

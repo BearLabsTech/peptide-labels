@@ -106,7 +106,7 @@ For instance, per `docs/TECH-DEBT.md`, font ratios, line height, border width, a
 
 State: the identifier used in code should be the same word the product and the user see. A second name for the same concept is a translation tax paid on every read.
 
-Canonical vocabulary lives in [COPY-GUIDELINES.md](./COPY-GUIDELINES.md) — do not restate it here. When renaming identifiers to match product vocabulary (for instance, `vialAmount` → the product's own term, tracked as part of Phase 2's action 2.7), that document is the source of truth for which word wins.
+Canonical vocabulary lives in [COPY-GUIDELINES.md](./COPY-GUIDELINES.md) — do not restate it here. Phase 2 action 2.7 renamed math identifiers onto that vocabulary (`compoundAmount`, `protocolAmount`, `protocolUnits`, `syringeCapacityMl`, and so on); keep new names aligned with the same source.
 
 ---
 

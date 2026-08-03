@@ -12,7 +12,7 @@ export type CalculatorFieldKind =
     | 'water'
     | 'protocolAmount'
     | 'measureUnit'
-    | 'drawVolume'
+    | 'protocolUnits'
     | 'mode'
     | 'targetConcentration'
     | 'vialCapacity'
@@ -33,7 +33,7 @@ export type CalculatorFieldEdit =
     | { readonly kind: 'water'; readonly value: string }
     | { readonly kind: 'protocolAmount'; readonly value: string }
     | { readonly kind: 'measureUnit' }
-    | { readonly kind: 'drawVolume'; readonly value: string }
+    | { readonly kind: 'protocolUnits'; readonly value: string }
     /**
      * `oldDerived` is the outgoing mode's math, computed once by the reducer
      * before dispatch. Set Concentration's entry recommendation can fall

@@ -23,7 +23,7 @@ export interface ResolvedLabelMath {
 }
 
 export interface ParsedLabelMathInput {
-    vialAmount: number;
+    compoundAmount: number;
     waterMl: number;
     protocolAmount: number;
     drawUnits: number;
@@ -37,7 +37,7 @@ export interface ParsedLabelMathInput {
 export function parseLabelMathInput(input: LabelModelInput): ParsedLabelMathInput {
     const vialUnit = (input.vialUnit || 'mg') as 'mg' | 'IU';
     return {
-        vialAmount: parseFloat(input.compoundAmount || '0'),
+        compoundAmount: parseFloat(input.compoundAmount || '0'),
         waterMl: parseFloat(input.reconstitutionAmount || '0'),
         protocolAmount: parseFloat(input.protocolAmount || '0'),
         drawUnits: parseNumericField(input.protocolUnits),
@@ -48,22 +48,22 @@ export function parseLabelMathInput(input: LabelModelInput): ParsedLabelMathInpu
     };
 }
 
-export function hasVialAmount(parsed: ParsedLabelMathInput): boolean {
-    return Number.isFinite(parsed.vialAmount) && parsed.vialAmount > 0;
+export function hasCompoundAmount(parsed: ParsedLabelMathInput): boolean {
+    return Number.isFinite(parsed.compoundAmount) && parsed.compoundAmount > 0;
 }
 
 export function hasProtocolAmount(parsed: ParsedLabelMathInput): boolean {
     return Number.isFinite(parsed.protocolAmount) && parsed.protocolAmount > 0;
 }
 
-export function hasVialAndProtocol(parsed: ParsedLabelMathInput): boolean {
-    return hasVialAmount(parsed) && hasProtocolAmount(parsed);
+export function hasCompoundAndProtocol(parsed: ParsedLabelMathInput): boolean {
+    return hasCompoundAmount(parsed) && hasProtocolAmount(parsed);
 }
 
-export function concentrationFromVialWater(parsed: ParsedLabelMathInput): string {
-    if (!Number.isFinite(parsed.vialAmount) || !Number.isFinite(parsed.waterMl)) return '';
-    if (parsed.vialAmount <= 0 || parsed.waterMl <= 0) return '';
-    return formatConcentrationLabel(parsed.vialAmount / parsed.waterMl, parsed.vialUnit);
+export function concentrationFromCompoundWater(parsed: ParsedLabelMathInput): string {
+    if (!Number.isFinite(parsed.compoundAmount) || !Number.isFinite(parsed.waterMl)) return '';
+    if (parsed.compoundAmount <= 0 || parsed.waterMl <= 0) return '';
+    return formatConcentrationLabel(parsed.compoundAmount / parsed.waterMl, parsed.vialUnit);
 }
 
 export function buildResult(fields: {
@@ -87,10 +87,10 @@ export function calcForward(parsed: ParsedLabelMathInput): ResolvedLabelMath {
     // is the same "invalid input" case as any other, so it takes the same fallback.
     if (!parsed.unitWorld) return defaultState();
     const result = calculateDrawVolume({
-        vialAmount: parsed.vialAmount,
+        compoundAmount: parsed.compoundAmount,
         unitWorld: parsed.unitWorld,
         waterMl: parsed.waterMl,
-        targetAmount: parsed.protocolAmount,
+        protocolAmount: parsed.protocolAmount,
     });
     if (!result) return defaultState();
 
@@ -99,7 +99,7 @@ export function calcForward(parsed: ParsedLabelMathInput): ResolvedLabelMath {
     return buildResult({
         autoUnits: formatDrawUnitsLabel(result.drawUnits),
         autoWater: '',
-        autoConcentration: concentrationFromVialWater(parsed),
+        autoConcentration: concentrationFromCompoundWater(parsed),
     });
 }
 
@@ -108,10 +108,10 @@ export function calcReverse(parsed: ParsedLabelMathInput): ResolvedLabelMath {
     // is the same "invalid input" case as any other, so it takes the same fallback.
     if (!parsed.unitWorld) return defaultState();
     const exactWaterMl = calculateReverseWater({
-        vialAmount: parsed.vialAmount,
+        compoundAmount: parsed.compoundAmount,
         unitWorld: parsed.unitWorld,
         drawUnits: parsed.drawUnits,
-        targetAmount: parsed.protocolAmount,
+        protocolAmount: parsed.protocolAmount,
     });
     if (exactWaterMl == null) return defaultState();
 
@@ -119,12 +119,12 @@ export function calcReverse(parsed: ParsedLabelMathInput): ResolvedLabelMath {
     return buildResult({
         autoUnits: '',
         autoWater: formatWaterAmountLabel(exactWaterMl),
-        autoConcentration: formatConcentrationLabel(parsed.vialAmount / exactWaterMl, parsed.vialUnit),
+        autoConcentration: formatConcentrationLabel(parsed.compoundAmount / exactWaterMl, parsed.vialUnit),
     });
 }
 
 export function calcWaterFromTargetConcentration(parsed: ParsedLabelMathInput): ResolvedLabelMath {
-    const exactWaterMl = calculateWaterFromTargetConcentration(parsed.vialAmount, parsed.targetConcentration);
+    const exactWaterMl = calculateWaterFromTargetConcentration(parsed.compoundAmount, parsed.targetConcentration);
     if (exactWaterMl == null) return defaultState();
 
     return buildResult({
@@ -139,10 +139,10 @@ export function calcFromConcentration(input: LabelModelInput, parsed: ParsedLabe
     // is the same "invalid input" case as any other, so it takes the same fallback.
     if (!parsed.unitWorld) return defaultState();
     const result = calculateFromTargetConcentration({
-        vialAmount: parsed.vialAmount,
+        compoundAmount: parsed.compoundAmount,
         unitWorld: parsed.unitWorld,
         targetConcentration: parsed.targetConcentration,
-        targetAmount: parsed.protocolAmount,
+        protocolAmount: parsed.protocolAmount,
     });
     if (!result) return defaultState();
 
@@ -165,14 +165,14 @@ export function calcFromConcentration(input: LabelModelInput, parsed: ParsedLabe
  * own mode's authoritative field.
  */
 export function deriveGenericMath(parsed: ParsedLabelMathInput): ResolvedLabelMath {
-    if (parsed.waterMl > 0 && hasVialAndProtocol(parsed)) return calcForward(parsed);
-    if (hasVialAndProtocol(parsed) && parsed.drawUnits > 0) return calcReverse(parsed);
+    if (parsed.waterMl > 0 && hasCompoundAndProtocol(parsed)) return calcForward(parsed);
+    if (hasCompoundAndProtocol(parsed) && parsed.drawUnits > 0) return calcReverse(parsed);
 
     // Manual Entry: vial ÷ water is authoritative — consumers prefer autoConcentration
     // over any stale authored concentration (see displayConcentration).
     return buildResult({
         autoUnits: '',
         autoWater: '',
-        autoConcentration: concentrationFromVialWater(parsed),
+        autoConcentration: concentrationFromCompoundWater(parsed),
     });
 }

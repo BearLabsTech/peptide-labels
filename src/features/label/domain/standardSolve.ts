@@ -21,7 +21,7 @@ function onCompoundAmountChanged(draft: LabelModelInput, value: string): LabelMo
     return { ...draft, compoundAmount: value, concentration: concentration || '' }
 }
 
-function onDrawVolumeChanged(draft: LabelModelInput, value: string): LabelModelInput {
+function onProtocolUnitsChanged(draft: LabelModelInput, value: string): LabelModelInput {
     const patch = protocolUnitsPatch({ value, origin: value ? 'user' : 'recommended' })
     const next: LabelModelInput = { ...draft, ...patch }
     return value ? { ...next, reconstitutionAmount: '' } : next
@@ -39,7 +39,7 @@ function onFieldChanged(draft: LabelModelInput, edit: CalculatorFieldEdit): Labe
         case 'compoundAmount': return onCompoundAmountChanged(draft, edit.value)
         case 'water': return onWaterChanged(draft, edit.value)
         case 'protocolAmount': return { ...draft, protocolAmount: edit.value, protocolUnits: '' }
-        case 'drawVolume': return onDrawVolumeChanged(draft, edit.value)
+        case 'protocolUnits': return onProtocolUnitsChanged(draft, edit.value)
         case 'mode': return onModeEntered(draft)
         // vialUnit/measureUnit/targetConcentration/vialCapacity: the reducer already
         // applied the mode-independent raw change; Manual Entry has no further reaction.

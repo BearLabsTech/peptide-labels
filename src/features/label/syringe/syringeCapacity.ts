@@ -14,8 +14,8 @@ const MAX_UNITS_BY_ML: Record<SyringeCapacityMl, number> = {
     0.3: 30,
 }
 
-export function syringeMaxUnits(capacityMl: SyringeCapacityMl): number {
-    return MAX_UNITS_BY_ML[capacityMl]
+export function syringeMaxUnits(syringeCapacityMl: SyringeCapacityMl): number {
+    return MAX_UNITS_BY_ML[syringeCapacityMl]
 }
 
 export function parseSyringeCapacityMl(value: unknown): SyringeCapacityMl {
@@ -25,6 +25,6 @@ export function parseSyringeCapacityMl(value: unknown): SyringeCapacityMl {
     return DEFAULT_SYRINGE_CAPACITY_ML
 }
 
-export function isDrawOverSyringeCapacity(drawUnits: number, capacityMl: SyringeCapacityMl): boolean {
-    return drawUnits > syringeMaxUnits(capacityMl)
+export function isDrawOverSyringeCapacity(drawUnits: number, syringeCapacityMl: SyringeCapacityMl): boolean {
+    return drawUnits > syringeMaxUnits(syringeCapacityMl)
 }

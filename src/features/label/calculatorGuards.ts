@@ -43,15 +43,15 @@ export function protocolAmountInVialUnits(input: LabelModelInput): number | null
 }
 
 /**
- * True when protocol amount exceeds vial amount (same substance basis).
- * Does not consider water volume vs physical vial size.
+ * True when protocol amount exceeds compound amount (same substance basis).
+ * Does not consider water volume vs physical vial capacity.
  */
-export function isProtocolExceedsVial(input: LabelModelInput): boolean {
-    const vial = parseFloat(input.compoundAmount || '')
-    if (!(vial > 0)) return false
+export function isProtocolExceedsCompound(input: LabelModelInput): boolean {
+    const compound = parseFloat(input.compoundAmount || '')
+    if (!(compound > 0)) return false
     const protocolInVialUnits = protocolAmountInVialUnits(input)
     if (protocolInVialUnits == null) return false
-    return protocolInVialUnits > vial
+    return protocolInVialUnits > compound
 }
 
 /**
@@ -59,11 +59,11 @@ export function isProtocolExceedsVial(input: LabelModelInput): boolean {
  * Display must use {@link formatMeasuresPerVialDisplay}.
  */
 export function computeMeasuresPerVialRaw(input: LabelModelInput): number | null {
-    const vial = parseFloat(input.compoundAmount || '')
-    if (!(vial > 0)) return null
+    const compound = parseFloat(input.compoundAmount || '')
+    if (!(compound > 0)) return null
     const protocolInVialUnits = protocolAmountInVialUnits(input)
     if (protocolInVialUnits == null || !(protocolInVialUnits > 0)) return null
-    return vial / protocolInVialUnits
+    return compound / protocolInVialUnits
 }
 
 /**
@@ -92,10 +92,10 @@ export function calculateRequiredWaterMl(input: LabelModelInput): number | null 
     const unitWorld = makeUnitWorld(vialUnit, resolveMeasureUnit(vialUnit, input.measureUnit))
     if (!unitWorld) return null // unrepresentable: UnitWorld pairs vialUnit with measureUnit
     return calculateReverseWater({
-        vialAmount: compoundAmount,
+        compoundAmount: compoundAmount,
         unitWorld,
         drawUnits: modeInput.drawUnits,
-        targetAmount: parseFloat(input.protocolAmount || ''),
+        protocolAmount: parseFloat(input.protocolAmount || ''),
     })
 }
 

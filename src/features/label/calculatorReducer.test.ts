@@ -257,7 +257,7 @@ describe('calculatorReducer — MeasureUnitChanged', () => {
     })
 })
 
-describe('calculatorReducer — DrawVolumeChanged', () => {
+describe('calculatorReducer — ProtocolUnitsChanged', () => {
     it('should be a no-op in Set Concentration mode', () => {
         const state: LabelModelInput = {
             compoundAmount: '20',
@@ -265,7 +265,7 @@ describe('calculatorReducer — DrawVolumeChanged', () => {
             calculatorSolveMode: 'round_concentration',
             targetConcentration: '10',
         }
-        const next = dispatch(state, { type: 'DrawVolumeChanged', value: '15 units' })
+        const next = dispatch(state, { type: 'ProtocolUnitsChanged', value: '15 units' })
         expect(next).toBe(state)
     })
 
@@ -276,7 +276,7 @@ describe('calculatorReducer — DrawVolumeChanged', () => {
             reconstitutionAmount: '2',
             calculatorSolveMode: 'standard',
         }
-        const next = dispatch(state, { type: 'DrawVolumeChanged', value: '15 units' })
+        const next = dispatch(state, { type: 'ProtocolUnitsChanged', value: '15 units' })
         expect(next.protocolUnits).toBe('15 units')
         expect(next.protocolUnitsOrigin).toBe('user')
         expect(next.reconstitutionAmount).toBe('')
@@ -289,7 +289,7 @@ describe('calculatorReducer — DrawVolumeChanged', () => {
             protocolUnits: '15 units',
             calculatorSolveMode: 'standard',
         }
-        const next = dispatch(state, { type: 'DrawVolumeChanged', value: '' })
+        const next = dispatch(state, { type: 'ProtocolUnitsChanged', value: '' })
         expect(next.protocolUnits).toBe('')
         expect(next.protocolUnitsOrigin).toBe('recommended')
         expect(next.reconstitutionAmount).toBeUndefined()
@@ -303,7 +303,7 @@ describe('calculatorReducer — DrawVolumeChanged', () => {
             measureUnit: 'mg',
             calculatorSolveMode: 'target_units',
         }
-        const next = dispatch(state, { type: 'DrawVolumeChanged', value: '27 units', vialCapacityMl: 3 })
+        const next = dispatch(state, { type: 'ProtocolUnitsChanged', value: '27 units', vialCapacityMl: 3 })
         expect(next.protocolUnits).toBe('27 units')
         expect(next.protocolUnitsOrigin).toBe('user')
         expect(next.reconstitutionAmount).toBe('1.485')
@@ -404,10 +404,10 @@ describe('calculatorReducer — TargetConcentrationChanged', () => {
         expect(next.protocolUnits).toBe('26.667 units')
     })
 
-    it('should regenerate a recommended target from the vial amount when cleared to empty', () => {
+    it('should regenerate a recommended target from the compound amount when cleared to empty', () => {
         // Clearing does not leave the field blank: the assist-sync pass that follows
         // (reason 'target_concentration') immediately recommends a fresh default from
-        // the vial amount, exactly as the pre-reducer handler + resolveAssistModeUpdates did.
+        // the compound amount, exactly as the pre-reducer handler + resolveAssistModeUpdates did.
         const state: LabelModelInput = {
             compoundAmount: '20',
             vialUnit: 'mg',
