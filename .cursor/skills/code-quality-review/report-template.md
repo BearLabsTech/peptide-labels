@@ -64,6 +64,7 @@ Every standard in `docs/CODE-QUALITY.md`, including the ones with no findings.
 ## Routing
 
 - **To `docs/TECH-DEBT.md`:** <list, or "none">
+- **To `docs/HUMAN-TASKS.md`:** <list, or "none" — anything whose verification needs a person or hardware, with the procedure>
 - **To `docs/FRD.md`:** <list, or "none">
 - **To a new plan** (work large enough to need sequencing): <summary, or "none">
 - **To `known-findings.md`:** new patterns appended this review, or "none — all findings matched existing patterns" (which itself is worth a sentence of comment: does that mean the codebase is stable, or that pass one was too shallow?).

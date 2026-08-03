@@ -1,6 +1,6 @@
 # Code quality standard
 
-**What this document is:** the durable definition of "good" for this codebase — structure, types, clarity, failure handling, tests, and boundaries. Not a list of findings. Findings (point-in-time problems) belong in [TECH-DEBT.md](./TECH-DEBT.md); roadmap intent belongs in [FRD.md](./FRD.md); vocabulary belongs in [COPY-GUIDELINES.md](./COPY-GUIDELINES.md). This document links to those rather than repeating them.
+**What this document is:** the durable definition of "good" for this codebase — structure, types, clarity, failure handling, tests, and boundaries. Not a list of findings. Findings (point-in-time problems) belong in [TECH-DEBT.md](./TECH-DEBT.md), or in [HUMAN-TASKS.md](./HUMAN-TASKS.md) when only a person can verify the fix; roadmap intent belongs in [FRD.md](./FRD.md); vocabulary belongs in [COPY-GUIDELINES.md](./COPY-GUIDELINES.md). This document links to those rather than repeating them.
 
 **How to read it:** every standard is stated as a general principle first, in full, so it applies to a module written next year that resembles nothing here. An example follows, always framed as "for instance, in this codebase..." — the example illustrates the principle, it does not define its boundary.
 

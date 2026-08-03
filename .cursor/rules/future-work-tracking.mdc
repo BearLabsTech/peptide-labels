@@ -1,5 +1,5 @@
 ---
-description: Route deferred work to FRD (roadmap) or TECH-DEBT (bugs/fixes)
+description: Route deferred work to FRD (roadmap), TECH-DEBT (agent-closeable fixes), or HUMAN-TASKS (needs a person)
 alwaysApply: true
 ---
 
@@ -10,32 +10,49 @@ When work is **deferred**, **out of scope for the current task**, or **discovere
 **Canonical sources:**
 
 - [docs/FRD.md](../../docs/FRD.md) — product roadmap (**Today** / **Planned**)
-- [docs/TECH-DEBT.md](../../docs/TECH-DEBT.md) — bugs, quality gaps, fix-up and investigation items
+- [docs/TECH-DEBT.md](../../docs/TECH-DEBT.md) — bugs, quality gaps, fix-up and investigation items **an agent can close**
+- [docs/HUMAN-TASKS.md](../../docs/HUMAN-TASKS.md) — work whose verification **requires a person**, physical hardware, or a real-world measurement
 
 ## Decide where it goes
+
+Ask the questions in this order. The first "yes" wins.
+
+**1. Can this only be verified by a human?** → **HUMAN-TASKS**
+
+Printing a physical label and measuring it; judging whether output looks right against a real-world reference; anything needing a device, account, or environment an agent cannot reach. Priority is independent of the doc — a High item can live here.
+
+**2. Does it change what the product offers?** → **FRD** (Planned)
 
 | Track in **FRD** (Planned) | Track in **TECH-DEBT** (Open) |
 |---|---|
 | New capability users would choose or notice | Known bug or regression |
 | Intentional product direction | Existing behavior that should work but does not meet quality bar |
-| New vial size, mode, template, account layer, etc. | Print/export quality vs real hardware (padding, crispness, DPI mismatch) |
+| New vial size, mode, template, account layer, etc. | Export/render quality gap reproducible in code or a browser |
 | “We will build X later” as a feature | Refactor, cleanup, or investigation follow-up |
 | Changes **what** the product offers | Fixes **how well** shipped behavior works |
 
 **Examples:**
 
 - Landing page, calculator-only mode, 10 ml vial → **FRD** Planned
-- Export margin too large on B21, text less crisp than native Niimbot text → **TECH-DEBT**
+- Export margin too large on a physical B21 print; text less crisp than native Niimbot text → **HUMAN-TASKS** (needs a print and a measurement)
+- Reducer accepts an unrepresentable unit pairing; two sources of truth in the print catalog → **TECH-DEBT**
 - Shipped print setup but missing first-run wizard polish → usually **TECH-DEBT** unless it is a committed product milestone
 
 ## When unclear
 
-If the item could reasonably be **roadmap** or **fix-up**, **ask the developer** (or the user) which doc to use before adding it. Briefly state both options and your lean.
+If the item could reasonably belong to two of the three, **ask the developer** which doc to use before adding it. Briefly state the options and your lean.
 
-Do not duplicate the same item in both docs unless the user explicitly wants both angles (rare — avoid by default).
+Do not duplicate the same item across docs unless the user explicitly wants both angles (rare — avoid by default).
 
 ## When adding an entry
 
 - **FRD:** value-led **why + what**; match existing Planned tone (see `functional-requirements.mdc`).
 - **TECH-DEBT:** symptom, priority, status, and concrete hypotheses or files to inspect.
+- **HUMAN-TASKS:** what is blocked on, plus a **step-by-step procedure** the human can follow without re-deriving the problem — and, where a blind change would be harmful, say so explicitly.
 - On the same change set when you **ship** the fix: move TECH-DEBT items to **Resolved**; move FRD items from **Planned** to **Today**.
+
+## What an agent may and may not do with HUMAN-TASKS
+
+An agent **may** prepare an item: write or sharpen the procedure, narrow the hypotheses, add the code path a measurement would exercise.
+
+An agent **may not** mark an item done, or apply a speculative fix in place of the measurement. A blind fix to a hardware item is worse than none — it consumes the physical test that would have told you something.

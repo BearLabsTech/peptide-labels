@@ -1,12 +1,39 @@
 # Tech debt and known issues
 
-Tracked **bugs, print-quality gaps, and fix-up work** — not product roadmap items (those live in [FRD.md](./FRD.md)).
+Tracked **bugs, quality gaps, and fix-up work that an agent can close** — not product roadmap items (those live in [FRD.md](./FRD.md)), and not work that needs a person or physical hardware to verify (that lives in [HUMAN-TASKS.md](./HUMAN-TASKS.md)).
+
+Every item here should be closeable by reading, changing, and testing code. If closing an item would require printing a label, judging output by eye, or a decision only the product owner can make, it belongs in `HUMAN-TASKS.md` instead — mixing the two makes this list look permanently unfinishable.
 
 When an item is fixed, move it to **Resolved** with a one-line note (date + what changed).
 
 ---
 
 ## Open
+
+### Reducer accepts a measure unit its vial unit cannot pair with
+
+**Priority:** Medium
+**Status:** Open — found 2026-08-03 by an invariant sweep over the reducer (3,036 states, all length-2 event sequences from six starting states).
+
+**Symptom:** `calculatorReducer`'s `VialUnitChanged` case normalizes the measure unit to keep the pairing valid (`calculatorReducer.ts:60-64`), but `MeasureUnitChanged` (`:86-91`) only checks that the incoming string parses — never that it pairs with the current vial unit. So `{ vialUnit: 'mg', measureUnit: 'IU' }` is reachable at the reducer boundary, in 246 of the swept paths.
+
+`makeUnitWorld` then returns null for that pairing and every calculation bails. The dangerous part is *how* it bails:
+
+| | valid `mg`/`mg` | after `MeasureUnitChanged('IU')` |
+|---|---|---|
+| displayed water / draw / concentration | `1`, `20 units`, `10mg per ml` | **unchanged — stale values still shown** |
+| `calculateRequiredWaterMl` | `1` | **`null`** |
+| `isWaterAboveVialCapacity` | works | **always false — warning silently off** |
+
+So the vial-capacity warning stops firing while the calculator still displays plausible numbers. The reverse pairing (`IU` vial + `mg` measure) is benign — `resolveMeasureUnit` (`peptideMath.ts:132-137`) coerces it back to `IU`.
+
+**Not currently reachable through the UI**, because the measure dropdown only offers `['mg','mcg']` for an mg vial (`useCalculatorViewModel.ts:144`). Correctness therefore rests on a view's option list rather than on the state machine — so any new surface that sets units (a preset, an imported design, a URL parameter, a quick-setup flow) would activate it.
+
+**When fixing:** mirror what `VialUnitChanged` already does. In `MeasureUnitChanged`, reject the event when `makeUnitWorld(state.vialUnit ?? 'mg', measureUnit)` is null, returning `state` unchanged — the same way the case already handles an unparseable unit. `makeUnitWorld` is the single place pairing is defined, so no second rule gets introduced.
+
+**Standard:** CODE-QUALITY.md section B — make illegal states unrepresentable.
+
+---
 
 ### Calculator state — separate authored inputs from derived values
 
@@ -17,7 +44,7 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 
 **Symptom:** `LabelModelInput` still carries some calculator results the assist/sync path writes back, tagged with provenance rather than kept structurally separate. **This is not only a type-hygiene concern — two live defects follow from it, both reproduced against the reducer on 2026-08-03:**
 
-**Defect 1 — an origin outlives its value.** In Manual Entry, authoring a draw volume and then typing a water volume leaves `{ protocolUnits: "", protocolUnitsOrigin: "user" }`: a provenance flag describing a value that no longer exists. Five sites clear `protocolUnits` without touching its origin — `domain/standardSolve.ts:13-15` and `:41`, `domain/targetUnitsSolve.ts:20`, `domain/roundConcentrationSolve.ts:25`, `calculatorReducer.ts:120`.
+**Defect 1 — an origin outlives its value.** In Manual Entry, authoring a draw volume and then typing a water volume leaves `{ protocolUnits: "", protocolUnitsOrigin: "user" }`: a provenance flag describing a value that no longer exists. Five sites clear `protocolUnits` without touching its origin — `domain/standardSolve.ts:13-15` and `:41`, `domain/targetUnitsSolve.ts:20`, `domain/roundConcentrationSolve.ts:25`, `calculatorReducer.ts:120`. The invariant sweep (2026-08-03) found **19 distinct two-event paths** into this state, reached via `WaterChanged` *and* `TargetConcentrationChanged`. `targetConcentrationOrigin` has no such paths — `calculatorReducer.ts:117` sets it correctly.
 
 **Defect 2 — a derived value is labelled as user-authored.** In Set Concentration, authoring a target concentration of 5 (10 mg compound, 2 mg protocol amount) yields `{ protocolUnits: "40 units", protocolUnitsOrigin: "user" }`. Nobody typed 40 units; `domain/roundConcentrationSolve.ts:125-128` derived it, then tagged it `'user'` because the *target* was authored. Because `'user'` blocks regeneration (`domain/targetUnitsSolve.ts:61` and `:113-114`), that derived draw volume then survives a vial-capacity change that should have refreshed it.
 
@@ -84,43 +111,6 @@ The last two are the important signal: this is not an isolated formatting quirk.
 **When fixing:** Keep one canonical printer/stock compatibility relation in `printCatalog.ts` and derive reverse lookups used by `PrintCatalogFilter.ts`.
 
 **Standard:** CODE-QUALITY.md section C — one source of truth per fact.
-
----
-
-### Print padding — exported PNG on Niimbot B21 (40×20 rounded stock)
-
-**Priority:** High  
-**Status:** Open — label stock profiles and reduced padding shipped; re-print test pending.
-
-**Symptom:** Physical print had noticeably more white space than Niimbot editor/print preview, especially on the **left** (logo column).
-
-**Shipped (Jun 2026):** Label stock selection (default **40×20 rounded**), unified per-stock padding (tighter on rounded), preview = export including corner clip, export DPI follows **selected printer** (skip/default **300 DPI**), capture targets label surface only.
-
-**Still verify on hardware:** Niimbot rounded-template inset vs our padding; asymmetric left margin if it persists after re-print.
-
-**Reference:** B21 phone test on `T40×20-320WHITE` rounded stock.
-
-**Standard:** CODE-QUALITY.md section C — one source of truth; print quality vs hardware also tracked as product verification.
-
----
-
-### Text print quality — raster export vs native Niimbot text
-
-**Priority:** Medium (defer — follow up in a separate session/agent)  
-**Status:** Open — **not a sizing issue**; typography/thermal output quality.
-
-**Symptom:** Text from our **downloaded PNG** prints less cleanly than text typed directly in the Niimbot app on the same printer/stock. Visible in physical print photo (Jun 2026): edges look softer/blockier or less crisp than native Niimbot labels.
-
-**Hypotheses to explore later:**
-
-- `html-to-image` rasterization + browser font smoothing vs Niimbot’s native text renderer.
-- Monochrome threshold step (`applyMonochromeThreshold`) — threshold, fattening grays to black.
-- Niimbot **Contrast** slider (user often at 150) compensating differently for bitmap vs native text.
-- Font stack (Arial in preview) at thermal resolution; subpixel/anti-aliasing artifacts.
-
-**Out of scope for current padding/export-size work** unless a change clearly affects both.
-
-**Standard:** CODE-QUALITY.md section G — quality gap vs expected shipped behavior (thermal crispness).
 
 ---
 
