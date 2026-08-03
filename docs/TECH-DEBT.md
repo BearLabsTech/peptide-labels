@@ -11,11 +11,12 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 ### Calculator state — separate authored inputs from derived values
 
 **Priority:** Medium
-**Status:** Partial — `CalculatorState = { authored, derived }` landed; `mergedInput` write-back is gone and label/compose paths read each half separately. Form handlers still sync derived values into the flat model via sequential `updateField` calls; the pure `calculatorReducer` (plan 2.5) and `SolveStrategy` registry (2.6) remain.
+**Status:** Partial (updated 2026-08-02) — `CalculatorState = { authored, derived }` landed; `mergedInput` write-back is gone and label/compose paths read each half separately. Plan 2.5 (pure `calculatorReducer`) and 2.6 (`SolveStrategy` registry in `domain/solveStrategy.ts`, replacing the if-ladder in `LabelMathResolver.ts` and the mode branching in `calculatorAssistSync.ts`/`calculatorModeSwitch.ts`) have both landed. `useLabelForm.ts` is now `useReducer` plus dispatch wrappers, and every event computes its next state in one atomic step — the "missed intermediate `updateField`" failure mode this item originally called out is closed.
+What remains: recommended/system-generated values (a fresh target concentration, draw-units label, or recomputed water) are still written back into the same flat `LabelModelInput` fields a user types into (`targetConcentration`, `protocolUnits`, `reconstitutionAmount`, `concentration`), distinguished only by a `*Origin: 'recommended' | 'user'` provenance flag rather than a type-level separation. Closing this fully would mean those recommendations live in `derived` instead and are never assigned into the authored fields at all.
 
-**Symptom:** `LabelModelInput` still persists some calculator results the assist/sync path writes back. A missed event transition can leave a stale derived field that downstream code must ignore or replace via `auto*` preference.
+**Symptom:** `LabelModelInput` still persists some calculator results the assist/sync path writes back, tagged with provenance rather than kept structurally separate.
 
-**When fixing:** Move calculator events behind one atomic reducer/transition boundary so derived values are never written into authored state. Inspect `useLabelForm.ts`, `calculatorAssistSync.ts`, and `calculatorModeSwitch.ts`.
+**When fixing:** Move the `recommended`-origin fields (target concentration, draw units, assist water/concentration) out of `LabelModelInput` and into `derived`/`CalculatorState`, so a `SolveStrategy` can no longer write a recommended value into an authored field at all — only `Provenance`-tag it today. Inspect `domain/solveStrategy.ts`'s three implementations and `calculatorModeSwitch.ts`'s `Provenance<T>`/`protocolUnitsPatch`/`targetConcentrationPatch` helpers.
 
 ---
 

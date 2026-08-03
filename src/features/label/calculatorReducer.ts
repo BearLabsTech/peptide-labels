@@ -1,20 +1,10 @@
 import type { LabelModelInput } from './labelModel'
 import type { CalculatorSolveMode } from './peptideMath'
 import { resolveCalculatorMode } from './peptideMath'
-import {
-    applyCalculatorModeSwitch,
-    applyProtocolAmountChange,
-    applyStandardModeEntry,
-    applyStandardVialAmountChange,
-    applyStandardWaterChange,
-    applyVialCapacityRecommendationChange,
-    protocolUnitsPatch,
-    targetConcentrationPatch,
-} from './calculatorModeSwitch'
 import { resolveLabelMath } from './LabelMathResolver'
 import { DEFAULT_VIAL_CAPACITY_ML } from './vialCapacity'
-import { resolveAssistModeUpdates } from './calculatorAssistSync'
 import { parseMeasureUnit, parseVialUnit } from './domain/units'
+import { SOLVE_STRATEGIES, type CalculatorFieldEdit, type SolveStrategy } from './domain/solveStrategy'
 
 /**
  * One event per calculator input the user can change. Each variant carries
@@ -34,11 +24,33 @@ export type CalculatorEvent =
     | { readonly type: 'VialCapacityChanged'; readonly vialCapacityMl: number }
 
 /**
+ * Runs one field edit through a strategy: an immediate, capacity-independent
+ * reaction ({@link SolveStrategy.onFieldChanged}), then that mode's
+ * capacity-dependent recommended defaults ({@link SolveStrategy.recommendDefaults}).
+ * The caller picks the strategy — the current mode's for every field edit,
+ * but the *incoming* mode's for a `mode` edit, since that edit is what makes
+ * the new mode's strategy authoritative going forward.
+ */
+function applyFieldEdit(strategy: SolveStrategy, state: LabelModelInput, edit: CalculatorFieldEdit, vialCapacityMl: number): LabelModelInput {
+    const afterFieldChange = strategy.onFieldChanged(state, edit, vialCapacityMl)
+    const patch = strategy.recommendDefaults(afterFieldChange, vialCapacityMl, edit.kind)
+    // Preserve reference equality when nothing actually changed — several call
+    // sites (and their tests) rely on a true no-op event returning the exact
+    // same `state` object, not just a shallow-equal copy of it.
+    return Object.keys(patch).length === 0 ? afterFieldChange : { ...afterFieldChange, ...patch }
+}
+
+/** Every non-mode field edit reacts through the mode `state` is currently in. */
+function applyCurrentModeFieldEdit(state: LabelModelInput, edit: CalculatorFieldEdit, vialCapacityMl: number): LabelModelInput {
+    return applyFieldEdit(SOLVE_STRATEGIES[resolveCalculatorMode(state)], state, edit, vialCapacityMl)
+}
+
+/**
  * Pure state transition for every calculator input. Replaces the nine
  * `createLabelFormHandlers` closures (each of which re-derived mode and
- * branched on it) with one function that computes the complete next state
- * in a single step — there is no window where a caller can observe a
- * partially-applied transition.
+ * branched on it) with one function that selects a {@link SolveStrategy}
+ * once per event and delegates every mode-specific decision to it — there
+ * is no window where a caller can observe a partially-applied transition.
  */
 export function calculatorReducer(state: LabelModelInput, event: CalculatorEvent): LabelModelInput {
     switch (event.type) {
@@ -50,108 +62,71 @@ export function calculatorReducer(state: LabelModelInput, event: CalculatorEvent
                 : state.measureUnit === 'IU'
                     ? 'mcg'
                     : state.measureUnit
-            const next: LabelModelInput = { ...state, vialUnit, measureUnit }
-            const mode = resolveCalculatorMode(state)
-            if (mode === 'target_units' || mode === 'round_concentration') {
-                const vialCapacityMl = event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML
-                return { ...next, ...resolveAssistModeUpdates(next, 'vial', vialCapacityMl) }
-            }
-            return next
+            const withUnit: LabelModelInput = { ...state, vialUnit, measureUnit }
+            return applyCurrentModeFieldEdit(withUnit, { kind: 'vialUnit' }, event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML)
         }
 
-        case 'CompoundAmountChanged': {
-            const mode = resolveCalculatorMode(state)
-            if (mode === 'standard') {
-                return { ...state, ...applyStandardVialAmountChange(state, event.value) }
-            }
-            const next: LabelModelInput = { ...state, compoundAmount: event.value }
-            if (mode === 'target_units' || mode === 'round_concentration') {
-                const vialCapacityMl = event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML
-                return { ...next, ...resolveAssistModeUpdates(next, 'vial', vialCapacityMl) }
-            }
-            return next
-        }
+        case 'CompoundAmountChanged':
+            return applyCurrentModeFieldEdit(
+                state,
+                { kind: 'compoundAmount', value: event.value },
+                event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML,
+            )
 
-        case 'WaterChanged': {
-            const mode = resolveCalculatorMode(state)
-            if (mode === 'round_concentration') return state
-            if (mode === 'standard') {
-                return { ...state, ...applyStandardWaterChange(state, event.value) }
-            }
-            const next: LabelModelInput = { ...state, reconstitutionAmount: event.value }
-            return event.value ? { ...next, protocolUnits: '' } : next
-        }
+        case 'WaterChanged':
+            return applyCurrentModeFieldEdit(state, { kind: 'water', value: event.value }, DEFAULT_VIAL_CAPACITY_ML)
 
-        case 'ProtocolAmountChanged': {
-            const mode = resolveCalculatorMode(state)
-            const vialCapacityMl = event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML
-            const updates = applyProtocolAmountChange(state, event.value, vialCapacityMl)
-            const next: LabelModelInput = { ...state, ...updates }
-            if (mode === 'round_concentration' || mode === 'target_units') {
-                return { ...next, ...resolveAssistModeUpdates(next, 'protocol', vialCapacityMl) }
-            }
-            return next
-        }
+        case 'ProtocolAmountChanged':
+            return applyCurrentModeFieldEdit(
+                state,
+                { kind: 'protocolAmount', value: event.value },
+                event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML,
+            )
 
         case 'MeasureUnitChanged': {
             const measureUnit = parseMeasureUnit(event.unit)
             if (measureUnit === undefined) return state
-            const next: LabelModelInput = { ...state, measureUnit }
-            const mode = resolveCalculatorMode(state)
-            if (mode === 'target_units' || mode === 'round_concentration') {
-                const vialCapacityMl = event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML
-                return { ...next, ...resolveAssistModeUpdates(next, 'measure', vialCapacityMl) }
-            }
-            return next
+            const withUnit: LabelModelInput = { ...state, measureUnit }
+            return applyCurrentModeFieldEdit(withUnit, { kind: 'measureUnit' }, event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML)
         }
 
-        case 'DrawVolumeChanged': {
-            const mode = resolveCalculatorMode(state)
-            if (mode === 'round_concentration') return state
-            const patch = protocolUnitsPatch({ value: event.value, origin: event.value ? 'user' : 'recommended' })
-            const next: LabelModelInput = { ...state, ...patch }
-            if (mode === 'target_units') {
-                const vialCapacityMl = event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML
-                const draft: LabelModelInput = { ...next, protocolUnits: event.value, reconstitutionAmount: '' }
-                return { ...next, ...resolveAssistModeUpdates(draft, 'draw', vialCapacityMl) }
-            }
-            return event.value ? { ...next, reconstitutionAmount: '' } : next
-        }
+        case 'DrawVolumeChanged':
+            return applyCurrentModeFieldEdit(
+                state,
+                { kind: 'drawVolume', value: event.value },
+                event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML,
+            )
 
         case 'ModeChanged': {
-            const vialCapacityMl = event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML
-            const derived = resolveLabelMath(state)
-            const switched = applyCalculatorModeSwitch(state, event.mode, derived, vialCapacityMl)
-            const merged: LabelModelInput = { ...state, ...switched }
-            if (event.mode === 'standard') {
-                return { ...merged, ...applyStandardModeEntry(merged) }
-            }
-            return { ...merged, ...resolveAssistModeUpdates(merged, 'mode', vialCapacityMl) }
+            // The incoming mode's strategy is authoritative for this edit, not the
+            // outgoing one — `oldDerived` (computed from the outgoing mode, before
+            // any field changes below) is the only channel back to it.
+            const oldDerived = resolveLabelMath(state)
+            return applyFieldEdit(
+                SOLVE_STRATEGIES[event.mode],
+                state,
+                { kind: 'mode', oldDerived },
+                event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML,
+            )
         }
 
         case 'TargetConcentrationChanged': {
-            const patch = targetConcentrationPatch({ value: event.value, origin: event.value ? 'user' : 'recommended' })
-            const next: LabelModelInput = {
+            const withTarget: LabelModelInput = {
                 ...state,
-                ...patch,
+                targetConcentration: event.value,
+                targetConcentrationOrigin: event.value ? 'user' : 'recommended',
                 reconstitutionAmount: '',
                 concentration: '',
                 protocolUnits: '',
             }
-            const mode = resolveCalculatorMode(state)
-            if (mode === 'round_concentration') {
-                const vialCapacityMl = event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML
-                return { ...next, ...resolveAssistModeUpdates(next, 'target_concentration', vialCapacityMl) }
-            }
-            return next
+            return applyCurrentModeFieldEdit(
+                withTarget,
+                { kind: 'targetConcentration' },
+                event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML,
+            )
         }
 
-        case 'VialCapacityChanged': {
-            const mode = resolveCalculatorMode(state)
-            if (mode !== 'target_units' && mode !== 'round_concentration') return state
-            const recommendationUpdates = applyVialCapacityRecommendationChange(state, event.vialCapacityMl)
-            const next: LabelModelInput = { ...state, ...recommendationUpdates }
-            return { ...next, ...resolveAssistModeUpdates(next, 'capacity', event.vialCapacityMl) }
-        }
+        case 'VialCapacityChanged':
+            return applyCurrentModeFieldEdit(state, { kind: 'vialCapacity' }, event.vialCapacityMl)
     }
 }
