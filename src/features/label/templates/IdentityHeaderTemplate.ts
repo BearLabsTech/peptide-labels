@@ -2,6 +2,7 @@ import type { LabelModelInput } from '../labelModel'
 import { resolveLabelLayoutMode } from '../labelModel'
 import type { ResolvedLabelMath } from '../domain/labelMathCore'
 import type { LabelRenderModel } from '../labelRenderModel'
+import { LabelRenderModelBuilder } from '../LabelRenderModelBuilder'
 import {
   LabelLayoutEngine,
   type BoxedSection,
@@ -217,39 +218,39 @@ export class IdentityHeaderTemplate implements LabelTemplate {
       visibleQrCodes,
     } = plan
 
-    if (fitted.kind === 'title-only') {
-      const { titleLayout } = fitted
-      const testIndicatorLayout = this.buildTestIndicatorLayout(
-        testIndicators, columns, visibleQrCodes, titleLayout,
-      )
-      return {
-        wrappedLines: [...titleLayout.wrappedLines],
-        titleLines: [...titleLayout.wrappedLines],
-        titleFontSizePx: titleLayout.fontSizePx,
-        bodyFontSizePx: titleLayout.fontSizePx,
-        title, demotedTitle, sourceLines: srcLines, protocolLines: proLines, reconstitutionLines: recLines,
-        qrCodes: visibleQrCodes, testIndicators, testIndicatorLayout, customImage: input.customImage, isDangerMode: isDanger,
-        logoColumnWidthPercent: columns.logoWidthPercent,
-        qrColumnWidthPercent: columns.qrWidthPercent,
-        labelLayoutMode: layoutMode,
-      }
-    }
-
-    const { titleLayout, bodyLayout } = fitted
+    const titleLayout = fitted.titleLayout
     const testIndicatorLayout = this.buildTestIndicatorLayout(
       testIndicators, columns, visibleQrCodes, titleLayout,
     )
-    return {
-      wrappedLines: [...titleLayout.wrappedLines, ...bodyLayout.wrappedLines],
-      titleLines: [...titleLayout.wrappedLines],
-      titleFontSizePx: titleLayout.fontSizePx,
-      bodyFontSizePx: isDanger ? (bodyLayout.fontSizePx * DANGER_BODY_FONT_SCALE) : bodyLayout.fontSizePx,
-      title, demotedTitle, sourceLines: srcLines, protocolLines: proLines, reconstitutionLines: recLines,
-      qrCodes: visibleQrCodes, testIndicators, testIndicatorLayout, customImage: input.customImage, isDangerMode: isDanger,
-      logoColumnWidthPercent: columns.logoWidthPercent,
-      qrColumnWidthPercent: columns.qrWidthPercent,
-      labelLayoutMode: layoutMode,
+    const builder = new LabelRenderModelBuilder()
+      .withTitle(title, demotedTitle)
+      .withBodyLines({
+        sourceLines: srcLines,
+        protocolLines: proLines,
+        reconstitutionLines: recLines,
+      })
+      .withQrCodes(visibleQrCodes)
+      .withTestIndicators(testIndicators, testIndicatorLayout)
+      .withCustomImage(input.customImage)
+      .withDangerMode(isDanger)
+      .withColumnPercents(columns.logoWidthPercent, columns.qrWidthPercent)
+      .withLabelLayoutMode(layoutMode)
+      .withTitleTypography([...titleLayout.wrappedLines], titleLayout.fontSizePx)
+
+    if (fitted.kind === 'title-only') {
+      return builder
+        .withWrappedLines([...titleLayout.wrappedLines])
+        .withBodyFontSizePx(titleLayout.fontSizePx)
+        .build()
     }
+
+    const { bodyLayout } = fitted
+    return builder
+      .withWrappedLines([...titleLayout.wrappedLines, ...bodyLayout.wrappedLines])
+      .withBodyFontSizePx(
+        isDanger ? bodyLayout.fontSizePx * DANGER_BODY_FONT_SCALE : bodyLayout.fontSizePx,
+      )
+      .build()
   }
 
   private buildTestIndicatorLayout(
