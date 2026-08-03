@@ -1,11 +1,8 @@
-import { useMemo, useState } from 'react'
 import { AccordionSection, TextInput } from './FormInputs'
-import { filterCatalog } from '../../../print/PrintCatalogFilter'
-import { DEFAULT_STOCK_ID, getStockById } from '../../../print/printCatalog'
+import { DEFAULT_STOCK_ID } from '../../../print/printCatalog'
 import type { PrintSetupSelection, Printer, LabelStock } from '../../../print/types'
 import { VialCapacityControl } from './VialCapacityControl'
-import { normalizeVialCapacityMl } from '../vialCapacity'
-import { parsePositiveMm } from '../../../print/dimensions'
+import { usePrintSetupSectionViewModel } from './usePrintSetupSectionViewModel'
 
 const inputStyle = {
   width: '100%',
@@ -33,40 +30,7 @@ export function PrintSetupSection({
   open,
   onOpenChange,
 }: PrintSetupSectionProps) {
-  const filtered = useMemo(() => filterCatalog(selection), [selection])
-  const [customSizeRequested, setCustomSizeRequested] = useState(
-    selection.widthMm != null && selection.heightMm != null && !selection.stockId,
-  )
-  const [customWidth, setCustomWidth] = useState(String(selection.widthMm ?? 40))
-  const [customHeight, setCustomHeight] = useState(String(selection.heightMm ?? 20))
-  const useCustomSize = customSizeRequested
-    || (selection.widthMm != null && selection.heightMm != null && !selection.stockId)
-  const customDimensionsValid = parsePositiveMm(customWidth) != null
-    && parsePositiveMm(customHeight) != null
-
-  function update(partial: Partial<PrintSetupSelection>) {
-    onChange({ ...selection, ...partial })
-  }
-
-  function selectCatalogStock(stockId: string) {
-    setCustomSizeRequested(false)
-    update({ stockId, labelId: undefined, widthMm: undefined, heightMm: undefined })
-  }
-
-  function enableCustomSize() {
-    const current = selection.stockId ? getStockById(selection.stockId) : undefined
-    const widthMm = current?.widthMm ?? selection.widthMm ?? 40
-    const heightMm = current?.heightMm ?? selection.heightMm ?? 20
-    setCustomSizeRequested(true)
-    setCustomWidth(String(widthMm))
-    setCustomHeight(String(heightMm))
-    update({
-      stockId: undefined,
-      labelId: undefined,
-      widthMm,
-      heightMm,
-    })
-  }
+  const vm = usePrintSetupSectionViewModel(selection, onChange)
 
   return (
     <div id="print-setup">
@@ -81,12 +45,12 @@ export function PrintSetupSection({
           Printer (optional)
         </label>
         <select
-          value={selection.printerId ?? ''}
-          onChange={(e) => update({ printerId: e.target.value || undefined })}
+          value={vm.printerId ?? ''}
+          onChange={(e) => vm.selectPrinter(e.target.value || undefined)}
           style={{ ...inputStyle, cursor: 'pointer' }}
         >
           <option value="">Default (300 DPI export)</option>
-          {filtered.printers.map((p: Printer) => (
+          {vm.filtered.printers.map((p: Printer) => (
             <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
@@ -97,23 +61,23 @@ export function PrintSetupSection({
           Vial capacity
         </label>
         <VialCapacityControl
-          value={normalizeVialCapacityMl(selection.vialCapacityMl)}
-          onChange={(vialCapacityMl) => update({ vialCapacityMl })}
+          value={vm.vialCapacityMl}
+          onChange={vm.selectVialCapacity}
         />
       </div>
 
-      {!useCustomSize ? (
+      {!vm.useCustomSize ? (
         <div style={{ marginBottom: 16 }}>
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
             Label stock
           </label>
           <select
-            value={selection.stockId ?? DEFAULT_STOCK_ID}
-            onChange={(e) => selectCatalogStock(e.target.value)}
+            value={vm.stockId ?? DEFAULT_STOCK_ID}
+            onChange={(e) => vm.selectCatalogStock(e.target.value)}
             style={{ ...inputStyle, cursor: 'pointer' }}
           >
-            {filtered.stocks.map((stock: LabelStock) => {
-              const recommended = filtered.recommendedStockIds.includes(stock.id)
+            {vm.filtered.stocks.map((stock: LabelStock) => {
+              const recommended = vm.filtered.recommendedStockIds.includes(stock.id)
               const isDefault = stock.id === DEFAULT_STOCK_ID
               const suffix = recommended ? ' — recommended' : isDefault ? ' — default' : ''
               return (
@@ -125,7 +89,7 @@ export function PrintSetupSection({
           </select>
           <button
             type="button"
-            onClick={enableCustomSize}
+            onClick={vm.enableCustomSize}
             style={{
               marginTop: 8,
               background: 'none',
@@ -146,44 +110,32 @@ export function PrintSetupSection({
             <div style={{ flex: 1 }}>
               <TextInput
                 label="Width (mm)"
-                value={customWidth}
-                onChange={(value) => {
-                  setCustomWidth(value)
-                  const widthMm = parsePositiveMm(value)
-                  if (widthMm != null) {
-                    update({ widthMm, stockId: undefined, labelId: undefined })
-                  }
-                }}
+                value={vm.customWidth}
+                onChange={vm.changeCustomWidth}
                 placeholder="40"
               />
             </div>
             <div style={{ flex: 1 }}>
               <TextInput
                 label="Height (mm)"
-                value={customHeight}
-                onChange={(value) => {
-                  setCustomHeight(value)
-                  const heightMm = parsePositiveMm(value)
-                  if (heightMm != null) {
-                    update({ heightMm, stockId: undefined, labelId: undefined })
-                  }
-                }}
+                value={vm.customHeight}
+                onChange={vm.changeCustomHeight}
                 placeholder="20"
               />
             </div>
           </div>
           <p style={{
             fontSize: '0.75rem',
-            color: customDimensionsValid ? 'var(--color-text-muted)' : 'var(--color-danger)',
+            color: vm.customDimensionsValid ? 'var(--color-text-muted)' : 'var(--color-danger)',
             margin: '0 0 12px',
           }}>
-            {customDimensionsValid
+            {vm.customDimensionsValid
               ? 'Custom size uses rectangular corners and standard padding.'
               : 'Enter a positive width and height.'}
           </p>
           <button
             type="button"
-            onClick={() => selectCatalogStock(DEFAULT_STOCK_ID)}
+            onClick={() => vm.selectCatalogStock(DEFAULT_STOCK_ID)}
             style={{
               marginBottom: 16,
               background: 'none',
