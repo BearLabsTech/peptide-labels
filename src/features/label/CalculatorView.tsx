@@ -29,7 +29,7 @@ import {
     SyringeAssist,
     type SyringeCapacityMl,
 } from './syringe'
-import { hasPositiveVialAmount } from './peptideMath'
+import { hasPositiveVialAmount, resolveCalculatorMode } from './peptideMath'
 import { VialCapacityControl } from './components/VialCapacityControl'
 import { VialCapacityWarning } from './components/VialCapacityWarning'
 import './CalculatorView.css'
@@ -56,7 +56,7 @@ export function CalculatorView({
         autoConcentration: resolved.autoConcentration,
     }
     const handlers = createLabelFormHandlers(input, updateField, derivedState, vialCapacityMl)
-    const solveMode = input.calculatorSolveMode || 'target_units'
+    const solveMode = resolveCalculatorMode(input)
     const capacityMl = parseSyringeCapacityMl(input.syringeCapacityMl)
     const blocked = isProtocolExceedsVial(input)
     const hasVial = hasPositiveVialAmount(input.compoundAmount)

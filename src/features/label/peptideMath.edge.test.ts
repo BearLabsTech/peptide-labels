@@ -51,21 +51,22 @@ describe('forward / reverse round-trips with awkward decimals', () => {
         ]
 
         for (const c of cases) {
+            const unitWorld = c.unit === 'IU'
+                ? { vialUnit: 'IU' as const, measureUnit: 'IU' as const }
+                : { vialUnit: 'mg' as const, measureUnit: c.unit }
             const water = calculateReverseWater({
                 vialAmount: c.vial,
-                vialUnit: c.unit === 'IU' ? 'IU' : 'mg',
+                unitWorld,
                 drawUnits: c.draw,
                 targetAmount: c.protocol,
-                targetUnit: c.unit,
             })
             expect(water).not.toBeNull()
 
             const forward = calculateDrawVolume({
                 vialAmount: c.vial,
-                vialUnit: c.unit === 'IU' ? 'IU' : 'mg',
+                unitWorld,
                 waterMl: water!,
                 targetAmount: c.protocol,
-                targetUnit: c.unit,
             })
             expect(forward?.drawUnits).toBeCloseTo(c.draw, 10)
         }
@@ -75,10 +76,9 @@ describe('forward / reverse round-trips with awkward decimals', () => {
         // Classic trap: 23.3 / 20 = 1.165; round water to 1.17 → conc ≈ 19.915
         const exactWater = calculateReverseWater({
             vialAmount: 23.3,
-            vialUnit: 'mg',
+            unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             drawUnits: 50,
             targetAmount: 10,
-            targetUnit: 'mg',
         })
         expect(exactWater).toBeCloseTo(1.165, 10)
         expect(formatWaterAmountLabel(exactWater!)).toBe('1.165')
@@ -86,10 +86,9 @@ describe('forward / reverse round-trips with awkward decimals', () => {
 
         const poisoned = calculateDrawVolume({
             vialAmount: 23.3,
-            vialUnit: 'mg',
+            unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             waterMl: roundForDisplay(1.17),
             targetAmount: 10,
-            targetUnit: 'mg',
         })
         expect(poisoned?.concentrationMgPerMl).toBeCloseTo(23.3 / 1.17, 5)
         expect(poisoned?.concentrationMgPerMl).not.toBeCloseTo(20, 2)
@@ -98,10 +97,9 @@ describe('forward / reverse round-trips with awkward decimals', () => {
     it('should stay consistent under set-concentration solve with repeating decimals', () => {
         const solved = calculateFromTargetConcentration({
             vialAmount: 10,
-            vialUnit: 'mg',
+            unitWorld: { vialUnit: 'mg', measureUnit: 'mg' },
             targetConcentration: 7,
             targetAmount: 1 / 3,
-            targetUnit: 'mg',
         })
         expect(solved).not.toBeNull()
         expect(solved!.waterMl).toBeCloseTo(10 / 7, 12)
@@ -115,45 +113,42 @@ describe('forward / reverse round-trips with awkward decimals', () => {
 describe('default draw-unit boundaries', () => {
     it('should use 10 u/mg at and under the high threshold', () => {
         expect(DRAW_UNITS_HIGH_THRESHOLD).toBe(50)
-        expect(calculateDefaultDrawUnits(5, 'mg', 'mg')).toBe(50)
-        expect(calculateDefaultDrawUnits(4.9, 'mg', 'mg')).toBe(49)
-        expect(calculateDefaultDrawUnits(500, 'mcg', 'mg')).toBe(5)
+        expect(calculateDefaultDrawUnits(5, { vialUnit: 'mg', measureUnit: 'mg' })).toBe(50)
+        expect(calculateDefaultDrawUnits(4.9, { vialUnit: 'mg', measureUnit: 'mg' })).toBe(49)
+        expect(calculateDefaultDrawUnits(500, { vialUnit: 'mg', measureUnit: 'mcg' })).toBe(5)
     })
 
     it('should drop to 5 u/mg only when 10× would exceed 50', () => {
-        expect(calculateDefaultDrawUnits(5.1, 'mg', 'mg')).toBe(25.5)
-        expect(calculateDefaultDrawUnits(10, 'mg', 'mg')).toBe(50)
-        expect(calculateDefaultDrawUnits(6, 'mg', 'mg')).toBe(30)
+        expect(calculateDefaultDrawUnits(5.1, { vialUnit: 'mg', measureUnit: 'mg' })).toBe(25.5)
+        expect(calculateDefaultDrawUnits(10, { vialUnit: 'mg', measureUnit: 'mg' })).toBe(50)
+        expect(calculateDefaultDrawUnits(6, { vialUnit: 'mg', measureUnit: 'mg' })).toBe(30)
     })
 
     it('should fall back to flat 10 when scaled mcg defaults would be below 1', () => {
-        expect(calculateDefaultDrawUnits(50, 'mcg', 'mg')).toBe(10)
-        expect(calculateDefaultDrawUnits(99, 'mcg', 'mg')).toBe(10)
-        expect(calculateDefaultDrawUnits(100, 'mcg', 'mg')).toBe(1)
+        expect(calculateDefaultDrawUnits(50, { vialUnit: 'mg', measureUnit: 'mcg' })).toBe(10)
+        expect(calculateDefaultDrawUnits(99, { vialUnit: 'mg', measureUnit: 'mcg' })).toBe(10)
+        expect(calculateDefaultDrawUnits(100, { vialUnit: 'mg', measureUnit: 'mcg' })).toBe(1)
     })
 })
 
 describe('nonsense and invalid inputs', () => {
-    it('should return null for zero, negative, and mismatched unit worlds', () => {
+    // Mismatched unit worlds (e.g. mg vial / IU protocol unit) are unrepresentable
+    // by construction now — see domain/units.test.ts "should reject an inconsistent
+    // vial/measure pairing" for that regression coverage.
+    it('should return null for zero and negative inputs', () => {
         expect(calculateDrawVolume({
-            vialAmount: -10, vialUnit: 'mg', waterMl: 2, targetAmount: 1, targetUnit: 'mg',
+            vialAmount: -10, unitWorld: { vialUnit: 'mg', measureUnit: 'mg' }, waterMl: 2, targetAmount: 1,
         })).toBeNull()
         expect(calculateDrawVolume({
-            vialAmount: 10, vialUnit: 'mg', waterMl: -2, targetAmount: 1, targetUnit: 'mg',
+            vialAmount: 10, unitWorld: { vialUnit: 'mg', measureUnit: 'mg' }, waterMl: -2, targetAmount: 1,
         })).toBeNull()
         expect(calculateDrawVolume({
-            vialAmount: 10, vialUnit: 'mg', waterMl: 2, targetAmount: -1, targetUnit: 'mg',
-        })).toBeNull()
-        expect(calculateDrawVolume({
-            vialAmount: 10, vialUnit: 'mg', waterMl: 2, targetAmount: 250, targetUnit: 'IU',
-        })).toBeNull()
-        expect(calculateReverseWater({
-            vialAmount: 10, vialUnit: 'IU', drawUnits: 10, targetAmount: 1, targetUnit: 'mg',
+            vialAmount: 10, unitWorld: { vialUnit: 'mg', measureUnit: 'mg' }, waterMl: 2, targetAmount: -1,
         })).toBeNull()
         expect(calculateFromTargetConcentration({
-            vialAmount: 10, vialUnit: 'mg', targetConcentration: -5, targetAmount: 1, targetUnit: 'mg',
+            vialAmount: 10, unitWorld: { vialUnit: 'mg', measureUnit: 'mg' }, targetConcentration: -5, targetAmount: 1,
         })).toBeNull()
-        expect(calculateDefaultDrawUnits(-3, 'mg', 'mg')).toBeNull()
+        expect(calculateDefaultDrawUnits(-3, { vialUnit: 'mg', measureUnit: 'mg' })).toBeNull()
     })
 
     it('should not invent math from non-numeric label junk', () => {

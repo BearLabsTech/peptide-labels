@@ -1,9 +1,8 @@
 import { TextInput, SelectInput, AccordionSection, SubAccordionSection, ImageUploadInput, DateField, ToggleInput } from './FormInputs'
 import { ColumnWidthSlider } from './ColumnWidthSlider'
-import { RECONSTITUTION_TYPES } from '../peptideMath'
+import { RECONSTITUTION_TYPES, resolveCalculatorMode } from '../peptideMath'
 import {
     CALCULATOR_MODE_OPTIONS,
-    DEFAULT_CALCULATOR_SOLVE_MODE,
     calculatorModeFromLabel,
     calculatorModeLabel,
     concentrationUnitLabel,
@@ -78,7 +77,7 @@ export function ReconstitutionSection({
     vialCapacityMl = 3,
 }: SectionProps) {
     const isSectionActive = input.showReconstitution !== false;
-    const solveMode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE;
+    const solveMode = resolveCalculatorMode(input);
     const waterDisabled = solveMode !== 'standard';
     const concUnitLabel = concentrationUnitLabel(input.vialUnit);
     return (
@@ -122,7 +121,7 @@ export function ReconstitutionSection({
 export function ProtocolSection({ input, updateField, derivedState, handlers }: SectionProps) {
     const isSectionActive = input.showProtocol !== false;
     const measureUnitOptions = input.vialUnit === 'IU' ? ['IU'] : ['mg', 'mcg'];
-    const solveMode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE;
+    const solveMode = resolveCalculatorMode(input);
     const drawUnitsDisabled = solveMode === 'round_concentration';
     const hasProtocol = parseFloat(input.protocolAmount || '') > 0;
     const capacityMl = parseSyringeCapacityMl(input.syringeCapacityMl);

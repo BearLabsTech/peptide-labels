@@ -1,12 +1,10 @@
 import { resolveLabelMath } from './LabelMathResolver'
-import {
-    DEFAULT_CALCULATOR_SOLVE_MODE,
-    ensureReconstitutionPrintForAssist,
-} from './calculatorModeSwitch'
+import { ensureReconstitutionPrintForAssist, protocolUnitsPatch, targetConcentrationPatch } from './calculatorModeSwitch'
 import type { LabelModelInput, LabelModelPatch } from './labelModel'
 import {
     hasPositiveDrawUnits,
     hasPositiveVialAmount,
+    resolveCalculatorMode,
     resolveDefaultDrawUnitsLabel,
     resolveDefaultTargetConcentration,
 } from './peptideMath'
@@ -20,7 +18,7 @@ export function resolveAssistModeUpdates(
     reason: SyncAssistReason = 'mode',
     vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
 ): LabelModelPatch {
-    const mode = draft.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE
+    const mode = resolveCalculatorMode(draft)
     if (mode !== 'target_units' && mode !== 'round_concentration') return {}
 
     const updates: LabelModelPatch = {}
@@ -36,8 +34,7 @@ export function resolveAssistModeUpdates(
                 vialCapacityMl,
             )
             if (protocolUnits) {
-                updates.protocolUnits = protocolUnits
-                updates.protocolUnitsOrigin = 'recommended'
+                Object.assign(updates, protocolUnitsPatch({ value: protocolUnits, origin: 'recommended' }))
             }
         }
         return updates
@@ -52,17 +49,12 @@ export function resolveAssistModeUpdates(
         const recommendationInput = reason === 'capacity'
             ? { ...draft, concentration: '', reconstitutionAmount: '' }
             : draft
-        const targetConcentration = resolveDefaultTargetConcentration(
-            recommendationInput,
-            vialCapacityMl,
-        )
-        updates.targetConcentration = targetConcentration
-        updates.targetConcentrationOrigin = 'recommended'
-        resolvedDraft = {
-            ...draft,
-            targetConcentration,
-            targetConcentrationOrigin: 'recommended',
-        }
+        const targetConcentration = targetConcentrationPatch({
+            value: resolveDefaultTargetConcentration(recommendationInput, vialCapacityMl),
+            origin: 'recommended',
+        })
+        Object.assign(updates, targetConcentration)
+        resolvedDraft = { ...draft, ...targetConcentration }
     }
 
     if (mode === 'target_units' && reason !== 'draw') {
@@ -78,13 +70,9 @@ export function resolveAssistModeUpdates(
         const shouldUpdateDraw = !hasPositiveDrawUnits(draft.protocolUnits)
             || (dependencyChanged && draft.protocolUnitsOrigin === 'recommended')
         if (protocolUnits && shouldUpdateDraw) {
-            updates.protocolUnits = protocolUnits
-            updates.protocolUnitsOrigin = 'recommended'
-            resolvedDraft = {
-                ...resolvedDraft,
-                protocolUnits,
-                protocolUnitsOrigin: 'recommended',
-            }
+            const patch = protocolUnitsPatch({ value: protocolUnits, origin: 'recommended' })
+            Object.assign(updates, patch)
+            resolvedDraft = { ...resolvedDraft, ...patch }
         }
     }
 
@@ -97,10 +85,10 @@ export function resolveAssistModeUpdates(
     )
 
     if (mode === 'round_concentration' && resolved.autoUnits) {
-        updates.protocolUnits = resolved.autoUnits
-        updates.protocolUnitsOrigin = resolvedDraft.targetConcentrationOrigin === 'recommended'
-            ? 'recommended'
-            : 'user'
+        Object.assign(updates, protocolUnitsPatch({
+            value: resolved.autoUnits,
+            origin: resolvedDraft.targetConcentrationOrigin === 'recommended' ? 'recommended' : 'user',
+        }))
     }
     return updates
 }

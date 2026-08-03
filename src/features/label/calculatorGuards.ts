@@ -3,19 +3,43 @@ import {
     calculateWaterFromTargetConcentration,
     formatDisplayNumberFixed,
     parseNumericField,
+    resolveCalculatorMode,
     resolveMeasureUnit,
 } from './peptideMath'
 import type { LabelModelInput } from './labelModel'
 import { normalizeVialCapacityMl } from './vialCapacity'
-import { protocolAmountInVialUnits as protocolAmountToVialUnitsBasis } from './domain/units'
+import { makeUnitWorld, protocolAmountInVialUnits as protocolAmountToVialUnitsBasis } from './domain/units'
+
+/**
+ * The field that is authoritative for the input's current calculator mode —
+ * each variant carries only its own field, so a mode cannot be paired with
+ * another mode's authoritative value.
+ */
+export type CalculatorModeInput =
+    | { readonly mode: 'standard'; readonly waterMl: number }
+    | { readonly mode: 'target_units'; readonly drawUnits: number }
+    | { readonly mode: 'round_concentration'; readonly targetConcentration: number }
+
+/** Parses only the field that is authoritative for the input's current mode. */
+export function parseCalculatorModeInput(input: LabelModelInput): CalculatorModeInput {
+    const mode = resolveCalculatorMode(input)
+    if (mode === 'standard') {
+        return { mode, waterMl: parseNumericField(input.reconstitutionAmount) }
+    }
+    if (mode === 'round_concentration') {
+        return { mode, targetConcentration: parseNumericField(input.targetConcentration) }
+    }
+    return { mode, drawUnits: parseNumericField(input.protocolUnits) }
+}
 
 /** Convert protocol amount into the vial's unit basis (mg or IU). */
 export function protocolAmountInVialUnits(input: LabelModelInput): number | null {
     const protocol = parseFloat(input.protocolAmount || '')
     if (!(protocol > 0)) return null
     const vialUnit = input.vialUnit || 'mg'
-    const measureUnit = resolveMeasureUnit(vialUnit, input.measureUnit)
-    return protocolAmountToVialUnitsBasis(protocol, measureUnit, vialUnit)
+    const unitWorld = makeUnitWorld(vialUnit, resolveMeasureUnit(vialUnit, input.measureUnit))
+    if (!unitWorld) return null // unrepresentable: UnitWorld pairs vialUnit with measureUnit
+    return protocolAmountToVialUnitsBasis(protocol, unitWorld)
 }
 
 /**
@@ -50,34 +74,28 @@ export function formatMeasuresPerVialDisplay(raw: number): string {
     return formatDisplayNumberFixed(raw)
 }
 
-export function parseDrawUnitsValue(label?: string): number {
-    return parseNumericField(label)
-}
-
 /** Exact water implied by the current calculator inputs, before display rounding. */
 export function calculateRequiredWaterMl(input: LabelModelInput): number | null {
-    const mode = input.calculatorSolveMode || 'target_units'
-    if (mode === 'standard') {
-        const water = parseNumericField(input.reconstitutionAmount)
-        return water > 0 ? water : null
+    const modeInput = parseCalculatorModeInput(input)
+    if (modeInput.mode === 'standard') {
+        return modeInput.waterMl > 0 ? modeInput.waterMl : null
     }
 
     const compoundAmount = parseFloat(input.compoundAmount || '')
     if (!(compoundAmount > 0)) return null
 
-    if (mode === 'round_concentration') {
-        return calculateWaterFromTargetConcentration(
-            compoundAmount,
-            parseNumericField(input.targetConcentration),
-        )
+    if (modeInput.mode === 'round_concentration') {
+        return calculateWaterFromTargetConcentration(compoundAmount, modeInput.targetConcentration)
     }
 
+    const vialUnit = input.vialUnit || 'mg'
+    const unitWorld = makeUnitWorld(vialUnit, resolveMeasureUnit(vialUnit, input.measureUnit))
+    if (!unitWorld) return null // unrepresentable: UnitWorld pairs vialUnit with measureUnit
     return calculateReverseWater({
         vialAmount: compoundAmount,
-        vialUnit: input.vialUnit || 'mg',
-        drawUnits: parseDrawUnitsValue(input.protocolUnits),
+        unitWorld,
+        drawUnits: modeInput.drawUnits,
         targetAmount: parseFloat(input.protocolAmount || ''),
-        targetUnit: resolveMeasureUnit(input.vialUnit || 'mg', input.measureUnit),
     })
 }
 

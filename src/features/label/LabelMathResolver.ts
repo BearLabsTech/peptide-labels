@@ -1,6 +1,5 @@
 import type { LabelModelInput } from './labelModel'
 import {
-    DEFAULT_CALCULATOR_SOLVE_MODE,
     calculateDrawVolume,
     calculateReverseWater,
     calculateFromTargetConcentration,
@@ -10,9 +9,11 @@ import {
     formatDefaultDrawUnitsLabel,
     formatWaterAmountLabel,
     parseNumericField,
+    resolveCalculatorMode,
     resolveMeasureUnit,
     type CalculatorSolveMode,
 } from './peptideMath'
+import { makeUnitWorld, type UnitWorld } from './domain/units'
 
 export interface ResolvedLabelMath {
     readonly mergedInput: LabelModelInput;
@@ -28,7 +29,8 @@ interface ParsedLabelMathInput {
     drawUnits: number;
     targetConcentration: number;
     vialUnit: 'mg' | 'IU';
-    protocolUnit: 'mg' | 'mcg' | 'IU';
+    /** Null when vialUnit and measureUnit form an unrepresentable pairing (see UnitWorld). */
+    unitWorld: UnitWorld | null;
     mode: CalculatorSolveMode;
 }
 
@@ -68,8 +70,8 @@ function parseLabelMathInput(input: LabelModelInput): ParsedLabelMathInput {
         drawUnits: parseNumericField(input.protocolUnits),
         targetConcentration: parseFloat(input.targetConcentration || '0'),
         vialUnit,
-        protocolUnit: resolveMeasureUnit(vialUnit, input.measureUnit),
-        mode: input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE,
+        unitWorld: makeUnitWorld(vialUnit, resolveMeasureUnit(vialUnit, input.measureUnit)),
+        mode: resolveCalculatorMode(input),
     };
 }
 
@@ -109,12 +111,14 @@ function buildResult(
 }
 
 function calcForward(input: LabelModelInput, parsed: ParsedLabelMathInput): ResolvedLabelMath {
+    // unrepresentable: UnitWorld pairs vialUnit with measureUnit — a null world here
+    // is the same "invalid input" case as any other, so it takes the same fallback.
+    if (!parsed.unitWorld) return defaultState(input);
     const result = calculateDrawVolume({
         vialAmount: parsed.vialAmount,
-        vialUnit: parsed.vialUnit,
+        unitWorld: parsed.unitWorld,
         waterMl: parsed.waterMl,
         targetAmount: parsed.protocolAmount,
-        targetUnit: parsed.protocolUnit,
     });
     if (!result) return defaultState(input);
 
@@ -134,12 +138,14 @@ function calcForward(input: LabelModelInput, parsed: ParsedLabelMathInput): Reso
 }
 
 function calcReverse(input: LabelModelInput, parsed: ParsedLabelMathInput): ResolvedLabelMath {
+    // unrepresentable: UnitWorld pairs vialUnit with measureUnit — a null world here
+    // is the same "invalid input" case as any other, so it takes the same fallback.
+    if (!parsed.unitWorld) return defaultState(input);
     const exactWaterMl = calculateReverseWater({
         vialAmount: parsed.vialAmount,
-        vialUnit: parsed.vialUnit,
+        unitWorld: parsed.unitWorld,
         drawUnits: parsed.drawUnits,
         targetAmount: parsed.protocolAmount,
-        targetUnit: parsed.protocolUnit,
     });
     if (exactWaterMl == null) return defaultState(input);
 
@@ -179,12 +185,14 @@ function calcWaterFromTargetConcentration(input: LabelModelInput, parsed: Parsed
 }
 
 function calcFromConcentration(input: LabelModelInput, parsed: ParsedLabelMathInput): ResolvedLabelMath {
+    // unrepresentable: UnitWorld pairs vialUnit with measureUnit — a null world here
+    // is the same "invalid input" case as any other, so it takes the same fallback.
+    if (!parsed.unitWorld) return defaultState(input);
     const result = calculateFromTargetConcentration({
         vialAmount: parsed.vialAmount,
-        vialUnit: parsed.vialUnit,
+        unitWorld: parsed.unitWorld,
         targetConcentration: parsed.targetConcentration,
         targetAmount: parsed.protocolAmount,
-        targetUnit: parsed.protocolUnit,
     });
     if (!result) return defaultState(input);
 

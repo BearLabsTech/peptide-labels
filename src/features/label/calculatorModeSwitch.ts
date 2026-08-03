@@ -4,6 +4,7 @@ import {
     DEFAULT_CALCULATOR_SOLVE_MODE,
     hasPositiveDrawUnits,
     hasPositiveVialAmount,
+    resolveCalculatorMode,
     resolveDefaultDrawUnitsLabel,
     resolveDefaultTargetConcentration,
 } from './peptideMath'
@@ -11,6 +12,24 @@ import { resolveLabelMath, type ResolvedLabelMath } from './LabelMathResolver'
 import { DEFAULT_VIAL_CAPACITY_ML } from './vialCapacity'
 
 export { DEFAULT_CALCULATOR_SOLVE_MODE } from './peptideMath'
+
+/**
+ * Pairs a value with which kind of fact it is — recommended (system-generated,
+ * safe to regenerate) or user (authored, must not be silently overwritten).
+ * A provenance flag cannot exist without the value it describes.
+ */
+export interface Provenance<T> {
+    readonly value: T
+    readonly origin: 'recommended' | 'user'
+}
+
+export function protocolUnitsPatch(p: Provenance<string>): Pick<LabelModelPatch, 'protocolUnits' | 'protocolUnitsOrigin'> {
+    return { protocolUnits: p.value, protocolUnitsOrigin: p.origin }
+}
+
+export function targetConcentrationPatch(p: Provenance<string>): Pick<LabelModelPatch, 'targetConcentration' | 'targetConcentrationOrigin'> {
+    return { targetConcentration: p.value, targetConcentrationOrigin: p.origin }
+}
 
 export interface CalculatorModeDerivedState {
     autoConcentration?: string;
@@ -86,11 +105,10 @@ export function applyCalculatorModeSwitch(
             };
         next = {
             ...next,
-            targetConcentration: resolveDefaultTargetConcentration(
-                recommendationInput,
-                vialCapacityMl,
-            ),
-            targetConcentrationOrigin: 'recommended',
+            ...targetConcentrationPatch({
+                value: resolveDefaultTargetConcentration(recommendationInput, vialCapacityMl),
+                origin: 'recommended',
+            }),
         };
     }
     if (mode === 'target_units' && !hasPositiveDrawUnits(input.protocolUnits)) {
@@ -101,8 +119,7 @@ export function applyCalculatorModeSwitch(
         if (defaultUnits) {
             next = {
                 ...next,
-                protocolUnits: defaultUnits,
-                protocolUnitsOrigin: 'recommended',
+                ...protocolUnitsPatch({ value: defaultUnits, origin: 'recommended' }),
             };
         }
     }
@@ -115,7 +132,7 @@ export function applyProtocolAmountChange(
     protocolAmount: string,
     vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
 ): LabelModelPatch {
-    const mode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE;
+    const mode = resolveCalculatorMode(input);
     const next: LabelModelPatch = { protocolAmount };
 
     if (mode === 'standard') {
@@ -130,8 +147,7 @@ export function applyProtocolAmountChange(
             vialCapacityMl,
         );
         if (defaultUnits) {
-            next.protocolUnits = defaultUnits;
-            next.protocolUnitsOrigin = 'recommended';
+            Object.assign(next, protocolUnitsPatch({ value: defaultUnits, origin: 'recommended' }));
         }
     }
 
@@ -143,7 +159,7 @@ export function applyVialCapacityRecommendationChange(
     input: LabelModelInput,
     vialCapacityMl: number,
 ): Partial<LabelModelInput> {
-    const mode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE;
+    const mode = resolveCalculatorMode(input);
     if (mode === 'target_units') {
         const canRegenerate = !hasPositiveDrawUnits(input.protocolUnits)
             || input.protocolUnitsOrigin === 'recommended';
@@ -155,19 +171,17 @@ export function applyVialCapacityRecommendationChange(
             input.compoundAmount,
             vialCapacityMl,
         );
-        return protocolUnits ? { protocolUnits, protocolUnitsOrigin: 'recommended' } : {};
+        return protocolUnits ? protocolUnitsPatch({ value: protocolUnits, origin: 'recommended' }) : {};
     }
 
     if (mode === 'round_concentration') {
         const canRegenerate = !input.targetConcentration?.trim()
             || input.targetConcentrationOrigin === 'recommended';
         if (!canRegenerate) return {};
-        return {
-            targetConcentration: resolveDefaultTargetConcentration({
-                compoundAmount: input.compoundAmount,
-            }, vialCapacityMl),
-            targetConcentrationOrigin: 'recommended',
-        };
+        return targetConcentrationPatch({
+            value: resolveDefaultTargetConcentration({ compoundAmount: input.compoundAmount }, vialCapacityMl),
+            origin: 'recommended',
+        });
     }
 
     return {};

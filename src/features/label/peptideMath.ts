@@ -3,26 +3,26 @@ import {
     nextDrawUnitQuickPick,
     previousDrawUnitQuickPick,
 } from './drawUnitsPolicy'
-import { MCG_PER_MG, UNITS_PER_ML, protocolAmountInVialUnits } from './domain/units'
+import { MCG_PER_MG, UNITS_PER_ML, makeUnitWorld, protocolAmountInVialUnits, type UnitWorld } from './domain/units'
 
 export { MCG_PER_MG, UNITS_PER_ML } from './domain/units'
+export type { UnitWorld } from './domain/units'
 
 export interface PeptideMathInput {
-    vialAmount?: number; vialUnit: 'mg' | 'IU'; waterMl?: number;
-    targetAmount?: number; targetUnit: 'mg' | 'mcg' | 'IU';
+    vialAmount?: number; unitWorld: UnitWorld; waterMl?: number;
+    targetAmount?: number;
 }
 
 export interface PeptideReverseMathInput {
-    vialAmount?: number; vialUnit: 'mg' | 'IU'; drawUnits?: number;
-    targetAmount?: number; targetUnit: 'mg' | 'mcg' | 'IU';
+    vialAmount?: number; unitWorld: UnitWorld; drawUnits?: number;
+    targetAmount?: number;
 }
 
 export interface PeptideConcentrationSolveInput {
     vialAmount?: number;
-    vialUnit: 'mg' | 'IU';
+    unitWorld: UnitWorld;
     targetConcentration?: number;
     targetAmount?: number;
-    targetUnit: 'mg' | 'mcg' | 'IU';
 }
 
 export interface PeptideConcentrationSolveResult {
@@ -42,6 +42,17 @@ export type CalculatorSolveMode = 'standard' | 'round_concentration' | 'target_u
  * constant rather than hard-coding its own default.
  */
 export const DEFAULT_CALCULATOR_SOLVE_MODE: CalculatorSolveMode = 'target_units';
+
+/**
+ * Single source of truth for applying the mode default. Every caller that
+ * needs the current calculator mode imports this instead of inlining its
+ * own `calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE` fallback.
+ */
+export function resolveCalculatorMode(
+    input: { calculatorSolveMode?: CalculatorSolveMode },
+): CalculatorSolveMode {
+    return input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE;
+}
 
 export const DEFAULT_TARGET_CONCENTRATION = 10;
 export const DEFAULT_DRAW_UNITS_PER_MG = 10;
@@ -145,10 +156,12 @@ export function formatDefaultDrawUnitsLabel(
     compoundAmount?: string,
     vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
 ): string {
+    const resolvedVialUnit = vialUnit || 'mg';
+    const unitWorld = makeUnitWorld(resolvedVialUnit, resolveMeasureUnit(resolvedVialUnit, measureUnit));
+    if (!unitWorld) return ''; // unrepresentable: UnitWorld pairs vialUnit with measureUnit
     const units = calculateRecommendedDrawUnits(
         parseFloat(protocolAmount || '0'),
-        resolveMeasureUnit(vialUnit || 'mg', measureUnit),
-        vialUnit || 'mg',
+        unitWorld,
         parseFloat(compoundAmount || '0'),
         vialCapacityMl,
     );
@@ -212,19 +225,19 @@ export function calculateDrawVolume(input: PeptideMathInput): PeptideMathResult 
     if (!valid) return null;
     const volumeMl = getForwardVolumeMl(valid);
     const concentration = valid.vialAmount / valid.waterMl;
-    return formatResult(volumeMl, concentration, valid.vialUnit === 'IU');
+    return formatResult(volumeMl, concentration, valid.unitWorld.vialUnit === 'IU');
 }
 
 function asValidForwardInput(i: PeptideMathInput): ValidForwardInput | null {
     if (!i.vialAmount || i.vialAmount <= 0) return null;
     if (!i.waterMl || i.waterMl <= 0 || !i.targetAmount || i.targetAmount <= 0) return null;
-    if ((i.vialUnit === 'IU') !== (i.targetUnit === 'IU')) return null;
+    // unrepresentable: UnitWorld pairs vialUnit with measureUnit — no mismatch to guard here.
     return i as ValidForwardInput;
 }
 
 function getForwardVolumeMl(i: ValidForwardInput): number {
-    if (i.vialUnit === 'IU') return i.targetAmount / (i.vialAmount / i.waterMl);
-    const targetMcg = i.targetUnit === 'mg' ? i.targetAmount * MCG_PER_MG : i.targetAmount;
+    if (i.unitWorld.vialUnit === 'IU') return i.targetAmount / (i.vialAmount / i.waterMl);
+    const targetMcg = i.unitWorld.measureUnit === 'mg' ? i.targetAmount * MCG_PER_MG : i.targetAmount;
     return targetMcg / ((i.vialAmount * MCG_PER_MG) / i.waterMl);
 }
 
@@ -249,13 +262,13 @@ export function calculateReverseWater(input: PeptideReverseMathInput): number | 
 function asValidReverseInput(i: PeptideReverseMathInput): ValidReverseInput | null {
     if (!i.vialAmount || i.vialAmount <= 0) return null;
     if (!i.drawUnits || i.drawUnits <= 0 || !i.targetAmount || i.targetAmount <= 0) return null;
-    if ((i.vialUnit === 'IU') !== (i.targetUnit === 'IU')) return null;
+    // unrepresentable: UnitWorld pairs vialUnit with measureUnit — no mismatch to guard here.
     return i as ValidReverseInput;
 }
 
 function getReverseWaterMl(i: ValidReverseInput): number {
-    if (i.vialUnit === 'IU') return (i.drawUnits * i.vialAmount) / (i.targetAmount * UNITS_PER_ML);
-    const targetMcg = i.targetUnit === 'mg' ? i.targetAmount * MCG_PER_MG : i.targetAmount;
+    if (i.unitWorld.vialUnit === 'IU') return (i.drawUnits * i.vialAmount) / (i.targetAmount * UNITS_PER_ML);
+    const targetMcg = i.unitWorld.measureUnit === 'mg' ? i.targetAmount * MCG_PER_MG : i.targetAmount;
     return (i.drawUnits * (i.vialAmount * MCG_PER_MG)) / (targetMcg * UNITS_PER_ML);
 }
 
@@ -281,13 +294,12 @@ export function calculateFromTargetConcentration(
 
     const drawVolumeMl = calculateDrawVolumeFromTargetConcentration(
         valid.targetAmount,
-        valid.targetUnit,
         valid.targetConcentration,
-        valid.vialUnit,
+        valid.unitWorld,
     );
     if (drawVolumeMl == null) return null;
 
-    const isIu = valid.vialUnit === 'IU';
+    const isIu = valid.unitWorld.vialUnit === 'IU';
     return {
         waterMl,
         drawUnits: drawVolumeMl * UNITS_PER_ML,
@@ -300,17 +312,13 @@ export function calculateFromTargetConcentration(
 /** Draw volume from target concentration — target is authoritative, not back-calculated vial ÷ rounded water. */
 export function calculateDrawVolumeFromTargetConcentration(
     targetAmount: number,
-    targetUnit: 'mg' | 'mcg' | 'IU',
     targetConcentration: number,
-    vialUnit: 'mg' | 'IU',
+    unitWorld: UnitWorld,
 ): number | null {
     if (!targetAmount || targetAmount <= 0 || !targetConcentration || targetConcentration <= 0) return null;
-    if (vialUnit === 'IU') {
-        if (targetUnit !== 'IU') return null;
-        return targetAmount / targetConcentration;
-    }
-    if (targetUnit === 'IU') return null;
-    const targetMg = targetUnit === 'mg' ? targetAmount : targetAmount / MCG_PER_MG;
+    // unrepresentable: UnitWorld pairs vialUnit with measureUnit — no mismatch to guard here.
+    if (unitWorld.vialUnit === 'IU') return targetAmount / targetConcentration;
+    const targetMg = unitWorld.measureUnit === 'mg' ? targetAmount : targetAmount / MCG_PER_MG;
     return targetMg / targetConcentration;
 }
 
@@ -318,7 +326,7 @@ function asValidConcentrationSolveInput(i: PeptideConcentrationSolveInput): Vali
     if (!i.vialAmount || i.vialAmount <= 0) return null;
     if (!i.targetConcentration || i.targetConcentration <= 0) return null;
     if (!i.targetAmount || i.targetAmount <= 0) return null;
-    if ((i.vialUnit === 'IU') !== (i.targetUnit === 'IU')) return null;
+    // unrepresentable: UnitWorld pairs vialUnit with measureUnit — no mismatch to guard here.
     return i as ValidConcentrationSolveInput;
 }
 
@@ -330,17 +338,15 @@ export const DEFAULT_DRAW_UNITS_PER_IU_REDUCED = 5;
 /** Default draw units when Set Draw Volume uses 10 units per mg (or per IU). */
 export function calculateDefaultDrawUnits(
     protocolAmount: number,
-    measureUnit: 'mg' | 'mcg' | 'IU',
-    vialUnit: 'mg' | 'IU',
+    unitWorld: UnitWorld,
 ): number | null {
     if (!protocolAmount || protocolAmount <= 0) return null;
-    if (vialUnit === 'IU') {
-        if (measureUnit !== 'IU') return null;
+    // unrepresentable: UnitWorld pairs vialUnit with measureUnit — no mismatch to guard here.
+    if (unitWorld.vialUnit === 'IU') {
         const units = scaleDrawUnitsForAmount(protocolAmount, DEFAULT_DRAW_UNITS_PER_IU, DEFAULT_DRAW_UNITS_PER_IU_REDUCED);
         return units > 0 ? units : DEFAULT_DRAW_UNITS_PER_IU;
     }
-    if (measureUnit === 'IU') return null;
-    const amountMg = measureUnit === 'mg' ? protocolAmount : protocolAmount / MCG_PER_MG;
+    const amountMg = unitWorld.measureUnit === 'mg' ? protocolAmount : protocolAmount / MCG_PER_MG;
     const units = scaleDrawUnitsForAmount(amountMg, DEFAULT_DRAW_UNITS_PER_MG, DEFAULT_DRAW_UNITS_PER_MG_REDUCED);
     if (units <= 0) return DEFAULT_DRAW_UNITS_PER_MG;
     if (units < 1) return DEFAULT_DRAW_UNITS_PER_MG;
@@ -354,17 +360,15 @@ export function calculateDefaultDrawUnits(
  */
 export function calculateRecommendedDrawUnits(
     protocolAmount: number,
-    measureUnit: 'mg' | 'mcg' | 'IU',
-    vialUnit: 'mg' | 'IU',
+    unitWorld: UnitWorld,
     vialAmount?: number,
     vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
 ): number | null {
-    const standard = calculateDefaultDrawUnits(protocolAmount, measureUnit, vialUnit);
+    const standard = calculateDefaultDrawUnits(protocolAmount, unitWorld);
     if (standard == null) return null;
     if (!vialAmount || !Number.isFinite(vialAmount) || vialAmount <= 0) return standard;
 
-    const protocolInVialUnits = protocolAmountInVialUnits(protocolAmount, measureUnit, vialUnit);
-    if (protocolInVialUnits == null) return null;
+    const protocolInVialUnits = protocolAmountInVialUnits(protocolAmount, unitWorld);
 
     const minimumDrawUnits = (
         protocolInVialUnits

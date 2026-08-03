@@ -156,6 +156,23 @@ export type LabelModelInput = CompoundIdentity
   & Presentation
   & PrintVisibility
 
+/**
+ * Pairs a value with whether it should render on the label. Reading a field
+ * through one accessor keeps "should this print?" and "what prints?" in sync,
+ * so a value can never leak onto the label past a false visibility flag.
+ * `LabelModelInput` keeps the value and its `show<X>` flag as separate flat
+ * fields (for backward-compatible call sites); this is the read-side pairing.
+ */
+export interface PrintableField<T> {
+  readonly value: T | undefined
+  readonly visible: boolean
+}
+
+/** Reads a flat `value` / `show<X>` field pair (show defaults to true) into one PrintableField. */
+export function printableField<T>(value: T | undefined, showFlag: boolean | undefined): PrintableField<T> {
+  return { value, visible: showFlag !== false }
+}
+
 export type LabelFieldUpdater = <K extends keyof LabelModelInput>(
   field: K,
   value: LabelModelInput[K],

@@ -1,6 +1,6 @@
 import type { ResolvedLabelMath } from './LabelMathResolver'
 import type { LabelModelInput } from './labelModel'
-import { formatDrawVolumeLabel, parseNumericDisplayPrefix } from './labelModel'
+import { formatDrawVolumeLabel, parseNumericDisplayPrefix, printableField } from './labelModel'
 import { formatDisplayNumber, hasPositiveVialAmount } from './peptideMath'
 
 export interface LabelContent {
@@ -59,8 +59,12 @@ function formatAmount(amount: string | undefined, unit: string): string {
 function buildSourceLines(input: LabelModelInput): string[] {
   if (input.showSource === false) return []
   const lines: string[] = []
-  if (input.showVendor !== false && input.vendorName) lines.push(`Vendor: ${input.vendorName}`)
-  if (input.showGroup !== false && input.groupBuyName) lines.push(`Group: ${input.groupBuyName}`)
+  const vendor = printableField(input.vendorName, input.showVendor)
+  if (vendor.visible && vendor.value) lines.push(`Vendor: ${vendor.value}`)
+  const group = printableField(input.groupBuyName, input.showGroup)
+  if (group.visible && group.value) lines.push(`Group: ${group.value}`)
+  // Batch combines two source fields (number, date) rather than one value, so it
+  // stays a direct visibility check instead of PrintableField<T>.
   if (input.showBatch !== false && (input.batchNumber || input.batchDate)) {
     const batchParts: string[] = []
     if (input.batchNumber) batchParts.push(`Lot: ${input.batchNumber}`)
@@ -73,17 +77,16 @@ function buildSourceLines(input: LabelModelInput): string[] {
 function buildProtocolLines(input: LabelModelInput): string[] {
   if (input.showProtocol === false) return []
   const lines: string[] = []
-  const units = input.showProtocolUnits !== false
-    ? formatDrawVolumeLabel(input.protocolUnits)
-    : ''
-  const amount = input.showProtocolAmount !== false
-    ? formatAmount(input.protocolAmount, input.measureUnit || 'mcg')
-    : ''
+  const unitsField = printableField(input.protocolUnits, input.showProtocolUnits)
+  const units = unitsField.visible ? formatDrawVolumeLabel(unitsField.value) : ''
+  const amountField = printableField(input.protocolAmount, input.showProtocolAmount)
+  const amount = amountField.visible ? formatAmount(amountField.value, input.measureUnit || 'mcg') : ''
 
   if (units && amount) lines.push(`${units} (${amount})`)
   else if (units || amount) lines.push(units || amount)
-  if (input.showProtocolFrequency !== false && input.protocolFrequency) {
-    lines.push(input.protocolFrequency)
+  const frequency = printableField(input.protocolFrequency, input.showProtocolFrequency)
+  if (frequency.visible && frequency.value) {
+    lines.push(frequency.value)
   }
   return lines
 }
@@ -98,17 +101,20 @@ function buildReconstitutionLines(
   const waterAmount = input.reconstitutionAmount || resolved.autoWater || ''
   const concentration = resolved.autoConcentration || input.concentration || ''
 
-  if (input.showWater !== false && (waterAmount || input.reconstitutionType)) {
+  const water = printableField(waterAmount || undefined, input.showWater)
+  if (water.visible && (water.value || input.reconstitutionType)) {
     // Calculator display uses formatWaterAmountLabel (no unit). Print path adds " ml" here.
-    const waterValue = waterAmount ? parseNumericDisplayPrefix(waterAmount) : undefined
+    const waterValue = water.value ? parseNumericDisplayPrefix(water.value) : undefined
     const waterLabel = waterValue !== undefined
       ? `${formatDisplayNumber(waterValue)} ml`
-      : (waterAmount || '').trim()
+      : (water.value || '').trim()
     lines.push(`${waterLabel} ${input.reconstitutionType || ''}`.trim())
   }
-  if (input.showConcentration !== false && concentration) lines.push(concentration)
-  if (input.showReconDate !== false && input.reconstitutionDate) {
-    lines.push(`Mixed ${formatLabelDate(input.reconstitutionDate, input.dateFormat)}`)
+  const concentrationField = printableField(concentration || undefined, input.showConcentration)
+  if (concentrationField.visible && concentrationField.value) lines.push(concentrationField.value)
+  const reconDate = printableField(input.reconstitutionDate, input.showReconDate)
+  if (reconDate.visible && reconDate.value) {
+    lines.push(`Mixed ${formatLabelDate(reconDate.value, input.dateFormat)}`)
   }
   return lines
 }

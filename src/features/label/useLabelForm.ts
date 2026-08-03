@@ -1,7 +1,7 @@
 import type { LabelFieldUpdater, LabelModelInput } from './labelModel'
 import type { CalculatorSolveMode } from './peptideMath'
+import { resolveCalculatorMode } from './peptideMath'
 import {
-    DEFAULT_CALCULATOR_SOLVE_MODE,
     applyCalculatorModeSwitch,
     applyFieldUpdates,
     applyProtocolAmountChange,
@@ -9,7 +9,9 @@ import {
     applyStandardVialAmountChange,
     applyStandardWaterChange,
     applyVialCapacityRecommendationChange,
+    protocolUnitsPatch,
     syncCalculatorModeSwitchFields,
+    targetConcentrationPatch,
     type CalculatorModeDerivedState,
 } from './calculatorModeSwitch'
 import { DEFAULT_VIAL_CAPACITY_ML } from './vialCapacity'
@@ -49,11 +51,14 @@ export function createLabelFormHandlers(
     derived?: CalculatorModeDerivedState,
     vialCapacityMl: number = DEFAULT_VIAL_CAPACITY_ML,
 ): LabelFormHandlers {
-    const mode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE;
+    const mode = resolveCalculatorMode(input);
 
     const handleVialUnitChange = (unit: string) => {
         const vialUnit = parseVialUnit(unit)
         if (vialUnit === undefined) return
+        // Repairs measureUnit to stay valid for the new vialUnit rather than
+        // guarding against the mismatch afterward — always yields a pairing
+        // makeUnitWorld would accept, so there is nothing left to reject.
         const measureUnit = vialUnit === 'IU'
             ? 'IU'
             : input.measureUnit === 'IU'
@@ -100,8 +105,9 @@ export function createLabelFormHandlers(
     };
 
     const handleTargetConcentrationChange = (v: string) => {
-        updateField('targetConcentration', v);
-        updateField('targetConcentrationOrigin', v ? 'user' : 'recommended');
+        const targetConcentration = targetConcentrationPatch({ value: v, origin: v ? 'user' : 'recommended' });
+        updateField('targetConcentration', targetConcentration.targetConcentration);
+        updateField('targetConcentrationOrigin', targetConcentration.targetConcentrationOrigin);
         updateField('reconstitutionAmount', '');
         updateField('concentration', '');
         updateField('protocolUnits', '');
@@ -109,8 +115,7 @@ export function createLabelFormHandlers(
             syncAssistModeDerivedFields(
                 {
                     ...input,
-                    targetConcentration: v,
-                    targetConcentrationOrigin: v ? 'user' : 'recommended',
+                    ...targetConcentration,
                     reconstitutionAmount: '',
                     concentration: '',
                     protocolUnits: '',
@@ -159,8 +164,9 @@ export function createLabelFormHandlers(
 
     const handleDrawVolumeChange = (v: string) => {
         if (mode === 'round_concentration') return;
-        updateField('protocolUnits', v);
-        updateField('protocolUnitsOrigin', v ? 'user' : 'recommended');
+        const protocolUnits = protocolUnitsPatch({ value: v, origin: v ? 'user' : 'recommended' });
+        updateField('protocolUnits', protocolUnits.protocolUnits);
+        updateField('protocolUnitsOrigin', protocolUnits.protocolUnitsOrigin);
         if (mode === 'target_units') {
             syncAssistModeDerivedFields(
                 { ...input, protocolUnits: v, reconstitutionAmount: '' },
