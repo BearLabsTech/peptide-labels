@@ -17,6 +17,7 @@ import {
     type SidebarSectionsDerivedState,
 } from './useSidebarSectionsViewModel'
 import { COA_FIELD_LABELS, FIELD_LABELS } from '../uiStrings'
+import { inputStyle } from './formStyles'
 
 export interface SectionProps {
     input: LabelModelInput;
@@ -34,9 +35,9 @@ export function CompoundSection({ input, updateField, handlers }: SectionProps) 
                 <div style={{ flex: 1 }}><TextInput label={FIELD_LABELS.compoundAmount} value={input.compoundAmount} onChange={handlers!.handleCompoundAmountChange} placeholder="20" /></div>
                 <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.vialUnit || 'mg'} onChange={handlers!.handleVialUnitChange} options={['mg', 'IU']} /></div>
             </div>
-            <label style={{ marginTop: 8, padding: '12px', borderRadius: '6px', backgroundColor: input.isUntested ? '#fef2f2' : '#f8fafc', border: `1px solid ${input.isUntested ? '#fee2e2' : '#e2e8f0'}`, display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+            <label style={{ marginTop: 8, padding: '12px', borderRadius: 'var(--radius-sm)', backgroundColor: input.isUntested ? 'var(--color-danger-bg)' : 'var(--color-background)', border: `1px solid ${input.isUntested ? 'var(--color-danger-border)' : 'var(--color-border)'}`, display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
                 <input type="checkbox" checked={input.isUntested || false} onChange={(event) => updateField('isUntested', event.target.checked)} style={{ marginRight: 10, cursor: 'pointer' }} />
-                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: input.isUntested ? '#991b1b' : '#475569' }}>Mark as UNTESTED (Danger Mode)</span>
+                <span style={{ fontSize: '0.85rem', fontWeight: 600, color: input.isUntested ? 'var(--color-danger-text)' : 'var(--color-text-muted)' }}>Mark as UNTESTED (Danger Mode)</span>
             </label>
         </AccordionSection>
     )
@@ -166,11 +167,7 @@ export function TestingSection({ input, updateField }: SectionProps) {
                         <select
                             value={vm.testResultFor(type)}
                             onChange={(e) => updateTestResult(updateField, type, e.target.value as TestResultStatus)}
-                            style={{
-                                width: '100%', padding: '10px 12px', border: '1px solid var(--color-border)',
-                                borderRadius: 'var(--radius-sm)', fontSize: '1rem', boxSizing: 'border-box',
-                                color: 'var(--color-text-main)', backgroundColor: 'var(--color-surface)', cursor: 'pointer',
-                            }}
+                            style={{ ...inputStyle, cursor: 'pointer' }}
                         >
                             {TEST_STATUS_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>{option.label}</option>

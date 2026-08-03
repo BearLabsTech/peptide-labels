@@ -1,12 +1,7 @@
 import { useState } from 'react'
 import type { ChangeEvent, CSSProperties, ReactNode } from 'react'
 import { readImageFileAsDataUrl } from './readImageFileAsDataUrl'
-
-const inputStyle: CSSProperties = {
-    width: '100%', padding: '10px 12px', border: '1px solid var(--color-border)',
-    borderRadius: 'var(--radius-sm)', fontSize: '1rem', boxSizing: 'border-box',
-    color: 'var(--color-text-main)', backgroundColor: 'var(--color-surface)'
-}
+import { inputStyle } from './formStyles'
 
 export interface AccordionSectionProps {
     title: string

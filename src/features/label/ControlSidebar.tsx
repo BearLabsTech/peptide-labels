@@ -67,8 +67,8 @@ export function ControlSidebar({
 }
 
 const SidebarHeader = () => (
-    <div style={{ padding: '20px 24px', borderBottom: '1px solid #e0e0e0', backgroundColor: '#fafafa' }}>
-        <h1 style={{ margin: 0, fontSize: '1.2rem', color: '#333' }}>Label Builder</h1>
-        <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: '#666' }}>Smart Layout Engine</p>
+    <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface-muted)' }}>
+        <h1 style={{ margin: 0, fontSize: '1.2rem', color: 'var(--color-text-main)' }}>Label Builder</h1>
+        <p style={{ margin: '4px 0 0 0', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>Smart Layout Engine</p>
     </div>
 )

@@ -3,17 +3,7 @@ import { DEFAULT_STOCK_ID } from '../../../print/printCatalog'
 import type { PrintSetupSelection, Printer, LabelStock } from '../../../print/types'
 import { VialCapacityControl } from './VialCapacityControl'
 import { usePrintSetupSectionViewModel } from './usePrintSetupSectionViewModel'
-
-const inputStyle = {
-  width: '100%',
-  padding: '10px 12px',
-  border: '1px solid var(--color-border)',
-  borderRadius: 'var(--radius-sm)',
-  fontSize: '1rem',
-  boxSizing: 'border-box' as const,
-  color: 'var(--color-text-main)',
-  backgroundColor: 'var(--color-surface)',
-}
+import { inputStyle } from './formStyles'
 
 export interface PrintSetupSectionProps {
   selection: PrintSetupSelection

@@ -7,10 +7,13 @@
   --color-secondary: #64748b;
   --color-danger: #ef4444;
   --color-danger-bg: #fef2f2;
+  --color-danger-border: #fee2e2;
+  --color-danger-text: #991b1b;
 
   /* --- 2. SURFACES & BACKGROUNDS --- */
   --color-background: #f1f5f9;
   --color-surface: #ffffff;
+  --color-surface-muted: #fafafa;
   --color-border: #e2e8f0;
   --color-border-focus: #cbd5e1;
 

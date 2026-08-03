@@ -46,7 +46,7 @@ export function LabelDesignerView({
     const model = composer.compose(labelInput)
 
     return (
-        <div className="app-container" style={{ height: '100%', width: '100%' }}>
+        <div className="app-container">
             <ControlSidebar
                 input={input}
                 updateField={updateField}

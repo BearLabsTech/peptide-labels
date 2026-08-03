@@ -54,7 +54,7 @@ export function VialCapacityControl({ value, onChange }: VialCapacityControlProp
             />
             <span style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>ml</span>
             {invalid && (
-                <div role="alert" style={{ flexBasis: '100%', color: '#b42318', fontSize: '0.75rem' }}>
+                <div role="alert" style={{ flexBasis: '100%', color: 'var(--color-danger)', fontSize: '0.75rem' }}>
                     Vial capacity must be at least 1 ml.
                 </div>
             )}
