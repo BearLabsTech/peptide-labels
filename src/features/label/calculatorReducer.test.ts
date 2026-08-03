@@ -255,6 +255,14 @@ describe('calculatorReducer — MeasureUnitChanged', () => {
         const next = dispatch(state, { type: 'MeasureUnitChanged', unit: 'oz' })
         expect(next).toBe(state)
     })
+
+    it('should reject a measure unit that cannot pair with the current vial unit', () => {
+        const state = manualEntryScenario()
+        expect(state.vialUnit).toBe('mg')
+        const next = dispatch(state, { type: 'MeasureUnitChanged', unit: 'IU' })
+        expect(next).toBe(state)
+        expect(next.measureUnit).toBe('mg')
+    })
 })
 
 describe('calculatorReducer — ProtocolUnitsChanged', () => {

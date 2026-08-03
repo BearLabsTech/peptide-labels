@@ -10,31 +10,6 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
-### Reducer accepts a measure unit its vial unit cannot pair with
-
-**Priority:** Medium
-**Status:** Open — found 2026-08-03 by an invariant sweep over the reducer (3,036 states, all length-2 event sequences from six starting states).
-
-**Symptom:** `calculatorReducer`'s `VialUnitChanged` case normalizes the measure unit to keep the pairing valid (`calculatorReducer.ts:60-64`), but `MeasureUnitChanged` (`:86-91`) only checks that the incoming string parses — never that it pairs with the current vial unit. So `{ vialUnit: 'mg', measureUnit: 'IU' }` is reachable at the reducer boundary, in 246 of the swept paths.
-
-`makeUnitWorld` then returns null for that pairing and every calculation bails. The dangerous part is *how* it bails:
-
-| | valid `mg`/`mg` | after `MeasureUnitChanged('IU')` |
-|---|---|---|
-| displayed water / draw / concentration | `1`, `20 units`, `10mg per ml` | **unchanged — stale values still shown** |
-| `calculateRequiredWaterMl` | `1` | **`null`** |
-| `isWaterAboveVialCapacity` | works | **always false — warning silently off** |
-
-So the vial-capacity warning stops firing while the calculator still displays plausible numbers. The reverse pairing (`IU` vial + `mg` measure) is benign — `resolveMeasureUnit` (`peptideMath.ts:132-137`) coerces it back to `IU`.
-
-**Not currently reachable through the UI**, because the measure dropdown only offers `['mg','mcg']` for an mg vial (`useCalculatorViewModel.ts:144`). Correctness therefore rests on a view's option list rather than on the state machine — so any new surface that sets units (a preset, an imported design, a URL parameter, a quick-setup flow) would activate it.
-
-**When fixing:** mirror what `VialUnitChanged` already does. In `MeasureUnitChanged`, reject the event when `makeUnitWorld(state.vialUnit ?? 'mg', measureUnit)` is null, returning `state` unchanged — the same way the case already handles an unparseable unit. `makeUnitWorld` is the single place pairing is defined, so no second rule gets introduced.
-
-**Standard:** CODE-QUALITY.md section B — make illegal states unrepresentable.
-
----
-
 ### Calculator state — separate authored inputs from derived values
 
 **Priority:** Medium
@@ -154,6 +129,10 @@ The last two are the important signal: this is not an isolated formatting quirk.
 ---
 
 ## Resolved
+
+### Reducer accepts a measure unit its vial unit cannot pair with
+
+**Resolved:** 2026-08-03. `MeasureUnitChanged` now rejects via `makeUnitWorld` the same way an unparseable unit is rejected. Permanent sweep in `calculatorReducer.invariants.test.ts` (4,732 length-2 transitions) pins pairing, no-NaN, and idempotence.
 
 ### Shared print module still imports label vial capacity
 

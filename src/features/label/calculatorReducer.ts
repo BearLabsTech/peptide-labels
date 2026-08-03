@@ -3,7 +3,7 @@ import type { CalculatorSolveMode } from './peptideMath'
 import { resolveCalculatorMode } from './peptideMath'
 import { resolveLabelMath } from './LabelMathResolver'
 import { DEFAULT_VIAL_CAPACITY_ML } from './vialCapacity'
-import { parseMeasureUnit, parseVialUnit } from './domain/units'
+import { makeUnitWorld, parseMeasureUnit, parseVialUnit } from './domain/units'
 import { SOLVE_STRATEGIES, type CalculatorFieldEdit, type SolveStrategy } from './domain/solveStrategy'
 
 /**
@@ -86,6 +86,9 @@ export function calculatorReducer(state: LabelModelInput, event: CalculatorEvent
         case 'MeasureUnitChanged': {
             const measureUnit = parseMeasureUnit(event.unit)
             if (measureUnit === undefined) return state
+            // Mirrors VialUnitChanged, which already keeps the pairing valid.
+            // makeUnitWorld is the single definition of which pairings exist.
+            if (!makeUnitWorld(state.vialUnit ?? 'mg', measureUnit)) return state
             const withUnit: LabelModelInput = { ...state, measureUnit }
             return applyCurrentModeFieldEdit(withUnit, { kind: 'measureUnit' }, event.vialCapacityMl ?? DEFAULT_VIAL_CAPACITY_ML)
         }
