@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { LabelLayoutEngine, processWord, type WrapState } from './LabelLayoutEngine'
-import { mmToPx } from './print/dimensions'
+import { mmToPx } from '../../print/dimensions'
 
 describe('LabelLayoutEngine', () => {
     it('should return same lines when they already fit', () => {

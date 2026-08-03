@@ -1,6 +1,6 @@
-import type { VialCapacityMl } from '../vialCapacity'
+import type { VialCapacityMl } from '../features/label/vialCapacity'
 
-export type { VialCapacityMl } from '../vialCapacity'
+export type { VialCapacityMl } from '../features/label/vialCapacity'
 
 export type LabelShape = 'rounded' | 'rectangular'
 

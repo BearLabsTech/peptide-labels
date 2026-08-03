@@ -1,6 +1,6 @@
-import { DEFAULT_DPI } from '../label/print/defaults'
-import { getPrinterById, getStockById } from '../label/print/printCatalog'
-import type { PrintTarget } from '../label/print/types'
+import { DEFAULT_DPI } from '../../print/defaults'
+import { getPrinterById, getStockById } from '../../print/printCatalog'
+import type { PrintTarget } from '../../print/types'
 import { DEFAULT_VIAL_CAPACITY_ML, normalizeVialCapacityMl } from '../label/vialCapacity'
 import type { DesignDocument, DesignStock } from './designDocument'
 

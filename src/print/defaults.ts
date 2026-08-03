@@ -1,6 +1,6 @@
 import { DEFAULT_STOCK_ID, getStockById } from './printCatalog'
 import type { PrintTarget } from './types'
-import { DEFAULT_VIAL_CAPACITY_ML } from '../vialCapacity'
+import { DEFAULT_VIAL_CAPACITY_ML } from '../features/label/vialCapacity'
 
 export const DEFAULT_DPI = 300
 

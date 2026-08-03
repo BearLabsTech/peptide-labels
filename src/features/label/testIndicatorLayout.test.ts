@@ -5,7 +5,7 @@ import {
   labelFontSizePxToMm,
   testIndicatorsStackHeightPx,
 } from './testIndicatorLayout'
-import { mmToPx } from './print/dimensions'
+import { mmToPx } from '../../print/dimensions'
 
 describe('computeTestIndicatorLayout', () => {
   const base = {

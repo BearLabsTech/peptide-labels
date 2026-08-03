@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { LabelLayoutEngine } from '../LabelLayoutEngine'
 import { MIN_FONT_SIZE_PX, MIN_TITLE_TO_BODY_FONT_RATIO } from '../labelLayoutConstants'
-import { mmToPx } from '../print/dimensions'
+import { mmToPx } from '../../../print/dimensions'
 import {
   TitleBodyFitter,
   createSectionLabelWidthConstraint,

@@ -1,6 +1,6 @@
-import { getPrinterById } from '../print/printCatalog'
-import { formatPrintTargetSummary } from '../print'
-import type { PrintTarget } from '../print/types'
+import { getPrinterById } from '../../../print/printCatalog'
+import { formatPrintTargetSummary } from '../../../print/printTargetSummary'
+import type { PrintTarget } from '../../../print/types'
 
 export interface PrintTargetBannerProps {
   printTarget: PrintTarget

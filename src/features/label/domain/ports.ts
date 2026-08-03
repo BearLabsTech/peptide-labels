@@ -1,4 +1,4 @@
-import type { ExportSpec } from '../print/types'
+import type { ExportSpec } from '../../../print/types'
 
 /**
  * Port interfaces for every I/O boundary this feature (and `customDesign`,

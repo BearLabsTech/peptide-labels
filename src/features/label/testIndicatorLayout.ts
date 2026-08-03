@@ -1,4 +1,4 @@
-import { mmToPx, pxToMm } from './print/dimensions'
+import { mmToPx, pxToMm } from '../../print/dimensions'
 
 export interface TestIndicatorLayout {
   readonly markSizePx: number

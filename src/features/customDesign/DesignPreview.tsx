@@ -1,7 +1,7 @@
 import { forwardRef, type CSSProperties } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
-import { labelStickerStyle } from '../label/print/labelSurfaceStyle'
-import type { PrintTarget } from '../label/print/types'
+import { labelStickerStyle } from '../../print/labelSurfaceStyle'
+import type { PrintTarget } from '../../print/types'
 import {
   designAssetDataUrl,
   resolveBoundText,

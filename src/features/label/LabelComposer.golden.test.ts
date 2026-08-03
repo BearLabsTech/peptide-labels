@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { LabelComposer } from './LabelComposer'
-import { resolvePrintTarget } from './print/PrintTargetResolver'
-import { buildExportSpec } from './print/exportSpec'
+import { resolvePrintTarget } from '../../print/PrintTargetResolver'
+import { buildExportSpec } from '../../print/exportSpec'
 import type { LabelModelInput } from './labelModel'
 
 /**

@@ -1,4 +1,4 @@
-import { mmToPx } from './print/dimensions'
+import { mmToPx } from '../../print/dimensions'
 import { MIN_FONT_SIZE_PX, REF_MAX_FONT_SIZE_PX } from './labelLayoutConstants'
 import { LABEL_TYPOGRAPHY } from './labelTypography'
 

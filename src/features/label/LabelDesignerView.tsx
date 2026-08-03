@@ -4,7 +4,7 @@ import type { LabelFieldUpdater, LabelModelInput } from './labelModel'
 import { ControlSidebar } from './ControlSidebar'
 import { LabelStage } from './LabelStage'
 import { DEFAULT_CALCULATOR_SOLVE_MODE } from './peptideMath'
-import type { PrintSetupSelection, PrintTarget } from './print/types'
+import type { PrintSetupSelection, PrintTarget } from '../../print/types'
 import exampleLogoUrl from '../../assets/bear-labs-logo.png'
 
 function getTodayDateString(): string {

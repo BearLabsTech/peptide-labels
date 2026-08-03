@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { LabelPreview } from './LabelPreview'
 import type { LabelRenderModel } from './LabelComposer'
-import type { PrintTarget } from './print/types'
+import type { PrintTarget } from '../../print/types'
 import { PrintTargetBanner } from './components/PrintTargetBanner'
 import { exportLabelPng } from './labelExport'
 

@@ -26,9 +26,9 @@ import { ChipSelect } from './components/ChipSelect'
 import { CompactUnitSelect } from './components/CompactUnitSelect'
 import {
     parseSyringeCapacityMl,
-    SyringeAssist,
     type SyringeCapacityMl,
 } from './syringe'
+import { SyringeAssist } from './syringe/SyringeAssist'
 import { hasPositiveCompoundAmount, resolveCalculatorMode } from './peptideMath'
 import { VialCapacityControl } from './components/VialCapacityControl'
 import { VialCapacityWarning } from './components/VialCapacityWarning'

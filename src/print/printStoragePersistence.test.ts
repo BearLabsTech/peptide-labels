@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { installMemoryLocalStorage } from '../../../test/memoryLocalStorage'
+import { installMemoryLocalStorage } from '../test/memoryLocalStorage'
 import {
     clearPrintSetup,
     loadPrintSetup,

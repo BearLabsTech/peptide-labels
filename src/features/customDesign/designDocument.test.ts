@@ -3,12 +3,11 @@ import {
   DESIGN_DOCUMENT_SCHEMA_VERSION,
   DEFAULT_DESIGN_VISIBILITY,
   isBuiltInSlotKey,
-  parseDesignDocument,
-  serializeDesignDocument,
-  validateDesignDocument,
-  SAMPLE_MITOCHONDRIA_DESIGN,
-} from './index'
+} from './designDocument'
 import type { DesignDocument } from './designDocument'
+import { parseDesignDocument, serializeDesignDocument } from './designDocumentCodec'
+import { validateDesignDocument } from './validateDesignDocument'
+import { SAMPLE_MITOCHONDRIA_DESIGN } from './fixtures/sampleMitochondriaDesign'
 
 /** Deeply mutable clone for constructing invalid fixtures; production types stay readonly. */
 type DeepWritable<T> = T extends readonly (infer U)[]

@@ -1,8 +1,8 @@
 import { IDENTITY_HEADER_TITLE_BAND_GAP_FRAC } from './labelLayoutConstants'
 import { LABEL_TYPOGRAPHY } from './labelTypography'
 import { testIndicatorsStackHeightPx, type TestIndicatorLayout } from './testIndicatorLayout'
-import { mmToPx } from './print/dimensions'
-import type { PrintTarget } from './print/types'
+import { mmToPx } from '../../print/dimensions'
+import type { PrintTarget } from '../../print/types'
 
 /**
  * Narrow input for QR sizing — only the counts and geometry fields that affect size.

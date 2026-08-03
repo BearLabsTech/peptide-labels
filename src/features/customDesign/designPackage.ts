@@ -1,5 +1,9 @@
+import type { FileDownloader } from '../label/domain/ports'
+import { BrowserFileDownloader } from '../../platform/BrowserFileDownloader'
 import type { DesignDocument } from './designDocument'
 import { validateDesignDocument, type DesignDocumentValidationIssue } from './validateDesignDocument'
+
+const defaultDownloader: FileDownloader = new BrowserFileDownloader()
 
 export const PEPTIDE_DESIGN_FORMAT = 'peptide-design' as const
 export const PEPTIDE_DESIGN_FORMAT_VERSION = 1 as const
@@ -98,15 +102,13 @@ export function designPackageFilename(document: DesignDocument): string {
   return `${base || 'design'}${PEPTIDE_DESIGN_EXTENSION}`
 }
 
-export function downloadDesignPackage(designDoc: DesignDocument): void {
+export function downloadDesignPackage(
+  designDoc: DesignDocument,
+  downloader: FileDownloader = defaultDownloader,
+): void {
   const json = serializeDesignPackage(designDoc)
-  const blob = new Blob([json], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const link = globalThis.document.createElement('a')
-  link.href = url
-  link.download = designPackageFilename(designDoc)
-  link.click()
-  URL.revokeObjectURL(url)
+  const bytes = new TextEncoder().encode(json)
+  downloader.download(bytes, designPackageFilename(designDoc))
 }
 
 export async function readDesignPackageFile(file: File): Promise<ParseDesignPackageResult> {

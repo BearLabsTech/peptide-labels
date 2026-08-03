@@ -1,6 +1,6 @@
 ---
 description: Vial size ↔ label profile (3 ml today); thermal reality and print/ module
-globs: src/features/label/**/*.{ts,tsx,css},src/App.tsx,src/App.css
+globs: src/features/label/**/*.{ts,tsx,css},src/print/**/*.{ts,tsx},src/App.tsx,src/App.css
 alwaysApply: false
 ---
 
@@ -14,14 +14,14 @@ Implemented and planned vial sizes are described in [docs/FRD.md](../../docs/FRD
 
 | Vial size | Code source of truth | Notes |
 |-----------|----------------------|--------|
-| **3 ml** | `src/features/label/print/` (`printCatalog.ts` recommendations) | Default skip target **40 × 20 mm rounded @ 300 DPI**; vial soft-ranks stock suggestions. |
+| **3 ml** | `src/print/` (`printCatalog.ts` recommendations) | Default skip target **40 × 20 mm rounded @ 300 DPI**; vial soft-ranks stock suggestions. |
 | **10 ml** | Not implemented | See FRD **Planned**; add catalog recommendation rows when built. |
 
 When the user has not named a vial size, follow **`label-work-clarify-vial-size.mdc`** before changing label-related behavior.
 
 ## Mental model
 
-- **`src/features/label/print/`** is canonical for mm, DPI, export pixels, catalog, and filtering. **`dimensions.ts`** is the only mm→px conversion.
+- **`src/print/`** is canonical for mm, DPI, export pixels, catalog, and filtering. **`dimensions.ts`** is the only mm→px conversion.
 - **`PrintTarget`** flows through layout (`LabelLayoutEngine`), preview (`Scaling`, `LabelPreview`), and export (`buildExportSpec`, `LabelStage`).
 - Skip default: **40 × 20 mm rounded @ 300 DPI**; **label stock** (shape + per-stock padding) drives preview layout. **Printer selection** sets export DPI when chosen (e.g. B21 @ 203, M2 @ 300).
 - PNG/export constraints: **`thermal-print-output.mdc`**.

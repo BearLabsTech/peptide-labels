@@ -7,6 +7,3 @@ export {
     syringeMaxUnits,
     type SyringeCapacityMl,
 } from './syringeCapacity'
-export { SyringeAssist } from './SyringeAssist'
-export { DrawUnitsSyringe } from './DrawUnitsSyringe'
-export { SyringeCapacityControl } from './SyringeCapacityControl'

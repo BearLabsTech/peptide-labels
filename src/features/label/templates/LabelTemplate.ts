@@ -2,7 +2,7 @@ import type { LabelModelInput, LabelLayoutMode } from '../labelModel'
 import type { ResolvedLabelMath } from '../domain/labelMathCore'
 import type { LabelRenderModel } from '../labelRenderModel'
 import type { LabelLayoutEngine } from '../LabelLayoutEngine'
-import type { PrintTarget } from '../print/types'
+import type { PrintTarget } from '../../../print/types'
 import { IdentityHeaderTemplate } from './IdentityHeaderTemplate'
 
 /**

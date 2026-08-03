@@ -1,16 +1,20 @@
 import { USER_AGREEMENT_VERSION } from '../../content/userAgreementVersion'
+import type { KeyValueStore } from '../label/domain/ports'
+import { LocalStorageKeyValueStore } from '../../platform/LocalStorageKeyValueStore'
 
 const STORAGE_KEY = 'peptide-labels.user-agreement'
+const defaultStore: KeyValueStore = new LocalStorageKeyValueStore()
 
 export interface AgreementAcknowledgment {
     readonly version: number
     readonly acknowledgedAt: string
 }
 
-export function readAgreementAcknowledgment(): AgreementAcknowledgment | null {
-    if (typeof localStorage === 'undefined') return null
+export function readAgreementAcknowledgment(
+    store: KeyValueStore = defaultStore,
+): AgreementAcknowledgment | null {
     try {
-        const raw = localStorage.getItem(STORAGE_KEY)
+        const raw = store.get(STORAGE_KEY)
         if (!raw) return null
         const parsed = JSON.parse(raw) as Partial<AgreementAcknowledgment>
         if (typeof parsed.version !== 'number' || typeof parsed.acknowledgedAt !== 'string') {
@@ -22,34 +26,25 @@ export function readAgreementAcknowledgment(): AgreementAcknowledgment | null {
     }
 }
 
-export function hasCurrentAgreementAcknowledgment(): boolean {
-    const stored = readAgreementAcknowledgment()
+export function hasCurrentAgreementAcknowledgment(
+    store: KeyValueStore = defaultStore,
+): boolean {
+    const stored = readAgreementAcknowledgment(store)
     return stored?.version === USER_AGREEMENT_VERSION
 }
 
 export function persistAgreementAcknowledgment(
     now: () => Date = () => new Date(),
+    store: KeyValueStore = defaultStore,
 ): AgreementAcknowledgment {
     const record: AgreementAcknowledgment = {
         version: USER_AGREEMENT_VERSION,
         acknowledgedAt: now().toISOString(),
     }
-    if (typeof localStorage !== 'undefined') {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(record))
-        } catch {
-            // Acknowledgment still applies to the current session.
-        }
-    }
+    store.set(STORAGE_KEY, JSON.stringify(record))
     return record
 }
 
-export function clearAgreementAcknowledgment(): void {
-    if (typeof localStorage !== 'undefined') {
-        try {
-            localStorage.removeItem(STORAGE_KEY)
-        } catch {
-            // Clearing storage is best-effort in restricted contexts.
-        }
-    }
+export function clearAgreementAcknowledgment(store: KeyValueStore = defaultStore): void {
+    store.remove(STORAGE_KEY)
 }

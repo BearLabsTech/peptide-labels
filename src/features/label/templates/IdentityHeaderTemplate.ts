@@ -28,7 +28,7 @@ import {
   IDENTITY_HEADER_TITLE_BAND_GAP_FRAC,
   DANGER_BODY_FONT_SCALE,
 } from '../labelLayoutConstants'
-import { mmToPx, pxToMm } from '../print/dimensions'
+import { mmToPx, pxToMm } from '../../../print/dimensions'
 import type { LabelTemplate, LabelTemplateDeps } from './LabelTemplate'
 import { TitleBodyFitter } from './TitleBodyFitter'
 import {

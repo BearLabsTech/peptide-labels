@@ -23,8 +23,9 @@ State: each layer has one job and a fixed dependency direction. For this codebas
 |---|---|---|
 | Domain (`peptideMath.ts`, `LabelMathResolver.ts`, value objects) | Math and business rules | Nothing else in the app |
 | Composition (`LabelComposer.ts`, `LabelLayoutEngine.ts`) | Turn domain output into a render plan | Domain |
-| App / use cases (`src/app` once Phase 4 lands) | Orchestrate I/O through ports | Domain, composition, ports |
-| Infrastructure / adapters (`src/platform` once Phase 4 lands) | Implement ports against real browser APIs | Nothing above it — it is called, it does not call up |
+| App / use cases (`src/app`) | Orchestrate I/O through ports | Domain, composition, ports, print |
+| Infrastructure / adapters (`src/platform`) | Implement ports against real browser APIs | Ports and pure print utilities — it is called, it does not call up into UI |
+| Shared print (`src/print`) | Dimensions, catalog, export spec, print storage helpers | Label vial-capacity helpers (temporary until vial capacity is fully shared) |
 | UI (`.tsx` components) | Render a view model and dispatch events | App, view models — never domain math or browser APIs directly |
 
 The direction is one-way: UI depends on app depends on domain; nothing domain-level imports React, the DOM, or a browser API. See `domain-label-architecture.mdc` for the enforced version of this table.
@@ -58,7 +59,7 @@ State plainly which Gang of Four patterns are in deliberate use, and which are d
 - **Strategy** — calculator solve modes (`SolveStrategy`, Phase 2) and label templates (`LabelTemplate`, Phase 3). Each variant is genuinely interchangeable behind one interface.
 - **Builder** — test data construction (`LabelInputBuilder`) and label render-model assembly (`LabelRenderModelBuilder`, Phase 3). Multi-step construction with sensible defaults.
 - **Facade** — use cases (`ExportLabelUseCase`, Phase 4) hide multi-step orchestration (compose, render, encode, download) behind one call.
-- **Adapter** — `src/platform` wraps browser APIs (storage, canvas, file download) behind the app's own port interfaces.
+- **Adapter** — `src/platform` wraps browser APIs (storage, canvas, file download, scroll) behind the app's own port interfaces.
 - **Specification / Registry** — the element validator (Phase 6) and the solve-strategy lookup are registries of small, independently testable rules rather than one large conditional.
 - **Not adding:** Observer (React's own state model already covers this), Singleton (nothing in this app needs enforced single-instantiation; module-level constants already behave the way a singleton would without the ceremony), Visitor, Command (no undo/redo or operation queue exists to justify one).
 

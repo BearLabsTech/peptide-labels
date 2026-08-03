@@ -4,8 +4,8 @@ import { designFrameStyle } from './designFrameStyle'
 import { fontSizePtToCqw, resolveDesignFontFamily } from './designFonts'
 import { SAMPLE_MITOCHONDRIA_DESIGN } from './fixtures/sampleMitochondriaDesign'
 import { resolveDesignPrintTarget } from './resolveDesignPrintTarget'
-import { buildExportSpec } from '../label/print/exportSpec'
-import { mmToPx } from '../label/print/dimensions'
+import { buildExportSpec } from '../../print/exportSpec'
+import { mmToPx } from '../../print/dimensions'
 
 describe('resolveDesignPrintTarget', () => {
   it('should lock the sample design to its catalog stock size for export', () => {
@@ -74,7 +74,7 @@ describe('designFrameStyle and fonts', () => {
     expect(style.width).toBe('50%')
     expect(style.height).toBe('20%')
     expect(style.transform).toBe('rotate(270deg)')
-    expect(style.zIndex).toBe(3)
+    expect(style.zIndex).toBe('3')
   })
 
   it('should map curated font ids to thermal-friendly stacks', () => {

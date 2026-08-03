@@ -3,7 +3,7 @@ import { resolveLabelMath } from './LabelMathResolver'
 import { createLabelFormHandlers } from './useLabelForm'
 import { CompoundSection, SourceSection, ReconstitutionSection, ProtocolSection, MediaSection, TestingSection } from './components/SidebarSections'
 import { PrintSetupSection } from './components/PrintSetupSection'
-import type { PrintSetupSelection } from './print/types'
+import type { PrintSetupSelection } from '../../print/types'
 
 export interface ControlSidebarProps {
     input: LabelModelInput

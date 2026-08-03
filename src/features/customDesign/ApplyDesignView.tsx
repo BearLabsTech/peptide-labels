@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { exportLabelPng } from '../label/labelExport'
-import type { PrintSetupSelection } from '../label/print/types'
+import type { PrintSetupSelection } from '../../print/types'
 import { areRequiredSlotsFilled, type DesignSlotValues } from './bindDesignSlots'
 import type { DesignDocument } from './designDocument'
 import {

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { LabelComposer } from './LabelComposer'
-import { resolvePrintTarget } from './print/PrintTargetResolver'
-import { mmToPx } from './print/dimensions'
+import { resolvePrintTarget } from '../../print/PrintTargetResolver'
+import { mmToPx } from '../../print/dimensions'
 import { computeColumnLayout, computeIdentityHeaderTitleBreakout } from './labelColumnLayout'
 import { LabelLayoutEngine } from './LabelLayoutEngine'
 

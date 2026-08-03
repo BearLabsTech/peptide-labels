@@ -6,7 +6,7 @@ import {
   type LabelLayoutResult,
 } from '../LabelLayoutEngine'
 import { MIN_FONT_SIZE_PX, MIN_TITLE_TO_BODY_FONT_RATIO } from '../labelLayoutConstants'
-import { mmToPx, pxToMm } from '../print/dimensions'
+import { mmToPx, pxToMm } from '../../../print/dimensions'
 
 /** One attempt at laying out the title and boxed body together. */
 export interface FitCandidate {

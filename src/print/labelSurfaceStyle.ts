@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react'
 import type { PrintTarget } from './types'
 
 /** Container-query padding from mm so preview matches export. */
@@ -12,8 +11,8 @@ export function cornerRadiusToPercent(cornerRadiusMm: number, labelWidthMm: numb
 }
 
 /** Outer sticker shell — exact stock aspect ratio; preview mat sits outside this. */
-export function labelStickerStyle(target: PrintTarget): CSSProperties {
-  const style: CSSProperties = {
+export function labelStickerStyle(target: PrintTarget): Record<string, string> {
+  const style: Record<string, string> = {
     width: '100%',
     aspectRatio: `${target.labelWidthMm} / ${target.labelHeightMm}`,
     backgroundColor: '#ffffff',
@@ -29,16 +28,16 @@ export function labelStickerStyle(target: PrintTarget): CSSProperties {
 }
 
 /** Inner layout surface — fills sticker; padding matches stock profile. */
-export function labelContentStyle(target: PrintTarget): CSSProperties {
+export function labelContentStyle(target: PrintTarget): Record<string, string> {
   const pad = paddingMmToCqw(target.paddingMm, target.labelWidthMm)
   return {
-    ['--label-pad' as string]: pad,
+    '--label-pad': pad,
     width: '100%',
     height: '100%',
   }
 }
 
 /** @deprecated Use labelStickerStyle + labelContentStyle */
-export function labelSurfaceStyle(target: PrintTarget): CSSProperties {
+export function labelSurfaceStyle(target: PrintTarget): Record<string, string> {
   return { ...labelStickerStyle(target), ...labelContentStyle(target) }
 }

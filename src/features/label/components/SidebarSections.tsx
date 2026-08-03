@@ -12,9 +12,9 @@ import {
 } from '../calculatorModeSwitch'
 import {
     SHOW_SYRINGE_ON_DESIGNER,
-    SyringeAssist,
     parseSyringeCapacityMl,
 } from '../syringe'
+import { SyringeAssist } from '../syringe/SyringeAssist'
 import { buildQrCodes } from '../coaLinks'
 import type { LabelFieldUpdater, LabelModelInput } from '../labelModel'
 import { LOGO_COLUMN_WIDTH, QR_COLUMN_WIDTH } from '../labelLayoutConstants'

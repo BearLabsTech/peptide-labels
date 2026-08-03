@@ -1,9 +1,22 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { PrintSetupSelection } from './print/types'
-import { resolvePrintTarget } from './print/PrintTargetResolver'
-import { loadPrintSetup, normalizePrintSetup, savePrintSetup } from './print/printStorage'
+import type { Scroller } from './domain/ports'
+import { BrowserScroller } from '../../platform/BrowserScroller'
+import type { PrintSetupSelection } from '../../print/types'
+import { resolvePrintTarget } from '../../print/PrintTargetResolver'
+import { loadPrintSetup, normalizePrintSetup, savePrintSetup } from '../../print/printStorage'
 
-export function usePrintSetup() {
+const defaultScroller: Scroller = new BrowserScroller()
+
+/** Opens print setup and scrolls the section into view — extracted for unit tests. */
+export function openPrintSetupSection(
+  setSetupOpen: (open: boolean) => void,
+  scroller: Scroller,
+): void {
+  setSetupOpen(true)
+  scroller.scrollTo('print-setup')
+}
+
+export function usePrintSetup(scroller: Scroller = defaultScroller) {
   const [selection, setSelection] = useState<PrintSetupSelection>(() =>
     normalizePrintSetup(loadPrintSetup() ?? {}),
   )
@@ -16,11 +29,8 @@ export function usePrintSetup() {
   }, [selection])
 
   const openPrintSetup = useCallback(() => {
-    setSetupOpen(true)
-    requestAnimationFrame(() => {
-      document.getElementById('print-setup')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    })
-  }, [])
+    openPrintSetupSection(setSetupOpen, scroller)
+  }, [scroller])
 
   return {
     selection,

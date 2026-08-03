@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 import { AccordionSection, TextInput } from './FormInputs'
-import { filterCatalog } from '../print/PrintCatalogFilter'
-import { DEFAULT_STOCK_ID, getStockById } from '../print/printCatalog'
-import type { PrintSetupSelection, Printer, LabelStock } from '../print/types'
+import { filterCatalog } from '../../../print/PrintCatalogFilter'
+import { DEFAULT_STOCK_ID, getStockById } from '../../../print/printCatalog'
+import type { PrintSetupSelection, Printer, LabelStock } from '../../../print/types'
 import { VialCapacityControl } from './VialCapacityControl'
 import { normalizeVialCapacityMl } from '../vialCapacity'
-import { parsePositiveMm } from '../print/dimensions'
+import { parsePositiveMm } from '../../../print/dimensions'
 
 const inputStyle = {
   width: '100%',

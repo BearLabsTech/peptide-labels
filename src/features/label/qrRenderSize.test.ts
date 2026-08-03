@@ -7,8 +7,8 @@ import {
   testQrGapPx,
   type QrRenderSizeInput,
 } from './qrRenderSize'
-import { resolvePrintTarget } from './print/PrintTargetResolver'
-import { previewBaseWidthPx, mmToPx } from './print/dimensions'
+import { resolvePrintTarget } from '../../print/PrintTargetResolver'
+import { previewBaseWidthPx, mmToPx } from '../../print/dimensions'
 
 describe('computeQrRenderSizePx', () => {
   it('should size QR to testing column width not full label width', () => {

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { pxToCqw } from './Scaling'
-import { previewBaseWidthPx } from './print/dimensions'
-import { resolvePrintTarget } from './print/PrintTargetResolver'
+import { previewBaseWidthPx } from '../../print/dimensions'
+import { resolvePrintTarget } from '../../print/PrintTargetResolver'
 
 describe('Scaling Utilities', () => {
     const baseWidthPx = previewBaseWidthPx(resolvePrintTarget({}))
