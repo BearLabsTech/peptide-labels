@@ -40,13 +40,17 @@ describe('RoundConcentrationSolve.onFieldChanged', () => {
 
     it('regenerates the target-concentration recommendation only while it is still system-owned', () => {
         const generated: LabelModelInput = {
-            compoundAmount: '100', vialUnit: 'mg', targetConcentration: '10', targetConcentrationOrigin: 'recommended', calculatorSolveMode: 'round_concentration',
+            compoundAmount: '100', vialUnit: 'mg', recommendedTargetConcentration: '10', calculatorSolveMode: 'round_concentration',
         }
         const next = RoundConcentrationSolve.onFieldChanged(generated, { kind: 'vialCapacity' }, 3)
-        expect(next.targetConcentration).toBe('33.334')
-        expect(next.targetConcentrationOrigin).toBe('recommended')
+        expect(next.recommendedTargetConcentration).toBe('33.334')
+        expect(next.targetConcentration).toBeUndefined()
 
-        const userAuthored: LabelModelInput = { ...generated, targetConcentrationOrigin: 'user' }
+        const userAuthored: LabelModelInput = {
+            ...generated,
+            targetConcentration: '10',
+            recommendedTargetConcentration: '',
+        }
         const unchanged = RoundConcentrationSolve.onFieldChanged(userAuthored, { kind: 'vialCapacity' }, 3)
         expect(unchanged).toBe(userAuthored)
     })
@@ -61,14 +65,14 @@ describe('RoundConcentrationSolve.onFieldChanged', () => {
         expect(next.calculatorSolveMode).toBe('round_concentration')
         // No `concentration` label authored, so the recommendation falls back to
         // vial ÷ water — 20 mg over 1 ml water.
-        expect(next.targetConcentration).toBe('20')
-        expect(next.targetConcentrationOrigin).toBe('recommended')
+        expect(next.recommendedTargetConcentration).toBe('20')
+        expect(next.targetConcentration).toBeUndefined()
     })
 
     it('does not reuse a rounded generated draw concentration as a new target when entering from Set Draw Volume', () => {
         const generatedDraw: LabelModelInput = {
             compoundAmount: '100', vialUnit: 'mg', protocolAmount: '1', measureUnit: 'mg',
-            protocolUnits: '3 units', protocolUnitsOrigin: 'recommended', concentration: '33.333mg per ml',
+            recommendedProtocolUnits: '3 units', concentration: '33.333mg per ml',
             calculatorSolveMode: 'target_units',
         }
         const next = RoundConcentrationSolve.onFieldChanged(
@@ -76,8 +80,8 @@ describe('RoundConcentrationSolve.onFieldChanged', () => {
             { kind: 'mode', oldDerived: { autoUnits: '', autoWater: '', autoConcentration: '33.333mg per ml' }, outgoingWaterFollowsDrawUnits: true },
             3,
         )
-        expect(next.targetConcentration).toBe('33.334')
-        expect(next.targetConcentrationOrigin).toBe('recommended')
+        expect(next.recommendedTargetConcentration).toBe('33.334')
+        expect(next.targetConcentration).toBeUndefined()
     })
 })
 
@@ -89,8 +93,8 @@ describe('RoundConcentrationSolve.recommendDefaults', () => {
         const patch = RoundConcentrationSolve.recommendDefaults(draft, 3, 'targetConcentration')
         expect(patch.reconstitutionAmount).toBe('1.467')
         expect(patch.concentration).toBe('15mg per ml')
-        expect(patch.protocolUnits).toBe('26.667 units')
-        expect(patch.protocolUnitsOrigin).toBe('recommended')
+        expect(patch.recommendedProtocolUnits).toBe('26.667 units')
+        expect(patch.protocolUnits).toBeUndefined()
     })
 
     it('clears water/concentration when the compound amount is empty', () => {

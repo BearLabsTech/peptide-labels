@@ -5,34 +5,16 @@ import type { ResolvedLabelMath } from './domain/labelMathCore'
 
 export { DEFAULT_CALCULATOR_SOLVE_MODE } from './peptideMath'
 
-/**
- * Pairs a value with which kind of fact it is — recommended (system-generated,
- * safe to regenerate) or user (authored, must not be silently overwritten).
- * A provenance flag cannot exist without the value it describes.
- */
-export interface Provenance<T> {
-    readonly value: T
-    readonly origin: 'recommended' | 'user'
+export function recommendedProtocolUnitsPatch(
+    value: string,
+): Pick<LabelModelPatch, 'recommendedProtocolUnits'> {
+    return { recommendedProtocolUnits: value }
 }
 
-export function protocolUnitsPatch(
-    p: Provenance<string>,
-): Pick<LabelModelPatch, 'protocolUnits' | 'recommendedProtocolUnits' | 'protocolUnitsOrigin'> {
-    return p.origin === 'recommended'
-        ? { protocolUnits: p.value, recommendedProtocolUnits: p.value, protocolUnitsOrigin: p.origin }
-        : { protocolUnits: p.value, protocolUnitsOrigin: p.origin }
-}
-
-export function targetConcentrationPatch(
-    p: Provenance<string>,
-): Pick<LabelModelPatch, 'targetConcentration' | 'recommendedTargetConcentration' | 'targetConcentrationOrigin'> {
-    return p.origin === 'recommended'
-        ? {
-            targetConcentration: p.value,
-            recommendedTargetConcentration: p.value,
-            targetConcentrationOrigin: p.origin,
-        }
-        : { targetConcentration: p.value, targetConcentrationOrigin: p.origin }
+export function recommendedTargetConcentrationPatch(
+    value: string,
+): Pick<LabelModelPatch, 'recommendedTargetConcentration'> {
+    return { recommendedTargetConcentration: value }
 }
 
 export const CALCULATOR_MODE_OPTIONS = [

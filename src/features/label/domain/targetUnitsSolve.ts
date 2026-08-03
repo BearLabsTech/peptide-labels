@@ -8,7 +8,7 @@ import {
     parseNumericField,
     resolveMeasureUnit,
 } from '../peptideMath'
-import { ensureReconstitutionPrintForAssist, protocolUnitsPatch } from '../calculatorModeSwitch'
+import { ensureReconstitutionPrintForAssist, recommendedProtocolUnitsPatch } from '../calculatorModeSwitch'
 import { calcReverse, deriveGenericMath, hasCompoundAndProtocol, parseLabelMathInput, type ResolvedLabelMath } from './labelMathCore'
 import type { CalculatorFieldEdit, CalculatorFieldKind, SolveStrategy } from './solveStrategy'
 import { makeUnitWorld } from './units'
@@ -22,7 +22,7 @@ function deriveMath(draft: LabelModelInput): ResolvedLabelMath {
 function onWaterChanged(draft: LabelModelInput, value: string): LabelModelInput {
     const next: LabelModelInput = { ...draft, reconstitutionAmount: value }
     return value
-        ? { ...next, ...protocolUnitsPatch({ value: '', origin: 'recommended' }) }
+        ? { ...next, protocolUnits: '', recommendedProtocolUnits: '' }
         : next
 }
 
@@ -30,13 +30,13 @@ function onProtocolAmountChanged(draft: LabelModelInput, value: string, vialCapa
     let next: LabelModelInput = { ...draft, protocolAmount: value, reconstitutionAmount: '' }
     const defaultUnits = resolveDefaultDrawUnitsLabel(value, draft.measureUnit, draft.vialUnit, draft.compoundAmount, vialCapacityMl)
     if (defaultUnits) {
-        next = { ...next, ...protocolUnitsPatch({ value: defaultUnits, origin: 'recommended' }) }
+        next = { ...next, ...recommendedProtocolUnitsPatch(defaultUnits) }
     }
     return next
 }
 
 function onProtocolUnitsChanged(draft: LabelModelInput, value: string): LabelModelInput {
-    return { ...draft, ...protocolUnitsPatch({ value, origin: value ? 'user' : 'recommended' }) }
+    return { ...draft, protocolUnits: value, recommendedProtocolUnits: '' }
 }
 
 /**
@@ -51,12 +51,12 @@ function onProtocolUnitsChanged(draft: LabelModelInput, value: string): LabelMod
  */
 function onModeEntered(draft: LabelModelInput, vialCapacityMl: number): LabelModelInput {
     let next: LabelModelInput = { ...draft, calculatorSolveMode: DEFAULT_CALCULATOR_SOLVE_MODE }
-    if (!hasPositiveDrawUnits(draft.protocolUnits)) {
+    if (!hasPositiveDrawUnits(draft.protocolUnits) && !hasPositiveDrawUnits(draft.recommendedProtocolUnits)) {
         const defaultUnits = resolveDefaultDrawUnitsLabel(
             draft.protocolAmount, draft.measureUnit, draft.vialUnit, draft.compoundAmount, vialCapacityMl,
         )
         if (defaultUnits) {
-            next = { ...next, ...protocolUnitsPatch({ value: defaultUnits, origin: 'recommended' }) }
+            next = { ...next, ...recommendedProtocolUnitsPatch(defaultUnits) }
         }
     }
     return next
@@ -69,7 +69,7 @@ function onVialCapacityChanged(draft: LabelModelInput, vialCapacityMl: number): 
     const protocolUnits = resolveDefaultDrawUnitsLabel(
         draft.protocolAmount, draft.measureUnit, draft.vialUnit, draft.compoundAmount, vialCapacityMl,
     )
-    return protocolUnits ? { ...draft, ...protocolUnitsPatch({ value: protocolUnits, origin: 'recommended' }) } : draft
+    return protocolUnits ? { ...draft, ...recommendedProtocolUnitsPatch(protocolUnits) } : draft
 }
 
 function onFieldChanged(draft: LabelModelInput, edit: CalculatorFieldEdit, vialCapacityMl: number): LabelModelInput {
@@ -104,7 +104,7 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
             const protocolUnits = resolveDefaultDrawUnitsLabel(
                 draft.protocolAmount, draft.measureUnit, draft.vialUnit, draft.compoundAmount, vialCapacityMl,
             )
-            if (protocolUnits) Object.assign(updates, protocolUnitsPatch({ value: protocolUnits, origin: 'recommended' }))
+            if (protocolUnits) Object.assign(updates, recommendedProtocolUnitsPatch(protocolUnits))
         }
         return updates
     }
@@ -116,10 +116,16 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
         )
         const dependencyChanged = field === 'protocolAmount' || field === 'compoundAmount'
             || field === 'vialUnit' || field === 'measureUnit' || field === 'vialCapacity'
-        const shouldUpdateDraw = !hasPositiveDrawUnits(draft.protocolUnits)
-            || (dependencyChanged && draft.protocolUnitsOrigin === 'recommended')
+        const shouldUpdateDraw = (
+            !hasPositiveDrawUnits(draft.protocolUnits)
+            && !hasPositiveDrawUnits(draft.recommendedProtocolUnits)
+        )
+            || (
+                dependencyChanged
+                && (!hasPositiveDrawUnits(draft.protocolUnits) || draft.protocolUnitsOrigin === 'recommended')
+            )
         if (protocolUnits && shouldUpdateDraw) {
-            const patch = protocolUnitsPatch({ value: protocolUnits, origin: 'recommended' })
+            const patch = recommendedProtocolUnitsPatch(protocolUnits)
             Object.assign(updates, patch)
             resolvedDraft = { ...resolvedDraft, ...patch }
         }
@@ -146,7 +152,7 @@ function requiredWaterMl(input: LabelModelInput): number | null {
     return calculateReverseWater({
         compoundAmount,
         unitWorld,
-        drawUnits: parseNumericField(input.protocolUnits),
+        drawUnits: parseNumericField(input.protocolUnits || input.recommendedProtocolUnits),
         protocolAmount: parseFloat(input.protocolAmount || ''),
     })
 }

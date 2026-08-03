@@ -1,6 +1,5 @@
 import type { LabelModelInput, LabelModelPatch } from '../labelModel'
 import { parseNumericField } from '../peptideMath'
-import { protocolUnitsPatch } from '../calculatorModeSwitch'
 import { deriveGenericMath, parseLabelMathInput, type ResolvedLabelMath } from './labelMathCore'
 import type { CalculatorFieldEdit, SolveStrategy } from './solveStrategy'
 
@@ -12,7 +11,7 @@ function deriveMath(draft: LabelModelInput): ResolvedLabelMath {
  * replace concentration from vial ÷ water — never keep a prior assist label. */
 function onWaterChanged(draft: LabelModelInput, value: string): LabelModelInput {
     const unitsPatch = value
-        ? protocolUnitsPatch({ value: '', origin: 'recommended' })
+        ? { protocolUnits: '', recommendedProtocolUnits: '' }
         : { protocolUnits: draft.protocolUnits || '' }
     const protocolUnits = unitsPatch.protocolUnits ?? ''
     const concentration = deriveMath({ ...draft, reconstitutionAmount: value, protocolUnits, concentration: '' }).autoConcentration
@@ -26,7 +25,7 @@ function onCompoundAmountChanged(draft: LabelModelInput, value: string): LabelMo
 }
 
 function onProtocolUnitsChanged(draft: LabelModelInput, value: string): LabelModelInput {
-    const patch = protocolUnitsPatch({ value, origin: value ? 'user' : 'recommended' })
+    const patch = { protocolUnits: value, recommendedProtocolUnits: '' }
     const next: LabelModelInput = { ...draft, ...patch }
     return value ? { ...next, reconstitutionAmount: '' } : next
 }
@@ -45,7 +44,8 @@ function onFieldChanged(draft: LabelModelInput, edit: CalculatorFieldEdit): Labe
         case 'protocolAmount': return {
             ...draft,
             protocolAmount: edit.value,
-            ...protocolUnitsPatch({ value: '', origin: 'recommended' }),
+            protocolUnits: '',
+            recommendedProtocolUnits: '',
         }
         case 'protocolUnits': return onProtocolUnitsChanged(draft, edit.value)
         case 'mode': return onModeEntered(draft)

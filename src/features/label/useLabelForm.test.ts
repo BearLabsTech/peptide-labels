@@ -18,8 +18,7 @@ describe('createLabelFormHandlers unit transitions', () => {
             vialUnit: 'IU',
             protocolAmount: '1',
             measureUnit: 'IU',
-            protocolUnits: '10 units',
-            protocolUnitsOrigin: 'recommended',
+            recommendedProtocolUnits: '10 units',
             calculatorSolveMode: 'target_units',
         }, updateField, 3)
 
@@ -28,7 +27,7 @@ describe('createLabelFormHandlers unit transitions', () => {
         expect(updates.get('vialUnit')).toBe('mg')
         expect(updates.get('measureUnit')).toBe('mcg')
         // 1 mcg = 0.001 mg × 10 u/mg = 0.01 units; water for that draw at 10 mg compound = 1 ml.
-        expect(updates.get('protocolUnits')).toBe('0.01 units')
+        expect(updates.get('recommendedProtocolUnits')).toBe('0.01 units')
         expect(updates.get('reconstitutionAmount')).toBe('1')
     })
 
@@ -39,8 +38,7 @@ describe('createLabelFormHandlers unit transitions', () => {
             vialUnit: 'mg',
             protocolAmount: '100',
             measureUnit: 'mcg',
-            protocolUnits: '10 units',
-            protocolUnitsOrigin: 'recommended',
+            recommendedProtocolUnits: '10 units',
             calculatorSolveMode: 'target_units',
         }, updateField, 3)
 
@@ -48,7 +46,7 @@ describe('createLabelFormHandlers unit transitions', () => {
 
         expect(updates.get('vialUnit')).toBe('IU')
         expect(updates.get('measureUnit')).toBe('IU')
-        expect(updates.get('protocolUnits')).toBe('5 units')
+        expect(updates.get('recommendedProtocolUnits')).toBe('5 units')
         expect(updates.get('reconstitutionAmount')).toBe('2.5')
     })
 })

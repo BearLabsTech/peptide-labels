@@ -28,15 +28,14 @@ describe('calculatorReducer — VialUnitChanged', () => {
             vialUnit: 'IU',
             protocolAmount: '1',
             measureUnit: 'IU',
-            protocolUnits: '10 units',
-            protocolUnitsOrigin: 'recommended',
+            recommendedProtocolUnits: '10 units',
             calculatorSolveMode: 'target_units',
         }
         const next = dispatch(state, { type: 'VialUnitChanged', unit: 'mg', vialCapacityMl: 3 })
         expect(next.vialUnit).toBe('mg')
         expect(next.measureUnit).toBe('mcg')
         // 1 mcg = 0.001 mg × 10 u/mg = 0.01 units; water for that draw at 10 mg compound = 1 ml.
-        expect(next.protocolUnits).toBe('0.01 units')
+        expect(next.recommendedProtocolUnits).toBe('0.01 units')
         expect(next.reconstitutionAmount).toBe('1')
     })
 
@@ -46,14 +45,13 @@ describe('calculatorReducer — VialUnitChanged', () => {
             vialUnit: 'mg',
             protocolAmount: '100',
             measureUnit: 'mcg',
-            protocolUnits: '10 units',
-            protocolUnitsOrigin: 'recommended',
+            recommendedProtocolUnits: '10 units',
             calculatorSolveMode: 'target_units',
         }
         const next = dispatch(state, { type: 'VialUnitChanged', unit: 'IU', vialCapacityMl: 3 })
         expect(next.vialUnit).toBe('IU')
         expect(next.measureUnit).toBe('IU')
-        expect(next.protocolUnits).toBe('5 units')
+        expect(next.recommendedProtocolUnits).toBe('5 units')
         expect(next.reconstitutionAmount).toBe('2.5')
     })
 
@@ -106,8 +104,8 @@ describe('calculatorReducer — CompoundAmountChanged', () => {
         }
         const next = dispatch(state, { type: 'CompoundAmountChanged', value: '20', vialCapacityMl: 3 })
         expect(next.compoundAmount).toBe('20')
-        expect(next.protocolUnits).toBe('20 units')
-        expect(next.protocolUnitsOrigin).toBe('recommended')
+        expect(next.recommendedProtocolUnits).toBe('20 units')
+        expect(next.protocolUnits).toBe('')
         expect(next.reconstitutionAmount).toBe('2')
         expect(next.concentration).toBe('10mg per ml')
         expect(next.showReconstitution).toBe(true)
@@ -124,8 +122,8 @@ describe('calculatorReducer — CompoundAmountChanged', () => {
         expect(next.compoundAmount).toBe('')
         expect(next.reconstitutionAmount).toBe('')
         expect(next.concentration).toBe('')
-        expect(next.protocolUnits).toBe('10 units')
-        expect(next.protocolUnitsOrigin).toBe('recommended')
+        expect(next.recommendedProtocolUnits).toBe('10 units')
+        expect(next.protocolUnits).toBeUndefined()
     })
 })
 
@@ -156,7 +154,7 @@ describe('calculatorReducer — WaterChanged', () => {
         expect(next.reconstitutionAmount).toBe('2')
         expect(next.concentration).toBe('10mg per ml')
         expect(next.protocolUnits).toBe('')
-        expect(next.protocolUnitsOrigin).toBe('recommended')
+        expect(next.recommendedProtocolUnits).toBe('')
     })
 
     it('should keep the previous draw units when Manual Entry water is cleared', () => {
@@ -183,7 +181,7 @@ describe('calculatorReducer — WaterChanged', () => {
         const next = dispatch(state, { type: 'WaterChanged', value: '2' })
         expect(next.reconstitutionAmount).toBe('2')
         expect(next.protocolUnits).toBe('')
-        expect(next.protocolUnitsOrigin).toBe('recommended')
+        expect(next.recommendedProtocolUnits).toBe('')
     })
 })
 
@@ -209,7 +207,7 @@ describe('calculatorReducer — ProtocolAmountChanged', () => {
             protocolUnits: '0',
         }
         const next = dispatch(state, { type: 'ProtocolAmountChanged', value: '3' })
-        expect(next.protocolUnits).toBe('30 units')
+        expect(next.recommendedProtocolUnits).toBe('30 units')
     })
 
     it('should clear both water and draw units in Set Concentration mode', () => {
@@ -243,7 +241,6 @@ describe('calculatorReducer — MeasureUnitChanged', () => {
             protocolAmount: '500',
             measureUnit: 'mg',
             protocolUnits: '10 units',
-            protocolUnitsOrigin: 'user',
             calculatorSolveMode: 'target_units',
         }
         const next = dispatch(state, { type: 'MeasureUnitChanged', unit: 'mcg', vialCapacityMl: 3 })
@@ -289,11 +286,11 @@ describe('calculatorReducer — ProtocolUnitsChanged', () => {
         }
         const next = dispatch(state, { type: 'ProtocolUnitsChanged', value: '15 units' })
         expect(next.protocolUnits).toBe('15 units')
-        expect(next.protocolUnitsOrigin).toBe('user')
+        expect(next.recommendedProtocolUnits).toBe('')
         expect(next.reconstitutionAmount).toBe('')
     })
 
-    it('should recommend an origin of recommended when draw units are cleared in Manual Entry', () => {
+    it('should clear both draw-unit slots when draw units are cleared in Manual Entry', () => {
         const state: LabelModelInput = {
             compoundAmount: '20',
             vialUnit: 'mg',
@@ -302,7 +299,7 @@ describe('calculatorReducer — ProtocolUnitsChanged', () => {
         }
         const next = dispatch(state, { type: 'ProtocolUnitsChanged', value: '' })
         expect(next.protocolUnits).toBe('')
-        expect(next.protocolUnitsOrigin).toBe('recommended')
+        expect(next.recommendedProtocolUnits).toBe('')
         expect(next.reconstitutionAmount).toBeUndefined()
     })
 
@@ -316,7 +313,7 @@ describe('calculatorReducer — ProtocolUnitsChanged', () => {
         }
         const next = dispatch(state, { type: 'ProtocolUnitsChanged', value: '27 units', vialCapacityMl: 3 })
         expect(next.protocolUnits).toBe('27 units')
-        expect(next.protocolUnitsOrigin).toBe('user')
+        expect(next.recommendedProtocolUnits).toBe('')
         expect(next.reconstitutionAmount).toBe('1.485')
         expect(next.concentration).toBe('14.815mg per ml')
     })
@@ -326,7 +323,7 @@ describe('calculatorReducer — ModeChanged', () => {
     it('should preserve manual-entry math when switching to Set Concentration', () => {
         const manual = manualEntryScenario()
         const next = dispatch(manual, { type: 'ModeChanged', mode: 'round_concentration' })
-        expect(next.targetConcentration).toBe('20')
+        expect(next.recommendedTargetConcentration).toBe('20')
         expect(next.reconstitutionAmount).toBe('1')
         expect(next.protocolUnits).toBe('15 units')
 
@@ -371,14 +368,13 @@ describe('calculatorReducer — ModeChanged', () => {
             vialUnit: 'mg',
             protocolAmount: '1',
             measureUnit: 'mg',
-            protocolUnits: '3 units',
-            protocolUnitsOrigin: 'recommended',
+            recommendedProtocolUnits: '3 units',
             concentration: '33.333mg per ml',
             calculatorSolveMode: 'target_units',
         }
         const next = dispatch(generatedDraw, { type: 'ModeChanged', mode: 'round_concentration', vialCapacityMl: 3 })
-        expect(next.targetConcentration).toBe('33.334')
-        expect(next.targetConcentrationOrigin).toBe('recommended')
+        expect(next.recommendedTargetConcentration).toBe('33.334')
+        expect(next.targetConcentration).toBeUndefined()
     })
 })
 
@@ -394,10 +390,11 @@ describe('calculatorReducer — TargetConcentrationChanged', () => {
         }
         const next = dispatch(state, { type: 'TargetConcentrationChanged', value: '15' })
         expect(next.targetConcentration).toBe('15')
-        expect(next.targetConcentrationOrigin).toBe('user')
+        expect(next.recommendedTargetConcentration).toBe('')
         expect(next.reconstitutionAmount).toBe('')
         expect(next.concentration).toBe('')
         expect(next.protocolUnits).toBe('')
+        expect(next.recommendedProtocolUnits).toBe('')
     })
 
     it('should recompute Set Concentration results from the new target', () => {
@@ -412,10 +409,8 @@ describe('calculatorReducer — TargetConcentrationChanged', () => {
         expect(next.targetConcentration).toBe('15')
         expect(next.reconstitutionAmount).toBe('1.467')
         expect(next.concentration).toBe('15mg per ml')
-        expect(next.protocolUnits).toBe('26.667 units')
-        // Derived draw volume is system-owned even when the target was user-authored —
-        // otherwise switching to Set Draw Volume would refuse to regenerate it.
-        expect(next.protocolUnitsOrigin).toBe('recommended')
+        expect(next.recommendedProtocolUnits).toBe('26.667 units')
+        expect(next.protocolUnits).toBe('')
     })
 
     it('should regenerate a draw volume that Set Concentration derived once capacity changes in Set Draw Volume', () => {
@@ -428,24 +423,24 @@ describe('calculatorReducer — TargetConcentrationChanged', () => {
             calculatorSolveMode: 'round_concentration',
         }
         state = dispatch(state, { type: 'TargetConcentrationChanged', value: '5', vialCapacityMl: 10 })
-        expect(state.protocolUnits).toBe('40 units')
-        expect(state.protocolUnitsOrigin).toBe('recommended')
+        expect(state.recommendedProtocolUnits).toBe('40 units')
+        expect(state.protocolUnits).toBe('')
 
         state = dispatch(state, { type: 'ModeChanged', mode: 'target_units', vialCapacityMl: 10 })
-        expect(state.protocolUnits).toBe('40 units')
-        expect(state.protocolUnitsOrigin).toBe('recommended')
+        expect(state.recommendedProtocolUnits).toBe('40 units')
+        expect(state.protocolUnits).toBe('')
 
         const regenerated = dispatch(state, { type: 'VialCapacityChanged', vialCapacityMl: 3 })
-        expect(regenerated.protocolUnits).not.toBe('40 units')
-        expect(regenerated.protocolUnitsOrigin).toBe('recommended')
+        expect(regenerated.recommendedProtocolUnits).not.toBe('40 units')
+        expect(regenerated.protocolUnits).toBe('')
 
         // Opposite case: a user-typed draw in Set Draw Volume must stay put.
         const userAuthored = dispatch(
-            { ...state, protocolUnits: '40 units', protocolUnitsOrigin: 'user' },
+            { ...state, protocolUnits: '40 units', recommendedProtocolUnits: '' },
             { type: 'VialCapacityChanged', vialCapacityMl: 3 },
         )
         expect(userAuthored.protocolUnits).toBe('40 units')
-        expect(userAuthored.protocolUnitsOrigin).toBe('user')
+        expect(userAuthored.recommendedProtocolUnits).toBe('')
     })
 
     it('should regenerate a recommended target from the compound amount when cleared to empty', () => {
@@ -459,8 +454,8 @@ describe('calculatorReducer — TargetConcentrationChanged', () => {
             targetConcentration: '10',
         }
         const next = dispatch(state, { type: 'TargetConcentrationChanged', value: '' })
-        expect(next.targetConcentration).toBe('10')
-        expect(next.targetConcentrationOrigin).toBe('recommended')
+        expect(next.targetConcentration).toBe('')
+        expect(next.recommendedTargetConcentration).toBe('10')
     })
 })
 
@@ -475,36 +470,42 @@ describe('calculatorReducer — VialCapacityChanged', () => {
         const generated = highCapacityRegressionScenario()
         const asTargetUnits: LabelModelInput = {
             ...generated,
-            protocolUnits: '10 units',
-            protocolUnitsOrigin: 'recommended',
+            recommendedProtocolUnits: '10 units',
             calculatorSolveMode: 'target_units',
         }
         const next = dispatch(asTargetUnits, { type: 'VialCapacityChanged', vialCapacityMl: 3 })
-        expect(next.protocolUnits).toBe('3 units')
-        expect(next.protocolUnitsOrigin).toBe('recommended')
+        expect(next.recommendedProtocolUnits).toBe('3 units')
+        expect(next.protocolUnits).toBeUndefined()
 
-        const userAuthored: LabelModelInput = { ...asTargetUnits, protocolUnitsOrigin: 'user' }
+        const userAuthored: LabelModelInput = {
+            ...asTargetUnits,
+            protocolUnits: '10 units',
+            recommendedProtocolUnits: '',
+        }
         const unchanged = dispatch(userAuthored, { type: 'VialCapacityChanged', vialCapacityMl: 3 })
         expect(unchanged.protocolUnits).toBe(userAuthored.protocolUnits)
-        expect(unchanged.protocolUnitsOrigin).toBe('user')
+        expect(unchanged.recommendedProtocolUnits).toBe('')
     })
 
     it('should regenerate a system target concentration without changing a user target', () => {
         const generated = highCapacityRegressionScenario()
         const asRoundConcentration: LabelModelInput = {
             ...generated,
-            targetConcentration: '10',
-            targetConcentrationOrigin: 'recommended',
+            recommendedTargetConcentration: '10',
             calculatorSolveMode: 'round_concentration',
         }
         const next = dispatch(asRoundConcentration, { type: 'VialCapacityChanged', vialCapacityMl: 3 })
-        expect(next.targetConcentration).toBe('33.334')
-        expect(next.targetConcentrationOrigin).toBe('recommended')
+        expect(next.recommendedTargetConcentration).toBe('33.334')
+        expect(next.targetConcentration).toBeUndefined()
 
-        const userAuthored: LabelModelInput = { ...asRoundConcentration, targetConcentrationOrigin: 'user' }
+        const userAuthored: LabelModelInput = {
+            ...asRoundConcentration,
+            targetConcentration: '10',
+            recommendedTargetConcentration: '',
+        }
         const unchanged = dispatch(userAuthored, { type: 'VialCapacityChanged', vialCapacityMl: 3 })
         expect(unchanged.targetConcentration).toBe(userAuthored.targetConcentration)
-        expect(unchanged.targetConcentrationOrigin).toBe('user')
+        expect(unchanged.recommendedTargetConcentration).toBe('')
     })
 })
 
@@ -529,7 +530,6 @@ describe('calculatorReducer — provenance invariants', () => {
             protocolAmount: '2',
             measureUnit: 'mg',
             protocolUnits: '20 units',
-            protocolUnitsOrigin: 'user',
             calculatorSolveMode: 'standard',
         }
         for (const event of events) {

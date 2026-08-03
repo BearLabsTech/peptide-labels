@@ -55,15 +55,15 @@ describe('StandardSolve.onFieldChanged', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', reconstitutionAmount: '2', calculatorSolveMode: 'standard' }
         const next = StandardSolve.onFieldChanged(draft, { kind: 'protocolUnits', value: '15 units' }, 3)
         expect(next.protocolUnits).toBe('15 units')
-        expect(next.protocolUnitsOrigin).toBe('user')
+        expect(next.recommendedProtocolUnits).toBe('')
         expect(next.reconstitutionAmount).toBe('')
     })
 
-    it('marks draw units as recommended (origin reset) when cleared, without touching water', () => {
+    it('clears both draw-unit slots on an authored clear without touching water', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', protocolUnits: '15 units', calculatorSolveMode: 'standard' }
         const next = StandardSolve.onFieldChanged(draft, { kind: 'protocolUnits', value: '' }, 3)
         expect(next.protocolUnits).toBe('')
-        expect(next.protocolUnitsOrigin).toBe('recommended')
+        expect(next.recommendedProtocolUnits).toBe('')
         expect(next.reconstitutionAmount).toBeUndefined()
     })
 

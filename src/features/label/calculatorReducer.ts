@@ -5,7 +5,6 @@ import { resolveLabelMath } from './LabelMathResolver'
 import { DEFAULT_VIAL_CAPACITY_ML } from './vialCapacity'
 import { makeUnitWorld, parseMeasureUnit, parseVialUnit } from './domain/units'
 import { SOLVE_STRATEGIES, type CalculatorFieldEdit, type SolveStrategy } from './domain/solveStrategy'
-import { protocolUnitsPatch } from './calculatorModeSwitch'
 
 /**
  * One event per calculator input the user can change. Each variant carries
@@ -120,10 +119,11 @@ export function calculatorReducer(state: LabelModelInput, event: CalculatorEvent
             const withTarget: LabelModelInput = {
                 ...state,
                 targetConcentration: event.value,
-                targetConcentrationOrigin: event.value ? 'user' : 'recommended',
+                recommendedTargetConcentration: '',
                 reconstitutionAmount: '',
                 concentration: '',
-                ...protocolUnitsPatch({ value: '', origin: 'recommended' }),
+                protocolUnits: '',
+                recommendedProtocolUnits: '',
             }
             return applyCurrentModeFieldEdit(
                 withTarget,

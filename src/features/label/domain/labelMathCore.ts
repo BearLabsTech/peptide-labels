@@ -34,14 +34,21 @@ export interface ParsedLabelMathInput {
     mode: CalculatorSolveMode;
 }
 
-export function parseLabelMathInput(input: LabelModelInput): ParsedLabelMathInput {
+export function parseLabelMathInput(
+    input: LabelModelInput,
+    options: { readonly drawUnitsAreDerived?: boolean } = {},
+): ParsedLabelMathInput {
     const vialUnit = (input.vialUnit || 'mg') as 'mg' | 'IU';
+    const protocolUnits = options.drawUnitsAreDerived
+        ? input.recommendedProtocolUnits || input.protocolUnits
+        : input.protocolUnits || input.recommendedProtocolUnits
+    const targetConcentration = input.targetConcentration || input.recommendedTargetConcentration
     return {
         compoundAmount: parseFloat(input.compoundAmount || '0'),
         waterMl: parseFloat(input.reconstitutionAmount || '0'),
         protocolAmount: parseFloat(input.protocolAmount || '0'),
-        drawUnits: parseNumericField(input.protocolUnits),
-        targetConcentration: parseFloat(input.targetConcentration || '0'),
+        drawUnits: parseNumericField(protocolUnits),
+        targetConcentration: parseFloat(targetConcentration || '0'),
         vialUnit,
         unitWorld: makeUnitWorld(vialUnit, resolveMeasureUnit(vialUnit, input.measureUnit)),
         mode: resolveCalculatorMode(input),

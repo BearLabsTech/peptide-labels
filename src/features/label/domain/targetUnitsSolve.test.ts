@@ -22,8 +22,8 @@ describe('TargetUnitsSolve.onFieldChanged', () => {
     it('recommends 10 units instead of zero when protocol amount is entered with no compound amount yet', () => {
         const draft: LabelModelInput = { compoundAmount: '', measureUnit: 'mg', calculatorSolveMode: 'target_units' }
         const next = TargetUnitsSolve.onFieldChanged(draft, { kind: 'protocolAmount', value: '3' }, 3)
-        expect(next.protocolUnits).toBe('10 units')
-        expect(next.protocolUnitsOrigin).toBe('recommended')
+        expect(next.recommendedProtocolUnits).toBe('10 units')
+        expect(next.protocolUnits).toBeUndefined()
         expect(next.reconstitutionAmount).toBe('')
     })
 
@@ -38,19 +38,23 @@ describe('TargetUnitsSolve.onFieldChanged', () => {
         const draft: LabelModelInput = { compoundAmount: '22', vialUnit: 'mg', protocolAmount: '4', measureUnit: 'mg', calculatorSolveMode: 'target_units' }
         const next = TargetUnitsSolve.onFieldChanged(draft, { kind: 'protocolUnits', value: '27 units' }, 3)
         expect(next.protocolUnits).toBe('27 units')
-        expect(next.protocolUnitsOrigin).toBe('user')
+        expect(next.recommendedProtocolUnits).toBe('')
     })
 
     it('regenerates the draw-units recommendation only while it is still system-owned', () => {
         const generated: LabelModelInput = {
             compoundAmount: '100', vialUnit: 'mg', protocolAmount: '1', measureUnit: 'mg',
-            protocolUnits: '10 units', protocolUnitsOrigin: 'recommended', calculatorSolveMode: 'target_units',
+            recommendedProtocolUnits: '10 units', calculatorSolveMode: 'target_units',
         }
         const next = TargetUnitsSolve.onFieldChanged(generated, { kind: 'vialCapacity' }, 3)
-        expect(next.protocolUnits).toBe('3 units')
-        expect(next.protocolUnitsOrigin).toBe('recommended')
+        expect(next.recommendedProtocolUnits).toBe('3 units')
+        expect(next.protocolUnits).toBeUndefined()
 
-        const userAuthored: LabelModelInput = { ...generated, protocolUnitsOrigin: 'user' }
+        const userAuthored: LabelModelInput = {
+            ...generated,
+            protocolUnits: '10 units',
+            recommendedProtocolUnits: '',
+        }
         const unchanged = TargetUnitsSolve.onFieldChanged(userAuthored, { kind: 'vialCapacity' }, 3)
         expect(unchanged).toBe(userAuthored)
     })
@@ -63,8 +67,8 @@ describe('TargetUnitsSolve.onFieldChanged', () => {
             3,
         )
         expect(next.calculatorSolveMode).toBe('target_units')
-        expect(next.protocolUnitsOrigin).toBe('recommended')
-        expect(next.protocolUnits).toBeTruthy()
+        expect(next.recommendedProtocolUnits).toBeTruthy()
+        expect(next.protocolUnits).toBeUndefined()
     })
 })
 
@@ -74,8 +78,8 @@ describe('TargetUnitsSolve.recommendDefaults', () => {
             compoundAmount: '20', vialUnit: 'mg', protocolAmount: '2', measureUnit: 'mg', protocolUnits: '', calculatorSolveMode: 'target_units',
         }
         const patch = TargetUnitsSolve.recommendDefaults(draft, 3, 'compoundAmount')
-        expect(patch.protocolUnits).toBe('20 units')
-        expect(patch.protocolUnitsOrigin).toBe('recommended')
+        expect(patch.recommendedProtocolUnits).toBe('20 units')
+        expect(patch.protocolUnits).toBeUndefined()
         expect(patch.reconstitutionAmount).toBe('2')
         expect(patch.concentration).toBe('10mg per ml')
         expect(patch.showReconstitution).toBe(true)
@@ -86,8 +90,8 @@ describe('TargetUnitsSolve.recommendDefaults', () => {
         const patch = TargetUnitsSolve.recommendDefaults(draft, 3, 'compoundAmount')
         expect(patch.reconstitutionAmount).toBe('')
         expect(patch.concentration).toBe('')
-        expect(patch.protocolUnits).toBe('10 units')
-        expect(patch.protocolUnitsOrigin).toBe('recommended')
+        expect(patch.recommendedProtocolUnits).toBe('10 units')
+        expect(patch.protocolUnits).toBeUndefined()
     })
 
     it('is a no-op for a raw water edit — Set Draw Volume never recomputes from it', () => {

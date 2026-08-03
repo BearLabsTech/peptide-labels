@@ -6,7 +6,11 @@ import {
     calculateWaterFromTargetConcentration,
     parseNumericField,
 } from '../peptideMath'
-import { ensureReconstitutionPrintForAssist, protocolUnitsPatch, targetConcentrationPatch } from '../calculatorModeSwitch'
+import {
+    ensureReconstitutionPrintForAssist,
+    recommendedProtocolUnitsPatch,
+    recommendedTargetConcentrationPatch,
+} from '../calculatorModeSwitch'
 import {
     calcFromConcentration,
     calcWaterFromTargetConcentration,
@@ -19,7 +23,7 @@ import {
 import type { CalculatorFieldEdit, CalculatorFieldKind, SolveStrategy } from './solveStrategy'
 
 function deriveMath(draft: LabelModelInput): ResolvedLabelMath {
-    const parsed = parseLabelMathInput(draft)
+    const parsed = parseLabelMathInput(draft, { drawUnitsAreDerived: true })
     if (hasCompoundAmount(parsed) && parsed.targetConcentration > 0) {
         if (hasProtocolAmount(parsed)) return calcFromConcentration(draft, parsed)
         return calcWaterFromTargetConcentration(parsed)
@@ -32,7 +36,8 @@ function onProtocolAmountChanged(draft: LabelModelInput, value: string): LabelMo
         ...draft,
         protocolAmount: value,
         reconstitutionAmount: '',
-        ...protocolUnitsPatch({ value: '', origin: 'recommended' }),
+        protocolUnits: '',
+        recommendedProtocolUnits: '',
     }
 }
 
@@ -56,17 +61,16 @@ function onModeEntered(
     const canRecommendTarget = hasPositiveCompoundAmount(draft.compoundAmount) || Boolean(draft.concentration?.trim())
     if (!draft.targetConcentration?.trim() && canRecommendTarget) {
         const generatedDrawSource = outgoingWaterFollowsDrawUnits
-            && hasPositiveDrawUnits(draft.protocolUnits)
-            && draft.protocolUnitsOrigin === 'recommended'
+            && hasPositiveDrawUnits(draft.recommendedProtocolUnits || draft.protocolUnits)
+            && (!hasPositiveDrawUnits(draft.protocolUnits) || draft.protocolUnitsOrigin === 'recommended')
         const recommendationInput = generatedDrawSource
             ? { compoundAmount: draft.compoundAmount }
             : { ...draft, concentration: draft.concentration || oldDerived.autoConcentration }
         next = {
             ...next,
-            ...targetConcentrationPatch({
-                value: resolveDefaultTargetConcentration(recommendationInput, vialCapacityMl),
-                origin: 'recommended',
-            }),
+            ...recommendedTargetConcentrationPatch(
+                resolveDefaultTargetConcentration(recommendationInput, vialCapacityMl),
+            ),
         }
     }
     return next
@@ -78,10 +82,9 @@ function onVialCapacityChanged(draft: LabelModelInput, vialCapacityMl: number): 
     if (!canRegenerate) return draft
     return {
         ...draft,
-        ...targetConcentrationPatch({
-            value: resolveDefaultTargetConcentration({ compoundAmount: draft.compoundAmount }, vialCapacityMl),
-            origin: 'recommended',
-        }),
+        ...recommendedTargetConcentrationPatch(
+            resolveDefaultTargetConcentration({ compoundAmount: draft.compoundAmount }, vialCapacityMl),
+        ),
     }
 }
 
@@ -120,16 +123,18 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
     }
 
     let resolvedDraft = draft
-    const shouldRecommendTarget = !draft.targetConcentration?.trim()
+    const shouldRecommendTarget = (
+        !draft.targetConcentration?.trim()
+        && !draft.recommendedTargetConcentration?.trim()
+    )
         || (field === 'vialCapacity' && draft.targetConcentrationOrigin === 'recommended')
     if (shouldRecommendTarget) {
         const recommendationInput = field === 'vialCapacity'
             ? { ...draft, concentration: '', reconstitutionAmount: '' }
             : draft
-        const targetConcentration = targetConcentrationPatch({
-            value: resolveDefaultTargetConcentration(recommendationInput, vialCapacityMl),
-            origin: 'recommended',
-        })
+        const targetConcentration = recommendedTargetConcentrationPatch(
+            resolveDefaultTargetConcentration(recommendationInput, vialCapacityMl),
+        )
         Object.assign(updates, targetConcentration)
         resolvedDraft = { ...draft, ...targetConcentration }
     }
@@ -140,10 +145,7 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
     Object.assign(updates, ensureReconstitutionPrintForAssist(resolved, resolvedDraft))
 
     if (resolved.autoUnits) {
-        Object.assign(updates, protocolUnitsPatch({
-            value: resolved.autoUnits,
-            origin: 'recommended',
-        }))
+        Object.assign(updates, recommendedProtocolUnitsPatch(resolved.autoUnits))
     }
     return updates
 }
@@ -151,7 +153,10 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
 function requiredWaterMl(input: LabelModelInput): number | null {
     const compoundAmount = parseFloat(input.compoundAmount || '')
     if (!(compoundAmount > 0)) return null
-    return calculateWaterFromTargetConcentration(compoundAmount, parseNumericField(input.targetConcentration))
+    return calculateWaterFromTargetConcentration(
+        compoundAmount,
+        parseNumericField(input.targetConcentration || input.recommendedTargetConcentration),
+    )
 }
 
 export const RoundConcentrationSolve: SolveStrategy = {
