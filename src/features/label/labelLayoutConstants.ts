@@ -16,12 +16,6 @@ export const MIN_TITLE_TO_BODY_FONT_RATIO = 1.35
 /** Minimum font size for title/body search loops (export pixels). */
 export const MIN_FONT_SIZE_PX = 8
 
-/**
- * Bold uppercase title line-height as a fraction of font size
- * (matches `.label-preview-title` in LabelPreview.css). Distinct from glyph-width 0.95.
- */
-export const TITLE_LINE_HEIGHT_EM = 0.95
-
 /** Gap between title band and main row in identity-header layout (`.label-preview-container--identity-header`). */
 export const IDENTITY_HEADER_TITLE_BAND_GAP_FRAC = 0.75
 

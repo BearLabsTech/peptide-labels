@@ -21,17 +21,6 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 
 ---
 
-### Preview fitting metrics — duplicated between TypeScript and CSS
-
-**Priority:** Medium
-**Status:** Open
-
-**Symptom:** Font ratios, line height, border width, and section spacing used by `LabelLayoutEngine.ts` are mirrored in `LabelPreview.tsx` and `LabelPreview.css`. A visual-only CSS edit can make fit prediction disagree with preview/export.
-
-**When fixing:** Define shared numerical typography metrics and expose the render-side values through CSS custom properties. Add an integration assertion around the smallest supported stock.
-
----
-
 ### Print catalog compatibility — two relation sources
 
 **Priority:** Low
@@ -88,6 +77,10 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 ---
 
 ## Resolved
+
+### Preview fitting metrics — duplicated between TypeScript and CSS
+
+**Resolved:** 2026-08-02 (Phase 3 action 3.5). All seven mirrored metrics (section-label/content font ratios, content line-height, box border width, box vertical padding, box gap, title line-height) now live in one `LABEL_TYPOGRAPHY` object in `labelTypography.ts`. `LabelLayoutEngine.ts` and `qrRenderSize.ts` compute from it directly; `LabelPreview.tsx` emits it onto the label container as CSS custom properties (`labelTypographyCssVars`, using the `cssVars` helper); `LabelPreview.css` consumes `var(--label-section-label-em)` and equivalents instead of hardcoded literals. `labelTypography.test.ts` asserts every emitted custom property's value and unit match the constant it mirrors. The box's 0.8cqw horizontal padding stays a plain CSS literal — the engine only ever modeled the vertical padding for its height estimate, so no matching constant was invented for it.
 
 ### Label render model — incomplete layout plan
 

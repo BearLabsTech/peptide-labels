@@ -1,5 +1,6 @@
 import { mmToPx } from './print/dimensions'
-import { MIN_FONT_SIZE_PX, REF_MAX_FONT_SIZE_PX, TITLE_LINE_HEIGHT_EM } from './labelLayoutConstants'
+import { MIN_FONT_SIZE_PX, REF_MAX_FONT_SIZE_PX } from './labelLayoutConstants'
+import { LABEL_TYPOGRAPHY } from './labelTypography'
 
 export interface LabelLayoutInput {
     readonly lines: readonly string[]
@@ -34,14 +35,7 @@ export interface WrapState {
     readonly didChopWord: boolean
 }
 
-/** Matches `LabelPreview.css` boxed section chrome (2px top + bottom). */
-const BOX_BORDER_PX = 4
-const SECTION_LABEL_EM = 0.55
-const CONTENT_EM = 0.82
-const CONTENT_LINE_HEIGHT = 1.25
 const SECTION_LABEL_MARGIN_PX = 2
-const BOX_PAD_CQW = 0.5
-const BOX_GAP_CQW = 0.5
 /** Longest section header on label (matches preview DOM). */
 const LONGEST_SECTION_LABEL = 'RECONSTITUTION'
 const SECTION_LABEL_CHAR_WIDTH_EM = 0.68
@@ -93,17 +87,17 @@ export class LabelLayoutEngine {
 
     public sectionLabelsFitBoxWidth(widthMm: number, bodyFontPx: number): boolean {
         const innerPx = mmToPx(widthMm, this.dpi) * BOX_INNER_WIDTH_FRAC
-        const labelFontPx = bodyFontPx * SECTION_LABEL_EM
+        const labelFontPx = bodyFontPx * LABEL_TYPOGRAPHY.sectionLabelEm
         const labelWidthPx = LONGEST_SECTION_LABEL.length * labelFontPx * SECTION_LABEL_CHAR_WIDTH_EM
         return labelWidthPx <= innerPx
     }
 
     public estimateTitleHeightPx(lineCount: number, fontSizePx: number): number {
-        return lineCount * fontSizePx * TITLE_LINE_HEIGHT_EM
+        return lineCount * fontSizePx * LABEL_TYPOGRAPHY.titleLineHeightEm
     }
 
     private flattenBoxLines(input: BoxedBodyLayoutInput, bodyFontPx: number): string[] {
-        const contentFontPx = bodyFontPx * CONTENT_EM
+        const contentFontPx = bodyFontPx * LABEL_TYPOGRAPHY.contentEm
         const maxChars = this.estimateMaxCharsPerLine(input.widthMm, contentFontPx)
         const lines: string[] = []
         if (input.demotedLine) lines.push(input.demotedLine)
@@ -123,11 +117,12 @@ export class LabelLayoutEngine {
 
     public estimateBoxedBodyHeightPx(input: BoxedBodyLayoutInput, bodyFontPx: number): number {
         const cqw = (pct: number) => input.labelWidthPx * (pct / 100)
-        const boxPadPx = cqw(BOX_PAD_CQW) * 2
-        const boxGapPx = cqw(BOX_GAP_CQW)
-        const contentFontPx = bodyFontPx * CONTENT_EM
-        const contentLinePx = contentFontPx * CONTENT_LINE_HEIGHT
-        const sectionLabelPx = bodyFontPx * SECTION_LABEL_EM * SECTION_LABEL_LINE_HEIGHT + SECTION_LABEL_MARGIN_PX
+        const boxPadPx = cqw(LABEL_TYPOGRAPHY.boxPadVerticalCqw) * 2
+        const boxGapPx = cqw(LABEL_TYPOGRAPHY.boxGapCqw)
+        const boxBorderPx = LABEL_TYPOGRAPHY.borderWidthPx * 2 // top + bottom
+        const contentFontPx = bodyFontPx * LABEL_TYPOGRAPHY.contentEm
+        const contentLinePx = contentFontPx * LABEL_TYPOGRAPHY.contentLineHeightEm
+        const sectionLabelPx = bodyFontPx * LABEL_TYPOGRAPHY.sectionLabelEm * SECTION_LABEL_LINE_HEIGHT + SECTION_LABEL_MARGIN_PX
         const maxChars = this.estimateMaxCharsPerLine(input.widthMm, contentFontPx)
 
         let totalPx = 0
@@ -141,7 +136,7 @@ export class LabelLayoutEngine {
             for (const line of box.lines) {
                 contentLines += this.wrapSingleLine(line, maxChars).lines.length
             }
-            totalPx += BOX_BORDER_PX + boxPadPx + sectionLabelPx + contentLines * contentLinePx + boxGapPx
+            totalPx += boxBorderPx + boxPadPx + sectionLabelPx + contentLines * contentLinePx + boxGapPx
         }
 
         if (input.boxes.length > 0) {

@@ -8,6 +8,7 @@ import type { PrintTarget } from './print/types'
 import { pxToCqw } from './Scaling'
 import { computeQrRenderSizePx, testQrGapPx } from './qrRenderSize'
 import { cssVars } from '../../shared/cssVars'
+import { labelTypographyCssVars } from './labelTypography'
 import './LabelPreview.css'
 
 interface LabelPreviewProps {
@@ -78,33 +79,33 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
 
         {model.reconstitutionLines.length > 0 && (
           <div className="label-preview-box" style={{ fontSize: pxToCqw(model.bodyFontSizePx, baseWidthPx) }}>
-            <div className="label-preview-section-label" style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.55, baseWidthPx) }}>
+            <div className="label-preview-section-label">
               RECONSTITUTION
             </div>
             {model.reconstitutionLines.map((l, i) => (
-              <div key={i} className="label-preview-section-text" style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.82, baseWidthPx) }}>{l}</div>
+              <div key={i} className="label-preview-section-text">{l}</div>
             ))}
           </div>
         )}
 
         {model.protocolLines.length > 0 && (
           <div className="label-preview-box" style={{ fontSize: pxToCqw(model.bodyFontSizePx, baseWidthPx) }}>
-            <div className="label-preview-section-label" style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.55, baseWidthPx) }}>
+            <div className="label-preview-section-label">
               PROTOCOL
             </div>
             {model.protocolLines.map((l, i) => (
-              <div key={i} className="label-preview-section-text" style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.82, baseWidthPx) }}>{l}</div>
+              <div key={i} className="label-preview-section-text">{l}</div>
             ))}
           </div>
         )}
 
         {model.sourceLines.length > 0 && (
           <div className="label-preview-box" style={{ fontSize: pxToCqw(model.bodyFontSizePx, baseWidthPx) }}>
-            <div className="label-preview-section-label" style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.55, baseWidthPx) }}>
+            <div className="label-preview-section-label">
               SOURCE
             </div>
             {model.sourceLines.map((l, i) => (
-              <div key={i} className="label-preview-section-text" style={{ fontSize: pxToCqw(model.bodyFontSizePx * 0.82, baseWidthPx) }}>{l}</div>
+              <div key={i} className="label-preview-section-text">{l}</div>
             ))}
           </div>
         )}
@@ -185,7 +186,7 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
       >
         <div
           className="label-preview-container label-preview-container--identity-header"
-          style={labelContentStyle(printTarget)}
+          style={{ ...labelContentStyle(printTarget), ...labelTypographyCssVars() }}
         >
           <div className="label-title-band label-title-band-row">
             {hasLogo && titleBandGutter(model.logoColumnWidthPercent)}
