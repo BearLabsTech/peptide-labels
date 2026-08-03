@@ -6,7 +6,7 @@ import {
   type LabelLayoutInput,
   type LabelLayoutResult,
 } from './LabelLayoutEngine'
-import { resolveLabelMath } from './LabelMathResolver'
+import { resolveCalculatorState } from './LabelMathResolver'
 import { buildLabelContent } from './labelContent'
 import { buildQrCodes, type QrCodeEntry } from './coaLinks'
 import { buildTestIndicators, hasTestingColumnContent, shouldShowCoaQr, type TestIndicatorEntry } from './testIndicators'
@@ -53,8 +53,7 @@ export class LabelComposer {
   }
 
   public compose(rawInput: LabelModelInput): LabelRenderModel {
-    const resolved = resolveLabelMath(rawInput);
-    const input = resolved.mergedInput;
+    const { authored: input, derived: resolved } = resolveCalculatorState(rawInput);
     const {
       title,
       demotedTitle,

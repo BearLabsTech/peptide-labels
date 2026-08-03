@@ -1,7 +1,12 @@
 import type { ResolvedLabelMath } from './LabelMathResolver'
+import {
+  displayConcentration,
+  displayDrawUnits,
+  displayWaterAmount,
+} from './calculatorModeSwitch'
 import type { LabelModelInput } from './labelModel'
 import { formatDrawVolumeLabel, parseNumericDisplayPrefix, printableField } from './labelModel'
-import { formatDisplayNumber, hasPositiveVialAmount } from './peptideMath'
+import { formatDisplayNumber, hasPositiveVialAmount, resolveCalculatorMode } from './peptideMath'
 
 export interface LabelContent {
   readonly title: string
@@ -21,7 +26,7 @@ export function buildLabelContent(
     demotedTitle,
     sourceLines: buildSourceLines(input),
     reconstitutionLines: buildReconstitutionLines(input, resolved),
-    protocolLines: buildProtocolLines(input),
+    protocolLines: buildProtocolLines(input, resolved),
   }
 }
 
@@ -74,10 +79,16 @@ function buildSourceLines(input: LabelModelInput): string[] {
   return lines
 }
 
-function buildProtocolLines(input: LabelModelInput): string[] {
+function buildProtocolLines(input: LabelModelInput, resolved: ResolvedLabelMath): string[] {
   if (input.showProtocol === false) return []
   const lines: string[] = []
-  const unitsField = printableField(input.protocolUnits, input.showProtocolUnits)
+  const mode = resolveCalculatorMode(input)
+  // Prefer derived draw units the same way the calculator UI does — never rely on
+  // a write-back merge of autoUnits into authored protocolUnits.
+  const unitsField = printableField(
+    displayDrawUnits(mode, input, resolved) || undefined,
+    input.showProtocolUnits,
+  )
   const units = unitsField.visible ? formatDrawVolumeLabel(unitsField.value) : ''
   const amountField = printableField(input.protocolAmount, input.showProtocolAmount)
   const amount = amountField.visible ? formatAmount(amountField.value, input.measureUnit || 'mcg') : ''
@@ -98,8 +109,10 @@ function buildReconstitutionLines(
   if (input.showReconstitution === false) return []
   if (!hasPositiveVialAmount(input.compoundAmount)) return []
   const lines: string[] = []
-  const waterAmount = input.reconstitutionAmount || resolved.autoWater || ''
-  const concentration = resolved.autoConcentration || input.concentration || ''
+  const mode = resolveCalculatorMode(input)
+  // Same preference order as calculator display helpers — authored and derived stay separate.
+  const waterAmount = displayWaterAmount(mode, input, resolved)
+  const concentration = displayConcentration(input, resolved)
 
   const water = printableField(waterAmount || undefined, input.showWater)
   if (water.visible && (water.value || input.reconstitutionType)) {

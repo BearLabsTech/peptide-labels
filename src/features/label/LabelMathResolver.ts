@@ -15,11 +15,30 @@ import {
 } from './peptideMath'
 import { makeUnitWorld, type UnitWorld } from './domain/units'
 
+/**
+ * User-entered (and form-synced) calculator/label fields.
+ * Derived math never writes back into this object.
+ */
+export type AuthoredInputs = LabelModelInput
+
+/** Derived calculator outputs — recomputed from authored inputs, never merged back. */
 export interface ResolvedLabelMath {
-    readonly mergedInput: LabelModelInput;
     readonly autoUnits: string;
     readonly autoWater: string;
     readonly autoConcentration: string;
+}
+
+/**
+ * Authored inputs paired with one fresh derived math result.
+ * Downstream code reads each half separately; there is no merged write-back model.
+ */
+export interface CalculatorState {
+    readonly authored: AuthoredInputs;
+    readonly derived: ResolvedLabelMath;
+}
+
+export function resolveCalculatorState(authored: AuthoredInputs): CalculatorState {
+    return { authored, derived: resolveLabelMath(authored) };
 }
 
 interface ParsedLabelMathInput {
@@ -39,25 +58,24 @@ export function resolveLabelMath(input: LabelModelInput): ResolvedLabelMath {
 
     if (parsed.mode === 'round_concentration' && hasVialAmount(parsed) && parsed.targetConcentration > 0) {
         if (hasProtocolAmount(parsed)) return calcFromConcentration(input, parsed);
-        return calcWaterFromTargetConcentration(input, parsed);
+        return calcWaterFromTargetConcentration(parsed);
     }
     if (parsed.mode === 'target_units' && hasVialAndProtocol(parsed) && parsed.drawUnits > 0) {
-        return calcReverse(input, parsed);
+        return calcReverse(parsed);
     }
     if (parsed.waterMl > 0 && hasVialAndProtocol(parsed)) {
-        return calcForward(input, parsed);
+        return calcForward(parsed);
     }
     if (hasVialAndProtocol(parsed) && parsed.drawUnits > 0) {
-        return calcReverse(input, parsed);
+        return calcReverse(parsed);
     }
 
-    const autoConcentration = concentrationFromVialWater(parsed);
-    return buildResult(input, {
+    // Manual Entry: vial ÷ water is authoritative — consumers prefer autoConcentration
+    // over any stale authored concentration (see displayConcentration).
+    return buildResult({
         autoUnits: '',
         autoWater: '',
-        autoConcentration,
-        // Manual Entry: vial ÷ water is authoritative — never keep a stale stored concentration.
-        mergedPatch: autoConcentration ? { concentration: autoConcentration } : {},
+        autoConcentration: concentrationFromVialWater(parsed),
     });
 }
 
@@ -93,127 +111,93 @@ function concentrationFromVialWater(parsed: ParsedLabelMathInput): string {
     return formatConcentrationLabel(parsed.vialAmount / parsed.waterMl, parsed.vialUnit);
 }
 
-function buildResult(
-    input: LabelModelInput,
-    fields: {
-        autoUnits: string;
-        autoWater: string;
-        autoConcentration: string;
-        mergedPatch: Partial<LabelModelInput>;
-    },
-): ResolvedLabelMath {
+function buildResult(fields: {
+    autoUnits: string;
+    autoWater: string;
+    autoConcentration: string;
+}): ResolvedLabelMath {
     return {
-        mergedInput: { ...input, ...fields.mergedPatch },
         autoUnits: fields.autoUnits,
         autoWater: fields.autoWater,
         autoConcentration: fields.autoConcentration,
     };
 }
 
-function calcForward(input: LabelModelInput, parsed: ParsedLabelMathInput): ResolvedLabelMath {
+function calcForward(parsed: ParsedLabelMathInput): ResolvedLabelMath {
     // unrepresentable: UnitWorld pairs vialUnit with measureUnit — a null world here
     // is the same "invalid input" case as any other, so it takes the same fallback.
-    if (!parsed.unitWorld) return defaultState(input);
+    if (!parsed.unitWorld) return defaultState();
     const result = calculateDrawVolume({
         vialAmount: parsed.vialAmount,
         unitWorld: parsed.unitWorld,
         waterMl: parsed.waterMl,
         targetAmount: parsed.protocolAmount,
     });
-    if (!result) return defaultState(input);
+    if (!result) return defaultState();
 
-    const autoUnits = formatDrawUnitsLabel(result.drawUnits);
-    const autoConcentration = concentrationFromVialWater(parsed);
-
-    return buildResult(input, {
-        autoUnits,
+    // Manual Entry: vial ÷ water is authoritative — consumers prefer autoConcentration
+    // over any stale authored concentration (see displayConcentration).
+    return buildResult({
+        autoUnits: formatDrawUnitsLabel(result.drawUnits),
         autoWater: '',
-        autoConcentration,
-        mergedPatch: {
-            protocolUnits: input.protocolUnits || autoUnits,
-            // Manual Entry: vial ÷ water is authoritative — never keep a stale stored concentration.
-            concentration: autoConcentration,
-        },
+        autoConcentration: concentrationFromVialWater(parsed),
     });
 }
 
-function calcReverse(input: LabelModelInput, parsed: ParsedLabelMathInput): ResolvedLabelMath {
+function calcReverse(parsed: ParsedLabelMathInput): ResolvedLabelMath {
     // unrepresentable: UnitWorld pairs vialUnit with measureUnit — a null world here
     // is the same "invalid input" case as any other, so it takes the same fallback.
-    if (!parsed.unitWorld) return defaultState(input);
+    if (!parsed.unitWorld) return defaultState();
     const exactWaterMl = calculateReverseWater({
         vialAmount: parsed.vialAmount,
         unitWorld: parsed.unitWorld,
         drawUnits: parsed.drawUnits,
         targetAmount: parsed.protocolAmount,
     });
-    if (exactWaterMl == null) return defaultState(input);
+    if (exactWaterMl == null) return defaultState();
 
     // Concentration from exact water — never from a display-rounded water string.
-    const autoWater = formatWaterAmountLabel(exactWaterMl);
-    const autoUnits = formatDrawUnitsLabel(parsed.drawUnits);
-    const autoConcentration = formatConcentrationLabel(parsed.vialAmount / exactWaterMl, parsed.vialUnit);
-
-    return buildResult(input, {
+    return buildResult({
         autoUnits: '',
-        autoWater,
-        autoConcentration,
-        mergedPatch: {
-            reconstitutionAmount: autoWater,
-            protocolUnits: autoUnits,
-            concentration: autoConcentration,
-        },
+        autoWater: formatWaterAmountLabel(exactWaterMl),
+        autoConcentration: formatConcentrationLabel(parsed.vialAmount / exactWaterMl, parsed.vialUnit),
     });
 }
 
-function calcWaterFromTargetConcentration(input: LabelModelInput, parsed: ParsedLabelMathInput): ResolvedLabelMath {
+function calcWaterFromTargetConcentration(parsed: ParsedLabelMathInput): ResolvedLabelMath {
     const exactWaterMl = calculateWaterFromTargetConcentration(parsed.vialAmount, parsed.targetConcentration);
-    if (exactWaterMl == null) return defaultState(input);
+    if (exactWaterMl == null) return defaultState();
 
-    const autoWater = formatWaterAmountLabel(exactWaterMl);
-    const autoConcentration = formatConcentrationLabel(parsed.targetConcentration, parsed.vialUnit);
-
-    return buildResult(input, {
+    return buildResult({
         autoUnits: '',
-        autoWater,
-        autoConcentration,
-        mergedPatch: {
-            reconstitutionAmount: autoWater,
-            concentration: autoConcentration,
-        },
+        autoWater: formatWaterAmountLabel(exactWaterMl),
+        autoConcentration: formatConcentrationLabel(parsed.targetConcentration, parsed.vialUnit),
     });
 }
 
 function calcFromConcentration(input: LabelModelInput, parsed: ParsedLabelMathInput): ResolvedLabelMath {
     // unrepresentable: UnitWorld pairs vialUnit with measureUnit — a null world here
     // is the same "invalid input" case as any other, so it takes the same fallback.
-    if (!parsed.unitWorld) return defaultState(input);
+    if (!parsed.unitWorld) return defaultState();
     const result = calculateFromTargetConcentration({
         vialAmount: parsed.vialAmount,
         unitWorld: parsed.unitWorld,
         targetConcentration: parsed.targetConcentration,
         targetAmount: parsed.protocolAmount,
     });
-    if (!result) return defaultState(input);
+    if (!result) return defaultState();
 
-    const autoWater = formatWaterAmountLabel(result.waterMl);
     const autoUnits = result.drawUnits > 0
         ? formatDrawUnitsLabel(result.drawUnits)
         : formatDefaultDrawUnitsLabel(String(parsed.protocolAmount), input.measureUnit, parsed.vialUnit);
-    const autoConcentration = formatConcentrationLabel(parsed.targetConcentration, parsed.vialUnit);
 
-    return buildResult(input, {
+    return buildResult({
         autoUnits,
-        autoWater,
-        autoConcentration,
-        mergedPatch: {
-            reconstitutionAmount: autoWater,
-            protocolUnits: autoUnits,
-            concentration: autoConcentration,
-        },
+        autoWater: formatWaterAmountLabel(result.waterMl),
+        autoConcentration: formatConcentrationLabel(parsed.targetConcentration, parsed.vialUnit),
     });
 }
 
-function defaultState(input: LabelModelInput): ResolvedLabelMath {
-    return buildResult(input, { autoUnits: '', autoWater: '', autoConcentration: '', mergedPatch: {} });
+function defaultState(): ResolvedLabelMath {
+    return buildResult({ autoUnits: '', autoWater: '', autoConcentration: '' });
 }

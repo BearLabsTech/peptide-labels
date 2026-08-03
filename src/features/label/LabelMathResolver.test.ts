@@ -7,10 +7,9 @@ import { roundConcentrationRoundingTrapScenario, roundTripDriftTrapScenario } fr
 
 /**
  * What the calculator would actually show for water/units/concentration given
- * the same input and resolver result — the user-visible boundary that replaces
- * asserting on `result.mergedInput` directly (mergedInput is an internal
- * write-back structure removed in the calculator-state refactor, see
- * docs/CODE-QUALITY.md section B, "separate authored from derived data").
+ * the same authored input and derived resolver result — the user-visible
+ * boundary (see docs/CODE-QUALITY.md section B, "separate authored from
+ * derived data").
  */
 function displayedValues(input: LabelModelInput, result: ResolvedLabelMath) {
     const mode = input.calculatorSolveMode || DEFAULT_CALCULATOR_SOLVE_MODE

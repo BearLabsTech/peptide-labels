@@ -11,11 +11,11 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 ### Calculator state — separate authored inputs from derived values
 
 **Priority:** Medium
-**Status:** Open — transition helpers and focused synchronization tests now reduce stale-state regressions; the state model still stores authored and calculated values together.
+**Status:** Partial — `CalculatorState = { authored, derived }` landed; `mergedInput` write-back is gone and label/compose paths read each half separately. Form handlers still sync derived values into the flat model via sequential `updateField` calls; the pure `calculatorReducer` (plan 2.5) and `SolveStrategy` registry (2.6) remain.
 
-**Symptom:** `LabelModelInput` persists calculator inputs, generated results, and provenance flags in one broad optional-string model. A missed event transition can leave a stale derived field that downstream resolvers must ignore or replace.
+**Symptom:** `LabelModelInput` still persists some calculator results the assist/sync path writes back. A missed event transition can leave a stale derived field that downstream code must ignore or replace via `auto*` preference.
 
-**When fixing:** Move calculator events behind one atomic reducer/transition boundary, parse strings into one typed calculation draft, and derive `ResolvedLabelMath` once per state change. Inspect `useLabelForm.ts`, `calculatorAssistSync.ts`, `calculatorModeSwitch.ts`, and `LabelMathResolver.ts`.
+**When fixing:** Move calculator events behind one atomic reducer/transition boundary so derived values are never written into authored state. Inspect `useLabelForm.ts`, `calculatorAssistSync.ts`, and `calculatorModeSwitch.ts`.
 
 ---
 

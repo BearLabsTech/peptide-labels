@@ -230,7 +230,7 @@ export function readResolvedCalculatorValues(
     return {
         water: input.reconstitutionAmount || resolved.autoWater,
         units: input.protocolUnits || resolved.autoUnits,
-        concentration: resolved.autoConcentration || input.concentration || resolved.mergedInput.concentration || '',
+        concentration: resolved.autoConcentration || input.concentration || '',
     };
 }
 
