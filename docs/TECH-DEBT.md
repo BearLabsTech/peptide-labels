@@ -23,6 +23,24 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 
 ---
 
+### Solve-mode branching still lives outside the SolveStrategy registry
+
+**Priority:** Medium
+**Status:** Open — found 2026-08-03 (Phase 8.3 plan-claims verification, finding F1).
+
+**Symptom:** `domain/solveStrategy.ts`'s frozen `SOLVE_STRATEGIES` registry (Phase 2 action 2.6) was meant to be the one place that branches on `calculatorSolveMode`. Four more places still branch on the mode independently:
+
+- `domain/roundConcentrationSolve.ts:42` reads *another* mode's provenance (`draft.protocolUnitsOrigin === 'recommended'` guarded by `draft.calculatorSolveMode === 'target_units'`) — a strategy inspecting a different mode's id, the exact cross-mode coupling the registry was meant to remove.
+- `calculatorModeSwitch.ts` branches on mode in `displayDrawUnits`, `displayWaterAmount`, and `ensureReconstitutionPrintForAssist` — display-precedence rules that differ per mode but live outside the strategy that owns the mode.
+- `calculatorGuards.ts`'s `calculateRequiredWaterMl` re-derives water per mode independently of `SolveStrategy.deriveMath`, so vial-capacity warning math and calculator math are two code paths computing the same fact.
+- `useCalculatorViewModel.ts` and `components/useSidebarSectionsViewModel.ts` branch on mode for field visibility — arguably a UI concern, but it means a fourth solve mode would still touch two view models.
+
+**When fixing:** Decide whether display precedence and field visibility belong on `SolveStrategy` (e.g. `displayPrecedence()` / `visibleFields()` members) or are a legitimate UI-layer exemption from the "no mode branching outside the registry" rule — then remove `roundConcentrationSolve.ts:42`'s cross-mode read (the information it needs, whether the current draw-units value is system-generated, is already carried by `protocolUnitsOrigin` alone), and route `calculateRequiredWaterMl` through `SolveStrategy.deriveMath` instead of re-deriving.
+
+**Standard:** CODE-QUALITY.md section A — Strategy pattern in deliberate use; one place should own a mode's behavior.
+
+---
+
 ### Print catalog compatibility — two relation sources
 
 **Priority:** Low
@@ -83,6 +101,19 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 **When fixing:** If this is worth doing, split the JSX itself into smaller named subcomponents per section/panel (e.g. `ApplyDesignView`'s library list, `PrintSetupSection`'s catalog vs. custom panels) — a presentation-only decomposition, not a further view-model extraction. Still open after Phase 5 exit (5.2–5.8); line counts remain in the same band (ApplyDesign ~209, Calculator ~190, PrintSetup ~149, plus SidebarSections / FormInputs markup volume).
 
 **Standard:** CODE-QUALITY.md section A — component ~120-line soft budget.
+
+---
+
+### LabelPreview.css keeps stale-prone fallback literals for typography custom properties
+
+**Priority:** Low
+**Status:** Open — found 2026-08-03 (Phase 8.3 plan-claims verification, residual risk note).
+
+**Symptom:** `LabelPreview.css` consumes `LABEL_TYPOGRAPHY` values via `var(--label-section-label-em, 0.55)`-style custom properties (Phase 3 action 3.5), but every one of the seven consumption sites also carries a literal CSS fallback (e.g. `0.55`, `0.82`) that duplicates the current value of the corresponding `LABEL_TYPOGRAPHY` entry. `labelTypography.test.ts` pins the module→custom-property mapping but nothing pins these CSS fallbacks, so editing `LABEL_TYPOGRAPHY` leaves seven stale numbers in the stylesheet that would silently take effect if the custom property ever failed to reach the element.
+
+**When fixing:** Either drop the `var(...)` fallback argument at each of the seven sites in `LabelPreview.css` (accepting that a missing custom property renders unstyled, which is more visibly wrong than silently stale), or add a test that parses `LabelPreview.css` and asserts each fallback equals the corresponding `LABEL_TYPOGRAPHY` value.
+
+**Standard:** CODE-QUALITY.md section C — one source of truth per fact.
 
 ---
 
