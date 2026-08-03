@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { NoopScroller } from '../../platform/BrowserScroller'
-import { openPrintSetupSection } from './usePrintSetup'
+import { openPrintSetupSection } from './openPrintSetupSection'
 
 describe('usePrintSetup', () => {
   it('should open setup and scroll to print-setup via the Scroller port', () => {

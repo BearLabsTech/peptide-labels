@@ -9,17 +9,11 @@ import {
   PRINT_SETUP_SAVE_FAILED_MESSAGE,
   savePrintSetup,
 } from '../../print/printStorage'
+import { openPrintSetupSection } from './openPrintSetupSection'
+
+export { openPrintSetupSection } from './openPrintSetupSection'
 
 const defaultScroller: Scroller = new BrowserScroller()
-
-/** Opens print setup and scrolls the section into view — extracted for unit tests. */
-export function openPrintSetupSection(
-  setSetupOpen: (open: boolean) => void,
-  scroller: Scroller,
-): void {
-  setSetupOpen(true)
-  scroller.scrollTo('print-setup')
-}
 
 function persistPrintSelection(selection: PrintSetupSelection): string | null {
   const result = savePrintSetup(selection)

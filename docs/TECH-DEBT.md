@@ -85,7 +85,7 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 
 **Symptom:** After extracting `useApplyDesignViewModel`, `useCalculatorViewModel`, `usePrintSetupSectionViewModel`, and `useLabelStageViewModel` (5.1), all decision logic left each of `ApplyDesignView.tsx` (195 lines), `CalculatorView.tsx` (189), and `PrintSetupSection.tsx` (151) — but the components themselves are still over the ~120-line soft budget in `docs/CODE-QUALITY.md` section A, because the remaining lines are JSX markup volume (many form fields / library-list rows / catalog-vs-custom panels), not logic. `LabelStage.tsx` (59) and the individual `SidebarSections.tsx` exports are within budget.
 
-**When fixing:** If this is worth doing, split the JSX itself into smaller named subcomponents per section/panel (e.g. `ApplyDesignView`'s library list, `PrintSetupSection`'s catalog vs. custom panels) — a presentation-only decomposition, not a further view-model extraction. Not part of 5.1's scope (view models only); revisit alongside or after 5.2–5.8.
+**When fixing:** If this is worth doing, split the JSX itself into smaller named subcomponents per section/panel (e.g. `ApplyDesignView`'s library list, `PrintSetupSection`'s catalog vs. custom panels) — a presentation-only decomposition, not a further view-model extraction. Still open after Phase 5 exit (5.2–5.8); line counts remain in the same band (ApplyDesign ~209, Calculator ~190, PrintSetup ~149, plus SidebarSections / FormInputs markup volume).
 
 ---
 

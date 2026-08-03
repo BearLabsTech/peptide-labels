@@ -9,6 +9,8 @@ alwaysApply: false
 - **No Tailwind.** Use standard CSS: variables in `src/index.css` and colocated stylesheets (e.g. component `.css` next to the component).
 - **Design tokens:** Extend the existing CSS variable system in `index.css` (e.g. `--color-primary`, `--color-surface`, `--color-border`). Avoid scattering one-off theme colors unless there is a deliberate exception.
 - **Visual direction:** Light mode default. Match density, spacing, typography, and component style already used in the app (control sidebar, forms)—do not rely on vague “minimalist” rewrites that ignore existing patterns.
-- **Forms:** Prefer reusing patterns from `src/features/label/components/FormInputs.tsx` and related primitives; add shared inputs there when the same pattern repeats.
+- **Forms:** Prefer reusing patterns from `src/features/label/components/FormInputs.tsx` and related primitives; add shared inputs there when the same pattern repeats. Form primitives must be **label-associated by construction** (`htmlFor` / `id` on every control that has a visible label) — do not ship a bare `<input>` that only looks labeled via proximity.
+- **Dialogs:** Modal dialogs need a focus trap, Escape-to-dismiss, and an accessible name; see `useDialogAccessibility`.
+- **Busy / described-by:** Long-running export actions should expose `aria-busy`; file inputs that have helper text should wire `aria-describedby` to that text.
 - **Sidebar density:** Use the existing **accordion section** pattern for the control sidebar (see `SidebarSections.tsx` / related components).
 - **Print toggles:** Preserve the product model—**section-level** master print toggles plus **per-field** granular print toggles so users keep surgical control over what prints.

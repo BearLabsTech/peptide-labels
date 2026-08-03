@@ -22,14 +22,32 @@ export default defineConfig({
         'src/test/**',
         'src/**/testing/**',
         'src/main.tsx',
+        // Humble React wrappers (Phase 5): hold only React state / DOM wiring; the
+        // logic they call is unit-tested elsewhere (ports, use cases, pure helpers).
+        // Pure helpers live in sibling modules (e.g. applyDesignOperations.ts) that stay included.
+        'src/features/customDesign/useApplyDesignViewModel.ts',
+        'src/features/customDesign/useDesignLibrary.ts',
+        'src/features/landing/useAgreementGate.ts',
+        'src/features/label/useDialogAccessibility.ts',
+        'src/features/label/useLabelStageViewModel.ts',
+        'src/features/label/useLabelExport.ts',
+        'src/features/label/usePrintSetup.ts',
+        'src/features/label/useCalculatorViewModel.ts',
+        'src/features/label/components/useSidebarSectionsViewModel.ts',
+        'src/features/label/components/usePrintSetupSectionViewModel.ts',
+        'src/features/label/WorkspaceErrorBoundary.tsx',
+        // React components are humble by policy (testing-vitest.mdc) — not unit-tested.
+        'src/**/*.tsx',
       ],
       // Ratchet only: raise these as coverage improves (see docs/CODE-QUALITY.md section E).
       // Never lower a threshold without a note explaining why.
+      // Phase 5 exit: measured ~85.63 / 83.48 / 88.75 / 86.93 after excluding humble
+      // React hooks + JSX (pure helpers stay included). Ratchet just under.
       thresholds: {
-        lines: 85,
-        statements: 84,
-        branches: 82,
-        functions: 85,
+        lines: 86,
+        statements: 85,
+        branches: 83,
+        functions: 88,
       },
     },
   },

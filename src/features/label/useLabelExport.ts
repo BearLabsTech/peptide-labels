@@ -1,9 +1,13 @@
 import { useCallback, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { exportLabelPng } from './labelExport'
+import {
+  LABEL_EXPORT_ERROR_MESSAGE,
+  exportLabelToPng,
+} from './exportLabelToPng'
 import type { PrintTarget } from '../../print/types'
 
-export const LABEL_EXPORT_ERROR_MESSAGE = 'Couldn’t download the label. Try again.'
+export { LABEL_EXPORT_ERROR_MESSAGE, exportLabelToPng } from './exportLabelToPng'
 
 export interface UseLabelExportOptions {
   /** Injectable for tests; defaults to the real composition-root export path. */
@@ -19,22 +23,6 @@ export interface LabelExportState {
     printTarget: PrintTarget,
     compoundName?: string,
   ) => Promise<{ ok: true } | { ok: false; error: string }>
-}
-
-/** Pure export attempt — no React state. Used by the hook and unit-tested directly. */
-export async function exportLabelToPng(
-  element: HTMLDivElement,
-  printTarget: PrintTarget,
-  compoundName: string | undefined,
-  exportLabel: typeof exportLabelPng,
-): Promise<{ ok: true } | { ok: false; error: string }> {
-  try {
-    await exportLabel(element, printTarget, compoundName)
-    return { ok: true }
-  } catch (error) {
-    console.error('Label PNG export failed', error)
-    return { ok: false, error: LABEL_EXPORT_ERROR_MESSAGE }
-  }
 }
 
 /**

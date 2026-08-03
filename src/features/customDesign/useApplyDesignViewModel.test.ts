@@ -13,7 +13,7 @@ import {
   removeDesignFromLibrary,
   saveDesignToLibrary,
   stockLabelFor,
-} from './useApplyDesignViewModel'
+} from './applyDesignOperations'
 import type { DesignDocument } from './designDocument'
 
 function fileFromDocument(document: DesignDocument): File {

@@ -19,7 +19,7 @@ export interface LabelStageViewModel {
 }
 
 /** Re-export for existing tests that target the pure export helper. */
-export { exportLabelToPng } from './useLabelExport'
+export { exportLabelToPng } from './exportLabelToPng'
 
 /**
  * Owns the export state and orchestration for {@link LabelStage.tsx}. Export itself goes
