@@ -1,37 +1,11 @@
 import type { LabelFieldUpdater, LabelModelInput } from './labelModel'
-import { resolveLabelMath } from './LabelMathResolver'
-import { createLabelFormHandlers } from './useLabelForm'
-import {
-    CALCULATOR_MODE_OPTIONS,
-    calculatorModeFromLabel,
-    calculatorModeLabel,
-    concentrationUnitLabel,
-    displayConcentration,
-    displayDrawUnits,
-    displayWaterAmount,
-} from './calculatorModeSwitch'
-import {
-    computeMeasuresPerVialRaw,
-    formatMeasuresPerVialDisplay,
-    isProtocolExceedsCompound,
-    isWaterAboveVialCapacity,
-} from './calculatorGuards'
-import {
-    drawUnitsPresets,
-    protocolAmountPresets,
-    compoundAmountPresets,
-    WATER_PRESETS_ML,
-} from './calculatorPresets'
 import { ChipSelect } from './components/ChipSelect'
 import { CompactUnitSelect } from './components/CompactUnitSelect'
-import {
-    parseSyringeCapacityMl,
-    type SyringeCapacityMl,
-} from './syringe'
 import { SyringeAssist } from './syringe/SyringeAssist'
-import { hasPositiveCompoundAmount, resolveCalculatorMode } from './peptideMath'
+import type { SyringeCapacityMl } from './syringe'
 import { VialCapacityControl } from './components/VialCapacityControl'
 import { VialCapacityWarning } from './components/VialCapacityWarning'
+import { useCalculatorViewModel } from './useCalculatorViewModel'
 import './CalculatorView.css'
 
 export interface CalculatorViewProps {
@@ -49,28 +23,7 @@ export function CalculatorView({
     onVialCapacityChange,
     onRequestLabelHandoff,
 }: CalculatorViewProps) {
-    const resolved = resolveLabelMath(input)
-    const derivedState = {
-        autoUnits: resolved.autoUnits,
-        autoWater: resolved.autoWater,
-        autoConcentration: resolved.autoConcentration,
-    }
-    const handlers = createLabelFormHandlers(input, updateField, vialCapacityMl)
-    const solveMode = resolveCalculatorMode(input)
-    const syringeCapacityMl = parseSyringeCapacityMl(input.syringeCapacityMl)
-    const blocked = isProtocolExceedsCompound(input)
-    const hasCompound = hasPositiveCompoundAmount(input.compoundAmount)
-    const hasProtocol = parseFloat(input.protocolAmount || '') > 0
-    const readyForResults = hasCompound && hasProtocol && !blocked
-
-    const water = displayWaterAmount(solveMode, input, derivedState)
-    const units = displayDrawUnits(solveMode, input, derivedState)
-    const concentration = displayConcentration(input, derivedState)
-    const measuresRaw = readyForResults ? computeMeasuresPerVialRaw(input) : null
-    const measuresDisplay = measuresRaw != null ? formatMeasuresPerVialDisplay(measuresRaw) : '—'
-
-    const measureOptions = input.vialUnit === 'IU' ? ['IU'] : ['mg', 'mcg']
-    const concUnit = concentrationUnitLabel(input.vialUnit)
+    const vm = useCalculatorViewModel({ input, updateField, vialCapacityMl })
 
     return (
         <div className="calculator-view">
@@ -79,15 +32,15 @@ export function CalculatorView({
                     <h2>Calculator assist</h2>
                     <div className="calculator-assist-row">
                         <div className="mode-segment" role="group" aria-label="Calculator assist mode">
-                            {CALCULATOR_MODE_OPTIONS.map((label) => {
-                                const active = calculatorModeLabel(solveMode) === label
+                            {vm.modeOptions.map((label) => {
+                                const active = vm.activeModeLabel === label
                                 return (
                                     <button
                                         key={label}
                                         type="button"
                                         className={active ? 'mode-segment__btn mode-segment__btn--active' : 'mode-segment__btn'}
                                         aria-pressed={active}
-                                        onClick={() => handlers.handleCalculatorModeChange(calculatorModeFromLabel(label))}
+                                        onClick={() => vm.onModeSelect(label)}
                                     >
                                         {label}
                                     </button>
@@ -103,15 +56,15 @@ export function CalculatorView({
                         <ChipSelect
                             label="Compound amount"
                             value={input.compoundAmount || ''}
-                            presets={compoundAmountPresets(input.vialUnit)}
-                            chipSuffix={input.vialUnit === 'IU' ? ' IU' : ' mg'}
+                            presets={vm.compoundAmountPresets}
+                            chipSuffix={vm.compoundAmountChipSuffix}
                             placeholder="Amt"
-                            onChange={handlers.handleCompoundAmountChange}
+                            onChange={vm.handlers.handleCompoundAmountChange}
                             trailing={
                                 <CompactUnitSelect
                                     label="Vial unit"
                                     value={input.vialUnit || 'mg'}
-                                    onChange={handlers.handleVialUnitChange}
+                                    onChange={vm.handlers.handleVialUnitChange}
                                     options={['mg', 'IU']}
                                 />
                             }
@@ -121,7 +74,7 @@ export function CalculatorView({
                             <VialCapacityControl
                                 value={vialCapacityMl}
                                 onChange={(next) => {
-                                    handlers.handleVialCapacityChange(next)
+                                    vm.handlers.handleVialCapacityChange(next)
                                     onVialCapacityChange(next)
                                 }}
                             />
@@ -129,41 +82,32 @@ export function CalculatorView({
                         <ChipSelect
                             label="Protocol"
                             value={input.protocolAmount || ''}
-                            presets={protocolAmountPresets(input.measureUnit, input.vialUnit)}
-                            chipSuffix={
-                                input.vialUnit === 'IU' || input.measureUnit === 'IU'
-                                    ? ' IU'
-                                    : input.measureUnit === 'mcg'
-                                      ? ' mcg'
-                                      : ' mg'
-                            }
+                            presets={vm.protocolAmountPresets}
+                            chipSuffix={vm.protocolAmountChipSuffix}
                             placeholder="Amt"
-                            onChange={handlers.handleProtocolAmountChange}
+                            onChange={vm.handlers.handleProtocolAmountChange}
                             trailing={
                                 <CompactUnitSelect
                                     label="Protocol unit"
                                     value={input.measureUnit || 'mg'}
-                                    onChange={handlers.handleMeasureUnitChange}
-                                    options={measureOptions}
+                                    onChange={vm.handlers.handleMeasureUnitChange}
+                                    options={vm.measureOptions}
                                 />
                             }
                         />
 
-                        {solveMode === 'target_units' && (
+                        {vm.showDrawField && (
                             <ChipSelect
                                 label="Draw"
-                                value={units}
-                                presets={drawUnitsPresets(syringeCapacityMl)}
+                                value={vm.drawUnitsFieldValue}
+                                presets={vm.drawUnitsPresets}
                                 chipSuffix=" u"
                                 placeholder="Units"
-                                onChange={(v) => {
-                                    const n = v.match(/[\d.]+/)?.[0]
-                                    handlers.handleProtocolUnitsChange(n ? `${n} units` : '')
-                                }}
+                                onChange={vm.onDrawUnitsChipChange}
                             />
                         )}
 
-                        {solveMode === 'round_concentration' && (
+                        {vm.showTargetConcentrationField && (
                             <div className="chip-row">
                                 <div className="chip-row__label">Target conc.</div>
                                 <div className="chip-row__controls">
@@ -171,23 +115,23 @@ export function CalculatorView({
                                         className="chip-row__custom chip-row__custom--wide"
                                         type="text"
                                         inputMode="decimal"
-                                        placeholder={concUnit}
+                                        placeholder={vm.concentrationUnit}
                                         value={input.targetConcentration || ''}
-                                        aria-label={`Target concentration (${concUnit})`}
-                                        onChange={(e) => handlers.handleTargetConcentrationChange(e.target.value)}
+                                        aria-label={`Target concentration (${vm.concentrationUnit})`}
+                                        onChange={(e) => vm.handlers.handleTargetConcentrationChange(e.target.value)}
                                     />
                                 </div>
                             </div>
                         )}
 
-                        {solveMode === 'standard' && (
+                        {vm.showWaterField && (
                             <ChipSelect
                                 label="Water"
                                 value={input.reconstitutionAmount || ''}
-                                presets={WATER_PRESETS_ML}
+                                presets={vm.waterPresets}
                                 chipSuffix=" ml"
                                 placeholder="ml"
-                                onChange={handlers.handleWaterChange}
+                                onChange={vm.handlers.handleWaterChange}
                             />
                         )}
 
@@ -209,47 +153,31 @@ export function CalculatorView({
 
                 <section className="calculator-card calculator-results">
                     <h2>Results</h2>
-                    {!hasCompound || !hasProtocol ? (
+                    {vm.showHint && (
                         <p className="calculator-hint">
                             Enter compound amount and protocol amount to see water, concentration, and draw volume.
                         </p>
-                    ) : null}
-                    {blocked && (
+                    )}
+                    {vm.blocked && (
                         <p className="calculator-block" role="alert">
                             Protocol amount cannot be greater than the compound amount. Adjust the values to continue.
                         </p>
                     )}
-                    {isWaterAboveVialCapacity(input, vialCapacityMl) && (
+                    {vm.showVialCapacityWarning && (
                         <VialCapacityWarning vialCapacityMl={vialCapacityMl} />
                     )}
                     <div className="calculator-results__grid">
-                        <ResultMetric
-                            label="Protocol amount"
-                            value={
-                                readyForResults
-                                    ? `${input.protocolAmount} ${input.measureUnit || ''}`.trim()
-                                    : '—'
-                            }
-                        />
-                        <ResultMetric
-                            label="Draw units"
-                            value={readyForResults && units ? units : '—'}
-                        />
-                        <ResultMetric
-                            label="Water volume"
-                            value={readyForResults && water ? `${water}${/ml/i.test(water) ? '' : ' ml'}` : '—'}
-                        />
-                        <ResultMetric
-                            label="Concentration"
-                            value={readyForResults && concentration ? concentration : '—'}
-                        />
-                        <ResultMetric label="Measures per vial" value={measuresDisplay} />
+                        <ResultMetric label="Protocol amount" value={vm.results.protocolAmount} />
+                        <ResultMetric label="Draw units" value={vm.results.drawUnits} />
+                        <ResultMetric label="Water volume" value={vm.results.waterVolume} />
+                        <ResultMetric label="Concentration" value={vm.results.concentration} />
+                        <ResultMetric label="Measures per vial" value={vm.results.measuresPerVial} />
                     </div>
 
                     <SyringeAssist
-                        syringeCapacityMl={syringeCapacityMl}
+                        syringeCapacityMl={vm.syringeCapacityMl}
                         onCapacityChange={(next: SyringeCapacityMl) => updateField('syringeCapacityMl', next)}
-                        drawUnitsLabel={readyForResults ? units : ''}
+                        drawUnitsLabel={vm.syringeDrawUnitsLabel}
                     />
                 </section>
 
