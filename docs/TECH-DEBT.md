@@ -102,19 +102,6 @@ The last two are the important signal: this is not an isolated formatting quirk.
 
 ---
 
-### LabelPreview.css keeps stale-prone fallback literals for typography custom properties
-
-**Priority:** Low
-**Status:** Open — found 2026-08-03 (Phase 8.3 plan-claims verification, residual risk note).
-
-**Symptom:** `LabelPreview.css` consumes `LABEL_TYPOGRAPHY` values via `var(--label-section-label-em, 0.55)`-style custom properties (Phase 3 action 3.5), but every one of the seven consumption sites also carries a literal CSS fallback (e.g. `0.55`, `0.82`) that duplicates the current value of the corresponding `LABEL_TYPOGRAPHY` entry. `labelTypography.test.ts` pins the module→custom-property mapping but nothing pins these CSS fallbacks, so editing `LABEL_TYPOGRAPHY` leaves seven stale numbers in the stylesheet that would silently take effect if the custom property ever failed to reach the element.
-
-**When fixing:** Either drop the `var(...)` fallback argument at each of the seven sites in `LabelPreview.css` (accepting that a missing custom property renders unstyled, which is more visibly wrong than silently stale), or add a test that parses `LabelPreview.css` and asserts each fallback equals the corresponding `LABEL_TYPOGRAPHY` value.
-
-**Standard:** CODE-QUALITY.md section C — one source of truth per fact.
-
----
-
 ### Compound name casing — do not default to all caps
 
 **Priority:** Low  
@@ -129,6 +116,10 @@ The last two are the important signal: this is not an isolated formatting quirk.
 ---
 
 ## Resolved
+
+### LabelPreview.css keeps stale-prone fallback literals for typography custom properties
+
+**Resolved:** 2026-08-03. Removed the seven `var(--label-*, <literal>)` fallbacks from `LabelPreview.css` so a missing custom property fails visibly instead of silently using a stale number. Left the seven `--label-pad` fallbacks alone — different variable, not a `LABEL_TYPOGRAPHY` mirror.
 
 ### Reducer accepts a measure unit its vial unit cannot pair with
 

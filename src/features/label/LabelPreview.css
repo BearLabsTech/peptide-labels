@@ -139,7 +139,7 @@
   flex-direction: column;
   justify-content: flex-start;
   /* Matches LABEL_TYPOGRAPHY.boxGapCqw in labelTypography.ts. */
-  gap: var(--label-box-gap-cqw, 0.5cqw);
+  gap: var(--label-box-gap-cqw);
   width: 100%;
   min-height: 0;
   flex: 0 1 auto;
@@ -149,7 +149,7 @@
   font-weight: 900;
   text-align: center;
   /* Extra tight to prevent bleeding into the gap. Matches LABEL_TYPOGRAPHY.titleLineHeightEm. */
-  line-height: var(--label-title-line-height, 0.95);
+  line-height: var(--label-title-line-height);
   text-transform: uppercase;
   color: #000000;
 }
@@ -190,14 +190,14 @@
 .label-preview-box {
   width: 100%;
   /* Border width matches LABEL_TYPOGRAPHY.borderWidthPx in labelTypography.ts. */
-  border: var(--label-box-border-width-px, 2px) solid #000000;
+  border: var(--label-box-border-width-px) solid #000000;
   border-radius: 1.2cqw;
   /*
    * Vertical padding matches LABEL_TYPOGRAPHY.boxPadVerticalCqw. The 0.8cqw
    * horizontal padding is intentionally a plain literal — it only affects
    * width, which LabelLayoutEngine's height estimate does not model.
    */
-  padding: var(--label-box-pad-vertical-cqw, 0.5cqw) 0.8cqw;
+  padding: var(--label-box-pad-vertical-cqw) 0.8cqw;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -330,15 +330,15 @@
   max-width: 100%;
   box-sizing: border-box;
   /* Relative to the inherited `.label-preview-box` font-size (bodyFontSizePx). Matches LABEL_TYPOGRAPHY.sectionLabelEm. */
-  font-size: calc(var(--label-section-label-em, 0.55) * 1em);
+  font-size: calc(var(--label-section-label-em) * 1em);
 }
 
 .label-preview-section-text {
   font-weight: 600;
   /* Matches LABEL_TYPOGRAPHY.contentLineHeightEm. */
-  line-height: var(--label-content-line-height, 1.25);
+  line-height: var(--label-content-line-height);
   letter-spacing: 0.4px;
   color: #000000;
   /* Relative to the inherited `.label-preview-box` font-size (bodyFontSizePx). Matches LABEL_TYPOGRAPHY.contentEm. */
-  font-size: calc(var(--label-content-em, 0.82) * 1em);
+  font-size: calc(var(--label-content-em) * 1em);
 }
