@@ -7,6 +7,7 @@ import {
   emptySlotValues,
   exportApplyDesignLabelPng,
   exportDesignFileToDisk,
+  formatDesignImportIssues,
   importDesignFile,
   openDesignState,
   refreshLibraryDesigns,
@@ -161,6 +162,17 @@ describe('removeDesignFromLibrary', () => {
   })
 })
 
+describe('formatDesignImportIssues', () => {
+  it('should format each issue as path: message, or message alone when path is empty', () => {
+    expect(
+      formatDesignImportIssues([
+        { path: 'schemaVersion', message: 'must be 1' },
+        { path: '', message: 'JSON parse failed' },
+      ]),
+    ).toEqual(['schemaVersion: must be 1', 'JSON parse failed'])
+  })
+})
+
 describe('importDesignFile', () => {
   it('should import a valid design package and save it to the library with a fresh id', async () => {
     const library = createMemoryDesignLibrary()
@@ -172,11 +184,35 @@ describe('importDesignFile', () => {
     }
   })
 
-  it('should reject a file that is not a valid design package', async () => {
+  it('should reject a malformed file and return the validation issues for the UI', async () => {
     const library = createMemoryDesignLibrary()
     const badFile = new File(['not json'], 'bad.peptide-design')
     const result = await importDesignFile(library, badFile)
-    expect(result).toEqual({ ok: false, error: 'That file isn’t a valid peptide design package.' })
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+    expect(result.error).toBe('That file isn’t a valid peptide design package.')
+    expect(result.issues?.some((issue) => issue.message === 'JSON parse failed')).toBe(true)
+  })
+
+  it('should reject an invalid design document and surface path-specific issues', async () => {
+    const library = createMemoryDesignLibrary()
+    const badDoc = {
+      format: 'peptide-design',
+      formatVersion: 1,
+      document: { ...SAMPLE_MITOCHONDRIA_DESIGN, schemaVersion: 99 },
+    }
+    const badFile = new File([JSON.stringify(badDoc)], 'bad.peptide-design', {
+      type: 'application/json',
+    })
+    const result = await importDesignFile(library, badFile)
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+    expect(result.issues?.some((issue) => issue.path === 'schemaVersion')).toBe(true)
+    expect(
+      formatDesignImportIssues(result.issues ?? []).some((line) =>
+        line.startsWith('schemaVersion:'),
+      ),
+    ).toBe(true)
   })
 })
 

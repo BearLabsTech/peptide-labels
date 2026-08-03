@@ -13,6 +13,7 @@ import {
   readDesignPackageFile,
 } from './designPackage'
 import { SAMPLE_MITOCHONDRIA_DESIGN } from './fixtures/sampleMitochondriaDesign'
+import type { DesignDocumentValidationIssue } from './validateDesignDocument'
 
 type SaveResult =
   | { ok: true; saved: DesignDocument }
@@ -22,7 +23,20 @@ type SimpleResult = { ok: true } | { ok: false; error: string }
 
 type ImportResult =
   | { ok: true; imported: DesignDocument }
-  | { ok: false; error: string }
+  | {
+      ok: false
+      error: string
+      issues?: readonly DesignDocumentValidationIssue[]
+    }
+
+/** One display line per validation issue for the import error list. */
+export function formatDesignImportIssues(
+  issues: readonly DesignDocumentValidationIssue[],
+): string[] {
+  return issues.map((issue) =>
+    issue.path ? `${issue.path}: ${issue.message}` : issue.message,
+  )
+}
 
 /** Human-readable stock label shown next to a design in the library list and banner. */
 export function stockLabelFor(design: DesignDocument): string {
@@ -116,7 +130,11 @@ export async function importDesignFile(
   try {
     const parsed = await readDesignPackageFile(file)
     if (!parsed.ok) {
-      return { ok: false, error: 'That file isn’t a valid peptide design package.' }
+      return {
+        ok: false,
+        error: 'That file isn’t a valid peptide design package.',
+        issues: parsed.issues,
+      }
     }
     const imported = prepareDesignForLibrary(parsed.document)
     await library.put(imported)

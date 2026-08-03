@@ -12,6 +12,7 @@ import {
   deriveApplyDesignFlags,
   emptySlotValues,
   exportDesignFileToDisk,
+  formatDesignImportIssues,
   importDesignFile,
   openDesignState,
   removeDesignFromLibrary,
@@ -29,6 +30,7 @@ export {
   importDesignFile,
   exportDesignFileToDisk,
   exportApplyDesignLabelPng,
+  formatDesignImportIssues,
 } from './applyDesignOperations'
 
 export interface UseApplyDesignViewModelOptions {
@@ -43,6 +45,8 @@ export interface ApplyDesignViewModel {
   slotValues: DesignSlotValues
   libraryDesigns: DesignDocument[]
   libraryError: string | null
+  /** Path/message lines for a failed design-file import; empty when unused. */
+  importIssueLines: readonly string[]
   libraryLoading: boolean
   statusMessage: string | null
   isExporting: boolean
@@ -92,6 +96,7 @@ export function useApplyDesignViewModel({
   )
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [isBusy, setIsBusy] = useState(false)
+  const [importIssueLines, setImportIssueLines] = useState<readonly string[]>([])
 
   const printTarget = useMemo(
     () =>
@@ -174,6 +179,7 @@ export function useApplyDesignViewModel({
       if (!file) return
       setIsBusy(true)
       setLibraryError(null)
+      setImportIssueLines([])
       const result = await importDesignFile(library, file)
       if (result.ok) {
         await refreshLibrary()
@@ -181,6 +187,9 @@ export function useApplyDesignViewModel({
         setStatusMessage('Imported and saved to your local library.')
       } else {
         setLibraryError(result.error)
+        setImportIssueLines(
+          result.issues ? formatDesignImportIssues(result.issues) : [],
+        )
       }
       setIsBusy(false)
     },
@@ -192,6 +201,7 @@ export function useApplyDesignViewModel({
     slotValues,
     libraryDesigns,
     libraryError,
+    importIssueLines,
     libraryLoading,
     statusMessage,
     isExporting,

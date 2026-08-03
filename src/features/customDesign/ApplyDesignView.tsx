@@ -208,9 +208,16 @@ export function ApplyDesignView({ printSelection, library }: ApplyDesignViewProp
               </p>
             )}
             {vm.libraryError && (
-              <p className="label-export-error" role="alert">
-                {vm.libraryError}
-              </p>
+              <div className="label-export-error" role="alert">
+                <p className="apply-design__import-error-summary">{vm.libraryError}</p>
+                {vm.importIssueLines.length > 0 && (
+                  <ul className="apply-design__import-issues">
+                    {vm.importIssueLines.map((line) => (
+                      <li key={line}>{line}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             )}
           </section>
         </div>
