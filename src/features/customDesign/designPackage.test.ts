@@ -9,10 +9,8 @@ import {
 } from './designPackage'
 import { SAMPLE_MITOCHONDRIA_DESIGN } from './fixtures/sampleMitochondriaDesign'
 import { serializeDesignDocument } from './designDocumentCodec'
-import {
-  createMemoryDesignLibrary,
-  prepareDesignForLibrary,
-} from './designLibrary'
+import { prepareDesignForLibrary } from './designLibrary'
+import { createMemoryDesignLibrary } from '../../test/memoryDesignLibrary'
 
 describe('designPackage', () => {
   it('should round-trip a design through the portable package format with embedded assets', () => {

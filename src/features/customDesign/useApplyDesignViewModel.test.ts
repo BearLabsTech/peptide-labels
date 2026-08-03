@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createMemoryDesignLibrary } from './designLibrary'
+import { createMemoryDesignLibrary } from '../../test/memoryDesignLibrary'
 import { SAMPLE_MITOCHONDRIA_DESIGN } from './fixtures/sampleMitochondriaDesign'
 import { serializeDesignPackage } from './designPackage'
 import {
