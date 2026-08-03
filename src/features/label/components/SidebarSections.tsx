@@ -1,41 +1,26 @@
 import { TextInput, SelectInput, AccordionSection, SubAccordionSection, ImageUploadInput, DateField, ToggleInput } from './FormInputs'
 import { ColumnWidthSlider } from './ColumnWidthSlider'
-import { RECONSTITUTION_TYPES, resolveCalculatorMode } from '../peptideMath'
 import {
     CALCULATOR_MODE_OPTIONS,
     calculatorModeFromLabel,
     calculatorModeLabel,
-    concentrationUnitLabel,
-    displayConcentration,
-    displayDrawUnits,
-    displayWaterAmount,
 } from '../calculatorModeSwitch'
-import {
-    SHOW_SYRINGE_ON_DESIGNER,
-    parseSyringeCapacityMl,
-} from '../syringe'
 import { SyringeAssist } from '../syringe/SyringeAssist'
-import { buildQrCodes } from '../coaLinks'
 import type { LabelFieldUpdater, LabelModelInput } from '../labelModel'
 import { LOGO_COLUMN_WIDTH, QR_COLUMN_WIDTH } from '../labelLayoutConstants'
-import {
-    TEST_RESULT_FIELDS,
-    TEST_STATUS_OPTIONS,
-    TEST_TYPES,
-    countPrintableTestResults,
-    getTestResult,
-    hasTestingColumnContent,
-    type TestResultStatus,
-    type TestType,
-} from '../testIndicators'
+import { TEST_STATUS_OPTIONS, TEST_TYPES, type TestResultStatus } from '../testIndicators'
 import type { LabelFormHandlers } from '../useLabelForm'
-import { isWaterAboveVialCapacity } from '../calculatorGuards'
 import { VialCapacityWarning } from './VialCapacityWarning'
+import {
+    updateTestResult,
+    useSidebarSectionsViewModel,
+    type SidebarSectionsDerivedState,
+} from './useSidebarSectionsViewModel'
 
 export interface SectionProps {
     input: LabelModelInput;
     updateField: LabelFieldUpdater;
-    derivedState?: { autoUnits: string; autoWater: string; autoConcentration: string; };
+    derivedState?: SidebarSectionsDerivedState;
     handlers?: LabelFormHandlers;
     vialCapacityMl?: number;
 }
@@ -57,13 +42,13 @@ export function CompoundSection({ input, updateField, handlers }: SectionProps) 
 }
 
 export function SourceSection({ input, updateField }: SectionProps) {
-    const isSectionActive = input.showSource !== false;
+    const vm = useSidebarSectionsViewModel({ input }).source
     return (
         <AccordionSection title="Source">
-            <ToggleInput label="Print Source on Label" checked={isSectionActive} onChange={v => updateField('showSource', v)} />
-            <TextInput label="Vendor Name" value={input.vendorName} onChange={v => updateField('vendorName', v)} placeholder="e.g. Bear Labs" printToggle={{ visible: input.showVendor !== false, onChange: v => updateField('showVendor', v), disabled: !isSectionActive }} />
-            <TextInput label="Group Buy" value={input.groupBuyName} onChange={v => updateField('groupBuyName', v)} placeholder="e.g. Alpha Testing" printToggle={{ visible: input.showGroup !== false, onChange: v => updateField('showGroup', v), disabled: !isSectionActive }} />
-            <TextInput label="Batch / Lot Number" value={input.batchNumber} onChange={v => updateField('batchNumber', v)} placeholder="e.g. BL-2026" printToggle={{ visible: input.showBatch !== false, onChange: v => updateField('showBatch', v), disabled: !isSectionActive }} />
+            <ToggleInput label="Print Source on Label" checked={vm.isSectionActive} onChange={v => updateField('showSource', v)} />
+            <TextInput label="Vendor Name" value={input.vendorName} onChange={v => updateField('vendorName', v)} placeholder="e.g. Bear Labs" printToggle={{ visible: input.showVendor !== false, onChange: v => updateField('showVendor', v), disabled: !vm.isSectionActive }} />
+            <TextInput label="Group Buy" value={input.groupBuyName} onChange={v => updateField('groupBuyName', v)} placeholder="e.g. Alpha Testing" printToggle={{ visible: input.showGroup !== false, onChange: v => updateField('showGroup', v), disabled: !vm.isSectionActive }} />
+            <TextInput label="Batch / Lot Number" value={input.batchNumber} onChange={v => updateField('batchNumber', v)} placeholder="e.g. BL-2026" printToggle={{ visible: input.showBatch !== false, onChange: v => updateField('showBatch', v), disabled: !vm.isSectionActive }} />
             <DateField label="Batch Date" value={input.batchDate || ''} onChange={v => updateField('batchDate', v)} isFreeText={!!input.batchDateIsFreeText} onFreeTextToggle={v => updateField('batchDateIsFreeText', v)} />
         </AccordionSection>
     )
@@ -76,75 +61,66 @@ export function ReconstitutionSection({
     handlers,
     vialCapacityMl = 3,
 }: SectionProps) {
-    const isSectionActive = input.showReconstitution !== false;
-    const solveMode = resolveCalculatorMode(input);
-    const waterDisabled = solveMode !== 'standard';
-    const concUnitLabel = concentrationUnitLabel(input.vialUnit);
+    const vm = useSidebarSectionsViewModel({ input, derivedState, vialCapacityMl }).reconstitution
     return (
         <AccordionSection title="Reconstitution">
-            <ToggleInput label="Print Reconstitution on Label" checked={isSectionActive} onChange={v => updateField('showReconstitution', v)} />
+            <ToggleInput label="Print Reconstitution on Label" checked={vm.isSectionActive} onChange={v => updateField('showReconstitution', v)} />
             <SelectInput
                 label="Calculator assist"
-                value={calculatorModeLabel(solveMode)}
+                value={calculatorModeLabel(vm.solveMode)}
                 onChange={(label) => handlers!.handleCalculatorModeChange(calculatorModeFromLabel(label))}
                 options={[...CALCULATOR_MODE_OPTIONS]}
             />
-            {solveMode === 'round_concentration' && (
+            {vm.showRoundConcentrationHint && (
                 <>
                     <TextInput
-                        label={`Target concentration (${concUnitLabel})`}
+                        label={`Target concentration (${vm.concentrationUnitLabel})`}
                         value={input.targetConcentration || ''}
                         onChange={handlers!.handleTargetConcentrationChange}
                         placeholder="e.g. 10"
                     />
                     <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: -8, marginBottom: 12, lineHeight: 1.4 }}>
-                        Enter your target {concUnitLabel}. The app fills in water volume and draw units from your vial and protocol amount.
+                        Enter your target {vm.concentrationUnitLabel}. The app fills in water volume and draw units from your vial and protocol amount.
                     </div>
                 </>
             )}
-            {solveMode === 'target_units' && (
+            {vm.showTargetUnitsHint && (
                 <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: 12, lineHeight: 1.4 }}>
                     Enter your protocol amount and draw units in the Protocol section. The app fills in water volume for you.
                 </div>
             )}
-            <TextInput label="Water Amount (ml)" value={displayWaterAmount(solveMode, input, derivedState)} onChange={handlers!.handleWaterChange} placeholder="2" disabled={waterDisabled} printToggle={{ visible: input.showWater !== false, onChange: v => updateField('showWater', v), disabled: !isSectionActive }} />
-            {isWaterAboveVialCapacity(input, vialCapacityMl) && (
+            <TextInput label="Water Amount (ml)" value={vm.waterAmount} onChange={handlers!.handleWaterChange} placeholder="2" disabled={vm.waterDisabled} printToggle={{ visible: input.showWater !== false, onChange: v => updateField('showWater', v), disabled: !vm.isSectionActive }} />
+            {vm.showVialCapacityWarning && (
                 <VialCapacityWarning vialCapacityMl={vialCapacityMl} />
             )}
-            <SelectInput label="Water Type" value={input.reconstitutionType || ''} onChange={(v) => updateField('reconstitutionType', v)} options={RECONSTITUTION_TYPES} allowNone={true} />
-            <TextInput label="Concentration" value={displayConcentration(input, derivedState)} disabled={true} placeholder="e.g. 10mg per ml" onChange={() => { }} printToggle={{ visible: input.showConcentration !== false, onChange: v => updateField('showConcentration', v), disabled: !isSectionActive }} />
-            <DateField label="Reconstitution Date" value={input.reconstitutionDate || ''} onChange={v => updateField('reconstitutionDate', v)} isFreeText={!!input.reconstitutionDateIsFreeText} onFreeTextToggle={v => updateField('reconstitutionDateIsFreeText', v)} printToggle={{ visible: input.showReconDate !== false, onChange: v => updateField('showReconDate', v), disabled: !isSectionActive }} />
+            <SelectInput label="Water Type" value={input.reconstitutionType || ''} onChange={(v) => updateField('reconstitutionType', v)} options={vm.reconstitutionTypeOptions} allowNone={true} />
+            <TextInput label="Concentration" value={vm.concentrationDisplay} disabled={true} placeholder="e.g. 10mg per ml" onChange={() => { }} printToggle={{ visible: input.showConcentration !== false, onChange: v => updateField('showConcentration', v), disabled: !vm.isSectionActive }} />
+            <DateField label="Reconstitution Date" value={input.reconstitutionDate || ''} onChange={v => updateField('reconstitutionDate', v)} isFreeText={!!input.reconstitutionDateIsFreeText} onFreeTextToggle={v => updateField('reconstitutionDateIsFreeText', v)} printToggle={{ visible: input.showReconDate !== false, onChange: v => updateField('showReconDate', v), disabled: !vm.isSectionActive }} />
         </AccordionSection>
     )
 }
 
 export function ProtocolSection({ input, updateField, derivedState, handlers }: SectionProps) {
-    const isSectionActive = input.showProtocol !== false;
-    const measureUnitOptions = input.vialUnit === 'IU' ? ['IU'] : ['mg', 'mcg'];
-    const solveMode = resolveCalculatorMode(input);
-    const drawUnitsDisabled = solveMode === 'round_concentration';
-    const hasProtocol = parseFloat(input.protocolAmount || '') > 0;
-    const syringeCapacityMl = parseSyringeCapacityMl(input.syringeCapacityMl);
-    const drawLabel = displayDrawUnits(solveMode, input, derivedState);
+    const vm = useSidebarSectionsViewModel({ input, derivedState }).protocol
 
     return (
         <AccordionSection title="Protocol">
-            <ToggleInput label="Print Protocol on Label" checked={isSectionActive} onChange={v => updateField('showProtocol', v)} />
+            <ToggleInput label="Print Protocol on Label" checked={vm.isSectionActive} onChange={v => updateField('showProtocol', v)} />
             <div style={{ display: 'flex', gap: '12px' }}>
-                <div style={{ flex: 1 }}><TextInput label="Protocol Amount" value={input.protocolAmount} onChange={handlers!.handleProtocolAmountChange} placeholder="500" printToggle={{ visible: input.showProtocolAmount !== false, onChange: v => updateField('showProtocolAmount', v), disabled: !isSectionActive }} /></div>
-                <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.measureUnit || 'mg'} onChange={handlers!.handleMeasureUnitChange} options={measureUnitOptions} /></div>
+                <div style={{ flex: 1 }}><TextInput label="Protocol Amount" value={input.protocolAmount} onChange={handlers!.handleProtocolAmountChange} placeholder="500" printToggle={{ visible: input.showProtocolAmount !== false, onChange: v => updateField('showProtocolAmount', v), disabled: !vm.isSectionActive }} /></div>
+                <div style={{ width: '90px' }}><SelectInput label="Unit" value={input.measureUnit || 'mg'} onChange={handlers!.handleMeasureUnitChange} options={vm.measureUnitOptions} /></div>
             </div>
 
-            <TextInput label="Draw Volume (Units)" value={drawLabel} onChange={handlers!.handleProtocolUnitsChange} placeholder="e.g. 10" disabled={drawUnitsDisabled} printToggle={{ visible: input.showProtocolUnits !== false, onChange: v => updateField('showProtocolUnits', v), disabled: !isSectionActive }} />
+            <TextInput label="Draw Volume (Units)" value={vm.drawLabel} onChange={handlers!.handleProtocolUnitsChange} placeholder="e.g. 10" disabled={vm.drawUnitsDisabled} printToggle={{ visible: input.showProtocolUnits !== false, onChange: v => updateField('showProtocolUnits', v), disabled: !vm.isSectionActive }} />
 
-            <TextInput label="Frequency" value={input.protocolFrequency} onChange={(v) => updateField('protocolFrequency', v)} placeholder="Weekly" printToggle={{ visible: input.showProtocolFrequency !== false, onChange: v => updateField('showProtocolFrequency', v), disabled: !isSectionActive }} />
+            <TextInput label="Frequency" value={input.protocolFrequency} onChange={(v) => updateField('protocolFrequency', v)} placeholder="Weekly" printToggle={{ visible: input.showProtocolFrequency !== false, onChange: v => updateField('showProtocolFrequency', v), disabled: !vm.isSectionActive }} />
 
-            {SHOW_SYRINGE_ON_DESIGNER && hasProtocol && (
+            {vm.showSyringeAssist && (
                 <div style={{ marginTop: 12 }}>
                     <SyringeAssist
-                        syringeCapacityMl={syringeCapacityMl}
+                        syringeCapacityMl={vm.syringeCapacityMl}
                         onCapacityChange={(next) => updateField('syringeCapacityMl', next)}
-                        drawUnitsLabel={drawLabel}
+                        drawUnitsLabel={vm.drawLabel}
                     />
                 </div>
             )}
@@ -170,27 +146,14 @@ export function MediaSection({ input, updateField }: SectionProps) {
 }
 
 export function TestingSection({ input, updateField }: SectionProps) {
-    const qrCount = buildQrCodes(input).length
-    const showCoaQr = input.showCoaQr !== false
-    const showTestIndicators = input.showTestIndicators === true
-    const showTestingColumn = hasTestingColumnContent(input, qrCount)
-    const printableTestCount = countPrintableTestResults(input)
-    const indicatorSubTitle = printableTestCount > 0
-        ? `Test result indicators (${printableTestCount} selected)`
-        : 'Test result indicators'
-    const coaSubTitle = qrCount > 0 ? `COA links (${qrCount} saved)` : 'COA links'
-
-    function updateTestResult(type: TestType, status: TestResultStatus) {
-        const field = TEST_RESULT_FIELDS[type]
-        updateField(field, status)
-    }
+    const vm = useSidebarSectionsViewModel({ input }).testing
 
     return (
         <AccordionSection title="Testing">
-            <SubAccordionSection title={indicatorSubTitle} defaultOpen={showTestIndicators}>
+            <SubAccordionSection title={vm.indicatorSubTitle} defaultOpen={vm.showTestIndicators}>
                 <ToggleInput
                     label="Print test result indicators on label"
-                    checked={showTestIndicators}
+                    checked={vm.showTestIndicators}
                     onChange={(v) => updateField('showTestIndicators', v)}
                 />
                 <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: 12, marginTop: -4, lineHeight: 1.4 }}>
@@ -200,8 +163,8 @@ export function TestingSection({ input, updateField }: SectionProps) {
                     <div key={type} style={{ marginBottom: 16 }}>
                         <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--color-text-main)', marginBottom: 6 }}>{type}</label>
                         <select
-                            value={getTestResult(input, type)}
-                            onChange={(e) => updateTestResult(type, e.target.value as TestResultStatus)}
+                            value={vm.testResultFor(type)}
+                            onChange={(e) => updateTestResult(updateField, type, e.target.value as TestResultStatus)}
                             style={{
                                 width: '100%', padding: '10px 12px', border: '1px solid var(--color-border)',
                                 borderRadius: 'var(--radius-sm)', fontSize: '1rem', boxSizing: 'border-box',
@@ -216,10 +179,10 @@ export function TestingSection({ input, updateField }: SectionProps) {
                 ))}
             </SubAccordionSection>
 
-            <SubAccordionSection title={coaSubTitle} defaultOpen={showCoaQr && qrCount > 0}>
+            <SubAccordionSection title={vm.coaSubTitle} defaultOpen={vm.showCoaQr && vm.qrCount > 0}>
                 <ToggleInput
                     label="Print COA QR codes on label"
-                    checked={showCoaQr}
+                    checked={vm.showCoaQr}
                     onChange={(v) => updateField('showCoaQr', v)}
                 />
                 <div style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: 12, marginTop: -4, lineHeight: 1.4 }}>
@@ -243,7 +206,7 @@ export function TestingSection({ input, updateField }: SectionProps) {
                 </SubAccordionSection>
             </SubAccordionSection>
 
-            {showTestingColumn && (
+            {vm.showTestingColumn && (
                 <ColumnWidthSlider
                     label="Testing column width"
                     value={input.qrColumnWidthPercent}
