@@ -15,12 +15,24 @@ export interface Provenance<T> {
     readonly origin: 'recommended' | 'user'
 }
 
-export function protocolUnitsPatch(p: Provenance<string>): Pick<LabelModelPatch, 'protocolUnits' | 'protocolUnitsOrigin'> {
-    return { protocolUnits: p.value, protocolUnitsOrigin: p.origin }
+export function protocolUnitsPatch(
+    p: Provenance<string>,
+): Pick<LabelModelPatch, 'protocolUnits' | 'recommendedProtocolUnits' | 'protocolUnitsOrigin'> {
+    return p.origin === 'recommended'
+        ? { protocolUnits: p.value, recommendedProtocolUnits: p.value, protocolUnitsOrigin: p.origin }
+        : { protocolUnits: p.value, protocolUnitsOrigin: p.origin }
 }
 
-export function targetConcentrationPatch(p: Provenance<string>): Pick<LabelModelPatch, 'targetConcentration' | 'targetConcentrationOrigin'> {
-    return { targetConcentration: p.value, targetConcentrationOrigin: p.origin }
+export function targetConcentrationPatch(
+    p: Provenance<string>,
+): Pick<LabelModelPatch, 'targetConcentration' | 'recommendedTargetConcentration' | 'targetConcentrationOrigin'> {
+    return p.origin === 'recommended'
+        ? {
+            targetConcentration: p.value,
+            recommendedTargetConcentration: p.value,
+            targetConcentrationOrigin: p.origin,
+        }
+        : { targetConcentration: p.value, targetConcentrationOrigin: p.origin }
 }
 
 export const CALCULATOR_MODE_OPTIONS = [

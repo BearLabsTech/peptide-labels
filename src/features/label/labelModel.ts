@@ -62,7 +62,10 @@ export interface Reconstitution {
  */
 export interface Protocol {
   readonly protocolAmount?: string
+  /** Authored draw volume; only a user edit writes here. */
   readonly protocolUnits?: string
+  /** Derived draw-volume recommendation; only a strategy writes here. */
+  readonly recommendedProtocolUnits?: string
   /** Tracks whether Set Draw Volume may safely regenerate this value. */
   readonly protocolUnitsOrigin?: 'recommended' | 'user'
   readonly protocolFrequency?: string
@@ -75,6 +78,8 @@ export interface CalculatorSettings {
   readonly calculatorSolveMode?: 'standard' | 'round_concentration' | 'target_units'
   /** Target concentration when calculatorSolveMode is round_concentration (mg/ml or IU/ml). */
   readonly targetConcentration?: string
+  /** Derived target-concentration recommendation; only a strategy writes here. */
+  readonly recommendedTargetConcentration?: string
   /** Tracks whether Set Concentration may safely regenerate this value. */
   readonly targetConcentrationOrigin?: 'recommended' | 'user'
   /** Insulin syringe capacity in ml for draw visualization (not printed). */
