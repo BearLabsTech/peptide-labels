@@ -31,6 +31,45 @@ function idbRequest<T>(request: IDBRequest<T>): Promise<T> {
 
 type DatedDocument = { readonly id: string; readonly updatedAt: string }
 
+function isDatedDocument(row: unknown): row is DatedDocument {
+  if (typeof row !== 'object' || row === null || Array.isArray(row)) return false
+  const candidate = row as { id?: unknown; updatedAt?: unknown }
+  return (
+    typeof candidate.id === 'string' &&
+    candidate.id.trim().length > 0 &&
+    typeof candidate.updatedAt === 'string' &&
+    candidate.updatedAt.trim().length > 0
+  )
+}
+
+function rowSkipDetail(row: unknown): string {
+  if (typeof row !== 'object' || row === null) return `non-object row (${typeof row})`
+  if ('id' in row) return `id=${String((row as { id: unknown }).id)}`
+  return 'object row without id'
+}
+
+/**
+ * Pure list post-processing for the design library store.
+ * Skips rows that lack a usable `id`/`updatedAt`, reports them, clones the rest,
+ * and sorts newest-updated first — so one bad row cannot make the whole library unreadable.
+ */
+export function selectListableDocuments<TDocument extends DatedDocument>(
+  rows: readonly unknown[],
+  reportSkipped: (detail: string) => void = (detail) => {
+    console.error('Design library skipped unreadable row', detail)
+  },
+): TDocument[] {
+  const valid: TDocument[] = []
+  for (const row of rows) {
+    if (!isDatedDocument(row)) {
+      reportSkipped(rowSkipDetail(row))
+      continue
+    }
+    valid.push(structuredClone(row) as TDocument)
+  }
+  return valid.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+}
+
 /**
  * IndexedDB-backed design library. Documents must carry `id` and `updatedAt`
  * (the sort key used when listing).
@@ -44,7 +83,7 @@ export class IndexedDbDesignLibrary<TDocument extends DatedDocument>
       const tx = db.transaction(STORE_NAME, 'readonly')
       const store = tx.objectStore(STORE_NAME)
       const rows = await idbRequest(store.getAll())
-      return (rows as TDocument[]).slice().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+      return selectListableDocuments<TDocument>(rows)
     } finally {
       db.close()
     }
