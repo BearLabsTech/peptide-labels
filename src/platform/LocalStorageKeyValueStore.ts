@@ -1,17 +1,19 @@
-import type { KeyValueStore } from '../shared/ports'
+import type { KeyValueRead, KeyValueStore } from '../shared/ports'
 import type { Result } from '../shared/result'
 
 const STORAGE_UNAVAILABLE = 'Browser storage is unavailable.'
 
 /** Synchronous key/value store backed by `localStorage`. */
 export class LocalStorageKeyValueStore implements KeyValueStore {
-  get(key: string): string | null {
-    if (typeof localStorage === 'undefined') return null
+  get(key: string): KeyValueRead {
+    if (typeof localStorage === 'undefined') return { kind: 'unavailable' }
     try {
-      return localStorage.getItem(key)
+      const value = localStorage.getItem(key)
+      if (value === null) return { kind: 'absent' }
+      return { kind: 'present', value }
     } catch (error) {
       console.error('localStorage get failed', error)
-      return null
+      return { kind: 'unavailable' }
     }
   }
 

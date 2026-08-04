@@ -24,6 +24,8 @@ export default function App() {
         setSetupOpen,
         openPrintSetup,
         persistError: printPersistError,
+        loadNotice: printLoadNotice,
+        clearLoadNotice,
     } = usePrintSetup()
     const [input, setInput] = useState<LabelModelInput>(getEmptyInput)
     const [hasStartedEditing, setHasStartedEditing] = useState(false)
@@ -79,6 +81,8 @@ export default function App() {
                                 onSetupOpenChange={setSetupOpen}
                                 openPrintSetup={openPrintSetup}
                                 printPersistError={printPersistError}
+                                printLoadNotice={printLoadNotice}
+                                onDismissPrintLoadNotice={clearLoadNotice}
                             />
                         )}
                         {mode === 'customDesign' && (

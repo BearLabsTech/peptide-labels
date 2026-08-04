@@ -13,6 +13,8 @@ export interface ControlSidebarProps {
     setupOpen?: boolean
     onSetupOpenChange?: (open: boolean) => void
     printPersistError?: string | null
+    printLoadNotice?: string | null
+    onDismissPrintLoadNotice?: () => void
 }
 
 export function ControlSidebar({
@@ -23,6 +25,8 @@ export function ControlSidebar({
     setupOpen,
     onSetupOpenChange,
     printPersistError = null,
+    printLoadNotice = null,
+    onDismissPrintLoadNotice,
 }: ControlSidebarProps) {
     const { autoUnits, autoWater, autoConcentration } = resolveLabelMath(input);
     const derivedState = { autoUnits, autoWater, autoConcentration };
@@ -48,6 +52,8 @@ export function ControlSidebar({
                     open={setupOpen}
                     onOpenChange={onSetupOpenChange}
                     persistError={printPersistError}
+                    loadNotice={printLoadNotice}
+                    onDismissLoadNotice={onDismissPrintLoadNotice}
                 />
                 <CompoundSection input={input} updateField={updateField} handlers={handlers} />
                 <ReconstitutionSection

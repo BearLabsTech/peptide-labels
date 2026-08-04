@@ -13,6 +13,8 @@ export interface PrintSetupSectionProps {
   open?: boolean
   onOpenChange?: (open: boolean) => void
   persistError?: string | null
+  loadNotice?: string | null
+  onDismissLoadNotice?: () => void
 }
 
 export function PrintSetupSection({
@@ -22,6 +24,8 @@ export function PrintSetupSection({
   open,
   onOpenChange,
   persistError = null,
+  loadNotice = null,
+  onDismissLoadNotice,
 }: PrintSetupSectionProps) {
   const vm = usePrintSetupSectionViewModel(selection, onChange)
 
@@ -33,6 +37,35 @@ export function PrintSetupSection({
       open={open}
       onOpenChange={onOpenChange}
     >
+      {loadNotice && (
+        <div
+          className="label-export-error"
+          role="alert"
+          style={{ marginBottom: 12, display: 'flex', gap: 8, alignItems: 'flex-start' }}
+        >
+          <p style={{ margin: 0, flex: 1 }}>{loadNotice}</p>
+          {onDismissLoadNotice && (
+            <button
+              type="button"
+              onClick={onDismissLoadNotice}
+              aria-label="Dismiss notice"
+              style={{
+                flexShrink: 0,
+                border: '1px solid currentColor',
+                borderRadius: 4,
+                background: 'transparent',
+                color: 'inherit',
+                cursor: 'pointer',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                padding: '2px 8px',
+              }}
+            >
+              Dismiss
+            </button>
+          )}
+        </div>
+      )}
       {persistError && (
         <p className="label-export-error" role="alert" style={{ marginBottom: 12 }}>
           {persistError}

@@ -44,9 +44,15 @@ export interface FileDownloader {
   download(bytes: Uint8Array, filename: string): void
 }
 
+/** Outcome of a single key read — distinguishes missing, present, and unavailable storage. */
+export type KeyValueRead =
+  | { kind: 'absent' }
+  | { kind: 'present'; value: string }
+  | { kind: 'unavailable' }
+
 /** A synchronous string key/value store — the shape `localStorage` already has. */
 export interface KeyValueStore {
-  get(key: string): string | null
+  get(key: string): KeyValueRead
   /** Returns failure when the underlying store rejects the write (quota, privacy mode, etc.). */
   set(key: string, value: string): Result<void, string>
   remove(key: string): void

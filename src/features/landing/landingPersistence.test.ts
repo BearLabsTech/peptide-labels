@@ -6,6 +6,7 @@ import {
     hasCurrentAgreementAcknowledgment,
     persistAgreementAcknowledgment,
     readAgreementAcknowledgment,
+    readAgreementAcknowledgmentDetailed,
 } from './landingPersistence'
 import { installMemoryLocalStorage } from '../../test/memoryLocalStorage'
 
@@ -22,6 +23,7 @@ describe('landingPersistence', () => {
     it('should report missing acknowledgment when nothing is stored', () => {
         expect(hasCurrentAgreementAcknowledgment()).toBe(false)
         expect(readAgreementAcknowledgment()).toBeNull()
+        expect(readAgreementAcknowledgmentDetailed()).toEqual({ kind: 'absent' })
     })
 
     it('should treat the current version as acknowledged after persist', () => {
@@ -46,19 +48,29 @@ describe('landingPersistence', () => {
     })
 
     it('should reject malformed and incomplete stored records', () => {
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
         localStorage.setItem('peptide-labels.user-agreement', '{invalid')
         expect(readAgreementAcknowledgment()).toBeNull()
+        expect(readAgreementAcknowledgmentDetailed()).toEqual({ kind: 'corrupt' })
 
         localStorage.setItem(
             'peptide-labels.user-agreement',
             JSON.stringify({ version: USER_AGREEMENT_VERSION }),
         )
         expect(readAgreementAcknowledgment()).toBeNull()
+        expect(readAgreementAcknowledgmentDetailed()).toEqual({ kind: 'corrupt' })
+        errorSpy.mockRestore()
     })
 
-    it('should remain safe when browser storage is unavailable', () => {
+    it('should report unavailable storage without changing agreement gate behavior', () => {
         delete (globalThis as { localStorage?: Storage }).localStorage
+        expect(readAgreementAcknowledgmentDetailed()).toEqual({ kind: 'unavailable' })
         expect(readAgreementAcknowledgment()).toBeNull()
+        expect(hasCurrentAgreementAcknowledgment()).toBe(false)
+    })
+
+    it('should remain safe when browser storage is unavailable for writes and clears', () => {
+        delete (globalThis as { localStorage?: Storage }).localStorage
         expect(persistAgreementAcknowledgment(() => new Date('2026-07-14T12:00:00.000Z'))).toEqual({
             ok: false,
             error: AGREEMENT_SAVE_FAILED_MESSAGE,

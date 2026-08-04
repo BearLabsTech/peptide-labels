@@ -3,12 +3,25 @@ import { LocalStorageKeyValueStore } from '../platform/LocalStorageKeyValueStore
 import type { PrintSetupSelection } from './types'
 import { DEFAULT_STOCK_ID } from './printCatalog'
 import { normalizeVialCapacityMl } from './vialCapacity'
-import type { Result } from '../shared/result'
+import { err, ok, type Result } from '../shared/result'
 
 const STORAGE_KEY = 'peptide-labels-print-setup'
 const defaultStore: KeyValueStore = new LocalStorageKeyValueStore()
 
 export const PRINT_SETUP_SAVE_FAILED_MESSAGE = 'Settings could not be saved.'
+export const PRINT_SETUP_UNREADABLE_MESSAGE =
+  "Couldn\u2019t read your saved print setup. Defaults are in place \u2014 check your printer and label size before printing."
+
+export type LoadPrintSetupResult =
+  | { kind: 'absent' }
+  | { kind: 'ok'; value: PrintSetupSelection }
+  | { kind: 'corrupt' }
+  | { kind: 'unavailable' }
+
+export type ResolveInitialPrintSetupResult = {
+  readonly selection: PrintSetupSelection
+  readonly loadNotice: string | null
+}
 
 function isPrintSetupSelection(value: unknown): value is PrintSetupSelection {
   if (typeof value !== 'object' || value == null || Array.isArray(value)) return false
@@ -76,15 +89,42 @@ export function normalizePrintSetup(selection: PrintSetupSelection): PrintSetupS
   return { ...catalogSelection, stockId: DEFAULT_STOCK_ID }
 }
 
-export function loadPrintSetup(store: KeyValueStore = defaultStore): PrintSetupSelection | null {
+export function loadPrintSetup(store: KeyValueStore = defaultStore): LoadPrintSetupResult {
+  const read = store.get(STORAGE_KEY)
+  if (read.kind === 'absent') return { kind: 'absent' }
+  if (read.kind === 'unavailable') return { kind: 'unavailable' }
+
   try {
-    const raw = store.get(STORAGE_KEY)
-    if (!raw) return null
-    const parsed: unknown = JSON.parse(raw)
-    return isPrintSetupSelection(parsed) ? normalizePrintSetup(parsed) : null
+    const parsed: unknown = JSON.parse(read.value)
+    if (!isPrintSetupSelection(parsed)) {
+      return { kind: 'corrupt' }
+    }
+    return { kind: 'ok', value: normalizePrintSetup(parsed) }
   } catch (error) {
     console.error('Print setup load failed', error)
-    return null
+    return { kind: 'corrupt' }
+  }
+}
+
+export function resolveInitialPrintSetup(
+  store: KeyValueStore = defaultStore,
+): ResolveInitialPrintSetupResult {
+  const loaded = loadPrintSetup(store)
+  const defaults = normalizePrintSetup({})
+
+  switch (loaded.kind) {
+    case 'ok':
+      return { selection: loaded.value, loadNotice: null }
+    case 'absent':
+    case 'unavailable':
+      return { selection: defaults, loadNotice: null }
+    case 'corrupt': {
+      const heal = savePrintSetup(defaults, store)
+      return {
+        selection: defaults,
+        loadNotice: heal.ok ? PRINT_SETUP_UNREADABLE_MESSAGE : null,
+      }
+    }
   }
 }
 
@@ -94,9 +134,9 @@ export function savePrintSetup(
 ): Result<void, string> {
   const result = store.set(STORAGE_KEY, JSON.stringify(normalizePrintSetup(selection)))
   if (!result.ok) {
-    return { ok: false, error: PRINT_SETUP_SAVE_FAILED_MESSAGE }
+    return err(PRINT_SETUP_SAVE_FAILED_MESSAGE)
   }
-  return result
+  return ok()
 }
 
 export function clearPrintSetup(store: KeyValueStore = defaultStore): void {

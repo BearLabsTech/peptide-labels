@@ -3,9 +3,13 @@ import { installMemoryLocalStorage } from '../test/memoryLocalStorage'
 import {
     clearPrintSetup,
     loadPrintSetup,
+    normalizePrintSetup,
     PRINT_SETUP_SAVE_FAILED_MESSAGE,
+    PRINT_SETUP_UNREADABLE_MESSAGE,
+    resolveInitialPrintSetup,
     savePrintSetup,
 } from './printStorage'
+import { MemoryKeyValueStore } from '../test/memoryKeyValueStore'
 
 const STORAGE_KEY = 'peptide-labels-print-setup'
 
@@ -15,16 +19,28 @@ describe('print setup persistence', () => {
         vi.restoreAllMocks()
     })
 
-    it('should return null when storage is empty or malformed', () => {
-        expect(loadPrintSetup()).toBeNull()
+    it('should report absent when storage is empty', () => {
+        expect(loadPrintSetup()).toEqual({ kind: 'absent' })
+    })
+
+    it('should report corrupt for malformed JSON or invalid shape', () => {
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
         localStorage.setItem(STORAGE_KEY, '{invalid')
-        expect(loadPrintSetup()).toBeNull()
+        expect(loadPrintSetup()).toEqual({ kind: 'corrupt' })
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ widthMm: 'wide' }))
-        expect(loadPrintSetup()).toBeNull()
+        expect(loadPrintSetup()).toEqual({ kind: 'corrupt' })
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify([]))
-        expect(loadPrintSetup()).toBeNull()
+        expect(loadPrintSetup()).toEqual({ kind: 'corrupt' })
+
+        errorSpy.mockRestore()
+    })
+
+    it('should report unavailable when browser storage cannot be read', () => {
+        delete (globalThis as { localStorage?: Storage }).localStorage
+        expect(loadPrintSetup()).toEqual({ kind: 'unavailable' })
     })
 
     it('should save canonical state and load it unchanged', () => {
@@ -40,9 +56,12 @@ describe('print setup persistence', () => {
             vialCapacityMl: 7.5,
         })
         expect(loadPrintSetup()).toEqual({
-            printerId: 'niimbot-b21',
-            stockId: '40x20-rounded',
-            vialCapacityMl: 7.5,
+            kind: 'ok',
+            value: {
+                printerId: 'niimbot-b21',
+                stockId: '40x20-rounded',
+                vialCapacityMl: 7.5,
+            },
         })
     })
 
@@ -53,12 +72,15 @@ describe('print setup persistence', () => {
         }))
 
         expect(loadPrintSetup()).toEqual({
-            stockId: '50x30-rounded',
-            vialCapacityMl: 10,
+            kind: 'ok',
+            value: {
+                stockId: '50x30-rounded',
+                vialCapacityMl: 10,
+            },
         })
 
         clearPrintSetup()
-        expect(loadPrintSetup()).toBeNull()
+        expect(loadPrintSetup()).toEqual({ kind: 'absent' })
     })
 
     it('should surface a settings-could-not-be-saved result when storage writes fail', () => {
@@ -77,5 +99,59 @@ describe('print setup persistence', () => {
         }
         expect(() => clearPrintSetup()).not.toThrow()
         errorSpy.mockRestore()
+    })
+})
+
+describe('resolveInitialPrintSetup', () => {
+    const defaults = normalizePrintSetup({})
+
+    it('should use stored selection when load succeeds', () => {
+        const store = new MemoryKeyValueStore()
+        store.seed(STORAGE_KEY, JSON.stringify({
+            printerId: 'niimbot-b21',
+            stockId: '40x20-rounded',
+            vialCapacityMl: 7.5,
+        }))
+
+        expect(resolveInitialPrintSetup(store)).toEqual({
+            selection: {
+                printerId: 'niimbot-b21',
+                stockId: '40x20-rounded',
+                vialCapacityMl: 7.5,
+            },
+            loadNotice: null,
+        })
+    })
+
+    it('should use defaults without notice when storage is absent or unavailable', () => {
+        expect(resolveInitialPrintSetup(new MemoryKeyValueStore())).toEqual({
+            selection: defaults,
+            loadNotice: null,
+        })
+        expect(resolveInitialPrintSetup(new MemoryKeyValueStore({ unavailable: true }))).toEqual({
+            selection: defaults,
+            loadNotice: null,
+        })
+    })
+
+    it('should self-heal corrupt storage and show a notice when the heal write succeeds', () => {
+        const store = new MemoryKeyValueStore()
+        store.seed(STORAGE_KEY, '{invalid')
+
+        expect(resolveInitialPrintSetup(store)).toEqual({
+            selection: defaults,
+            loadNotice: PRINT_SETUP_UNREADABLE_MESSAGE,
+        })
+        expect(loadPrintSetup(store)).toEqual({ kind: 'ok', value: defaults })
+    })
+
+    it('should keep defaults in memory without a notice when corrupt self-heal write fails', () => {
+        const store = new MemoryKeyValueStore({ setFails: true })
+        store.seed(STORAGE_KEY, '{invalid')
+
+        expect(resolveInitialPrintSetup(store)).toEqual({
+            selection: defaults,
+            loadNotice: null,
+        })
     })
 })

@@ -4,9 +4,8 @@ import { BrowserScroller } from '../../platform/BrowserScroller'
 import type { PrintSetupSelection } from '../../print/types'
 import { resolvePrintTarget } from '../../print/PrintTargetResolver'
 import {
-  loadPrintSetup,
-  normalizePrintSetup,
   PRINT_SETUP_SAVE_FAILED_MESSAGE,
+  resolveInitialPrintSetup,
   savePrintSetup,
 } from '../../print/printStorage'
 import { openPrintSetupSection } from './openPrintSetupSection'
@@ -21,11 +20,11 @@ function persistPrintSelection(selection: PrintSetupSelection): string | null {
 }
 
 export function usePrintSetup(scroller: Scroller = defaultScroller) {
-  const [selection, setSelectionState] = useState<PrintSetupSelection>(() =>
-    normalizePrintSetup(loadPrintSetup() ?? {}),
-  )
+  const [initial] = useState(() => resolveInitialPrintSetup())
+  const [selection, setSelectionState] = useState<PrintSetupSelection>(() => initial.selection)
   const [setupOpen, setSetupOpen] = useState(false)
   const [persistError, setPersistError] = useState<string | null>(null)
+  const [loadNotice, setLoadNotice] = useState<string | null>(() => initial.loadNotice)
 
   const printTarget = useMemo(() => resolvePrintTarget(selection), [selection])
 
@@ -33,6 +32,8 @@ export function usePrintSetup(scroller: Scroller = defaultScroller) {
     setSelectionState(next)
     setPersistError(persistPrintSelection(next))
   }, [])
+
+  const clearLoadNotice = useCallback(() => setLoadNotice(null), [])
 
   const openPrintSetup = useCallback(() => {
     openPrintSetupSection(setSetupOpen, scroller)
@@ -46,5 +47,7 @@ export function usePrintSetup(scroller: Scroller = defaultScroller) {
     setSetupOpen,
     openPrintSetup,
     persistError,
+    loadNotice,
+    clearLoadNotice,
   }
 }
