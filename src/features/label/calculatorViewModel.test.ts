@@ -4,8 +4,8 @@ import {
     formatWaterVolumeDisplay,
     parseDrawUnitsChipValue,
     protocolAmountChipSuffixFor,
-    useCalculatorViewModel,
-} from './useCalculatorViewModel'
+    calculatorViewModel,
+} from './calculatorViewModel'
 import {
     aLabelInput,
     forwardMathScenario,
@@ -60,9 +60,9 @@ describe('protocolAmountChipSuffixFor', () => {
     })
 })
 
-describe('useCalculatorViewModel', () => {
+describe('calculatorViewModel', () => {
     it('should show the hint and placeholder results before compound and protocol amounts are entered', () => {
-        const vm = useCalculatorViewModel({ input: {}, updateField: vi.fn(), vialCapacityMl: 3 })
+        const vm = calculatorViewModel({ input: {}, updateField: vi.fn(), vialCapacityMl: 3 })
         expect(vm.showHint).toBe(true)
         expect(vm.readyForResults).toBe(false)
         expect(vm.results.protocolAmount).toBe('—')
@@ -73,7 +73,7 @@ describe('useCalculatorViewModel', () => {
 
     it('should compute full results for a ready manual-entry (standard mode) scenario', () => {
         const input = manualEntryScenario()
-        const vm = useCalculatorViewModel({ input, updateField: vi.fn(), vialCapacityMl: 3 })
+        const vm = calculatorViewModel({ input, updateField: vi.fn(), vialCapacityMl: 3 })
         expect(vm.readyForResults).toBe(true)
         expect(vm.showWaterField).toBe(true)
         expect(vm.showDrawField).toBe(false)
@@ -84,7 +84,7 @@ describe('useCalculatorViewModel', () => {
 
     it('should show the draw-units field only in Set Draw Volume mode', () => {
         const input = roundTripDriftTrapScenario()
-        const vm = useCalculatorViewModel({ input, updateField: vi.fn(), vialCapacityMl: 3 })
+        const vm = calculatorViewModel({ input, updateField: vi.fn(), vialCapacityMl: 3 })
         expect(vm.showDrawField).toBe(true)
         expect(vm.showWaterField).toBe(false)
         expect(vm.showTargetConcentrationField).toBe(false)
@@ -93,7 +93,7 @@ describe('useCalculatorViewModel', () => {
 
     it('should show the target-concentration field only in Set Concentration mode', () => {
         const input = roundConcentrationRoundingTrapScenario()
-        const vm = useCalculatorViewModel({ input, updateField: vi.fn(), vialCapacityMl: 3 })
+        const vm = calculatorViewModel({ input, updateField: vi.fn(), vialCapacityMl: 3 })
         expect(vm.showTargetConcentrationField).toBe(true)
         expect(vm.showWaterField).toBe(false)
         expect(vm.showDrawField).toBe(false)
@@ -106,33 +106,33 @@ describe('useCalculatorViewModel', () => {
             .withProtocol('1', 'mg')
             .inMode('standard')
             .build()
-        const vm = useCalculatorViewModel({ input, updateField: vi.fn(), vialCapacityMl: 3 })
+        const vm = calculatorViewModel({ input, updateField: vi.fn(), vialCapacityMl: 3 })
         expect(vm.showVialCapacityWarning).toBe(true)
     })
 
     it('should not flag the vial-capacity warning for a scenario within capacity', () => {
         const input = forwardMathScenario()
-        const vm = useCalculatorViewModel({ input, updateField: vi.fn(), vialCapacityMl: 3 })
+        const vm = calculatorViewModel({ input, updateField: vi.fn(), vialCapacityMl: 3 })
         expect(vm.showVialCapacityWarning).toBe(false)
     })
 
     it('should block results and surface the compound-exceeded flag when protocol exceeds compound', () => {
         const input = { compoundAmount: '5', protocolAmount: '10', vialUnit: 'mg' as const, measureUnit: 'mg' as const }
-        const vm = useCalculatorViewModel({ input, updateField: vi.fn(), vialCapacityMl: 3 })
+        const vm = calculatorViewModel({ input, updateField: vi.fn(), vialCapacityMl: 3 })
         expect(vm.blocked).toBe(true)
         expect(vm.readyForResults).toBe(false)
     })
 
     it('should dispatch the mode change event through onModeSelect', () => {
         const updateField = vi.fn()
-        const vm = useCalculatorViewModel({ input: manualEntryScenario(), updateField, vialCapacityMl: 3 })
+        const vm = calculatorViewModel({ input: manualEntryScenario(), updateField, vialCapacityMl: 3 })
         vm.onModeSelect('Set Draw Volume')
         expect(updateField).toHaveBeenCalledWith('calculatorSolveMode', 'target_units')
     })
 
     it('should parse and dispatch the draw-units chip value via onDrawUnitsChipChange', () => {
         const updateField = vi.fn()
-        const vm = useCalculatorViewModel({ input: roundTripDriftTrapScenario(), updateField, vialCapacityMl: 3 })
+        const vm = calculatorViewModel({ input: roundTripDriftTrapScenario(), updateField, vialCapacityMl: 3 })
         vm.onDrawUnitsChipChange('12 u')
         expect(updateField).toHaveBeenCalledWith('protocolUnits', '12 units')
     })

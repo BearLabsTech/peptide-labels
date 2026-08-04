@@ -7,7 +7,7 @@ import {
     enableCustomSizeState,
     isPersistedCustomSize,
     selectCatalogStockPatch,
-} from './usePrintSetupSectionViewModel'
+} from './printSetupSectionViewModel'
 import type { PrintSetupSelection } from '../../../print/types'
 
 describe('isPersistedCustomSize', () => {

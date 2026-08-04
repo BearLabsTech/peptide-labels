@@ -5,7 +5,7 @@ import { SyringeAssist } from './syringe/SyringeAssist'
 import type { SyringeCapacityMl } from './syringe'
 import { VialCapacityControl } from './components/VialCapacityControl'
 import { VialCapacityWarning } from './components/VialCapacityWarning'
-import { useCalculatorViewModel } from './useCalculatorViewModel'
+import { calculatorViewModel } from './calculatorViewModel'
 import { FIELD_LABELS, HANDOFF_PROMPT } from './uiStrings'
 import './CalculatorView.css'
 
@@ -24,7 +24,7 @@ export function CalculatorView({
     onVialCapacityChange,
     onRequestLabelHandoff,
 }: CalculatorViewProps) {
-    const vm = useCalculatorViewModel({ input, updateField, vialCapacityMl })
+    const vm = calculatorViewModel({ input, updateField, vialCapacityMl })
 
     return (
         <div className="calculator-view">

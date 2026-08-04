@@ -30,7 +30,7 @@ import { hasPositiveCompoundAmount, resolveCalculatorMode, type CalculatorSolveM
 
 const NOT_READY_PLACEHOLDER = '—'
 
-export interface UseCalculatorViewModelOptions {
+export interface CalculatorViewModelOptions {
     input: LabelModelInput
     updateField: LabelFieldUpdater
     vialCapacityMl: number
@@ -101,14 +101,14 @@ export function protocolAmountChipSuffixFor(
 /**
  * Owns every derived value and dispatch wrapper for {@link CalculatorView.tsx}. The math
  * itself already lives in `LabelMathResolver` / `calculatorGuards` / `calculatorModeSwitch`;
- * this hook's job is composing those into the exact render props the view needs, so no
+ * this module's job is composing those into the exact render props the view needs, so no
  * domain rule or formatting decision is left encoded in JSX.
  */
-export function useCalculatorViewModel({
+export function calculatorViewModel({
     input,
     updateField,
     vialCapacityMl,
-}: UseCalculatorViewModelOptions): CalculatorViewModel {
+}: CalculatorViewModelOptions): CalculatorViewModel {
     const resolved = resolveLabelMath(input)
     const derivedState = {
         autoUnits: resolved.autoUnits,

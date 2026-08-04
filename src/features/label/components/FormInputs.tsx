@@ -154,6 +154,7 @@ export function SelectInput<T extends string>({ label, value, onChange, options,
 export interface ImageUploadProps { label: string; onChange: (base64: string) => void; currentImage?: string; }
 export function ImageUploadInput({ label, onChange, currentImage }: ImageUploadProps) {
     const inputId = useId()
+    const errorId = `${inputId}-error`
     const [fileName, setFileName] = useState<string | null>(null)
     const [isReading, setIsReading] = useState(false)
     const [uploadError, setUploadError] = useState<string | null>(null)
@@ -193,6 +194,8 @@ export function ImageUploadInput({ label, onChange, currentImage }: ImageUploadP
                         className="dropzone-input"
                         disabled={isReading}
                         aria-busy={isReading}
+                        aria-describedby={uploadError ? errorId : undefined}
+                        aria-invalid={uploadError ? true : undefined}
                     />
                     <div className="dropzone-text">
                         {isReading ? 'Reading image…' : 'Click to browse or drop image'}
@@ -207,7 +210,7 @@ export function ImageUploadInput({ label, onChange, currentImage }: ImageUploadP
                 </div>
             )}
             {uploadError && (
-                <p className="label-export-error" role="alert" style={{ marginTop: 8 }}>
+                <p id={errorId} className="label-export-error" role="alert" style={{ marginTop: 8 }}>
                     {uploadError}
                 </p>
             )}

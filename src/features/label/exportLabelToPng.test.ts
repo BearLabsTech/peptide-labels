@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from 'vitest'
-import { exportLabelToPng } from './useLabelStageViewModel'
+import { describe, expect, it } from 'vitest'
+import { exportLabelToPng } from './exportLabelToPng'
 import type { PrintTarget } from '../../print/types'
 
 const printTarget: PrintTarget = {
@@ -14,17 +14,26 @@ const printTarget: PrintTarget = {
 
 describe('exportLabelToPng', () => {
     it('should export via the injected export function and report success', async () => {
-        const exportLabel = vi.fn().mockResolvedValue(undefined)
+        const calls: Array<[HTMLDivElement, PrintTarget, string | undefined]> = []
+        const exportLabel = async (
+            element: HTMLDivElement,
+            target: PrintTarget,
+            compoundName?: string,
+        ) => {
+            calls.push([element, target, compoundName])
+        }
         const element = {} as HTMLDivElement
 
         const result = await exportLabelToPng(element, printTarget, 'Tirzepatide', exportLabel)
 
         expect(result).toEqual({ ok: true })
-        expect(exportLabel).toHaveBeenCalledWith(element, printTarget, 'Tirzepatide')
+        expect(calls).toEqual([[element, printTarget, 'Tirzepatide']])
     })
 
     it('should surface a discoverable error when the export function throws', async () => {
-        const exportLabel = vi.fn().mockRejectedValue(new Error('boom'))
+        const exportLabel = async () => {
+            throw new Error('boom')
+        }
         const element = {} as HTMLDivElement
 
         const result = await exportLabelToPng(element, printTarget, undefined, exportLabel)

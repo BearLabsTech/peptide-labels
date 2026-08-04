@@ -24,7 +24,8 @@ export default defineConfig({
         'src/main.tsx',
         // Humble React wrappers (Phase 5): hold only React state / DOM wiring; the
         // logic they call is unit-tested elsewhere (ports, use cases, pure helpers).
-        // Pure helpers live in sibling modules (e.g. applyDesignOperations.ts) that stay included.
+        // Pure helpers live in sibling modules (e.g. applyDesignOperations.ts,
+        // printSetupSectionViewModel.ts, calculatorViewModel.ts) that stay included.
         'src/features/customDesign/useApplyDesignViewModel.ts',
         'src/features/customDesign/useDesignLibrary.ts',
         'src/features/landing/useAgreementGate.ts',
@@ -33,8 +34,6 @@ export default defineConfig({
         'src/features/label/useLabelExport.ts',
         'src/app/useLabelExport.ts',
         'src/features/label/usePrintSetup.ts',
-        'src/features/label/useCalculatorViewModel.ts',
-        'src/features/label/components/useSidebarSectionsViewModel.ts',
         'src/features/label/components/usePrintSetupSectionViewModel.ts',
         'src/features/label/WorkspaceErrorBoundary.tsx',
         // React components are humble by policy (testing-vitest.mdc) — not unit-tested.
@@ -50,11 +49,16 @@ export default defineConfig({
       // QrRenderLayoutModel alias first dipped functions to 88.99 (dead code removed
       // along with its own tests), then recovered to 89.68 once those tests were
       // deleted too (denominator shrank more than numerator). Measured 88.46/85.25/89.68/90.13.
+      // 2026-08-04 pre-complexity action 6: un-excluded calculatorViewModel.ts and
+      // sidebarSectionsViewModel.ts (pure, misnamed as hooks) and extracted
+      // printSetupSectionViewModel.ts. Measured 90.6 / 89.68 / 90.34 / 92.18
+      // (stmts/branch/funcs/lines) — rose because two well-tested pure modules
+      // entered the denominator with high coverage. Ratchet just under.
       thresholds: {
-        lines: 90,
-        statements: 88,
-        branches: 85,
-        functions: 89,
+        lines: 92,
+        statements: 90,
+        branches: 89,
+        functions: 90,
       },
     },
   },

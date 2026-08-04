@@ -13,9 +13,9 @@ import type { LabelFormHandlers } from '../useLabelForm'
 import { VialCapacityWarning } from './VialCapacityWarning'
 import {
     updateTestResult,
-    useSidebarSectionsViewModel,
+    sidebarSectionsViewModel,
     type SidebarSectionsDerivedState,
-} from './useSidebarSectionsViewModel'
+} from './sidebarSectionsViewModel'
 import { COA_FIELD_LABELS, FIELD_LABELS } from '../uiStrings'
 import { inputStyle } from './formStyles'
 
@@ -44,7 +44,7 @@ export function CompoundSection({ input, updateField, handlers }: SectionProps) 
 }
 
 export function SourceSection({ input, updateField }: SectionProps) {
-    const vm = useSidebarSectionsViewModel({ input }).source
+    const vm = sidebarSectionsViewModel({ input }).source
     return (
         <AccordionSection title="Source">
             <ToggleInput label="Print Source on Label" checked={vm.isSectionActive} onChange={v => updateField('showSource', v)} />
@@ -63,7 +63,7 @@ export function ReconstitutionSection({
     handlers,
     vialCapacityMl = 3,
 }: SectionProps) {
-    const vm = useSidebarSectionsViewModel({ input, derivedState, vialCapacityMl }).reconstitution
+    const vm = sidebarSectionsViewModel({ input, derivedState, vialCapacityMl }).reconstitution
     return (
         <AccordionSection title="Reconstitution">
             <ToggleInput label="Print Reconstitution on Label" checked={vm.isSectionActive} onChange={v => updateField('showReconstitution', v)} />
@@ -103,7 +103,7 @@ export function ReconstitutionSection({
 }
 
 export function ProtocolSection({ input, updateField, derivedState, handlers }: SectionProps) {
-    const vm = useSidebarSectionsViewModel({ input, derivedState }).protocol
+    const vm = sidebarSectionsViewModel({ input, derivedState }).protocol
 
     return (
         <AccordionSection title="Protocol">
@@ -148,7 +148,7 @@ export function MediaSection({ input, updateField }: SectionProps) {
 }
 
 export function TestingSection({ input, updateField }: SectionProps) {
-    const vm = useSidebarSectionsViewModel({ input }).testing
+    const vm = sidebarSectionsViewModel({ input }).testing
 
     return (
         <AccordionSection title="Testing">

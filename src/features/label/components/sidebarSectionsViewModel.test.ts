@@ -5,8 +5,8 @@ import {
     deriveSourceSectionViewModel,
     deriveTestingSectionViewModel,
     updateTestResult,
-    useSidebarSectionsViewModel,
-} from './useSidebarSectionsViewModel'
+    sidebarSectionsViewModel,
+} from './sidebarSectionsViewModel'
 import {
     aLabelInput,
     manualEntryScenario,
@@ -112,9 +112,9 @@ describe('updateTestResult', () => {
     })
 })
 
-describe('useSidebarSectionsViewModel', () => {
+describe('sidebarSectionsViewModel', () => {
     it('should compose all four section view models from shared input', () => {
-        const vm = useSidebarSectionsViewModel({ input: manualEntryScenario() })
+        const vm = sidebarSectionsViewModel({ input: manualEntryScenario() })
         expect(vm.source.isSectionActive).toBe(true)
         expect(vm.reconstitution.solveMode).toBe('standard')
         expect(vm.protocol.solveMode).toBe('standard')

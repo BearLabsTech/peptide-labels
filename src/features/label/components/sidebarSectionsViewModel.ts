@@ -28,7 +28,7 @@ export interface SidebarSectionsDerivedState {
     autoConcentration: string
 }
 
-export interface UseSidebarSectionsViewModelOptions {
+export interface SidebarSectionsViewModelOptions {
     input: LabelModelInput
     derivedState?: SidebarSectionsDerivedState
     vialCapacityMl?: number
@@ -154,11 +154,11 @@ export function updateTestResult(
  * section components stop importing domain modules directly and only render already
  * computed booleans, labels, and options.
  */
-export function useSidebarSectionsViewModel({
+export function sidebarSectionsViewModel({
     input,
     derivedState,
     vialCapacityMl = 3,
-}: UseSidebarSectionsViewModelOptions): SidebarSectionsViewModel {
+}: SidebarSectionsViewModelOptions): SidebarSectionsViewModel {
     return {
         source: deriveSourceSectionViewModel(input),
         reconstitution: deriveReconstitutionSectionViewModel(input, derivedState, vialCapacityMl),

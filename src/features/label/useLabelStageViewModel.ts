@@ -18,12 +18,10 @@ export interface LabelStageViewModel {
     downloadLabel: (element: HTMLDivElement | null) => Promise<void>
 }
 
-/** Re-export for existing tests that target the pure export helper. */
-export { exportLabelToPng } from './exportLabelToPng'
-
 /**
  * Owns the export state and orchestration for {@link LabelStage.tsx}. Export itself goes
  * through {@link useLabelExport} -> `exportLabelPng` -> `ExportLabelUseCase`.
+ * Pure export Result helper lives in {@link ./exportLabelToPng.ts}.
  */
 export function useLabelStageViewModel({
     printTarget,

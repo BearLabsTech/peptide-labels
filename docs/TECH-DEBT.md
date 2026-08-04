@@ -10,6 +10,16 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
+### Consider adding `eslint-plugin-jsx-a11y`
+
+**Symptom:** accessibility rules are not enforced by lint. The concrete missing `aria-describedby` on the image upload was fixed by hand in 2026-08-04 (pre-complexity action 6); a plugin would catch the next one. Per plan D5 this is a new dependency and needs an explicit go-ahead.
+
+**Priority:** Low.
+
+**Where to look / hypotheses:**
+- Ask before adding `eslint-plugin-jsx-a11y` (or the flat-config equivalent) to `eslint.config.js`.
+- Wire recommended rules for `src/**/*.tsx` only; components are already humble and not unit-tested, so lint is the main a11y gate.
+
 ### The `**/*.tsx` import ban cannot fire, so JSX purity is unenforced
 
 **Symptom:** the purity blocks in `eslint.config.js` (both the pre-existing `src/**/domain/**` one and the label math/composition one added 2026-08-04) include a `patterns` entry banning `**/*.tsx`. That pattern matches the **import specifier string**, and TypeScript imports omit the extension — real code writes `from './LabelPreview'`, never `from './LabelPreview.tsx'`. Verified 2026-08-04 with a probe module importing `./LabelPreview` from `src/features/label/`: no error was reported.
