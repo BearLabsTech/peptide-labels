@@ -23,12 +23,16 @@ State: each layer has one job and a fixed dependency direction. For this codebas
 |---|---|---|
 | Domain (`peptideMath.ts`, `LabelMathResolver.ts`, value objects) | Math and business rules | Nothing else in the app |
 | Composition (`LabelComposer.ts`, `LabelLayoutEngine.ts`) | Turn domain output into a render plan | Domain |
-| App / use cases (`src/app`) | Orchestrate I/O through ports | Domain, composition, ports, print |
-| Infrastructure / adapters (`src/platform`) | Implement ports against real browser APIs | Ports and pure print utilities — it is called, it does not call up into UI |
-| Shared print (`src/print`) | Dimensions, catalog, export spec, print storage helpers | Label vial-capacity helpers (temporary until vial capacity is fully shared) |
+| App / use cases (`src/app`) | Orchestrate I/O through ports | Domain, composition, ports, print — **never a concrete adapter** |
+| Composition root (`src/app/exportLabelPng.ts`) | Construct adapters and inject them into a use case | Adapters in `src/platform` plus the use case it wires |
+| Shared React state wrapper (`src/app/use*.ts`) | Hold busy/error state around a use case, shared by more than one feature | The use case and React — no adapters |
+| Infrastructure / adapters (`src/platform`) | Implement ports against real browser APIs | Ports and pure print utilities — it is called, it does not call up into UI or a feature |
+| Shared print (`src/print`) | Dimensions, catalog, export spec, print storage helpers | Ports, platform key/value adapter — never a feature |
 | UI (`.tsx` components) | Render a view model and dispatch events | App, view models — never domain math or browser APIs directly |
 
-The direction is one-way: UI depends on app depends on domain; nothing domain-level imports React, the DOM, or a browser API. See `domain-label-architecture.mdc` for the enforced version of this table.
+The direction is one-way: UI depends on app depends on domain; nothing domain-level imports React, the DOM, or a browser API. Two rows exist specifically because dependency inversion needs somewhere to put the concretions: a use case depends only on the port interfaces in `src/shared/ports.ts`, and exactly one composition root builds the real adapters and hands them over.
+
+`eslint.config.js` is the executable copy of this table — every row above has a matching `no-restricted-imports` block. Change both together. See `domain-label-architecture.mdc` for the label-feature view of the same boundaries.
 
 ### SOLID, for this codebase specifically
 

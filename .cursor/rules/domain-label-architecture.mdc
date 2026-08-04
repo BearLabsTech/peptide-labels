@@ -8,14 +8,20 @@ alwaysApply: false
 
 Keep these concerns **strictly decoupled**:
 
-| Concern | Primary home |
+| Concern | Primary home (directory) |
 |--------|----------------|
-| Math (forward + reverse calculations, units, water, etc.) | `LabelMathResolver.ts` (and `peptideMath.ts` where shared) |
-| String building / layout structure | `LabelComposer.ts`, `LabelLayoutEngine.ts` |
-| On-screen / print rendering | `LabelPreview.tsx` (and related CSS) |
-| Orchestration of I/O (export, save, load) | Use cases in `app`, depending only on port interfaces |
-| Browser APIs (storage, canvas, download, DOM query) | Adapters in `src/platform`, implementing those ports |
+| Math (forward + reverse calculations, units, water, etc.) | `src/features/label/LabelMathResolver.ts`, `src/features/label/peptideMath.ts`, `src/features/label/domain/` |
+| String building / layout structure | `src/features/label/LabelComposer.ts`, `LabelLayoutEngine.ts`, `templates/` |
+| On-screen / print rendering | `src/features/label/LabelPreview.tsx` (and related CSS) |
+| Orchestration of I/O (export, save, load) | Use cases in `src/app/`, depending only on port interfaces in `src/shared/ports.ts` |
+| Wiring concrete adapters into a use case | The composition root `src/app/exportLabelPng.ts` — the one place in `src/app` allowed to import `src/platform` |
+| Shared React state around a use case | `src/app/use*.ts` (e.g. `useLabelExport.ts`) — a genuine hook, shared by `label` and `customDesign`, so it cannot live in either feature |
+| Browser APIs (storage, canvas, download, DOM query) | Adapters in `src/platform/`, implementing those ports |
 | Derived / display values shown in a component | A pure view-model or presenter function the component calls, per the Humble Object rule in `testing-vitest.mdc` |
+
+These boundaries are enforced by `no-restricted-imports` blocks in [eslint.config.js](../../eslint.config.js) — that config is the executable copy of this table. When a row changes, change the matching block in the same edit; do not let the two describe different boundaries.
+
+The label math, composition, and template modules live in the feature root rather than a `domain/` directory, so the lint block enumerates `src/features/label/*.ts` and `src/features/label/templates/*.ts` (excluding `use*.ts` and tests) instead of relying on a path convention. React **type** imports are allowed there and in `src/print` / `src/shared`; React **values** are not.
 
 Do not move calculation logic into the preview for convenience, or preview-specific hacks into the resolver. Do not call a browser API (`localStorage`, `IndexedDB`, `canvas`, `FileReader`, `document.*`) directly from a domain or app module — go through a port so the logic stays testable without a DOM.
 

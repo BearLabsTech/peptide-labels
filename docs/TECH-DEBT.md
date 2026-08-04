@@ -10,7 +10,18 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
-*(none — agent-closeable debt is cleared; hardware items live in [HUMAN-TASKS.md](./HUMAN-TASKS.md).)*
+### The `**/*.tsx` import ban cannot fire, so JSX purity is unenforced
+
+**Symptom:** the purity blocks in `eslint.config.js` (both the pre-existing `src/**/domain/**` one and the label math/composition one added 2026-08-04) include a `patterns` entry banning `**/*.tsx`. That pattern matches the **import specifier string**, and TypeScript imports omit the extension — real code writes `from './LabelPreview'`, never `from './LabelPreview.tsx'`. Verified 2026-08-04 with a probe module importing `./LabelPreview` from `src/features/label/`: no error was reported.
+
+**Priority:** Low. The adjacent rules do the load-bearing work — React **values** and `src/platform` imports are both correctly blocked and proven to fire, and a `.tsx` module that pulled in React would be caught by the React ban at its own layer. This is a rule that looks like enforcement without being it, not a live purity hole.
+
+**Where to look / hypotheses:**
+- `eslint.config.js` — the `group: ['**/*.tsx']` entries in the label purity block and the `src/**/domain/**` block.
+- Options: drop the dead pattern and rely on the React-value ban; or replace it with something specifier-based that can actually match, such as banning the directories that hold components (`**/components/**`) from pure modules, after checking no pure module legitimately imports one.
+- Whichever way it goes, prove the replacement fires with a probe module before trusting it.
+
+---
 
 ---
 
