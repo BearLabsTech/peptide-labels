@@ -3,6 +3,7 @@ import { BrowserFileDownloader } from '../platform/BrowserFileDownloader'
 import { CanvasImageProcessor } from '../platform/CanvasImageProcessor'
 import { HtmlToImageRasterizer } from '../platform/HtmlToImageRasterizer'
 import type { PrintTarget } from '../print/types'
+import type { Result } from '../shared/result'
 
 const defaultExportUseCase = new ExportLabelUseCase(
   new HtmlToImageRasterizer(),
@@ -18,6 +19,6 @@ export async function exportLabelPng(
   element: HTMLDivElement,
   printTarget: PrintTarget,
   compoundName?: string,
-): Promise<void> {
-  await defaultExportUseCase.execute(element, printTarget, compoundName)
+): Promise<Result<void, string>> {
+  return defaultExportUseCase.execute(element, printTarget, compoundName)
 }

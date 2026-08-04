@@ -166,11 +166,10 @@ export async function exportApplyDesignLabelPng(
   compoundName: string,
   exportLabel: typeof exportLabelPng,
 ): Promise<SimpleResult> {
-  try {
-    await exportLabel(element, printTarget, compoundName)
-    return ok()
-  } catch (error) {
-    console.error('Apply-design PNG export failed', error)
+  const result = await exportLabel(element, printTarget, compoundName)
+  if (!result.ok) {
+    console.error('Apply-design PNG export failed', result.error)
     return err('Couldn’t download the label. Try again.')
   }
+  return ok()
 }

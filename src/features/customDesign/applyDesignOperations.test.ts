@@ -241,7 +241,7 @@ describe('exportDesignFileToDisk', () => {
 
 describe('exportApplyDesignLabelPng', () => {
   it('should export via the injected export function and report success', async () => {
-    const exportLabel = vi.fn().mockResolvedValue(undefined)
+    const exportLabel = vi.fn().mockResolvedValue({ ok: true, value: undefined })
     const element = {} as HTMLDivElement
     const printTarget = {
       labelWidthMm: 40,
@@ -259,8 +259,8 @@ describe('exportApplyDesignLabelPng', () => {
     expect(exportLabel).toHaveBeenCalledWith(element, printTarget, 'Tirzepatide')
   })
 
-  it('should surface a discoverable error when the export function throws', async () => {
-    const exportLabel = vi.fn().mockRejectedValue(new Error('boom'))
+  it('should surface a discoverable error when the export function returns failure', async () => {
+    const exportLabel = vi.fn().mockResolvedValue({ ok: false, error: 'upstream' })
     const element = {} as HTMLDivElement
     const printTarget = {
       labelWidthMm: 40,

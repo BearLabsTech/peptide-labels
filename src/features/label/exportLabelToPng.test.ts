@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { exportLabelToPng } from './exportLabelToPng'
 import type { PrintTarget } from '../../print/types'
+import { err, ok } from '../../shared/result'
 
 const printTarget: PrintTarget = {
     labelWidthMm: 40,
@@ -21,6 +22,7 @@ describe('exportLabelToPng', () => {
             compoundName?: string,
         ) => {
             calls.push([element, target, compoundName])
+            return ok()
         }
         const element = {} as HTMLDivElement
 
@@ -30,10 +32,8 @@ describe('exportLabelToPng', () => {
         expect(calls).toEqual([[element, printTarget, 'Tirzepatide']])
     })
 
-    it('should surface a discoverable error when the export function throws', async () => {
-        const exportLabel = async () => {
-            throw new Error('boom')
-        }
+    it('should pass through a failure Result from the export function', async () => {
+        const exportLabel = async () => err('Couldn’t download the label. Try again.')
         const element = {} as HTMLDivElement
 
         const result = await exportLabelToPng(element, printTarget, undefined, exportLabel)

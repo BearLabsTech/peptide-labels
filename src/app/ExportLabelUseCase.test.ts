@@ -6,7 +6,8 @@ import type {
   Rasterizer,
 } from '../shared/ports'
 import { resolvePrintTarget } from '../print/PrintTargetResolver'
-import { ExportLabelUseCase } from './ExportLabelUseCase'
+import { ExportLabelUseCase, LABEL_EXPORT_ERROR_MESSAGE } from './ExportLabelUseCase'
+import { ok } from '../shared/result'
 
 describe('ExportLabelUseCase', () => {
   it('should rasterize, convert to monochrome at the export DPI, and download with the compound filename', async () => {
@@ -34,9 +35,30 @@ describe('ExportLabelUseCase', () => {
     }
 
     const useCase = new ExportLabelUseCase(rasterizer, imageProcessor, downloader)
-    await useCase.execute(element, printTarget, 'Tirzepatide')
+    const result = await useCase.execute(element, printTarget, 'Tirzepatide')
 
+    expect(result).toEqual(ok())
     expect(downloader.lastBytes).toBe(monoBytes)
     expect(downloader.lastFileName).toBe('tirzepatide-export.png')
+  })
+
+  it('should return a discoverable Result when a port rejects', async () => {
+    const printTarget = resolvePrintTarget({ stockId: '40x20-rounded' })
+    const rasterizer: Rasterizer = {
+      capture: async () => {
+        throw new Error('boom')
+      },
+    }
+    const imageProcessor: ImageProcessor = {
+      toMonochrome: async () => new Uint8Array() as PngBytes,
+    }
+    const downloader: FileDownloader = {
+      download() {},
+    }
+
+    const useCase = new ExportLabelUseCase(rasterizer, imageProcessor, downloader)
+    const result = await useCase.execute({} as HTMLElement, printTarget, 'Tirzepatide')
+
+    expect(result).toEqual({ ok: false, error: LABEL_EXPORT_ERROR_MESSAGE })
   })
 })
