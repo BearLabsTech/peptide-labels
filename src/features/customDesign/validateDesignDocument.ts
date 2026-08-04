@@ -201,58 +201,59 @@ export function validateDesignDocument(input: unknown): DesignDocumentValidation
     push(issues, 'assets', 'must be an array')
   }
 
-  if (issues.length > 0 || stock === null) {
-    return { ok: false, issues }
-  }
-
-  const slotsInput = input.slots as unknown[]
-  const assetsInput = input.assets as unknown[]
-  const elementsInput = input.elements as unknown[]
-
+  // Each collection pass is independently guarded (rather than relying on an
+  // early return above) so a bad top-level field or stock does not hide
+  // slot/asset/element issues discovered later in the same input.
   const slots: DesignSlot[] = []
   const slotKeys = new Set<string>()
-  slotsInput.forEach((slot, index) => {
-    const validated = validateSlot(slot, `slots[${index}]`, issues)
-    if (!validated) return
-    if (slotKeys.has(validated.key)) {
-      push(issues, `slots[${index}].key`, `duplicate slot key "${validated.key}"`)
-      return
-    }
-    slotKeys.add(validated.key)
-    slots.push(validated)
-  })
+  if (Array.isArray(input.slots)) {
+    input.slots.forEach((slot, index) => {
+      const validated = validateSlot(slot, `slots[${index}]`, issues)
+      if (!validated) return
+      if (slotKeys.has(validated.key)) {
+        push(issues, `slots[${index}].key`, `duplicate slot key "${validated.key}"`)
+        return
+      }
+      slotKeys.add(validated.key)
+      slots.push(validated)
+    })
+  }
 
   const assets: DesignAsset[] = []
   const assetIds = new Set<string>()
-  assetsInput.forEach((asset, index) => {
-    const validated = validateAsset(asset, `assets[${index}]`, issues)
-    if (!validated) return
-    if (assetIds.has(validated.id)) {
-      push(issues, `assets[${index}].id`, `duplicate asset id "${validated.id}"`)
-      return
-    }
-    assetIds.add(validated.id)
-    assets.push(validated)
-  })
+  if (Array.isArray(input.assets)) {
+    input.assets.forEach((asset, index) => {
+      const validated = validateAsset(asset, `assets[${index}]`, issues)
+      if (!validated) return
+      if (assetIds.has(validated.id)) {
+        push(issues, `assets[${index}].id`, `duplicate asset id "${validated.id}"`)
+        return
+      }
+      assetIds.add(validated.id)
+      assets.push(validated)
+    })
+  }
 
   const elements: DesignElement[] = []
   const elementIds = new Set<string>()
-  elementsInput.forEach((element, index) => {
-    const result = validateElement(
-      element,
-      { path: `elements[${index}]`, slotKeys, assetIds },
-      issues,
-    )
-    if (!result.ok) return
-    if (elementIds.has(result.value.id)) {
-      push(issues, `elements[${index}].id`, `duplicate element id "${result.value.id}"`)
-      return
-    }
-    elementIds.add(result.value.id)
-    elements.push(result.value)
-  })
+  if (Array.isArray(input.elements)) {
+    input.elements.forEach((element, index) => {
+      const result = validateElement(
+        element,
+        { path: `elements[${index}]`, slotKeys, assetIds },
+        issues,
+      )
+      if (!result.ok) return
+      if (elementIds.has(result.value.id)) {
+        push(issues, `elements[${index}].id`, `duplicate element id "${result.value.id}"`)
+        return
+      }
+      elementIds.add(result.value.id)
+      elements.push(result.value)
+    })
+  }
 
-  if (issues.length > 0) {
+  if (issues.length > 0 || stock === null) {
     return { ok: false, issues }
   }
 
