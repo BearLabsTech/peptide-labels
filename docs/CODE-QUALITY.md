@@ -119,9 +119,11 @@ Canonical vocabulary lives in [COPY-GUIDELINES.md](./COPY-GUIDELINES.md) — do 
 
 ### One error convention
 
-State: pick one way to signal "this operation can fail as part of normal operation" and use it everywhere; reserve `throw` for programmer error (a contract violation that should never happen if the code calling it is correct). Today this codebase mixes `return null`, a bare `throw`, ad hoc `{ ok, ... }` unions, and `undefined` sentinels for the same kind of situation across different modules — a caller cannot tell from a function's shape alone how it fails.
+State: pick one way to signal "this operation can fail as part of normal operation" and use it everywhere; reserve `throw` for programmer error (a contract violation that should never happen if the code calling it is correct).
 
-Standard going forward: a shared `Result<T, E>` type for anything that can fail as part of normal operation (parsing user input, validating an imported design, resolving a print target from stale persisted state). `throw` is reserved for genuine programmer errors — a precondition the caller was supposed to guarantee and did not.
+The convention is `Result<T, E>` from `src/shared/result.ts` (see [ADR 0005](./ADR/0005-one-error-convention.md)): use it for expected recoverable failures (parsing user input, validating an imported design, resolving a print target from stale persisted state, storage writes that can be rejected). Prefer the `ok` / `err` constructors. The success payload field is always `value`; `E` may be a string or a structured discriminant. `throw` is reserved for genuine programmer errors — a precondition the caller was supposed to guarantee and did not.
+
+**Absence is not failure.** Returning `null` (or, for a few `Array.find`-shaped lookups, `undefined`) means "no answer is determined by these inputs, and that is normal" — for example calculator math when the user has not typed enough yet. Do not wrap absence in `Result`. A parser handed a string it cannot use is failure, not absence — that belongs in `Result`, not a sentinel like `0` that collides with a legitimate value.
 
 ### Recoverable failure UX
 
