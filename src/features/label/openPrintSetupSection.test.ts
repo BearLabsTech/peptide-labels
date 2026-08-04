@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { NoopScroller } from '../../platform/BrowserScroller'
+import type { Scroller } from './domain/ports'
 import { openPrintSetupSection } from './openPrintSetupSection'
 
 describe('openPrintSetupSection', () => {
   it('should open setup and scroll to print-setup via the Scroller port', () => {
-    const scroller = new NoopScroller()
+    const scrolledTo: string[] = []
+    const scroller: Scroller = {
+      scrollTo(id) {
+        scrolledTo.push(id)
+      },
+    }
     let setupOpen = false
 
     openPrintSetupSection((open) => {
@@ -12,6 +17,6 @@ describe('openPrintSetupSection', () => {
     }, scroller)
 
     expect(setupOpen).toBe(true)
-    expect(scroller.calls).toEqual(['print-setup'])
+    expect(scrolledTo).toEqual(['print-setup'])
   })
 })

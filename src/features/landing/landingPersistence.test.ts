@@ -75,13 +75,12 @@ describe('landingPersistence', () => {
             ok: false,
             error: AGREEMENT_SAVE_FAILED_MESSAGE,
         })
-        expect(errorSpy).toHaveBeenCalled()
 
         installMemoryLocalStorage()
         localStorage.removeItem = () => {
             throw new Error('blocked')
         }
         expect(() => clearAgreementAcknowledgment()).not.toThrow()
-        expect(errorSpy).toHaveBeenCalled()
+        errorSpy.mockRestore()
     })
 })

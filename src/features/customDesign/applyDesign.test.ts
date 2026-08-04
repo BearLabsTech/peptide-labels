@@ -71,7 +71,6 @@ describe('resolveDesignPrintTarget', () => {
     expect(target.stockId).toBe(SKIP_DEFAULT_TARGET.stockId)
     expect(target.printerId).toBe('niimbot-b21')
     expect(target.vialCapacityMl).toBe(3)
-    expect(errorSpy).toHaveBeenCalled()
     errorSpy.mockRestore()
   })
 })

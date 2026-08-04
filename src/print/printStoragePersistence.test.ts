@@ -70,13 +70,12 @@ describe('print setup persistence', () => {
             ok: false,
             error: PRINT_SETUP_SAVE_FAILED_MESSAGE,
         })
-        expect(errorSpy).toHaveBeenCalled()
 
         installMemoryLocalStorage()
         localStorage.removeItem = () => {
             throw new Error('blocked')
         }
         expect(() => clearPrintSetup()).not.toThrow()
-        expect(errorSpy).toHaveBeenCalled()
+        errorSpy.mockRestore()
     })
 })

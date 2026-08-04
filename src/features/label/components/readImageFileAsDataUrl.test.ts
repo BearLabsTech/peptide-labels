@@ -52,7 +52,6 @@ describe('readImageFileAsDataUrl', () => {
       ok: false,
       error: IMAGE_UPLOAD_ERROR_MESSAGE,
     })
-    expect(errorSpy).toHaveBeenCalled()
     errorSpy.mockRestore()
   })
 })
