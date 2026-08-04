@@ -10,43 +10,21 @@ function captureUpdates() {
     return { updates, updateField }
 }
 
-describe('createLabelFormHandlers unit transitions', () => {
-    it('should use the new protocol unit immediately when switching IU to mg', () => {
+describe('createLabelFormHandlers', () => {
+    // Unit-transition math for VialUnitChanged lives in calculatorReducer.test.ts —
+    // the same scenarios previously duplicated here. This file only covers the
+    // humble wiring: handlers dispatch into the reducer and write changed fields.
+    it('should write only fields the reducer changed when a handler dispatches', () => {
         const { updates, updateField } = captureUpdates()
-        const handlers = createLabelFormHandlers({
-            compoundAmount: '10',
-            vialUnit: 'IU',
-            protocolAmount: '1',
-            measureUnit: 'IU',
-            recommendedProtocolUnits: '10 units',
-            calculatorSolveMode: 'target_units',
-        }, updateField, 3)
+        const handlers = createLabelFormHandlers(
+            { reconstitutionAmount: '1' },
+            updateField,
+            3,
+        )
 
-        handlers.handleVialUnitChange('mg')
+        handlers.handleWaterChange('2')
 
-        expect(updates.get('vialUnit')).toBe('mg')
-        expect(updates.get('measureUnit')).toBe('mcg')
-        // 1 mcg = 0.001 mg × 10 u/mg = 0.01 units; water for that draw at 10 mg compound = 1 ml.
-        expect(updates.get('recommendedProtocolUnits')).toBe('0.01 units')
-        expect(updates.get('reconstitutionAmount')).toBe('1')
-    })
-
-    it('should use IU consistently when switching an mg compound to IU', () => {
-        const { updates, updateField } = captureUpdates()
-        const handlers = createLabelFormHandlers({
-            compoundAmount: '5000',
-            vialUnit: 'mg',
-            protocolAmount: '100',
-            measureUnit: 'mcg',
-            recommendedProtocolUnits: '10 units',
-            calculatorSolveMode: 'target_units',
-        }, updateField, 3)
-
-        handlers.handleVialUnitChange('IU')
-
-        expect(updates.get('vialUnit')).toBe('IU')
-        expect(updates.get('measureUnit')).toBe('IU')
-        expect(updates.get('recommendedProtocolUnits')).toBe('5 units')
-        expect(updates.get('reconstitutionAmount')).toBe('2.5')
+        expect(updates.get('reconstitutionAmount')).toBe('2')
+        expect(updates.has('compoundAmount')).toBe(false)
     })
 })
