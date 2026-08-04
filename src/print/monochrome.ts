@@ -2,6 +2,11 @@ const MONOCHROME_WHITE_THRESHOLD = 200
 
 /** Applies a black-or-white thermal threshold in place. */
 export function applyMonochromeThreshold(data: Uint8ClampedArray): void {
+  if (data.length % 4 !== 0) {
+    throw new Error(
+      `applyMonochromeThreshold requires a whole number of RGBA pixels, got length ${data.length}`,
+    )
+  }
   for (let i = 0; i < data.length; i += 4) {
     const r = data[i]
     const g = data[i + 1]

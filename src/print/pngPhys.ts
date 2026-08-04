@@ -81,6 +81,8 @@ export function parsePngPhysPixelsPerMeter(pngBytes: Uint8Array): number | null 
     const length = view.getUint32(0, false)
     const type = readChunkType(pngBytes, offset + 4)
     if (type === 'pHYs' && length >= 9) {
+      // Declared chunk size can exceed remaining bytes; DataView would throw.
+      if (offset + 8 + 4 > pngBytes.length) return null
       return view.getUint32(8, false)
     }
     offset += 4 + 4 + length + 4

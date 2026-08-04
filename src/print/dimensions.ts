@@ -15,6 +15,9 @@ export function mmToPx(mm: number, dpi: number): number {
 
 /** Single source of truth: pixel count + DPI → mm. */
 export function pxToMm(px: number, dpi: number): number {
+  if (!(dpi > 0) || !Number.isFinite(dpi)) {
+    throw new Error(`pxToMm requires a positive finite dpi, got ${String(dpi)}`)
+  }
   return (px * MM_PER_INCH) / dpi
 }
 
