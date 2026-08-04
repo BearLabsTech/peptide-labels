@@ -48,7 +48,7 @@ The "full label with all sections" scenario (same scenario used in the
 
 ## Generated
 
-2026-08-02, during Phase 0 of the refactor, on unmodified `main`.
+2026-08-03, quality follow-up action 7 (compound name printed as typed).
 
 ## Regenerating
 

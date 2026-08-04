@@ -33,7 +33,7 @@ import type { LabelTemplate, LabelTemplateDeps } from './LabelTemplate'
 import { TitleBodyFitter } from './TitleBodyFitter'
 import {
   bodyBoxesFromContent,
-  titleLinesUpper,
+  titleLines,
   type ColumnFeatures,
   type ColumnPlan,
   type FittedLayouts,
@@ -177,7 +177,7 @@ export class IdentityHeaderTemplate implements LabelTemplate {
 
   private titleLayoutInput(title: string, plan: ColumnPlan, heightMm: number): LabelLayoutInput {
     return {
-      lines: titleLinesUpper(title),
+      lines: titleLines(title),
       widthMm: plan.titleWidthMm,
       heightMm,
       charWidthEm: TITLE_CHAR_WIDTH_EM,

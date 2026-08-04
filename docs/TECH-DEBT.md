@@ -10,20 +10,15 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
-### Compound name casing — do not default to all caps
-
-**Priority:** Low  
-**Status:** Open
-
-**Symptom:** Compound name on the label is forced to uppercase (`LabelComposer` uppercases before layout; `LabelPreview.css` applies `text-transform: uppercase` on the title). Users may prefer mixed case as entered.
-
-**When fixing:** Preserve user-entered casing in the model; reserve uppercase for section labels (RECONSTITUTION, PROTOCOL, etc.) and danger mode only if product agrees.
-
-**Standard:** CODE-QUALITY.md section C — ubiquitous language / user intent preserved.
+*(none — agent-closeable debt is cleared; hardware items live in [HUMAN-TASKS.md](./HUMAN-TASKS.md).)*
 
 ---
 
 ## Resolved
+
+### Compound name casing — do not default to all caps
+
+**Resolved:** 2026-08-03. Compound name prints as typed (`titleLines` no longer uppercases; `.label-preview-title` no longer forces `text-transform: uppercase`). Section labels, danger title, and QR captions remain uppercase.
 
 ### View-model components still over the ~120-line soft budget
 

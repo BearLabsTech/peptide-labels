@@ -150,7 +150,6 @@
   text-align: center;
   /* Extra tight to prevent bleeding into the gap. Matches LABEL_TYPOGRAPHY.titleLineHeightEm. */
   line-height: var(--label-title-line-height);
-  text-transform: uppercase;
   color: #000000;
 }
 

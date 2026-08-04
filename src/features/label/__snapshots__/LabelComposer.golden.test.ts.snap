@@ -80,12 +80,12 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 20mg",
   "titleFontSizePx": 26,
   "titleLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
     "1 ml BAC Water",
     "20mg per ml",
     "Mixed 20260621",
@@ -158,12 +158,12 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 10mg",
   "titleFontSizePx": 26,
   "titleLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
   "wrappedLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
 }
 `;
@@ -207,16 +207,16 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 20mg",
   "titleFontSizePx": 21,
   "titleLines": [
-    "VERY LONG EXPERIMENTAL",
-    "COMPOUND NAME THAT",
-    "FORCES TITLE WRAPPING",
-    "20MG",
+    "Very Long Experimental",
+    "Compound Name That",
+    "Forces Title Wrapping",
+    "20mg",
   ],
   "wrappedLines": [
-    "VERY LONG EXPERIMENTAL",
-    "COMPOUND NAME THAT",
-    "FORCES TITLE WRAPPING",
-    "20MG",
+    "Very Long Experimental",
+    "Compound Name That",
+    "Forces Title Wrapping",
+    "20mg",
     "1 ml",
     "20mg per ml",
     "25 units (5mg)",
@@ -257,10 +257,10 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
   "title": "Tirzepatide",
   "titleFontSizePx": 26,
   "titleLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
 }
 `;
@@ -400,12 +400,12 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 20mg",
   "titleFontSizePx": 26,
   "titleLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
     "1 ml BAC Water",
     "20mg per ml",
     "Mixed 20260621",
@@ -478,12 +478,12 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 10mg",
   "titleFontSizePx": 26,
   "titleLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
   "wrappedLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
 }
 `;
@@ -527,16 +527,16 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 20mg",
   "titleFontSizePx": 22,
   "titleLines": [
-    "VERY LONG EXPERIMENTAL",
-    "COMPOUND NAME THAT",
-    "FORCES TITLE WRAPPING",
-    "20MG",
+    "Very Long Experimental",
+    "Compound Name That",
+    "Forces Title Wrapping",
+    "20mg",
   ],
   "wrappedLines": [
-    "VERY LONG EXPERIMENTAL",
-    "COMPOUND NAME THAT",
-    "FORCES TITLE WRAPPING",
-    "20MG",
+    "Very Long Experimental",
+    "Compound Name That",
+    "Forces Title Wrapping",
+    "20mg",
     "1 ml",
     "20mg per ml",
     "25 units (5mg)",
@@ -577,10 +577,10 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
   "title": "Tirzepatide",
   "titleFontSizePx": 26,
   "titleLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
 }
 `;
@@ -720,12 +720,12 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 20mg",
   "titleFontSizePx": 39,
   "titleLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
     "1 ml BAC Water",
     "20mg per ml",
     "Mixed 20260621",
@@ -798,12 +798,12 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 10mg",
   "titleFontSizePx": 39,
   "titleLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
   "wrappedLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
 }
 `;
@@ -847,20 +847,20 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 20mg",
   "titleFontSizePx": 25,
   "titleLines": [
-    "VERY LONG",
-    "EXPERIMENTAL",
-    "COMPOUND NAME THAT",
-    "FORCES TITLE",
-    "WRAPPING",
-    "20MG",
+    "Very Long",
+    "Experimental",
+    "Compound Name That",
+    "Forces Title",
+    "Wrapping",
+    "20mg",
   ],
   "wrappedLines": [
-    "VERY LONG",
-    "EXPERIMENTAL",
-    "COMPOUND NAME THAT",
-    "FORCES TITLE",
-    "WRAPPING",
-    "20MG",
+    "Very Long",
+    "Experimental",
+    "Compound Name That",
+    "Forces Title",
+    "Wrapping",
+    "20mg",
     "1 ml",
     "20mg per ml",
     "25 units (5mg)",
@@ -901,10 +901,10 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
   "title": "Tirzepatide",
   "titleFontSizePx": 39,
   "titleLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
 }
 `;
@@ -1044,12 +1044,12 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 20mg",
   "titleFontSizePx": 39,
   "titleLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
     "1 ml BAC Water",
     "20mg per ml",
     "Mixed 20260621",
@@ -1122,12 +1122,12 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 10mg",
   "titleFontSizePx": 39,
   "titleLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
   "wrappedLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
 }
 `;
@@ -1171,20 +1171,20 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 20mg",
   "titleFontSizePx": 26,
   "titleLines": [
-    "VERY LONG",
-    "EXPERIMENTAL",
-    "COMPOUND NAME THAT",
-    "FORCES TITLE",
-    "WRAPPING",
-    "20MG",
+    "Very Long",
+    "Experimental",
+    "Compound Name That",
+    "Forces Title",
+    "Wrapping",
+    "20mg",
   ],
   "wrappedLines": [
-    "VERY LONG",
-    "EXPERIMENTAL",
-    "COMPOUND NAME THAT",
-    "FORCES TITLE",
-    "WRAPPING",
-    "20MG",
+    "Very Long",
+    "Experimental",
+    "Compound Name That",
+    "Forces Title",
+    "Wrapping",
+    "20mg",
     "1 ml",
     "20mg per ml",
     "25 units (5mg)",
@@ -1225,10 +1225,10 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
   "title": "Tirzepatide",
   "titleFontSizePx": 39,
   "titleLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
 }
 `;
@@ -1368,12 +1368,12 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 20mg",
   "titleFontSizePx": 39,
   "titleLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
     "1 ml BAC Water",
     "20mg per ml",
     "Mixed 20260621",
@@ -1446,12 +1446,12 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 10mg",
   "titleFontSizePx": 39,
   "titleLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
   "wrappedLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
 }
 `;
@@ -1495,18 +1495,18 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 20mg",
   "titleFontSizePx": 28,
   "titleLines": [
-    "VERY LONG",
-    "EXPERIMENTAL COMPOUND",
-    "NAME THAT FORCES",
-    "TITLE WRAPPING",
-    "20MG",
+    "Very Long",
+    "Experimental Compound",
+    "Name That Forces",
+    "Title Wrapping",
+    "20mg",
   ],
   "wrappedLines": [
-    "VERY LONG",
-    "EXPERIMENTAL COMPOUND",
-    "NAME THAT FORCES",
-    "TITLE WRAPPING",
-    "20MG",
+    "Very Long",
+    "Experimental Compound",
+    "Name That Forces",
+    "Title Wrapping",
+    "20mg",
     "1 ml",
     "20mg per ml",
     "25 units (5mg)",
@@ -1547,10 +1547,10 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
   "title": "Tirzepatide",
   "titleFontSizePx": 39,
   "titleLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
 }
 `;
@@ -1690,12 +1690,12 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 20mg",
   "titleFontSizePx": 39,
   "titleLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
     "1 ml BAC Water",
     "20mg per ml",
     "Mixed 20260621",
@@ -1768,12 +1768,12 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 10mg",
   "titleFontSizePx": 39,
   "titleLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
   "wrappedLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
 }
 `;
@@ -1817,18 +1817,18 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 20mg",
   "titleFontSizePx": 29,
   "titleLines": [
-    "VERY LONG",
-    "EXPERIMENTAL COMPOUND",
-    "NAME THAT FORCES",
-    "TITLE WRAPPING",
-    "20MG",
+    "Very Long",
+    "Experimental Compound",
+    "Name That Forces",
+    "Title Wrapping",
+    "20mg",
   ],
   "wrappedLines": [
-    "VERY LONG",
-    "EXPERIMENTAL COMPOUND",
-    "NAME THAT FORCES",
-    "TITLE WRAPPING",
-    "20MG",
+    "Very Long",
+    "Experimental Compound",
+    "Name That Forces",
+    "Title Wrapping",
+    "20mg",
     "1 ml",
     "20mg per ml",
     "25 units (5mg)",
@@ -1869,10 +1869,10 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
   "title": "Tirzepatide",
   "titleFontSizePx": 39,
   "titleLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
 }
 `;
@@ -2012,12 +2012,12 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 20mg",
   "titleFontSizePx": 26,
   "titleLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
-    "20MG",
+    "Tirzepatide",
+    "20mg",
     "1 ml BAC Water",
     "20mg per ml",
     "Mixed 20260621",
@@ -2090,12 +2090,12 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 10mg",
   "titleFontSizePx": 26,
   "titleLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
   "wrappedLines": [
-    "SEMAGLUTIDE",
-    "10MG",
+    "Semaglutide",
+    "10mg",
   ],
 }
 `;
@@ -2139,16 +2139,16 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 20mg",
   "titleFontSizePx": 22,
   "titleLines": [
-    "VERY LONG EXPERIMENTAL",
-    "COMPOUND NAME THAT",
-    "FORCES TITLE WRAPPING",
-    "20MG",
+    "Very Long Experimental",
+    "Compound Name That",
+    "Forces Title Wrapping",
+    "20mg",
   ],
   "wrappedLines": [
-    "VERY LONG EXPERIMENTAL",
-    "COMPOUND NAME THAT",
-    "FORCES TITLE WRAPPING",
-    "20MG",
+    "Very Long Experimental",
+    "Compound Name That",
+    "Forces Title Wrapping",
+    "20mg",
     "1 ml",
     "20mg per ml",
     "25 units (5mg)",
@@ -2189,10 +2189,10 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
   "title": "Tirzepatide",
   "titleFontSizePx": 26,
   "titleLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
   "wrappedLines": [
-    "TIRZEPATIDE",
+    "Tirzepatide",
   ],
 }
 `;

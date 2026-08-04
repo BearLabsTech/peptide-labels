@@ -50,7 +50,7 @@ Authoring new layouts in a freeform editor and a public gallery are still ahead.
 
 ### Compound identity
 
-The label answers the first question on every vial: **what is this?** You name the compound and its **compound amount** (milligrams or international units). The **compound name and compound amount print on separate lines** in a **title band above** the logo, section boxes, and testing column—centered on the center column but using the **full label width** for wrapping so long names stay readable. That identity anchors everything else—the calculator, the protocol line, and the filename when you export.
+The label answers the first question on every vial: **what is this?** You name the compound and its **compound amount** (milligrams or international units). The **compound name and compound amount print on separate lines** in a **title band above** the logo, section boxes, and testing column—centered on the center column but using the **full label width** for wrapping so long names stay readable. The **compound name prints exactly as you typed it** (mixed case included); section labels such as RECONSTITUTION and PROTOCOL stay uppercase. That identity anchors everything else—the calculator, the protocol line, and the filename when you export.
 
 When you need a clear warning that material has **not been tested**, you can mark the vial as untested. The label shifts to an unmistakable caution treatment so anyone handling the vial sees the risk before they rely on the numbers below it.
 
@@ -196,7 +196,7 @@ On labels with reconstitution, protocol, and source filled in, the **compound na
 
 Any approach must still fit **40 × 20 mm** stock with logo and QR when those are on, and stay aligned with preview = export.
 
-*Partially addressed in **Today** (identity header, two-line title, larger title budget). Related: section styling options, additional label templates; compound name casing tracked separately in [TECH-DEBT.md](./TECH-DEBT.md).*
+*Partially addressed in **Today** (identity header, two-line title, larger title budget, compound name printed as typed). Related: section styling options, additional label templates.*
 
 ---
 

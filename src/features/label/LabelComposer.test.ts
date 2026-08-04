@@ -133,7 +133,7 @@ describe('LabelComposer', () => {
             reconstitutionDate: '20260621',
             vendorCoa: 'https://example.com',
         })
-        expect(result.titleLines.join(' ')).toContain('TIRZEPATIDE')
+        expect(result.titleLines.join(' ')).toContain('Tirzepatide')
         expect(result.bodyFontSizePx).toBeLessThanOrEqual(26)
     })
 
@@ -329,7 +329,7 @@ describe('LabelComposer', () => {
             vendorCoa: 'https://example.com/coa',
         })
 
-        expect(result.titleLines.some((line) => line.includes('COMPOUND'))).toBe(true)
+        expect(result.titleLines.some((line) => line.includes('Compound'))).toBe(true)
         expect(result.titleLines.length).toBeGreaterThan(1)
         expect(result.titleFontSizePx).toBeLessThanOrEqual(26)
     })
@@ -504,7 +504,7 @@ describe('LabelComposer', () => {
         const result = new LabelComposer(target).compose(base)
 
         expect(result.labelLayoutMode).toBe('identityHeader')
-        expect(result.titleLines.join(' ')).toContain('COMPOUND')
+        expect(result.titleLines.join(' ')).toContain('Compound')
     })
 
     it('should expose resolved column layout and title breakout matching compute helpers', () => {

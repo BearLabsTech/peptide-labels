@@ -63,8 +63,8 @@ export type IndicatorLayoutContext = {
   readonly titleLayout: { readonly wrappedLines: readonly string[]; readonly fontSizePx: number }
 }
 
-export function titleLinesUpper(title: string): string[] {
-  return title.split('\n').map((line) => line.toUpperCase())
+export function titleLines(title: string): string[] {
+  return title.split('\n')
 }
 
 export function bodyBoxesFromContent(content: ResolvedContent): BoxedSection[] {
