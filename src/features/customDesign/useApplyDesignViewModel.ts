@@ -140,7 +140,7 @@ export function useApplyDesignViewModel({
     const result = await saveDesignToLibrary(library, design, isBuiltinSample, isInLibrary)
     if (result.ok) {
       await refreshLibrary()
-      openDesign(result.saved)
+      openDesign(result.value)
       setStatusMessage('Saved to your local library (private on this device).')
     } else {
       setLibraryError(result.error)
@@ -183,12 +183,14 @@ export function useApplyDesignViewModel({
       const result = await importDesignFile(library, file)
       if (result.ok) {
         await refreshLibrary()
-        openDesign(result.imported)
+        openDesign(result.value)
         setStatusMessage('Imported and saved to your local library.')
       } else {
-        setLibraryError(result.error)
+        setLibraryError(result.error.message)
         setImportIssueLines(
-          result.issues ? formatDesignImportIssues(result.issues) : [],
+          result.error.kind === 'invalid'
+            ? formatDesignImportIssues(result.error.issues)
+            : [],
         )
       }
       setIsBusy(false)

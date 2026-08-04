@@ -11,6 +11,7 @@ import {
   isRecord,
   push,
 } from '../validationPrimitives'
+import type { Result } from '../../../shared/result'
 
 /** The JSON path prefix and cross-reference sets one element validator needs. */
 export interface ElementValidationContext {
@@ -30,7 +31,7 @@ export interface ElementValidator<T> {
   validate(
     input: unknown,
     context: ElementValidationContext,
-  ): { ok: true; value: T } | { ok: false; issues: DesignDocumentValidationIssue[] }
+  ): Result<T, DesignDocumentValidationIssue[]>
 }
 
 export function validateFrame(

@@ -42,7 +42,7 @@ describe('qrElementValidator', () => {
     const result = qrElementValidator.validate(input, context())
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((issue) => issue.message.includes('unknown slot key'))).toBe(true)
+      expect(result.error.some((issue) => issue.message.includes('unknown slot key'))).toBe(true)
     }
   })
 

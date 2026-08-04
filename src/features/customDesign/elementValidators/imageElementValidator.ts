@@ -18,12 +18,12 @@ export const imageElementValidator: ElementValidator<DesignImageElement> = {
     const issues: DesignDocumentValidationIssue[] = []
     if (!isRecord(input)) {
       push(issues, context.path, 'must be an object')
-      return { ok: false, issues }
+      return { ok: false, error: issues }
     }
 
     const base = validateElementBase(input, context.path, issues)
     if (!base) {
-      return { ok: false, issues }
+      return { ok: false, error: issues }
     }
 
     let ok = true
@@ -40,7 +40,7 @@ export const imageElementValidator: ElementValidator<DesignImageElement> = {
     }
 
     if (!ok) {
-      return { ok: false, issues }
+      return { ok: false, error: issues }
     }
 
     return {

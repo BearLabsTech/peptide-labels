@@ -38,7 +38,7 @@ describe('shapeElementValidator', () => {
     const result = shapeElementValidator.validate(input, context())
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((issue) => issue.message.includes('must be rect or line'))).toBe(
+      expect(result.error.some((issue) => issue.message.includes('must be rect or line'))).toBe(
         true,
       )
     }
@@ -49,7 +49,7 @@ describe('shapeElementValidator', () => {
     const result = shapeElementValidator.validate(input, context())
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((issue) => issue.path.endsWith('.stroke'))).toBe(true)
+      expect(result.error.some((issue) => issue.path.endsWith('.stroke'))).toBe(true)
     }
   })
 

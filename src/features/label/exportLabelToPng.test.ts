@@ -26,7 +26,7 @@ describe('exportLabelToPng', () => {
 
         const result = await exportLabelToPng(element, printTarget, 'Tirzepatide', exportLabel)
 
-        expect(result).toEqual({ ok: true })
+        expect(result).toEqual({ ok: true, value: undefined })
         expect(calls).toEqual([[element, printTarget, 'Tirzepatide']])
     })
 

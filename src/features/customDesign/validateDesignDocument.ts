@@ -17,12 +17,14 @@ import {
   isRecord,
   push,
 } from './validationPrimitives'
+import type { Result } from '../../shared/result'
 
 export type { DesignDocumentValidationIssue } from './validationPrimitives'
 
-export type DesignDocumentValidationResult =
-  | { ok: true; document: DesignDocument }
-  | { ok: false; issues: DesignDocumentValidationIssue[] }
+export type DesignDocumentValidationResult = Result<
+  DesignDocument,
+  DesignDocumentValidationIssue[]
+>
 
 const VISIBILITIES: readonly DesignVisibility[] = ['private', 'unlisted', 'public']
 const SLOT_TYPES: readonly DesignSlotValueType[] = ['text', 'number', 'url']
@@ -163,7 +165,7 @@ export function validateDesignDocument(input: unknown): DesignDocumentValidation
   const issues: DesignDocumentValidationIssue[] = []
 
   if (!isRecord(input)) {
-    return { ok: false, issues: [{ path: '', message: 'document must be an object' }] }
+    return { ok: false, error: [{ path: '', message: 'document must be an object' }] }
   }
 
   if (input.schemaVersion !== DESIGN_DOCUMENT_SCHEMA_VERSION) {
@@ -254,7 +256,7 @@ export function validateDesignDocument(input: unknown): DesignDocumentValidation
   }
 
   if (issues.length > 0 || stock === null) {
-    return { ok: false, issues }
+    return { ok: false, error: issues }
   }
 
   const document: DesignDocument = {
@@ -270,5 +272,5 @@ export function validateDesignDocument(input: unknown): DesignDocumentValidation
     assets,
   }
 
-  return { ok: true, document }
+  return { ok: true, value: document }
 }

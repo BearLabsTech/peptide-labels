@@ -12,16 +12,16 @@ export const qrElementValidator: ElementValidator<DesignQrElement> = {
     const issues: DesignDocumentValidationIssue[] = []
     if (!isRecord(input)) {
       push(issues, context.path, 'must be an object')
-      return { ok: false, issues }
+      return { ok: false, error: issues }
     }
 
     const base = validateElementBase(input, context.path, issues)
     if (!base) {
-      return { ok: false, issues }
+      return { ok: false, error: issues }
     }
 
     if (!validateTextOrQrContent(input.content, `${context.path}.content`, issues, context.slotKeys)) {
-      return { ok: false, issues }
+      return { ok: false, error: issues }
     }
 
     return {

@@ -38,7 +38,7 @@ describe('imageElementValidator', () => {
     const result = imageElementValidator.validate(input, context())
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((issue) => issue.message === 'must be a non-empty string')).toBe(
+      expect(result.error.some((issue) => issue.message === 'must be a non-empty string')).toBe(
         true,
       )
     }
@@ -49,7 +49,7 @@ describe('imageElementValidator', () => {
     const result = imageElementValidator.validate(input, context())
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((issue) => issue.message.includes('unknown asset id'))).toBe(true)
+      expect(result.error.some((issue) => issue.message.includes('unknown asset id'))).toBe(true)
     }
   })
 
@@ -58,7 +58,7 @@ describe('imageElementValidator', () => {
     const result = imageElementValidator.validate(input, context())
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((issue) => issue.path.endsWith('.objectFit'))).toBe(true)
+      expect(result.error.some((issue) => issue.path.endsWith('.objectFit'))).toBe(true)
     }
   })
 

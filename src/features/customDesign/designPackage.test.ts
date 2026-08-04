@@ -18,8 +18,8 @@ describe('designPackage', () => {
     const parsed = parseDesignPackage(json)
     expect(parsed.ok).toBe(true)
     if (!parsed.ok) return
-    expect(parsed.document).toEqual(SAMPLE_MITOCHONDRIA_DESIGN)
-    expect(parsed.document.assets[0]?.dataBase64.length).toBeGreaterThan(20)
+    expect(parsed.value).toEqual(SAMPLE_MITOCHONDRIA_DESIGN)
+    expect(parsed.value.assets[0]?.dataBase64.length).toBeGreaterThan(20)
   })
 
   it('should wrap documents with peptide-design format metadata', () => {
@@ -34,7 +34,7 @@ describe('designPackage', () => {
     const parsed = parseDesignPackage(bare)
     expect(parsed.ok).toBe(true)
     if (parsed.ok) {
-      expect(parsed.document.name).toBe(SAMPLE_MITOCHONDRIA_DESIGN.name)
+      expect(parsed.value.name).toBe(SAMPLE_MITOCHONDRIA_DESIGN.name)
     }
   })
 

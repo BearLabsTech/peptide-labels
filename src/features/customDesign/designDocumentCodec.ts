@@ -1,9 +1,17 @@
 import type { DesignDocument } from './designDocument'
 import { validateDesignDocument, type DesignDocumentValidationIssue } from './validateDesignDocument'
+import type { Result } from '../../shared/result'
 
-export type ParseDesignDocumentResult =
-  | { ok: true; document: DesignDocument }
-  | { ok: false; issues: DesignDocumentValidationIssue[]; parseError?: string }
+/** Discriminated parse failure — invalid document vs unreadable JSON. */
+export type DesignParseFailure =
+  | { kind: 'invalid'; issues: DesignDocumentValidationIssue[] }
+  | {
+      kind: 'unreadable'
+      parseError: string
+      issues: DesignDocumentValidationIssue[]
+    }
+
+export type ParseDesignDocumentResult = Result<DesignDocument, DesignParseFailure>
 
 /** Serialize a validated design document to JSON text. */
 export function serializeDesignDocument(document: DesignDocument): string {
@@ -23,13 +31,16 @@ export function parseDesignDocument(json: string): ParseDesignDocumentResult {
     console.error('Design document JSON parse failed', error)
     return {
       ok: false,
-      issues: [{ path: '', message: 'JSON parse failed' }],
-      parseError: message,
+      error: {
+        kind: 'unreadable',
+        parseError: message,
+        issues: [{ path: '', message: 'JSON parse failed' }],
+      },
     }
   }
   const result = validateDesignDocument(parsed)
   if (!result.ok) {
-    return { ok: false, issues: result.issues }
+    return { ok: false, error: { kind: 'invalid', issues: result.error } }
   }
-  return { ok: true, document: result.document }
+  return { ok: true, value: result.value }
 }

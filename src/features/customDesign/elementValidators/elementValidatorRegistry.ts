@@ -29,6 +29,9 @@ function isElementKind(value: unknown): value is ElementKind {
  * records an issue if the shape or kind is wrong. A future composite/group
  * element kind's validator could call this function again for its own
  * children — dispatch here does not assume the element list is flat.
+ *
+ * Failure side is empty on purpose: issues are pushed into the caller-supplied
+ * array (validator architecture debt — see docs/TECH-DEBT.md).
  */
 export function validateElement(
   input: unknown,
@@ -47,7 +50,7 @@ export function validateElement(
   const validator = ELEMENT_VALIDATORS[input.type]
   const result = validator.validate(input, context)
   if (!result.ok) {
-    issues.push(...result.issues)
+    issues.push(...result.error)
     return { ok: false }
   }
   return { ok: true, value: result.value as DesignElement }

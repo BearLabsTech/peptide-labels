@@ -45,7 +45,7 @@ describe('textElementValidator', () => {
     const result = textElementValidator.validate(input, context())
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((issue) => issue.message.includes('unknown curated font id'))).toBe(
+      expect(result.error.some((issue) => issue.message.includes('unknown curated font id'))).toBe(
         true,
       )
     }
@@ -56,7 +56,7 @@ describe('textElementValidator', () => {
     const result = textElementValidator.validate(input, context())
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((issue) => issue.message.includes('unknown slot key'))).toBe(true)
+      expect(result.error.some((issue) => issue.message.includes('unknown slot key'))).toBe(true)
     }
   })
 
@@ -64,7 +64,7 @@ describe('textElementValidator', () => {
     const result = textElementValidator.validate('not-an-object', context())
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues[0]?.message).toBe('must be an object')
+      expect(result.error[0]?.message).toBe('must be an object')
     }
   })
 
@@ -87,7 +87,7 @@ describe('textElementValidator', () => {
     const result = textElementValidator.validate(input, context())
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      const paths = result.issues.map((issue) => issue.path)
+      const paths = result.error.map((issue) => issue.path)
       expect(paths).toContain(`${context().path}.bold`)
       expect(paths).toContain(`${context().path}.alignH`)
       expect(paths).toContain(`${context().path}.alignV`)
@@ -102,7 +102,7 @@ describe('textElementValidator', () => {
     const result = textElementValidator.validate(input, context())
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      const paths = result.issues.map((issue) => issue.path)
+      const paths = result.error.map((issue) => issue.path)
       expect(paths).toContain(`${context().path}.fontId`)
       expect(paths).toContain(`${context().path}.fontSizePt`)
     }

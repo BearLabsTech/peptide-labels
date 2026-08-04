@@ -118,7 +118,7 @@ function constructedDocuments(): DesignDocument[] {
   if (!catalog.ok || !custom.ok) {
     throw new Error('constructedDocuments fixtures must validate')
   }
-  return [catalog.document, custom.document, SAMPLE_MITOCHONDRIA_DESIGN]
+  return [catalog.value, custom.value, SAMPLE_MITOCHONDRIA_DESIGN]
 }
 
 function assertSuccessfulInvariants(document: DesignDocument): void {
@@ -269,7 +269,7 @@ describe('design document validator sweep', () => {
       const result = validateDesignDocument(document)
       expect(result.ok).toBe(true)
       if (!result.ok) return
-      assertSuccessfulInvariants(result.document)
+      assertSuccessfulInvariants(result.value)
     }
   })
 
@@ -278,10 +278,10 @@ describe('design document validator sweep', () => {
       const first = validateDesignDocument(document)
       expect(first.ok).toBe(true)
       if (!first.ok) return
-      const second = validateDesignDocument(first.document)
+      const second = validateDesignDocument(first.value)
       expect(second.ok).toBe(true)
       if (!second.ok) return
-      expect(second.document).toEqual(first.document)
+      expect(second.value).toEqual(first.value)
     }
   })
 
@@ -290,7 +290,7 @@ describe('design document validator sweep', () => {
       const parsed = parseDesignDocument(serializeDesignDocument(document))
       expect(parsed.ok).toBe(true)
       if (!parsed.ok) return
-      expect(parsed.document).toEqual(document)
+      expect(parsed.value).toEqual(document)
     }
   })
 
@@ -306,7 +306,7 @@ describe('design document validator sweep', () => {
     const packageParseOfBare = parseDesignPackage(asBare)
     expect(packageParseOfBare.ok).toBe(true)
     if (packageParseOfBare.ok) {
-      expect(packageParseOfBare.document).toEqual(document)
+      expect(packageParseOfBare.value).toEqual(document)
     }
   })
 
@@ -318,8 +318,8 @@ describe('design document validator sweep', () => {
     const result = validateDesignDocument(input)
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((i) => i.path.startsWith('stock'))).toBe(true)
-      expect(result.issues.some((i) => i.message.includes('unknown slot key'))).toBe(true)
+      expect(result.error.some((i) => i.path.startsWith('stock'))).toBe(true)
+      expect(result.error.some((i) => i.message.includes('unknown slot key'))).toBe(true)
     }
   })
 
@@ -348,7 +348,7 @@ describe('design document validator sweep', () => {
     )
     expect(result.ok).toBe(true)
     if (result.ok) {
-      const el = result.document.elements[0] as DesignElement
+      const el = result.value.elements[0] as DesignElement
       expect(el.type).toBe('text')
       if (el.type === 'text') {
         expect(el.content).toEqual({ kind: 'static', text: '' })

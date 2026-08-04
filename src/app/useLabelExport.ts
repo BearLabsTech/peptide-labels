@@ -3,6 +3,8 @@ import { flushSync } from 'react-dom'
 import { exportLabelPng } from './exportLabelPng'
 import { exportLabelToPng } from './exportLabelToPng'
 import type { PrintTarget } from '../print/types'
+import type { Result } from '../shared/result'
+import { ok } from '../shared/result'
 
 export { LABEL_EXPORT_ERROR_MESSAGE, exportLabelToPng } from './exportLabelToPng'
 
@@ -19,7 +21,7 @@ export interface LabelExportState {
     element: HTMLDivElement,
     printTarget: PrintTarget,
     compoundName?: string,
-  ) => Promise<{ ok: true } | { ok: false; error: string }>
+  ) => Promise<Result<void, string>>
 }
 
 /**
@@ -39,7 +41,7 @@ export function useLabelExport({
       element: HTMLDivElement,
       printTarget: PrintTarget,
       compoundName?: string,
-    ): Promise<{ ok: true } | { ok: false; error: string }> => {
+    ): Promise<Result<void, string>> => {
       if (isExporting) {
         // Both current callers (useLabelStageViewModel, useApplyDesignViewModel)
         // already guard on isExporting before calling exportPng, so this only
@@ -47,7 +49,7 @@ export function useLabelExport({
         // before state propagates. Either way, an export is genuinely already
         // running - report success (nothing to retry), not LABEL_EXPORT_ERROR_MESSAGE,
         // which would incorrectly tell the user their download failed.
-        return { ok: true }
+        return ok()
       }
       flushSync(() => {
         setIsExporting(true)

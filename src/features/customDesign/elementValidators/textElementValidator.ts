@@ -31,12 +31,12 @@ export const textElementValidator: ElementValidator<DesignTextElement> = {
     const issues: DesignDocumentValidationIssue[] = []
     if (!isRecord(input)) {
       push(issues, context.path, 'must be an object')
-      return { ok: false, issues }
+      return { ok: false, error: issues }
     }
 
     const base = validateElementBase(input, context.path, issues)
     if (!base) {
-      return { ok: false, issues }
+      return { ok: false, error: issues }
     }
 
     let ok = validateTextOrQrContent(
@@ -84,7 +84,7 @@ export const textElementValidator: ElementValidator<DesignTextElement> = {
     }
 
     if (!ok) {
-      return { ok: false, issues }
+      return { ok: false, error: issues }
     }
 
     return {

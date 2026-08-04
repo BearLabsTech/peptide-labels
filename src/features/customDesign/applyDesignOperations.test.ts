@@ -116,8 +116,8 @@ describe('saveDesignToLibrary', () => {
     const result = await saveDesignToLibrary(library, SAMPLE_MITOCHONDRIA_DESIGN, true, false)
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.saved.id).not.toBe(SAMPLE_MITOCHONDRIA_DESIGN.id)
-      expect(await library.get(result.saved.id)).not.toBeNull()
+      expect(result.value.id).not.toBe(SAMPLE_MITOCHONDRIA_DESIGN.id)
+      expect(await library.get(result.value.id)).not.toBeNull()
     }
   })
 
@@ -126,7 +126,7 @@ describe('saveDesignToLibrary', () => {
     const result = await saveDesignToLibrary(library, SAMPLE_MITOCHONDRIA_DESIGN, false, true)
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.saved.id).toBe(SAMPLE_MITOCHONDRIA_DESIGN.id)
+      expect(result.value.id).toBe(SAMPLE_MITOCHONDRIA_DESIGN.id)
     }
   })
 
@@ -146,7 +146,7 @@ describe('removeDesignFromLibrary', () => {
   it('should remove the design from the store', async () => {
     const library = createMemoryDesignLibrary([SAMPLE_MITOCHONDRIA_DESIGN])
     const result = await removeDesignFromLibrary(library, SAMPLE_MITOCHONDRIA_DESIGN.id)
-    expect(result).toEqual({ ok: true })
+    expect(result).toEqual({ ok: true, value: undefined })
     expect(await library.get(SAMPLE_MITOCHONDRIA_DESIGN.id)).toBeNull()
   })
 
@@ -179,8 +179,8 @@ describe('importDesignFile', () => {
     const result = await importDesignFile(library, fileFromDocument(SAMPLE_MITOCHONDRIA_DESIGN))
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.imported.id).not.toBe(SAMPLE_MITOCHONDRIA_DESIGN.id)
-      expect(await library.get(result.imported.id)).not.toBeNull()
+      expect(result.value.id).not.toBe(SAMPLE_MITOCHONDRIA_DESIGN.id)
+      expect(await library.get(result.value.id)).not.toBeNull()
     }
   })
 
@@ -190,8 +190,10 @@ describe('importDesignFile', () => {
     const result = await importDesignFile(library, badFile)
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.error).toBe('That file isn’t a valid peptide design package.')
-    expect(result.issues?.some((issue) => issue.message === 'JSON parse failed')).toBe(true)
+    expect(result.error.kind).toBe('invalid')
+    if (result.error.kind !== 'invalid') return
+    expect(result.error.message).toBe('That file isn’t a valid peptide design package.')
+    expect(result.error.issues.some((issue) => issue.message === 'JSON parse failed')).toBe(true)
   })
 
   it('should reject an invalid design document and surface path-specific issues', async () => {
@@ -207,9 +209,11 @@ describe('importDesignFile', () => {
     const result = await importDesignFile(library, badFile)
     expect(result.ok).toBe(false)
     if (result.ok) return
-    expect(result.issues?.some((issue) => issue.path === 'schemaVersion')).toBe(true)
+    expect(result.error.kind).toBe('invalid')
+    if (result.error.kind !== 'invalid') return
+    expect(result.error.issues.some((issue) => issue.path === 'schemaVersion')).toBe(true)
     expect(
-      formatDesignImportIssues(result.issues ?? []).some((line) =>
+      formatDesignImportIssues(result.error.issues).some((line) =>
         line.startsWith('schemaVersion:'),
       ),
     ).toBe(true)
@@ -220,7 +224,7 @@ describe('exportDesignFileToDisk', () => {
   it('should download the design package and report success', () => {
     const downloader = { download: vi.fn() }
     const result = exportDesignFileToDisk(SAMPLE_MITOCHONDRIA_DESIGN, downloader)
-    expect(result).toEqual({ ok: true })
+    expect(result).toEqual({ ok: true, value: undefined })
     expect(downloader.download).toHaveBeenCalledTimes(1)
   })
 
@@ -251,7 +255,7 @@ describe('exportApplyDesignLabelPng', () => {
 
     const result = await exportApplyDesignLabelPng(element, printTarget, 'Tirzepatide', exportLabel)
 
-    expect(result).toEqual({ ok: true })
+    expect(result).toEqual({ ok: true, value: undefined })
     expect(exportLabel).toHaveBeenCalledWith(element, printTarget, 'Tirzepatide')
   })
 

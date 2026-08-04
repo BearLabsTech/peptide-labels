@@ -39,16 +39,16 @@ describe('validateDesignDocument', () => {
     const result = validateDesignDocument(SAMPLE_MITOCHONDRIA_DESIGN)
     expect(result.ok).toBe(true)
     if (result.ok) {
-      expect(result.document.id).toBe('design-fixture-mitochondria-40x20')
-      expect(result.document.elements.some((el) => el.type === 'text' && el.rotationDeg === 270)).toBe(
+      expect(result.value.id).toBe('design-fixture-mitochondria-40x20')
+      expect(result.value.elements.some((el) => el.type === 'text' && el.rotationDeg === 270)).toBe(
         true,
       )
       expect(
-        result.document.elements.some(
+        result.value.elements.some(
           (el) => el.type === 'text' && el.fill === 'solid' && el.ink === 'reverse',
         ),
       ).toBe(true)
-      expect(result.document.elements.some((el) => el.type === 'image')).toBe(true)
+      expect(result.value.elements.some((el) => el.type === 'image')).toBe(true)
     }
   })
 
@@ -59,12 +59,12 @@ describe('validateDesignDocument', () => {
     expect(result.ok).toBe(true)
     if (!result.ok) return
 
-    expect(result.document).not.toBe(input)
-    expect(result.document.slots).not.toBe(input.slots)
-    expect(result.document.elements).not.toBe(input.elements)
-    expect(result.document.assets).not.toBe(input.assets)
-    expect(result.document.stock).not.toBe(input.stock)
-    ;(result.document as DeepWritable<DesignDocument>).name = 'mutated-after-validate'
+    expect(result.value).not.toBe(input)
+    expect(result.value.slots).not.toBe(input.slots)
+    expect(result.value.elements).not.toBe(input.elements)
+    expect(result.value.assets).not.toBe(input.assets)
+    expect(result.value.stock).not.toBe(input.stock)
+    ;(result.value as DeepWritable<DesignDocument>).name = 'mutated-after-validate'
     expect(input.name).toBe(originalName)
   })
 
@@ -74,7 +74,7 @@ describe('validateDesignDocument', () => {
     const result = validateDesignDocument(bad)
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((i) => i.path === 'schemaVersion')).toBe(true)
+      expect(result.error.some((i) => i.path === 'schemaVersion')).toBe(true)
     }
   })
 
@@ -88,7 +88,7 @@ describe('validateDesignDocument', () => {
     const result = validateDesignDocument(bad)
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((i) => i.message.includes('unknown slot key'))).toBe(true)
+      expect(result.error.some((i) => i.message.includes('unknown slot key'))).toBe(true)
     }
   })
 
@@ -102,7 +102,7 @@ describe('validateDesignDocument', () => {
     const result = validateDesignDocument(bad)
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((i) => i.message.includes('unknown asset id'))).toBe(true)
+      expect(result.error.some((i) => i.message.includes('unknown asset id'))).toBe(true)
     }
   })
 
@@ -127,7 +127,7 @@ describe('validateDesignDocument', () => {
     const result = validateDesignDocument(bad)
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((i) => i.message.includes('duplicate slot key'))).toBe(true)
+      expect(result.error.some((i) => i.message.includes('duplicate slot key'))).toBe(true)
     }
   })
 
@@ -140,7 +140,7 @@ describe('validateDesignDocument', () => {
     const result = validateDesignDocument(bad)
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((i) => i.message.includes('unknown curated font id'))).toBe(true)
+      expect(result.error.some((i) => i.message.includes('unknown curated font id'))).toBe(true)
     }
   })
 
@@ -150,7 +150,7 @@ describe('validateDesignDocument', () => {
     const result = validateDesignDocument(bad)
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.issues.some((i) => i.path.includes('widthMm'))).toBe(true)
+      expect(result.error.some((i) => i.path.includes('widthMm'))).toBe(true)
     }
   })
 })
@@ -161,7 +161,7 @@ describe('serializeDesignDocument and parseDesignDocument', () => {
     const parsed = parseDesignDocument(json)
     expect(parsed.ok).toBe(true)
     if (parsed.ok) {
-      expect(parsed.document).toEqual(SAMPLE_MITOCHONDRIA_DESIGN)
+      expect(parsed.value).toEqual(SAMPLE_MITOCHONDRIA_DESIGN)
     }
   })
 
@@ -171,8 +171,8 @@ describe('serializeDesignDocument and parseDesignDocument', () => {
     expect(parsed.ok).toBe(true)
     if (!parsed.ok) return
 
-    const side = parsed.document.elements.find((el) => el.id === 'el-side-label')
-    const amount = parsed.document.elements.find((el) => el.id === 'el-amount-inverted')
+    const side = parsed.value.elements.find((el) => el.id === 'el-side-label')
+    const amount = parsed.value.elements.find((el) => el.id === 'el-amount-inverted')
     expect(side?.type).toBe('text')
     expect(amount?.type).toBe('text')
     if (side?.type === 'text') {
@@ -190,8 +190,8 @@ describe('serializeDesignDocument and parseDesignDocument', () => {
     const parsed = parseDesignDocument(json)
     expect(parsed.ok).toBe(true)
     if (!parsed.ok) return
-    expect(parsed.document.assets).toEqual(SAMPLE_MITOCHONDRIA_DESIGN.assets)
-    const image = parsed.document.elements.find((el) => el.id === 'el-mito-image')
+    expect(parsed.value.assets).toEqual(SAMPLE_MITOCHONDRIA_DESIGN.assets)
+    const image = parsed.value.elements.find((el) => el.id === 'el-mito-image')
     expect(image?.type).toBe('image')
     if (image?.type === 'image') {
       expect(image.assetId).toBe('asset-mito')
@@ -202,7 +202,10 @@ describe('serializeDesignDocument and parseDesignDocument', () => {
     const result = parseDesignDocument('{ not json')
     expect(result.ok).toBe(false)
     if (!result.ok) {
-      expect(result.parseError).toBeTruthy()
+      expect(result.error.kind).toBe('unreadable')
+      if (result.error.kind === 'unreadable') {
+        expect(result.error.parseError).toBeTruthy()
+      }
     }
   })
 })

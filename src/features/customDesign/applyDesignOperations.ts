@@ -14,20 +14,22 @@ import {
 } from './designPackage'
 import { SAMPLE_MITOCHONDRIA_DESIGN } from './fixtures/sampleMitochondriaDesign'
 import type { DesignDocumentValidationIssue } from './validateDesignDocument'
+import type { Result } from '../../shared/result'
+import { err, ok } from '../../shared/result'
 
-type SaveResult =
-  | { ok: true; saved: DesignDocument }
-  | { ok: false; error: string }
+type SaveResult = Result<DesignDocument, string>
 
-type SimpleResult = { ok: true } | { ok: false; error: string }
+type SimpleResult = Result<void, string>
 
-type ImportResult =
-  | { ok: true; imported: DesignDocument }
+export type ImportDesignError =
   | {
-      ok: false
-      error: string
-      issues?: readonly DesignDocumentValidationIssue[]
+      kind: 'invalid'
+      message: string
+      issues: readonly DesignDocumentValidationIssue[]
     }
+  | { kind: 'failed'; message: string }
+
+type ImportResult = Result<DesignDocument, ImportDesignError>
 
 /** One display line per validation issue for the import error list. */
 export function formatDesignImportIssues(
@@ -103,10 +105,10 @@ export async function saveDesignToLibrary(
       ? prepareDesignForLibrary(design)
       : touchDesignUpdatedAt(design)
     await library.put(toSave)
-    return { ok: true, saved: toSave }
+    return ok(toSave)
   } catch (error) {
     console.error('Design library save failed', error)
-    return { ok: false, error: 'Couldn’t save the design to your local library.' }
+    return err('Couldn’t save the design to your local library.')
   }
 }
 
@@ -116,10 +118,10 @@ export async function removeDesignFromLibrary(
 ): Promise<SimpleResult> {
   try {
     await library.remove(designId)
-    return { ok: true }
+    return ok()
   } catch (error) {
     console.error('Design library remove failed', error)
-    return { ok: false, error: 'Couldn’t remove the design.' }
+    return err('Couldn’t remove the design.')
   }
 }
 
@@ -130,18 +132,18 @@ export async function importDesignFile(
   try {
     const parsed = await readDesignPackageFile(file)
     if (!parsed.ok) {
-      return {
-        ok: false,
-        error: 'That file isn’t a valid peptide design package.',
-        issues: parsed.issues,
-      }
+      return err({
+        kind: 'invalid',
+        message: 'That file isn’t a valid peptide design package.',
+        issues: parsed.error.issues,
+      })
     }
-    const imported = prepareDesignForLibrary(parsed.document)
+    const imported = prepareDesignForLibrary(parsed.value)
     await library.put(imported)
-    return { ok: true, imported }
+    return ok(imported)
   } catch (error) {
     console.error('Design import failed', error)
-    return { ok: false, error: 'Couldn’t import that design file.' }
+    return err({ kind: 'failed', message: 'Couldn’t import that design file.' })
   }
 }
 
@@ -151,10 +153,10 @@ export function exportDesignFileToDisk(
 ): SimpleResult {
   try {
     downloadDesignPackage(design, downloader)
-    return { ok: true }
+    return ok()
   } catch (error) {
     console.error('Design file export failed', error)
-    return { ok: false, error: 'Couldn’t export the design file.' }
+    return err('Couldn’t export the design file.')
   }
 }
 
@@ -166,9 +168,9 @@ export async function exportApplyDesignLabelPng(
 ): Promise<SimpleResult> {
   try {
     await exportLabel(element, printTarget, compoundName)
-    return { ok: true }
+    return ok()
   } catch (error) {
     console.error('Apply-design PNG export failed', error)
-    return { ok: false, error: 'Couldn’t download the label. Try again.' }
+    return err('Couldn’t download the label. Try again.')
   }
 }
