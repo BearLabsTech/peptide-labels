@@ -1,7 +1,8 @@
-import { AccordionSection, TextInput } from './FormInputs'
-import { DEFAULT_STOCK_ID } from '../../../print/printCatalog'
-import type { PrintSetupSelection, Printer, LabelStock } from '../../../print/types'
+import { AccordionSection } from './FormInputs'
+import type { PrintSetupSelection, Printer } from '../../../print/types'
 import { VialCapacityControl } from './VialCapacityControl'
+import { PrintSetupCatalogStockPanel } from './PrintSetupCatalogStockPanel'
+import { PrintSetupCustomDimensionsPanel } from './PrintSetupCustomDimensionsPanel'
 import { usePrintSetupSectionViewModel } from './usePrintSetupSectionViewModel'
 import { inputStyle } from './formStyles'
 
@@ -64,89 +65,22 @@ export function PrintSetupSection({
       </div>
 
       {!vm.useCustomSize ? (
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
-            Label stock
-          </label>
-          <select
-            value={vm.stockId ?? DEFAULT_STOCK_ID}
-            onChange={(e) => vm.selectCatalogStock(e.target.value)}
-            style={{ ...inputStyle, cursor: 'pointer' }}
-          >
-            {vm.filtered.stocks.map((stock: LabelStock) => {
-              const recommended = vm.filtered.recommendedStockIds.includes(stock.id)
-              const isDefault = stock.id === DEFAULT_STOCK_ID
-              const suffix = recommended ? ' — recommended' : isDefault ? ' — default' : ''
-              return (
-                <option key={stock.id} value={stock.id}>
-                  {stock.name}{suffix}
-                </option>
-              )
-            })}
-          </select>
-          <button
-            type="button"
-            onClick={vm.enableCustomSize}
-            style={{
-              marginTop: 8,
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              color: 'var(--color-primary)',
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              textDecoration: 'underline',
-            }}
-          >
-            Enter custom dimensions
-          </button>
-        </div>
+        <PrintSetupCatalogStockPanel
+          stockId={vm.stockId}
+          stocks={vm.filtered.stocks}
+          recommendedStockIds={vm.filtered.recommendedStockIds}
+          onSelectStock={vm.selectCatalogStock}
+          onEnableCustomSize={vm.enableCustomSize}
+        />
       ) : (
-        <>
-          <div style={{ display: 'flex', gap: '12px' }}>
-            <div style={{ flex: 1 }}>
-              <TextInput
-                label="Width (mm)"
-                value={vm.customWidth}
-                onChange={vm.changeCustomWidth}
-                placeholder="40"
-              />
-            </div>
-            <div style={{ flex: 1 }}>
-              <TextInput
-                label="Height (mm)"
-                value={vm.customHeight}
-                onChange={vm.changeCustomHeight}
-                placeholder="20"
-              />
-            </div>
-          </div>
-          <p style={{
-            fontSize: '0.75rem',
-            color: vm.customDimensionsValid ? 'var(--color-text-muted)' : 'var(--color-danger)',
-            margin: '0 0 12px',
-          }}>
-            {vm.customDimensionsValid
-              ? 'Custom size uses rectangular corners and standard padding.'
-              : 'Enter a positive width and height.'}
-          </p>
-          <button
-            type="button"
-            onClick={() => vm.selectCatalogStock(DEFAULT_STOCK_ID)}
-            style={{
-              marginBottom: 16,
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              color: 'var(--color-primary)',
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              textDecoration: 'underline',
-            }}
-          >
-            Use catalog label stock
-          </button>
-        </>
+        <PrintSetupCustomDimensionsPanel
+          customWidth={vm.customWidth}
+          customHeight={vm.customHeight}
+          customDimensionsValid={vm.customDimensionsValid}
+          onChangeCustomWidth={vm.changeCustomWidth}
+          onChangeCustomHeight={vm.changeCustomHeight}
+          onSelectCatalogStock={vm.selectCatalogStock}
+        />
       )}
     </AccordionSection>
     </div>

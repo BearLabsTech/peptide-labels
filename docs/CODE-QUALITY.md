@@ -46,7 +46,7 @@ Budgets are a smell detector, not a law — a 40-line function that reads as one
 
 - Functions: soft budget ~30 lines.
 - Classes and modules: soft budget ~200 lines.
-- Components: soft budget ~120 lines.
+- Components: soft budget ~120 lines. **Accepted markup-volume exceptions (2026-08-03):** `CalculatorView.tsx`, `FormInputs.tsx`, `SidebarSections.tsx`, and `LabelPreview.tsx` remain over budget because their excess is JSX field/panel markup, not inline decision logic — logic lives in view-model hooks; splitting further would fragment cohesive forms without reducing complexity.
 - Parameters: four before switching to a context/options object.
 - Nesting depth: three levels before extracting a named helper.
 

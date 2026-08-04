@@ -10,19 +10,6 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
-### View-model components still over the ~120-line soft budget
-
-**Priority:** Low
-**Status:** Open — noted at Phase 5 action 5.1 (2026-08-03).
-
-**Symptom:** After extracting `useApplyDesignViewModel`, `useCalculatorViewModel`, `usePrintSetupSectionViewModel`, and `useLabelStageViewModel` (5.1), all decision logic left each of `ApplyDesignView.tsx` (195 lines), `CalculatorView.tsx` (189), and `PrintSetupSection.tsx` (151) — but the components themselves are still over the ~120-line soft budget in `docs/CODE-QUALITY.md` section A, because the remaining lines are JSX markup volume (many form fields / library-list rows / catalog-vs-custom panels), not logic. `LabelStage.tsx` (59) and the individual `SidebarSections.tsx` exports are within budget.
-
-**When fixing:** If this is worth doing, split the JSX itself into smaller named subcomponents per section/panel (e.g. `ApplyDesignView`'s library list, `PrintSetupSection`'s catalog vs. custom panels) — a presentation-only decomposition, not a further view-model extraction. Still open after Phase 5 exit (5.2–5.8); line counts remain in the same band (ApplyDesign ~209, Calculator ~190, PrintSetup ~149, plus SidebarSections / FormInputs markup volume).
-
-**Standard:** CODE-QUALITY.md section A — component ~120-line soft budget.
-
----
-
 ### Compound name casing — do not default to all caps
 
 **Priority:** Low  
@@ -37,6 +24,10 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 ---
 
 ## Resolved
+
+### View-model components still over the ~120-line soft budget
+
+**Resolved:** 2026-08-03. Split presentation-only JSX: `ApplyDesignLibrarySection` from `ApplyDesignView`; `PrintSetupCatalogStockPanel` and `PrintSetupCustomDimensionsPanel` from `PrintSetupSection`. View-model hooks untouched. Accepted as-is (markup volume, not complexity): `CalculatorView`, `FormInputs`, `SidebarSections`, `LabelPreview` — documented in CODE-QUALITY.md section A.
 
 ### Calculator state — separate authored inputs from derived values
 

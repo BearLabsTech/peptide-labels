@@ -1,9 +1,8 @@
 import { useRef } from 'react'
 import type { PrintSetupSelection } from '../../print/types'
+import { ApplyDesignLibrarySection } from './ApplyDesignLibrarySection'
 import { DesignPreview } from './DesignPreview'
-import type { DesignDocument } from './designDocument'
 import type { DesignLibraryStore } from './designLibrary'
-import { SAMPLE_MITOCHONDRIA_DESIGN } from './fixtures/sampleMitochondriaDesign'
 import { stockLabelFor, useApplyDesignViewModel } from './useApplyDesignViewModel'
 import './ApplyDesignView.css'
 
@@ -101,125 +100,23 @@ export function ApplyDesignView({ printSelection, library }: ApplyDesignViewProp
             ))}
           </div>
 
-          <section className="apply-design__library" aria-label="Design library">
-            <h2 className="apply-design__library-heading">Your designs</h2>
-            <p className="apply-design__library-lede">
-              Private on this device. Export a file to send in text, email, or Discord.
-            </p>
-
-            <ul className="apply-design__library-list">
-              <li>
-                <button
-                  type="button"
-                  className={
-                    vm.isBuiltinSample
-                      ? 'apply-design__library-item apply-design__library-item--active'
-                      : 'apply-design__library-item'
-                  }
-                  onClick={() => vm.openDesign(SAMPLE_MITOCHONDRIA_DESIGN)}
-                >
-                  <span className="apply-design__library-item-name">
-                    {SAMPLE_MITOCHONDRIA_DESIGN.name}
-                  </span>
-                  <span className="apply-design__library-item-meta">Built-in sample</span>
-                </button>
-              </li>
-              {vm.libraryLoading && (
-                <li>
-                  <p className="apply-design__library-lede" role="status">
-                    Loading your designs…
-                  </p>
-                </li>
-              )}
-              {vm.libraryDesigns.map((entry: DesignDocument) => (
-                <li key={entry.id}>
-                  <button
-                    type="button"
-                    className={
-                      entry.id === vm.design.id
-                        ? 'apply-design__library-item apply-design__library-item--active'
-                        : 'apply-design__library-item'
-                    }
-                    onClick={() => vm.openDesign(entry)}
-                  >
-                    <span className="apply-design__library-item-name">{entry.name}</span>
-                    <span className="apply-design__library-item-meta">
-                      {stockLabelFor(entry)}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-
-            <div className="apply-design__library-actions">
-              <button
-                type="button"
-                className="apply-design__secondary-btn"
-                onClick={() => void vm.saveToLibrary()}
-                disabled={vm.isBusy}
-              >
-                {vm.isBuiltinSample || !vm.isInLibrary ? 'Save to library' : 'Update in library'}
-              </button>
-              <button
-                type="button"
-                className="apply-design__secondary-btn"
-                onClick={vm.exportDesignFile}
-                disabled={vm.isBusy}
-                aria-busy={vm.isBusy}
-              >
-                {vm.isBusy ? 'Working…' : 'Export design file'}
-              </button>
-              <button
-                type="button"
-                className="apply-design__secondary-btn"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={vm.isBusy}
-              >
-                Import design file
-              </button>
-              {vm.isInLibrary && !vm.isBuiltinSample && (
-                <button
-                  type="button"
-                  className="apply-design__secondary-btn apply-design__secondary-btn--danger"
-                  onClick={() => void vm.removeFromLibrary()}
-                  disabled={vm.isBusy}
-                >
-                  Remove from library
-                </button>
-              )}
-            </div>
-
-            <p id="apply-design-file-formats" className="visually-hidden">
-              Accepted formats: .peptide-design or application/json design packages.
-            </p>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".peptide-design,application/json"
-              className="apply-design__file-input"
-              aria-label="Import design file"
-              aria-describedby="apply-design-file-formats"
-              onChange={(event) => onImportFileChange(event.target)}
-            />
-
-            {vm.statusMessage && (
-              <p className="apply-design__status" role="status">
-                {vm.statusMessage}
-              </p>
-            )}
-            {vm.libraryError && (
-              <div className="label-export-error" role="alert">
-                <p className="apply-design__import-error-summary">{vm.libraryError}</p>
-                {vm.importIssueLines.length > 0 && (
-                  <ul className="apply-design__import-issues">
-                    {vm.importIssueLines.map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
-          </section>
+          <ApplyDesignLibrarySection
+            design={vm.design}
+            isBuiltinSample={vm.isBuiltinSample}
+            isInLibrary={vm.isInLibrary}
+            libraryLoading={vm.libraryLoading}
+            libraryDesigns={vm.libraryDesigns}
+            isBusy={vm.isBusy}
+            statusMessage={vm.statusMessage}
+            libraryError={vm.libraryError}
+            importIssueLines={vm.importIssueLines}
+            fileInputRef={fileInputRef}
+            onOpenDesign={vm.openDesign}
+            onSaveToLibrary={vm.saveToLibrary}
+            onExportDesignFile={vm.exportDesignFile}
+            onRemoveFromLibrary={vm.removeFromLibrary}
+            onImportFileChange={onImportFileChange}
+          />
         </div>
       </aside>
     </div>
