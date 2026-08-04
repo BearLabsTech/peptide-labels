@@ -1,7 +1,6 @@
 import type { LabelModelInput, LabelModelPatch } from '../labelModel'
 import {
     DEFAULT_CALCULATOR_SOLVE_MODE,
-    hasPositiveDrawUnits,
     hasPositiveCompoundAmount,
     resolveDefaultDrawUnitsLabel,
     calculateReverseWater,
@@ -28,6 +27,9 @@ function onWaterChanged(draft: LabelModelInput, value: string): LabelModelInput 
 
 function onProtocolAmountChanged(draft: LabelModelInput, value: string, vialCapacityMl: number): LabelModelInput {
     let next: LabelModelInput = { ...draft, protocolAmount: value, reconstitutionAmount: '' }
+    if (draft.protocolUnits?.trim()) {
+        return { ...next, recommendedProtocolUnits: '' }
+    }
     const defaultUnits = resolveDefaultDrawUnitsLabel(value, draft.measureUnit, draft.vialUnit, draft.compoundAmount, vialCapacityMl)
     if (defaultUnits) {
         next = { ...next, ...recommendedProtocolUnitsPatch(defaultUnits) }
@@ -51,7 +53,7 @@ function onProtocolUnitsChanged(draft: LabelModelInput, value: string): LabelMod
  */
 function onModeEntered(draft: LabelModelInput, vialCapacityMl: number): LabelModelInput {
     let next: LabelModelInput = { ...draft, calculatorSolveMode: DEFAULT_CALCULATOR_SOLVE_MODE }
-    if (!hasPositiveDrawUnits(draft.protocolUnits) && !hasPositiveDrawUnits(draft.recommendedProtocolUnits)) {
+    if (!draft.protocolUnits?.trim() && !draft.recommendedProtocolUnits?.trim()) {
         const defaultUnits = resolveDefaultDrawUnitsLabel(
             draft.protocolAmount, draft.measureUnit, draft.vialUnit, draft.compoundAmount, vialCapacityMl,
         )
@@ -64,7 +66,7 @@ function onModeEntered(draft: LabelModelInput, vialCapacityMl: number): LabelMod
 
 /** Regenerate the draw-units recommendation only while it is still system-owned. */
 function onVialCapacityChanged(draft: LabelModelInput, vialCapacityMl: number): LabelModelInput {
-    const canRegenerate = !hasPositiveDrawUnits(draft.protocolUnits)
+    const canRegenerate = !draft.protocolUnits?.trim()
     if (!canRegenerate) return draft
     const protocolUnits = resolveDefaultDrawUnitsLabel(
         draft.protocolAmount, draft.measureUnit, draft.vialUnit, draft.compoundAmount, vialCapacityMl,
@@ -100,7 +102,7 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
     if (!hasPositiveCompoundAmount(draft.compoundAmount)) {
         updates.reconstitutionAmount = ''
         updates.concentration = ''
-        if (draft.protocolAmount?.trim() && field !== 'protocolUnits') {
+        if (draft.protocolAmount?.trim() && field !== 'protocolUnits' && !draft.protocolUnits?.trim()) {
             const protocolUnits = resolveDefaultDrawUnitsLabel(
                 draft.protocolAmount, draft.measureUnit, draft.vialUnit, draft.compoundAmount, vialCapacityMl,
             )
@@ -117,12 +119,12 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
         const dependencyChanged = field === 'protocolAmount' || field === 'compoundAmount'
             || field === 'vialUnit' || field === 'measureUnit' || field === 'vialCapacity'
         const shouldUpdateDraw = (
-            !hasPositiveDrawUnits(draft.protocolUnits)
-            && !hasPositiveDrawUnits(draft.recommendedProtocolUnits)
+            !draft.protocolUnits?.trim()
+            && !draft.recommendedProtocolUnits?.trim()
         )
             || (
                 dependencyChanged
-                && !hasPositiveDrawUnits(draft.protocolUnits)
+                && !draft.protocolUnits?.trim()
             )
         if (protocolUnits && shouldUpdateDraw) {
             const patch = recommendedProtocolUnitsPatch(protocolUnits)

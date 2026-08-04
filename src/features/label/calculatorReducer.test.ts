@@ -198,7 +198,7 @@ describe('calculatorReducer — ProtocolAmountChanged', () => {
         expect(next.protocolUnits).toBe('')
     })
 
-    it('should default to 10 units instead of zero when protocol amount is entered in Set Draw Volume mode', () => {
+    it('should preserve an authored zero when protocol amount changes in Set Draw Volume mode', () => {
         const state: LabelModelInput = {
             compoundAmount: '20',
             vialUnit: 'mg',
@@ -207,7 +207,8 @@ describe('calculatorReducer — ProtocolAmountChanged', () => {
             protocolUnits: '0',
         }
         const next = dispatch(state, { type: 'ProtocolAmountChanged', value: '3' })
-        expect(next.recommendedProtocolUnits).toBe('30 units')
+        expect(next.protocolUnits).toBe('0')
+        expect(next.recommendedProtocolUnits).toBe('')
     })
 
     it('should clear both water and draw units in Set Concentration mode', () => {
@@ -506,5 +507,39 @@ describe('calculatorReducer — VialCapacityChanged', () => {
         const unchanged = dispatch(userAuthored, { type: 'VialCapacityChanged', vialCapacityMl: 3 })
         expect(unchanged.targetConcentration).toBe(userAuthored.targetConcentration)
         expect(unchanged.recommendedTargetConcentration).toBe('')
+    })
+})
+
+describe('calculatorReducer — authored and recommended slot invariants', () => {
+    it('should never leave different non-empty values in paired slots', () => {
+        const events: readonly CalculatorEvent[] = [
+            { type: 'VialUnitChanged', unit: 'mg', vialCapacityMl: 3 },
+            { type: 'CompoundAmountChanged', value: '10', vialCapacityMl: 3 },
+            { type: 'WaterChanged', value: '2' },
+            { type: 'ProtocolAmountChanged', value: '2', vialCapacityMl: 3 },
+            { type: 'MeasureUnitChanged', unit: 'mg', vialCapacityMl: 3 },
+            { type: 'ProtocolUnitsChanged', value: '20 units', vialCapacityMl: 3 },
+            { type: 'ModeChanged', mode: 'standard', vialCapacityMl: 3 },
+            { type: 'TargetConcentrationChanged', value: '5', vialCapacityMl: 3 },
+            { type: 'VialCapacityChanged', vialCapacityMl: 3 },
+        ]
+        let state: LabelModelInput = {
+            compoundAmount: '10',
+            vialUnit: 'mg',
+            protocolAmount: '2',
+            measureUnit: 'mg',
+            protocolUnits: '20 units',
+            calculatorSolveMode: 'standard',
+        }
+        for (const event of events) {
+            state = calculatorReducer(state, event)
+            const authoredDraw = state.protocolUnits?.trim()
+            const recommendedDraw = state.recommendedProtocolUnits?.trim()
+            if (authoredDraw && recommendedDraw) expect(recommendedDraw).toBe(authoredDraw)
+
+            const authoredTarget = state.targetConcentration?.trim()
+            const recommendedTarget = state.recommendedTargetConcentration?.trim()
+            if (authoredTarget && recommendedTarget) expect(recommendedTarget).toBe(authoredTarget)
+        }
     })
 })

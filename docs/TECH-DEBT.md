@@ -10,27 +10,6 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
-### Calculator state — separate authored inputs from derived values
-
-**Priority:** Medium
-**Status:** Partial (updated 2026-08-02, Phase 2 closed) — Phase 2 actions 2.1–2.7 are complete: `CalculatorState = { authored, derived }` landed; `mergedInput` write-back is gone; pure `calculatorReducer` + frozen `SolveStrategy` registry live under `domain/`; identifiers match COPY-GUIDELINES vocabulary (`compoundAmount`, `protocolAmount`, `protocolUnits`, `syringeCapacityMl`). `useLabelForm.ts` is `useReducer` plus dispatch wrappers.
-
-What remains (deferred past Phase 2): recommended/system-generated values (a fresh target concentration, draw-units label, or recomputed water) are still written back into the same flat `LabelModelInput` fields a user types into (`targetConcentration`, `protocolUnits`, `reconstitutionAmount`, `concentration`), distinguished only by a `*Origin: 'recommended' | 'user'` provenance flag rather than a type-level separation. Closing this fully would mean those recommendations live in `derived` instead and are never assigned into the authored fields at all.
-
-**Symptom:** `LabelModelInput` still carries some calculator results the assist/sync path writes back, tagged with provenance rather than kept structurally separate. **This is not only a type-hygiene concern — two live defects follow from it, both reproduced against the reducer on 2026-08-03:**
-
-**Defect 1 — an origin outlives its value.** In Manual Entry, authoring a draw volume and then typing a water volume leaves `{ protocolUnits: "", protocolUnitsOrigin: "user" }`: a provenance flag describing a value that no longer exists. Five sites clear `protocolUnits` without touching its origin — `domain/standardSolve.ts:13-15` and `:41`, `domain/targetUnitsSolve.ts:20`, `domain/roundConcentrationSolve.ts:25`, `calculatorReducer.ts:120`. The invariant sweep (2026-08-03) found **19 distinct two-event paths** into this state, reached via `WaterChanged` *and* `TargetConcentrationChanged`. `targetConcentrationOrigin` has no such paths — `calculatorReducer.ts:117` sets it correctly.
-
-**Defect 2 — a derived value is labelled as user-authored.** In Set Concentration, authoring a target concentration of 5 (10 mg compound, 2 mg protocol amount) yields `{ protocolUnits: "40 units", protocolUnitsOrigin: "user" }`. Nobody typed 40 units; `domain/roundConcentrationSolve.ts:125-128` derived it, then tagged it `'user'` because the *target* was authored. Because `'user'` blocks regeneration (`domain/targetUnitsSolve.ts:61` and `:113-114`), that derived draw volume then survives a vial-capacity change that should have refreshed it.
-
-**Correction to an earlier framing of this entry:** `LabelModelInput` is **not** persisted. Verified 2026-08-03 — the only holder is `useState<LabelModelInput>` at `App.tsx:28`, and no storage module (`print/printStorage.ts`, `customDesign/designDocument.ts`, `customDesign/designPackage.ts`, `platform/LocalStorageKeyValueStore.ts`) references the type. Calculator state is in-memory only, so closing this needs no migration and no save/reload decision.
-
-**When fixing:** give each field its own slot for the system's value (`recommendedProtocolUnits`, `recommendedTargetConcentration`) and delete the `*Origin` flags — the slot then *is* the provenance, which makes both defects above unrepresentable rather than merely fixed. Order matters: `domain/roundConcentrationSolve.ts:42` inspects `protocolUnitsOrigin` even when the value is empty, so it needs a live-value guard (`hasPositiveDrawUnits`) *before* the origin is corrected, or a Set Draw Volume → Set Concentration switch will discard authored water. Inspect `domain/solveStrategy.ts`'s three implementations and `calculatorModeSwitch.ts`'s `Provenance<T>` / `protocolUnitsPatch` / `targetConcentrationPatch` helpers. Full step-by-step in the quality follow-up plan, action 5.
-
-**Standard:** CODE-QUALITY.md section B — separate authored from derived data.
-
----
-
 ### View-model components still over the ~120-line soft budget
 
 **Priority:** Low
@@ -58,6 +37,10 @@ What remains (deferred past Phase 2): recommended/system-generated values (a fre
 ---
 
 ## Resolved
+
+### Calculator state — separate authored inputs from derived values
+
+**Resolved:** 2026-08-03. Authored draw volume and target concentration now live separately from strategy recommendations in `protocolUnits` / `targetConcentration` and `recommendedProtocolUnits` / `recommendedTargetConcentration`. The origin flags are deleted, regeneration checks the authored slots directly, and reducer invariants prevent conflicting paired values. Calculator state is in-memory only and required no persistence migration.
 
 ### Solve-mode branching still lives outside the SolveStrategy registry
 

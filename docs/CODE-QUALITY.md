@@ -73,13 +73,13 @@ Governing rule: a pattern with one implementation and no forecast second one mak
 
 State: if the type allows a combination the domain forbids, the type is wrong, not just the code that constructs it. A boolean flag paired with a value it does not apply to, or two optional fields that are secretly mutually exclusive, are both symptoms.
 
-For instance, `LabelModelInput` (`labelModel.ts`) is one flat optional-string model covering every calculator mode plus provenance flags (`targetConcentrationOrigin`, `protocolUnitsOrigin`, etc.) — a mode-inapplicable field being present is representable even though the domain forbids it. Phase 2 splits this into cohesive per-mode sub-models via a discriminated union so the type itself rules out the illegal combination, rather than a runtime check catching it after the fact.
+For instance, calculator recommendations no longer pair a value with a separate origin flag. Authored `protocolUnits` / `targetConcentration` and derived `recommendedProtocolUnits` / `recommendedTargetConcentration` have distinct slots, so an origin cannot outlive the value it described.
 
 ### Separate authored from derived data
 
 State: a value the user typed and a value the app calculated are different kinds of fact and should not share one field or container, even when they currently hold the same string. Mixing them is what forces provenance flags (`...Origin`) to exist at all — the flag is compensating for the container not being able to say which kind of fact it holds.
 
-For instance, `mergedInput` in `LabelMathResolver.ts` merges authored calculator fields with derived/recommended ones into one object that downstream code must read `Origin` flags to interpret correctly. Phase 2 keeps authored state and a computed `ResolvedLabelMath` as two separate values, computed fresh from authored state rather than merged and mutated.
+For instance, `LabelMathResolver.ts` returns authored state and a computed `ResolvedLabelMath` separately, while strategy recommendations that must survive between edits use dedicated `recommended*` slots. Readers choose between the authored and recommended slots using the solve strategy's ownership flags.
 
 ### Immutability by default
 

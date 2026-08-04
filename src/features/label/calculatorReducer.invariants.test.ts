@@ -13,6 +13,8 @@
  *      valid `UnitWorld` (the defect this file was added to pin).
  *   2. No non-finite value leaks into a string field (`NaN` / `Infinity`).
  *   3. Idempotence — applying an event twice equals applying it once.
+ *   4. Authored/derived separation — paired slots never hold different
+ *      non-empty values. Landed with quality follow-up 5c.
  */
 import { describe, expect, it } from 'vitest'
 import { calculatorReducer, type CalculatorEvent } from './calculatorReducer'
@@ -120,6 +122,17 @@ function assertInvariants(state: LabelModelInput, path: string): void {
         }
     }
 
+    const authoredDraw = state.protocolUnits?.trim()
+    const recommendedDraw = state.recommendedProtocolUnits?.trim()
+    if (authoredDraw && recommendedDraw) {
+        expect(recommendedDraw, `${path}: draw-unit slots must not conflict`).toBe(authoredDraw)
+    }
+
+    const authoredTarget = state.targetConcentration?.trim()
+    const recommendedTarget = state.recommendedTargetConcentration?.trim()
+    if (authoredTarget && recommendedTarget) {
+        expect(recommendedTarget, `${path}: target-concentration slots must not conflict`).toBe(authoredTarget)
+    }
 }
 
 function stateEqual(a: LabelModelInput, b: LabelModelInput): boolean {

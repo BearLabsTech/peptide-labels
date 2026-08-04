@@ -144,6 +144,9 @@ function recommendDefaults(draft: LabelModelInput, vialCapacityMl: number, field
     Object.assign(updates, ensureReconstitutionPrintForAssist(resolved, resolvedDraft))
 
     if (resolved.autoUnits) {
+        if (draft.protocolUnits?.trim() && draft.protocolUnits.trim() !== resolved.autoUnits.trim()) {
+            updates.protocolUnits = ''
+        }
         Object.assign(updates, recommendedProtocolUnitsPatch(resolved.autoUnits))
     }
     return updates

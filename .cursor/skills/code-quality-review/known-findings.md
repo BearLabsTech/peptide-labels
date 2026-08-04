@@ -42,7 +42,7 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Pattern:** a `somethingOrigin` / `isDerived` / `wasAutoFilled`-style flag exists specifically so downstream code can tell whether a field holds a user-entered value or a calculated one — the flag is a symptom that the container should have been two types, not one.
 
-**Evidence (2026):** `LabelModelInput` / `mergedInput` in `LabelMathResolver.ts` (`targetConcentrationOrigin`, `protocolUnitsOrigin`, etc.). Root-caused in `docs/CODE-QUALITY.md` section B ("separate authored from derived data"); Phase 2 removed `mergedInput` write-back and introduced `CalculatorState = { authored, derived }`. **Partial:** recommended-origin fields still share authored containers (see `docs/TECH-DEBT.md`).
+**Evidence (2026):** `LabelModelInput` / `mergedInput` in `LabelMathResolver.ts` formerly used origin flags to distinguish system recommendations from authored values. Root-caused in `docs/CODE-QUALITY.md` section B ("separate authored from derived data"); Phase 2 removed `mergedInput` write-back. **Resolved 2026-08-03:** authored `protocolUnits` / `targetConcentration` and derived `recommendedProtocolUnits` / `recommendedTargetConcentration` now have separate slots, and the origin flags are deleted.
 
 ### A parse function returning a sentinel for unparseable input
 
