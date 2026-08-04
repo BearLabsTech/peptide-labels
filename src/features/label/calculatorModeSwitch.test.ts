@@ -13,7 +13,7 @@ describe('parseCalculatorModeOption', () => {
     })
 
     it('should reject an unknown calculator mode label', () => {
-        expect(parseCalculatorModeOption('Unknown Mode')).toBeUndefined()
+        expect(parseCalculatorModeOption('Unknown Mode')).toBeNull()
     })
 })
 

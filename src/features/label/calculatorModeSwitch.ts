@@ -37,10 +37,10 @@ export const CALCULATOR_LABEL_BY_MODE = Object.freeze(
     ) as Record<CalculatorSolveMode, CalculatorModeOption>,
 )
 
-export function parseCalculatorModeOption(label: string): CalculatorModeOption | undefined {
+export function parseCalculatorModeOption(label: string): CalculatorModeOption | null {
     return (CALCULATOR_MODE_OPTIONS as readonly string[]).includes(label)
         ? (label as CalculatorModeOption)
-        : undefined
+        : null
 }
 
 export function calculatorModeFromLabel(label: string): CalculatorSolveMode {

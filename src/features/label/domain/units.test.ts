@@ -20,7 +20,7 @@ describe('unit conversions', () => {
   })
 
   it('should reject an invalid vial unit', () => {
-    expect(parseVialUnit('g')).toBeUndefined()
+    expect(parseVialUnit('g')).toBeNull()
   })
 
   it('should parse a valid measure unit', () => {
@@ -28,7 +28,7 @@ describe('unit conversions', () => {
   })
 
   it('should reject an invalid measure unit', () => {
-    expect(parseMeasureUnit('grams')).toBeUndefined()
+    expect(parseMeasureUnit('grams')).toBeNull()
   })
 })
 

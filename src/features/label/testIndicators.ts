@@ -51,10 +51,10 @@ export interface TestIndicatorEntry {
   readonly status: TestPrintStatus
 }
 
-export function parseTestResultStatus(value: unknown): TestResultStatus | undefined {
-  if (typeof value !== 'string') return undefined
+export function parseTestResultStatus(value: unknown): TestResultStatus | null {
+  if (typeof value !== 'string') return null
   const match = TEST_STATUS_OPTIONS.find((option) => option.value === value)
-  return match?.value
+  return match?.value ?? null
 }
 
 export function getTestResult(input: LabelModelInput, type: TestType): TestResultStatus {

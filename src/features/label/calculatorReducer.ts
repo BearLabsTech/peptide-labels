@@ -56,7 +56,7 @@ export function calculatorReducer(state: LabelModelInput, event: CalculatorEvent
     switch (event.type) {
         case 'VialUnitChanged': {
             const vialUnit = parseVialUnit(event.unit)
-            if (vialUnit === undefined) return state
+            if (vialUnit === null) return state
             const measureUnit = vialUnit === 'IU'
                 ? 'IU'
                 : state.measureUnit === 'IU'
@@ -85,7 +85,7 @@ export function calculatorReducer(state: LabelModelInput, event: CalculatorEvent
 
         case 'MeasureUnitChanged': {
             const measureUnit = parseMeasureUnit(event.unit)
-            if (measureUnit === undefined) return state
+            if (measureUnit === null) return state
             // Mirrors VialUnitChanged, which already keeps the pairing valid.
             // makeUnitWorld is the single definition of which pairings exist.
             if (!makeUnitWorld(state.vialUnit ?? 'mg', measureUnit)) return state

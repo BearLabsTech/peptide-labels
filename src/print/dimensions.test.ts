@@ -5,11 +5,11 @@ import { SKIP_DEFAULT_TARGET } from './defaults'
 describe('dimensions', () => {
   it('should parse only positive finite custom dimensions', () => {
     expect(parsePositiveMm('40.5')).toBe(40.5)
-    expect(parsePositiveMm('0')).toBeUndefined()
-    expect(parsePositiveMm('-1')).toBeUndefined()
-    expect(parsePositiveMm('Infinity')).toBeUndefined()
-    expect(parsePositiveMm('40mm')).toBeUndefined()
-    expect(parsePositiveMm('')).toBeUndefined()
+    expect(parsePositiveMm('0')).toBeNull()
+    expect(parsePositiveMm('-1')).toBeNull()
+    expect(parsePositiveMm('Infinity')).toBeNull()
+    expect(parsePositiveMm('40mm')).toBeNull()
+    expect(parsePositiveMm('')).toBeNull()
   })
 
   it('should convert 40x20 mm at 300 DPI to 472x236 pixels', () => {

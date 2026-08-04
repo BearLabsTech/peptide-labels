@@ -22,16 +22,16 @@ const MEASURE_UNITS = ['mg', 'mcg', 'IU'] as const
 export type VialUnit = (typeof VIAL_UNITS)[number]
 export type MeasureUnit = (typeof MEASURE_UNITS)[number]
 
-export function parseVialUnit(value: string): VialUnit | undefined {
+export function parseVialUnit(value: string): VialUnit | null {
   return (VIAL_UNITS as readonly string[]).includes(value)
     ? (value as VialUnit)
-    : undefined
+    : null
 }
 
-export function parseMeasureUnit(value: string): MeasureUnit | undefined {
+export function parseMeasureUnit(value: string): MeasureUnit | null {
   return (MEASURE_UNITS as readonly string[]).includes(value)
     ? (value as MeasureUnit)
-    : undefined
+    : null
 }
 
 /**

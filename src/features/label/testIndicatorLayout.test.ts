@@ -89,7 +89,7 @@ describe('computeTestIndicatorLayout', () => {
   })
 
   it('should return undefined when there is nothing to print', () => {
-    expect(computeTestIndicatorLayout({ ...base, rowCount: 0, qrSharesColumn: false })).toBeUndefined()
+    expect(computeTestIndicatorLayout({ ...base, rowCount: 0, qrSharesColumn: false })).toBeNull()
   })
 
   it('should fit rendered stack height within the indicators budget', () => {

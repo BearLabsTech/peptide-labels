@@ -131,7 +131,7 @@ function buildReconstitutionLines(
   if (water.visible && (water.value || input.reconstitutionType)) {
     // Calculator display uses formatWaterAmountLabel (no unit). Print path adds " ml" here.
     const waterValue = water.value ? parseNumericDisplayPrefix(water.value) : undefined
-    const waterLabel = waterValue !== undefined
+    const waterLabel = waterValue != null
       ? `${formatDisplayNumber(waterValue)} ml`
       : (water.value || '').trim()
     lines.push(`${waterLabel} ${input.reconstitutionType || ''}`.trim())

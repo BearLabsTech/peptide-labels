@@ -1,8 +1,8 @@
 import type { PrintTarget } from './types'
 
-export function parsePositiveMm(value: string): number | undefined {
+export function parsePositiveMm(value: string): number | null {
   const parsed = Number(value)
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null
 }
 
 /** Millimeters per inch — the only place this conversion factor should live. */

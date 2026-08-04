@@ -52,8 +52,8 @@ export function estimateTestLabelWidthMm(label: string, fontSizeMm: number): num
  * Size test marks from physical label geometry.
  * Labels always print in full; marks scale to fill remaining row space.
  */
-export function computeTestIndicatorLayout(input: TestIndicatorLayoutInput): TestIndicatorLayout | undefined {
-  if (input.rowCount <= 0) return undefined
+export function computeTestIndicatorLayout(input: TestIndicatorLayoutInput): TestIndicatorLayout | null {
+  if (input.rowCount <= 0) return null
 
   const usableHeightMm = input.indicatorsHeightMm ?? (input.labelHeightMm - input.paddingMm * 2)
   let indicatorsHeightMm = usableHeightMm
@@ -65,7 +65,7 @@ export function computeTestIndicatorLayout(input: TestIndicatorLayoutInput): Tes
   const labelMarkGapMm = 0.08
   const totalGapMm = rowGapMm * Math.max(0, input.rowCount - 1)
   const rowHeightMm = Math.max(0, (indicatorsHeightMm - totalGapMm) / input.rowCount)
-  if (rowHeightMm <= 0) return undefined
+  if (rowHeightMm <= 0) return null
 
   // Column element width minus reduced inner left padding (`.label-right-column`).
   const columnInnerMm = Math.max(0, (input.qrColumnWidthMm - input.paddingMm * TEST_INDICATOR_COLUMN_PAD_FRAC) * WIDTH_SAFETY)
@@ -92,7 +92,7 @@ export function computeTestIndicatorLayout(input: TestIndicatorLayoutInput): Tes
   const markFromWidthMm = columnInnerMm * MARK_WIDTH_FRAC
   const markSizeMm = Math.min(markFromRowMm, markFromWidthMm)
 
-  if (markSizeMm <= 0) return undefined
+  if (markSizeMm <= 0) return null
 
   let layout: TestIndicatorLayout = {
     markSizePx: mmToPx(markSizeMm, input.effectiveDpi),

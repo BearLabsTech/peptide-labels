@@ -19,7 +19,7 @@ describe('parseNumericDisplayPrefix', () => {
   })
 
   it('should return undefined for empty input', () => {
-    expect(parseNumericDisplayPrefix('')).toBeUndefined()
+    expect(parseNumericDisplayPrefix('')).toBeNull()
   })
 })
 

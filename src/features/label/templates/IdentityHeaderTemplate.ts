@@ -202,7 +202,7 @@ export class IdentityHeaderTemplate implements LabelTemplate {
         reconstitutionLines: content.reconstitutionLines,
       })
       .withQrCodes(visibleQrCodes)
-      .withTestIndicators(content.testIndicators, testIndicatorLayout)
+      .withTestIndicators(content.testIndicators, testIndicatorLayout ?? undefined)
       .withCustomImage(input.customImage)
       .withDangerMode(plan.isDanger)
       .withColumnLayout(
@@ -235,7 +235,7 @@ export class IdentityHeaderTemplate implements LabelTemplate {
       .build()
   }
 
-  private buildTestIndicatorLayout(ctx: IndicatorLayoutContext): TestIndicatorLayout | undefined {
+  private buildTestIndicatorLayout(ctx: IndicatorLayoutContext): TestIndicatorLayout | null {
     const indicatorsHeightMm = this.indicatorsHeightBelowTitle(ctx.titleLayout)
     return computeTestIndicatorLayout({
       effectiveDpi: this.printTarget.effectiveDpi,

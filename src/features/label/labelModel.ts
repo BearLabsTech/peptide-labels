@@ -14,11 +14,11 @@ import { formatDrawUnitsLabel } from './peptideMath'
  * Draw/water fields are still authored as free-text strings with an optional
  * unit suffix; this is the one place that prefix is read back out as a number.
  */
-export function parseNumericDisplayPrefix(raw: string): number | undefined {
+export function parseNumericDisplayPrefix(raw: string): number | null {
   const match = raw.trim().match(/^([\d.]+)/)
-  if (!match) return undefined
+  if (!match) return null
   const value = parseFloat(match[1])
-  return Number.isFinite(value) ? value : undefined
+  return Number.isFinite(value) ? value : null
 }
 
 /**
@@ -29,7 +29,7 @@ export function formatDrawVolumeLabel(drawVolume?: string): string {
   if (!drawVolume?.trim()) return ''
   const trimmed = drawVolume.trim()
   const value = parseNumericDisplayPrefix(trimmed)
-  if (value === undefined) return trimmed
+  if (value === null) return trimmed
   return formatDrawUnitsLabel(value)
 }
 

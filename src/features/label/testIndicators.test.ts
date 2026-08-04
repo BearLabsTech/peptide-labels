@@ -16,12 +16,12 @@ describe('testIndicators', () => {
   })
 
   it('should reject an invalid test result status string', () => {
-    expect(parseTestResultStatus('maybe')).toBeUndefined()
+    expect(parseTestResultStatus('maybe')).toBeNull()
   })
 
   it('should reject a non-string test result status', () => {
-    expect(parseTestResultStatus(1)).toBeUndefined()
-    expect(parseTestResultStatus(null)).toBeUndefined()
+    expect(parseTestResultStatus(1)).toBeNull()
+    expect(parseTestResultStatus(null)).toBeNull()
   })
   it('should default every test type to do not print', () => {
     expect(getTestResult({}, 'Mass')).toBe('do_not_print')
