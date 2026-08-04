@@ -3,21 +3,21 @@ import { RoundConcentrationSolve } from './roundConcentrationSolve'
 import type { LabelModelInput } from '../labelModel'
 
 describe('RoundConcentrationSolve.deriveMath', () => {
-    it('derives exact water from compound amount and target concentration', () => {
+    it('should derive exact water from compound amount and target concentration', () => {
         const draft: LabelModelInput = { compoundAmount: '22', vialUnit: 'mg', protocolAmount: '4', measureUnit: 'mg', targetConcentration: '15' }
         const result = RoundConcentrationSolve.deriveMath(draft)
         expect(result.autoWater).toBe('1.467')
         expect(result.autoConcentration).toBe('15mg per ml')
     })
 
-    it('falls back to the shared generic math when no target concentration is set', () => {
+    it('should fall back to the shared generic math when no target concentration is set', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', reconstitutionAmount: '2' }
         expect(RoundConcentrationSolve.deriveMath(draft).autoConcentration).toBe('10mg per ml')
     })
 })
 
 describe('RoundConcentrationSolve.onFieldChanged', () => {
-    it('clears water and draw units on protocolAmount edits', () => {
+    it('should clear water and draw units on protocolAmount edits', () => {
         const draft: LabelModelInput = {
             compoundAmount: '20', vialUnit: 'mg', reconstitutionAmount: '2', protocolUnits: '15 units',
             targetConcentration: '10', calculatorSolveMode: 'round_concentration',
@@ -28,17 +28,17 @@ describe('RoundConcentrationSolve.onFieldChanged', () => {
         expect(next.protocolUnits).toBe('')
     })
 
-    it('vetoes direct water edits entirely — the draft is returned unchanged', () => {
+    it('should veto direct water edits entirely — the draft is returned unchanged', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', targetConcentration: '10', calculatorSolveMode: 'round_concentration' }
         expect(RoundConcentrationSolve.onFieldChanged(draft, { kind: 'water', value: '5' }, 3)).toBe(draft)
     })
 
-    it('vetoes direct draw-volume edits entirely — the draft is returned unchanged', () => {
+    it('should veto direct draw-volume edits entirely — the draft is returned unchanged', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', targetConcentration: '10', calculatorSolveMode: 'round_concentration' }
         expect(RoundConcentrationSolve.onFieldChanged(draft, { kind: 'protocolUnits', value: '15 units' }, 3)).toBe(draft)
     })
 
-    it('regenerates the target-concentration recommendation only while it is still system-owned', () => {
+    it('should regenerate the target-concentration recommendation only while it is still system-owned', () => {
         const generated: LabelModelInput = {
             compoundAmount: '100', vialUnit: 'mg', recommendedTargetConcentration: '10', calculatorSolveMode: 'round_concentration',
         }
@@ -55,7 +55,7 @@ describe('RoundConcentrationSolve.onFieldChanged', () => {
         expect(unchanged).toBe(userAuthored)
     })
 
-    it('recommends a fresh target concentration from the compound amount when entering with none set', () => {
+    it('should recommend a fresh target concentration from the compound amount when entering with none set', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', reconstitutionAmount: '1', calculatorSolveMode: 'standard' }
         const next = RoundConcentrationSolve.onFieldChanged(
             draft,
@@ -69,7 +69,7 @@ describe('RoundConcentrationSolve.onFieldChanged', () => {
         expect(next.targetConcentration).toBeUndefined()
     })
 
-    it('does not reuse a rounded generated draw concentration as a new target when entering from Set Draw Volume', () => {
+    it('should not reuse a rounded generated draw concentration as a new target when entering from Set Draw Volume', () => {
         const generatedDraw: LabelModelInput = {
             compoundAmount: '100', vialUnit: 'mg', protocolAmount: '1', measureUnit: 'mg',
             recommendedProtocolUnits: '3 units', concentration: '33.333mg per ml',
@@ -86,7 +86,7 @@ describe('RoundConcentrationSolve.onFieldChanged', () => {
 })
 
 describe('RoundConcentrationSolve.recommendDefaults', () => {
-    it('recomputes water/units from the target concentration', () => {
+    it('should recompute water/units from the target concentration', () => {
         const draft: LabelModelInput = {
             compoundAmount: '22', vialUnit: 'mg', protocolAmount: '4', measureUnit: 'mg', targetConcentration: '15', calculatorSolveMode: 'round_concentration',
         }
@@ -97,19 +97,19 @@ describe('RoundConcentrationSolve.recommendDefaults', () => {
         expect(patch.protocolUnits).toBeUndefined()
     })
 
-    it('clears water/concentration when the compound amount is empty', () => {
+    it('should clear water/concentration when the compound amount is empty', () => {
         const draft: LabelModelInput = { compoundAmount: '', calculatorSolveMode: 'round_concentration' }
         const patch = RoundConcentrationSolve.recommendDefaults(draft, 3, 'compoundAmount')
         expect(patch.reconstitutionAmount).toBe('')
         expect(patch.concentration).toBe('')
     })
 
-    it('is a no-op for a raw water edit — Set Concentration never recomputes from it', () => {
+    it('should be a no-op for a raw water edit — Set Concentration never recomputes from it', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', targetConcentration: '10', calculatorSolveMode: 'round_concentration' }
         expect(RoundConcentrationSolve.recommendDefaults(draft, 3, 'water')).toEqual({})
     })
 
-    it('is a no-op for a raw draw-volume edit — Set Concentration never recomputes from it', () => {
+    it('should be a no-op for a raw draw-volume edit — Set Concentration never recomputes from it', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', targetConcentration: '10', calculatorSolveMode: 'round_concentration' }
         expect(RoundConcentrationSolve.recommendDefaults(draft, 3, 'protocolUnits')).toEqual({})
     })

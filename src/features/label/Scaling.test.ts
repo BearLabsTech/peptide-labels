@@ -1,14 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { pxToCqw } from './Scaling'
-import { previewBaseWidthPx } from '../../print/dimensions'
-import { resolvePrintTarget } from '../../print/PrintTargetResolver'
 
 describe('Scaling Utilities', () => {
-    const baseWidthPx = previewBaseWidthPx(resolvePrintTarget({}))
+    // Skip-default 40×20 at 300 DPI → 472 px base width (buildExportSpec / previewBaseWidthPx).
+    const baseWidthPx = 472
 
-    it('converts absolute layout pixels to container query width percentages', () => {
-        expect(pxToCqw(32, baseWidthPx)).toBe(`${(32 / baseWidthPx) * 100}cqw`)
-        expect(pxToCqw(16, baseWidthPx)).toBe(`${(16 / baseWidthPx) * 100}cqw`)
+    it('should convert absolute layout pixels to container query width percentages', () => {
+        expect(pxToCqw(32, baseWidthPx)).toBe('6.779661016949152cqw')
+        expect(pxToCqw(16, baseWidthPx)).toBe('3.389830508474576cqw')
         expect(pxToCqw(baseWidthPx, baseWidthPx)).toBe('100cqw')
     })
 })

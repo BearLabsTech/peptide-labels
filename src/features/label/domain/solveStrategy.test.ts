@@ -5,14 +5,14 @@ import { TargetUnitsSolve } from './targetUnitsSolve'
 import { RoundConcentrationSolve } from './roundConcentrationSolve'
 
 describe('SOLVE_STRATEGIES registry', () => {
-    it('is frozen so a caller cannot rebind a mode to a different strategy', () => {
+    it('should be frozen so a caller cannot rebind a mode to a different strategy', () => {
         expect(Object.isFrozen(SOLVE_STRATEGIES)).toBe(true)
         expect(() => {
             SOLVE_STRATEGIES.standard = TargetUnitsSolve
         }).toThrow()
     })
 
-    it('keys every mode to the strategy whose id matches that key', () => {
+    it('should key every mode to the strategy whose id matches that key', () => {
         expect(SOLVE_STRATEGIES.standard).toBe(StandardSolve)
         expect(SOLVE_STRATEGIES.target_units).toBe(TargetUnitsSolve)
         expect(SOLVE_STRATEGIES.round_concentration).toBe(RoundConcentrationSolve)
@@ -21,7 +21,7 @@ describe('SOLVE_STRATEGIES registry', () => {
         }
     })
 
-    it('never throws "not supported" for any method on any mode (Liskov)', () => {
+    it('should never throw "not supported" for any method on any mode (Liskov)', () => {
         const draft = { compoundAmount: '20', vialUnit: 'mg' as const }
         for (const strategy of Object.values(SOLVE_STRATEGIES)) {
             expect(() => strategy.deriveMath(draft)).not.toThrow()

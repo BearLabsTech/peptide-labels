@@ -3,7 +3,7 @@ import { resolveLabelMath, type ResolvedLabelMath } from './LabelMathResolver'
 import { displayConcentration, displayDrawUnits, displayWaterAmount } from './calculatorDisplay'
 import type { LabelModelInput } from './labelModel'
 import { DEFAULT_CALCULATOR_SOLVE_MODE } from './peptideMath'
-import { roundConcentrationRoundingTrapScenario, roundTripDriftTrapScenario } from './testing/labelInputBuilder'
+import { roundConcentrationRoundingTrapScenario, roundTripDriftTrapScenario, forwardMathScenario } from './testing/labelInputBuilder'
 
 /**
  * What the calculator would actually show for water/units/concentration given
@@ -23,11 +23,7 @@ function displayedValues(input: LabelModelInput, result: ResolvedLabelMath) {
 describe('LabelMathResolver', () => {
 
     it('should perform forward math and format MG concentration when vial, water, and protocol amount are present', () => {
-        const input: LabelModelInput = {
-            compoundAmount: '10', vialUnit: 'mg',
-            reconstitutionAmount: '2',
-            protocolAmount: '500', measureUnit: 'mcg'
-        }
+        const input = forwardMathScenario()
         const result = resolveLabelMath(input)
         expect(result.autoUnits).toBe('10 units')
         expect(result.autoWater).toBe('')
