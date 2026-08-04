@@ -10,6 +10,36 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
+### `DEFAULT_DRAW_UNITS_PER_MG` still means three different things
+
+**Symptom:** One constant is used as a default rate, a placeholder display value, and (with `DEFAULT_DRAW_UNITS_PER_MG_REDUCED`) a scaling basis — easy to change the wrong meaning.
+
+**Priority:** Low.
+
+**Where to look / hypotheses:**
+- `src/features/label/peptideMath.ts` — display path ~190, scale path ~350.
+- Split into named constants per role when next touching draw-unit defaults. Do not change golden-facing math without characterization.
+
+### Residual `vialMl` fallbacks beside `vialCapacityMl`
+
+**Symptom:** `selection.vialCapacityMl ?? selection.vialMl` (and print-selection equivalent) still appear in two call sites after the capacity rename.
+
+**Priority:** Low.
+
+**Where to look / hypotheses:**
+- `src/print/PrintCatalogFilter.ts`, `src/features/customDesign/useApplyDesignViewModel.ts`.
+- Remove when callers always set `vialCapacityMl`, or keep one documented compatibility read until storage migrations guarantee the new field.
+
+### Silent numeric coercion / error-convention convergence
+
+**Symptom:** `parseNumericField` and related `Number(…) || 0` (and similar) sites turn invalid input into `0`, so callers cannot tell empty from zero from garbage. Result vs throw conventions are also uneven across parse/export/storage boundaries.
+
+**Priority:** Medium.
+
+**Where to look / hypotheses:**
+- Inventory lives in the pre-complexity sweeps plan Deferred section and in `docs/reviews/2026-08-04-pre-complexity-sweeps-closeout.md`.
+- Own implementation in a dedicated **error-convention** plan — do not piecemeal-fix during unrelated work.
+
 ### Consider adding `eslint-plugin-jsx-a11y`
 
 **Symptom:** accessibility rules are not enforced by lint. The concrete missing `aria-describedby` on the image upload was fixed by hand in 2026-08-04 (pre-complexity action 6); a plugin would catch the next one. Per plan D5 this is a new dependency and needs an explicit go-ahead.

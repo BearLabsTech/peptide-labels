@@ -14,17 +14,23 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Evidence (2026):** flagged during the initial architecture audit; specific instance superseded once the underlying constants were split out during Phase 1 magic-number naming. See `docs/CODE-QUALITY.md` section C for the "one source of truth" standard this violates.
 
+**Recurrence (2026-08-03 Phase 8):** `DEFAULT_DRAW_UNITS_PER_MG` serves as rate, placeholder, and floor/scaling basis — three meanings, not two. Still Open in `docs/TECH-DEBT.md` after sweeps.
+
 ### A constant mirrored between TypeScript and CSS
 
 **Pattern:** a numeric layout value (ratio, spacing, border width) expressed once in a `.ts` file for fit-prediction purposes and again, independently, in a `.css`/`.tsx` file for rendering — nothing keeps the two in sync.
 
 **Evidence (2026):** `LabelLayoutEngine.ts` font ratios, line height, border width, and section spacing duplicated in `LabelPreview.tsx` / `LabelPreview.css`. Tracked in `docs/TECH-DEBT.md` ("Preview fitting metrics — duplicated between TypeScript and CSS"); **Resolved 2026-08-02/03 (Phase 3 action 3.5):** single `LABEL_TYPOGRAPHY` object + CSS custom properties on the label container; preview CSS consumes `var(--label-…)` instead of mirrored literals.
 
+**Analogue (2026-08-03 Phase 8):** inline `.tsx` `style={{…}}` literals beside colocated `.css` for the same visual role — same sync hazard without a custom-property bridge.
+
 ### A default value declared twice with different values
 
 **Pattern:** the "default" for the same field or setting is hard-coded in two places (e.g. a form's initial state and a fallback deep in a resolver), and the two literals have drifted apart without anyone noticing because nothing compares them.
 
 **Evidence (2026):** flagged during the initial architecture audit as a category to watch for across calculator defaults; no confirmed live instance recorded yet as of this writing — recorded here as a pattern to check on every review, not as a resolved finding.
+
+**Analogue (2026-08-03 Phase 8):** generalize beyond defaults to any lookup or mapping table — two `labelId → stockId` migration tables disagreed on `40x30`. **Resolved** in quality follow-up (unified migrations). See also *Two migration tables for one legacy field* below.
 
 ### A validated object returned by reference
 
@@ -38,6 +44,8 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Evidence (2026):** flagged as a risk category for `printCatalog.ts` lookups (stocks, printers) during the initial audit. Phase 1's `Object.freeze` on exported catalogs converts a possible silent-corruption bug into a loud runtime error instead, which is the intended mitigation — confirm on next review that the freeze actually landed and covers every exported catalog, not just the ones touched first.
 
+**Recurrence (2026-08-03 Phase 8):** the freeze this entry asked to confirm had not landed on `PRINT_CATALOG` / `filterCatalog` live references. **Resolved** in quality follow-up — `deepFreeze` on `PRINT_CATALOG`.
+
 ### Provenance flags compensating for authored and derived data sharing a container
 
 **Pattern:** a `somethingOrigin` / `isDerived` / `wasAutoFilled`-style flag exists specifically so downstream code can tell whether a field holds a user-entered value or a calculated one — the flag is a symptom that the container should have been two types, not one.
@@ -50,11 +58,15 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Evidence (2026):** flagged as a category to check across `peptideMath.ts` input parsing during the initial audit. Phase 1's `Result<T, E>` type (action 1.6) is the intended fix wherever this is confirmed present — confirm which specific parse functions still do this on next review.
 
+**Recurrence (2026-08-03 Phase 8):** confirmed — `parseNumericField` plus `parseFloat(x || '0')` sites in `labelMathCore.ts`. **Deferred** to the error-convention plan (inventory in sweeps plan Deferred section / `docs/TECH-DEBT.md`).
+
 ### Identifiers drifting from the product's own vocabulary
 
 **Pattern:** an internal identifier uses an older or informal term for a concept the product (and `COPY-GUIDELINES.md`) now names differently — readers have to mentally translate between the code's vocabulary and the product's.
 
 **Evidence (2026):** Math identifiers formerly used the older compound-quantity names (and related presets/helpers) while the public model already said `compoundAmount`. **Resolved 2026-08-02 (Phase 2 action 2.7):** renamed onto COPY-GUIDELINES vocabulary (`compoundAmount`, `hasPositiveCompoundAmount`, `COMPOUND_AMOUNT_PRESETS_*`, `protocolAmount`, `protocolUnits` field kind, `syringeCapacityMl`).
+
+**Analogue (2026-08-03 Phase 8):** `vialMl` still appears beside `vialCapacityMl` in the print layer (`??` fallbacks). Residual sites Open in `docs/TECH-DEBT.md`.
 
 ### Tests asserting a merged internal model instead of observable output
 
@@ -79,3 +91,69 @@ When you find a recurrence or an analogue during a review, append a dated note u
 **Pattern:** a plan or action introduces a new type (often a branded value object with a smart constructor) intending it to be adopted at real call sites "later" — the type ships, gets its own unit tests, and then nothing outside those tests ever calls the constructor. The tests pass forever and the coverage tool counts the module as covered, so nothing signals that the abstraction did not take.
 
 **Evidence (2026-08):** found during Phase 8.3 plan-claims verification (finding F5). `domain/units.ts` defined `Mass`, `VolumeMl`, `ConcentrationPerMl`, `DrawUnits`, `VialCapacityMl`, `SyringeCapacityMl` and six `make*` constructors (action 1.2) as a deliberately deferred first step; a whole-tree search found zero production importers of any of them — only `units.test.ts` called them. **Resolved 2026-08-03 (Phase 8.4):** deleted the six types, six constructors, and their four unused sibling conversion helpers (`mlToDrawUnits`, `drawUnitsToMl`, `mcgToMg`, `mgToMcg` — also zero production callers) rather than adopting them, since the calculator's real parse boundary (`CalculatorModeInput` in `calculatorGuards.ts`) already carries plain `number` and a second, unify-later pass was not scheduled. When a review finds this pattern again, check for real callers before assuming "adopt it" is the right fix — deleting speculative generality is equally valid per `docs/CODE-QUALITY.md` section G.
+
+### A registry that centralizes dispatch while the branching migrates outward
+
+**Pattern:** a Strategy/Registry lands and the central dispatcher is genuinely clean, so the extension point reads as closed; meanwhile the same `kind ===` comparison reappears in display helpers, guards, and view models, and one implementation names a sibling by id. Check the variant-addition cost, not the dispatcher.
+
+**Evidence (2026-08-03 Phase 8):** `calculatorSolveMode` branching outside `SolveStrategy`, including a strategy reading a sibling's id; `calculateRequiredWaterMl` re-deriving water independently of `deriveMath`. **Resolved** in quality follow-up Phase A (`SOLVE_STRATEGIES` members own display precedence, visibility, and water math).
+
+### A fix that resolves the instances it enumerated and stops at the enumeration
+
+**Pattern:** an entry is closed against a list of N occurrences rather than against the pattern, so adjacent occurrences in the same subsystem survive and the fix's own new mechanism adds fresh unpinned duplicates. Before marking a known finding resolved, re-run its detection, not its checklist.
+
+**Evidence (2026-08-03 Phase 8):** preview-fitting / CSS fallback work left adjacent unpinned literals and related sync hazards. Quality follow-up and Phase B closed the typography fallbacks that were in scope; treat "list complete" as insufficient proof on future closes.
+
+### An abstraction built to fix a smell, then never adopted
+
+**Pattern:** value objects, a `Result` type, or a builder introduced as the prescribed remedy for a named smell, with the smell left in place and the abstraction reachable only from its own tests. Costs twice: the original problem plus dead weight that reads as load-bearing.
+
+**Evidence (2026-08-03 Phase 8):** same family as *A type/value-object layer introduced ahead of adoption* (`domain/units.ts`). **Resolved 2026-08-03 (Phase 8.4)** by deletion. `Result` adoption across parse/export/storage remains **deferred** to the error-convention plan.
+
+### A single interface signalling failure three ways
+
+**Pattern:** the same class of failure returning `Result`, `null`, and a rejection across sibling methods of one interface, so implementers copy the inconsistency downward.
+
+**Evidence (2026-08-03 Phase 8):** inventory in sweeps plan Deferred section (hand-rolled `{ ok }` unions, promise rejections for ordinary I/O, storage `null` collapsing absent/corrupt/unavailable). **Deferred** to the error-convention plan.
+
+### An enforcement rule scoped to a directory the standard's own layer table does not use
+
+**Pattern:** lint globs matching `**/domain/**` while the modules the table calls "domain" live elsewhere. The rule passes, the boundary is unenforced, and a review that trusts the lint reports it clean.
+
+**Evidence (2026-08-03 Phase 8):** purity block matched `src/**/domain/**` while math/composition lived in `src/features/label` root; missing blocks for `app` / `print` / `platform`. **Resolved 2026-08-04 (sweep action 5)** by enumerating real paths (D3). Related residual: dead `**/*.tsx` specifier ban still Open in TECH-DEBT.
+
+### A coverage exclusion contradicted by a sibling test file
+
+**Pattern:** a module excluded as "untested wiring" that has a dedicated test file, so real tests earn no ratchet credit and real regressions move no number.
+
+**Evidence (2026-08-03 Phase 8):** view-model modules excluded while their tests existed. Overlaps *Coverage tool treating a naming convention…* below. **Resolved 2026-08-04 (sweep action 6).**
+
+### One variant of a discriminated union missing the field every sibling carries
+
+**Pattern:** the handler substitutes a module default, and the type stops being able to express what the operation is evaluated against.
+
+**Evidence (2026-08-03 Phase 8):** noted in the routing list for known-findings; confirm on the next full review whether a live instance remains after SolveStrategy / calculator provenance work.
+
+### Two migration tables for one legacy field
+
+**Pattern:** a normalization function and a resolver each mapping the same legacy value, with different coverage; whichever entry point the caller happens to use decides the answer.
+
+**Evidence (2026-08-03 Phase 8):** two `labelId → stockId` tables; `40x30` wrong through `resolvePrintTarget`. **Resolved** in quality follow-up.
+
+### Alias-instead-of-rename
+
+**Pattern:** a deprecated identifier kept beside its canonical replacement as an optional field, so both are readable indefinitely and every consumer adds a `?? legacy` fallback. Looks like a safe migration; is actually a permanent second vocabulary plus a representable illegal state. Fix: split the legacy shape into a persistence-only type consumed solely by the migration function.
+
+**Evidence (2026-08-03 Phase 8):** `vialMl` / `labelId` aliases in `PrintSetupSelection`; residual `?? vialMl` in two call sites — Open in `docs/TECH-DEBT.md`. Proposed for `docs/CODE-QUALITY.md` section G table when that doc is next edited for smells.
+
+### Coverage tool treating a naming convention as a structural signal
+
+**Pattern:** coverage exclude globs (or other tooling filters) key off a naming prefix that the codebase also uses for *pure* modules. Pure code is silently dropped from the measured set; thresholds look healthy while the real logic is unmeasured.
+
+**Evidence (2026-08-04 sweeps):** files named `use*.ts` that were view-models or helpers (not React hooks) were excluded with `src/**/use*.ts`. **Resolved 2026-08-04 (sweep action 6):** renamed pure modules off the `use` prefix; exclusions limited to real Humble Object UI and thin adapters. Thresholds re-measured and raised.
+
+### Refactor scaffolding that outlives the refactor
+
+**Pattern:** a temporary folder, flag, or dual-path (`__legacy_*`, `new_*` alongside `old_*`) is left in the tree after the cutover. It still compiles and may still run in CI, so nothing forces removal.
+
+**Evidence (2026-08-04 sweeps):** Phase 8 noted `__legacy_check__/` as leftover (untracked, five-minute local-gate test). **Resolved 2026-08-04 (sweep action 4):** path already absent on `main`; recorded as no-op. Prefer deleting scaffolding in the same change set that finishes the cutover.
