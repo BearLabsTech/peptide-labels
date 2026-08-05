@@ -64,6 +64,10 @@ export default defineConfig({
       // TECH-DEBT Open item. 90.85 / 89.91 / 90.82 / 92.47 (stmts/branch/funcs/
       // lines), 65 files / 630 tests. Raise rule is ≥1.0 above threshold —
       // nothing qualifies, so thresholds stay.
+      // 2026-08-04 review-record pass: 90.9 / 89.91 / 91.03 / 92.52 after
+      // deleting the callerless deprecated labelSurfaceStyle(). Functions moved
+      // most because the deleted function was one uncovered function out of a
+      // small denominator. Still short of the raise rule; thresholds stay.
       thresholds: {
         lines: 92,
         statements: 90,
