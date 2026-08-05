@@ -1,11 +1,15 @@
 /* src/App.css */
 
 /* --- Desktop Layout (Default) --- */
+/* Fill workspace-body (below the chrome header), not the full viewport —
+   100dvh here used to clip the sidebar by ~header height on desktop and mobile. */
 .app-container {
   display: flex;
   flex-direction: row;
-  height: 100dvh;
-  width: 100vw;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
   overflow: hidden;
   background-color: var(--color-background);
 }
