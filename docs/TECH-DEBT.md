@@ -10,6 +10,17 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
+### "Authoritative draw-units scenario" duplicate group is not mechanically findable
+
+**Symptom:** the sweeps plan named a fourth duplicate-scenario group (alongside `roundConcentrationRoundingTrapScenario`, `forwardMathScenario`, and `roundTripDriftTrapScenario`) with no builder function, so it cannot be located by searching for a symbol. A text search for "authoritative" turns up four unrelated hits — `LabelMathResolver.test.ts`'s `describe('assist mode authoritative inputs', ...)`, `peptideMath.unit.test.ts`'s `describe('authoritative assist inputs', ...)`, one `calculatorReducer.test.ts` case, and one `peptideMath.edge.test.ts` case — and none is unambiguously "the" fourth group.
+
+**Priority:** Low.
+
+**Where to look / hypotheses:**
+- Error-convention plan action 7 (2026-08-04) looked and stopped here per its own instruction not to guess.
+- `peptideMath.unit.test.ts`'s `describe('authoritative assist inputs', ...)` block already has a comment noting one case is "covered above... same input, same assertions" — that in-file note may be a better lead than the cross-file grep.
+- If this is actually the same fourth group the sweeps plan meant, it needs a named builder in `labelInputBuilder.ts` before it becomes searchable at all.
+
 ### `DEFAULT_DRAW_UNITS_PER_MG` still means three different things
 
 **Symptom:** One constant is used as a default rate, a placeholder display value, and (with `DEFAULT_DRAW_UNITS_PER_MG_REDUCED`) a scaling basis — easy to change the wrong meaning.

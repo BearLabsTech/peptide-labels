@@ -25,9 +25,7 @@ describe('LabelMathResolver', () => {
     it('should perform forward math and format MG concentration when vial, water, and protocol amount are present', () => {
         const input = forwardMathScenario()
         const result = resolveLabelMath(input)
-        expect(result.autoUnits).toBe('10 units')
         expect(result.autoWater).toBe('')
-        expect(result.autoConcentration).toBe('5mg per ml')
 
         expect(displayedValues(input, result).units).toBe('10 units')
         expect(displayedValues(input, result).concentration).toBe('5mg per ml')
@@ -46,9 +44,8 @@ describe('LabelMathResolver', () => {
             calculatorSolveMode: 'standard',
         }
         const result = resolveLabelMath(input)
-        expect(result.autoConcentration).toBe('10mg per ml')
         expect(displayedValues(input, result).concentration).toBe('10mg per ml')
-        expect(result.autoUnits).toBe('25 units')
+        expect(displayedValues(input, result).units).toBe('25 units')
     })
 
     it('should perform reverse math and format MG concentration when vial, draw units, and protocol amount are present', () => {
@@ -58,10 +55,8 @@ describe('LabelMathResolver', () => {
             protocolAmount: '500', measureUnit: 'mcg'
         }
         const result = resolveLabelMath(input)
-        expect(result.autoWater).toBe('2')
         // strict separation prevents echoing user input into the auto-calculated placeholder
         expect(result.autoUnits).toBe('')
-        expect(result.autoConcentration).toBe('5mg per ml')
 
         expect(displayedValues(input, result).water).toBe('2')
         expect(displayedValues(input, result).concentration).toBe('5mg per ml')
@@ -99,7 +94,6 @@ describe('LabelMathResolver', () => {
             targetConcentration: '10',
         }
         const result = resolveLabelMath(input)
-        expect(result.autoWater).toBe('2')
         expect(result.autoUnits).toBe('')
         expect(result.autoConcentration).toBe('10mg per ml')
         expect(displayedValues(input, result).water).toBe('2')
@@ -115,8 +109,6 @@ describe('LabelMathResolver', () => {
             targetConcentration: '5',
         }
         const result = resolveLabelMath(input)
-        expect(result.autoWater).toBe('2')
-        expect(result.autoUnits).toBe('10 units')
         expect(result.autoConcentration).toBe('5mg per ml')
         expect(displayedValues(input, result).water).toBe('2')
         expect(displayedValues(input, result).units).toBe('10 units')
@@ -140,7 +132,6 @@ describe('LabelMathResolver', () => {
         const input = roundConcentrationRoundingTrapScenario()
         const result = resolveLabelMath(input)
         expect(result.autoWater).toBe('1.467')
-        expect(result.autoConcentration).toBe('15mg per ml')
         expect(displayedValues(input, result).concentration).toBe('15mg per ml')
         expect(result.autoUnits).toBe('26.667 units')
     })
@@ -269,7 +260,6 @@ describe('assist mode authoritative inputs', () => {
             const result = resolveLabelMath(input)
             // Exact water 1.165 ml → concentration 20; rounding water first to 1.17 would yield ~19.91
             expect(result.autoWater).toBe('1.165')
-            expect(result.autoConcentration).toBe('20mg per ml')
             expect(displayedValues(input, result).concentration).toBe('20mg per ml')
             expect(displayedValues(input, result).units).toBe('50 units')
         })
