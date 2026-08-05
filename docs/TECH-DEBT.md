@@ -41,16 +41,6 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 - `src/features/label/peptideMath.ts` — display path ~190, scale path ~350.
 - Split into named constants per role when next touching draw-unit defaults. Do not change golden-facing math without characterization.
 
-### Residual `vialMl` fallbacks beside `vialCapacityMl`
-
-**Symptom:** `selection.vialCapacityMl ?? selection.vialMl` (and print-selection equivalent) still appear in two call sites after the capacity rename.
-
-**Priority:** Low.
-
-**Where to look / hypotheses:**
-- `src/print/PrintCatalogFilter.ts`, `src/features/customDesign/useApplyDesignViewModel.ts`.
-- Remove when callers always set `vialCapacityMl`, or keep one documented compatibility read until storage migrations guarantee the new field.
-
 ### Consider adding `eslint-plugin-jsx-a11y`
 
 **Symptom:** accessibility rules are not enforced by lint. The concrete missing `aria-describedby` on the image upload was fixed by hand in 2026-08-04 (pre-complexity action 6); a plugin would catch the next one. Per plan D5 this is a new dependency and needs an explicit go-ahead.
@@ -77,6 +67,10 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 ---
 
 ## Resolved
+
+### Residual `vialMl` fallbacks beside `vialCapacityMl`
+
+**Resolved:** 2026-08-04. Removed the two `?? selection.vialMl` fallback reads in `PrintCatalogFilter` and `useApplyDesignViewModel`. The legacy field and `normalizePrintSetup` migration stay at the codec boundary so existing saved print setups still load.
 
 ### Silent numeric coercion / error-convention convergence
 

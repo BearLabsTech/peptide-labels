@@ -102,9 +102,9 @@ export function useApplyDesignViewModel({
     () =>
       resolveDesignPrintTargetOrDefault(design, {
         printerId: printSelection.printerId,
-        vialCapacityMl: printSelection.vialCapacityMl ?? printSelection.vialMl,
+        vialCapacityMl: printSelection.vialCapacityMl,
       }),
-    [design, printSelection.printerId, printSelection.vialCapacityMl, printSelection.vialMl],
+    [design, printSelection.printerId, printSelection.vialCapacityMl],
   )
 
   const { canExportPng, isBuiltinSample, isInLibrary } = deriveApplyDesignFlags(

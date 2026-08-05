@@ -61,7 +61,7 @@ function buildRecommendedStockIds(
   selection: Partial<PrintSetupSelection>,
   visibleStocks: LabelStock[],
 ): string[] {
-  const vialCapacityMl = selection.vialCapacityMl ?? selection.vialMl
+  const vialCapacityMl = selection.vialCapacityMl
   if (vialCapacityMl == null) return []
 
   const visibleIds = new Set(visibleStocks.map((s) => s.id))
