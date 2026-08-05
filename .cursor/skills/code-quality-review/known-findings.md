@@ -14,7 +14,7 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Evidence (2026):** flagged during the initial architecture audit; specific instance superseded once the underlying constants were split out during Phase 1 magic-number naming. See `docs/CODE-QUALITY.md` section C for the "one source of truth" standard this violates.
 
-**Recurrence (2026-08-03 Phase 8):** `DEFAULT_DRAW_UNITS_PER_MG` serves as rate, placeholder, and floor/scaling basis — three meanings, not two. Still Open in `docs/TECH-DEBT.md` after sweeps.
+**Recurrence (2026-08-03 Phase 8):** `DEFAULT_DRAW_UNITS_PER_MG` serves as rate, placeholder, and floor/scaling basis — three meanings, not two. Was Open in `docs/TECH-DEBT.md` after sweeps.
 
 **Resolved (2026-08-04, clean-slate action 2):** the three meanings became three named constants at the same value (10) — rate/scaling keeps `DEFAULT_DRAW_UNITS_PER_MG` / `_PER_IU`; display placeholder is `PLACEHOLDER_DRAW_UNITS`; IU floor is `DRAW_UNITS_IU_FLOOR`.
 

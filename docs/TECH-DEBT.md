@@ -6,9 +6,13 @@ Every item here should be closeable by reading, changing, and testing code. If c
 
 When an item is fixed, move it to **Resolved** with a one-line note (date + what changed).
 
+**What “Open: None” excludes (2026-08-04):** two items in [HUMAN-TASKS.md](./HUMAN-TASKS.md) stay open because they need a physical Niimbot B21 print (no hardware access as of this date). [FRD.md](./FRD.md) Planned is intentional product roadmap, not debt.
+
 ---
 
 ## Open
+
+**None.**
 
 ---
 

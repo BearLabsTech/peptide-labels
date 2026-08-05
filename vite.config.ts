@@ -60,6 +60,10 @@ export default defineConfig({
       // 90.68 / 89.68 / 90.74 / 92.27 this plan started from, but not enough to
       // clear the next whole-number line with the margin this file's thresholds
       // have always kept, so the numbers below are unchanged.
+      // 2026-08-04 clean-slate plan action 8: re-measured after closing every
+      // TECH-DEBT Open item. 90.85 / 89.91 / 90.82 / 92.47 (stmts/branch/funcs/
+      // lines), 65 files / 630 tests. Raise rule is ≥1.0 above threshold —
+      // nothing qualifies, so thresholds stay.
       thresholds: {
         lines: 92,
         statements: 90,
