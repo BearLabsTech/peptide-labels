@@ -60,6 +60,8 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Recurrence (2026-08-03 Phase 8):** confirmed — `parseNumericField` plus `parseFloat(x || '0')` sites in `labelMathCore.ts`. **Deferred** to the error-convention plan (inventory in sweeps plan Deferred section / `docs/TECH-DEBT.md`).
 
+**Resolved (2026-08-04, error-convention action 6):** `parseNumericField` now returns `number | null` instead of `0`. The four `labelMathCore.ts` `parseFloat(x || '0')` sites were confirmed to be a *different* case, not this pattern — they feed `deriveMath` computations directly rather than a `> 0` guard, so `'0'` there is a deliberate finite-input requirement, not a sentinel standing in for failure; they were left as `'0'` on purpose, with a comment recorded at the site. The five sibling `peptideMath.ts` guard sites that *were* this pattern were unified onto `parseFloat(x || '')`, matching the eight guard sites that already used it. Fixing the sentinel surfaced a live instance of *the worked example this pattern always describes*: `isPresetSelected` compared a parsed value to a preset with `===`, so junk input that used to coerce to `0` could match a `'0'`-valued preset — `null === number` is always `false`, closing it as a side effect of the type change rather than a separate fix.
+
 ### Identifiers drifting from the product's own vocabulary
 
 **Pattern:** an internal identifier uses an older or informal term for a concept the product (and `COPY-GUIDELINES.md`) now names differently — readers have to mentally translate between the code's vocabulary and the product's.
@@ -116,6 +118,8 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Evidence (2026-08-03 Phase 8):** inventory in sweeps plan Deferred section (hand-rolled `{ ok }` unions, promise rejections for ordinary I/O, storage `null` collapsing absent/corrupt/unavailable). **Deferred** to the error-convention plan.
 
+**Resolved (2026-08-04, error-convention actions 2–5):** all three failure signals converged onto one convention (ADR 0005). Eleven hand-rolled `{ ok }` unions became `Result<T, E>`; eleven promise rejections for ordinary I/O moved behind adapter boundaries so callers see `Result` instead of a `try`/`catch`; the three storage reads that collapsed absent/corrupt/unavailable into one `null` now return a discriminated `LoadPrintSetupResult` / `LoadAgreementResult`. One interface still has an intentionally-empty failure side rather than three signals: `KeyValueStore.get`'s `{ kind: 'unavailable' }` and friends are a `Result`-shaped discriminated union, not a rejection or a bare `null`, so the "three ways" this pattern names no longer has a live instance in this codebase as of this action.
+
 ### An enforcement rule scoped to a directory the standard's own layer table does not use
 
 **Pattern:** lint globs matching `**/domain/**` while the modules the table calls "domain" live elsewhere. The rule passes, the boundary is unenforced, and a review that trusts the lint reports it clean.
@@ -151,6 +155,12 @@ When you find a recurrence or an analogue during a review, append a dated note u
 **Pattern:** coverage exclude globs (or other tooling filters) key off a naming prefix that the codebase also uses for *pure* modules. Pure code is silently dropped from the measured set; thresholds look healthy while the real logic is unmeasured.
 
 **Evidence (2026-08-04 sweeps):** files named `use*.ts` that were view-models or helpers (not React hooks) were excluded with `src/**/use*.ts`. **Resolved 2026-08-04 (sweep action 6):** renamed pure modules off the `use` prefix; exclusions limited to real Humble Object UI and thin adapters. Thresholds re-measured and raised.
+
+### An accepted ADR that no module follows
+
+**Pattern:** an ADR is recorded as "Accepted," reviewers cite it as settled, and the decision reads as done — but nothing enforces it, so real code drifts away from it immediately and the drift is invisible until someone diffs the ADR's own claim against the tree.
+
+**Evidence (2026-08-04, error-convention plan):** ADR 0005 ("One error convention") was Accepted 2026-08-02. By the time the error-convention plan started two days later, eleven hand-rolled `{ ok }` unions used field names the ADR's own text technically allowed ("matching that shape") but that were not the literal `Result<T, E>` type; storage reads returned a bare `null` for three distinct failure kinds; `parseNumericField` returned a sentinel `0`. None of this tripped a lint rule or a type error — the ADR had no enforcement mechanism, only a citation in commit messages. **Resolved** for this specific ADR by the error-convention plan (actions 1–6) plus an amendment (2026-08-04) that closed the "matching that shape" loophole by naming the literal type and its field names. The general pattern is not resolved by fixing one instance: action 8 considered, and left open pending a decision, a lint rule banning `ok: true` object literals outside `src/shared/result.ts` — see `docs/TECH-DEBT.md`. Until an ADR's rule has a mechanical check, treat "Accepted" as a claim to verify against the code, not a fact about it.
 
 ### Refactor scaffolding that outlives the refactor
 

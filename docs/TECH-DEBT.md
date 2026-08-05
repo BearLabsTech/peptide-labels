@@ -21,6 +21,16 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 - `peptideMath.unit.test.ts`'s `describe('authoritative assist inputs', ...)` block already has a comment noting one case is "covered above... same input, same assertions" — that in-file note may be a better lead than the cross-file grep.
 - If this is actually the same fourth group the sweeps plan meant, it needs a named builder in `labelInputBuilder.ts` before it becomes searchable at all.
 
+### No lint rule enforces `Result` construction through `ok()` / `err()`
+
+**Symptom:** ADR 0005 says "prefer `ok` / `err` constructors," but nothing enforces it. A probe for the natural enforcement rule — ban `{ ok: true, ... }` / `{ ok: false, ... }` object literals outside `src/shared/result.ts` — found **28 production call sites** already constructing `Result` by literal instead of by constructor (`validateDesignDocument.ts`, the four element validators, `designDocumentCodec.ts`, `designPackage.ts`, `LocalStorageKeyValueStore.ts`, `resolveDesignPrintTarget.ts`, `readImageFileAsDataUrl.ts`), all of them already correctly `Result`-shaped. Adding the rule as an `error` today would require either a disable-comment on every site or migrating all 28 to `ok()`/`err()` in the same change — out of scope for a "close the loop" action.
+
+**Priority:** Low. This is enforcement debt, not a correctness bug — every site found is already the compliant shape, just not the compliant constructor call.
+
+**Where to look / hypotheses:**
+- Found during error-convention plan action 8 (2026-08-04), which deliberately did not add the rule per its own "prove it fires without over-firing" instruction.
+- If picked up: migrate the 28 sites to `ok()`/`err()` first (mechanical, low-risk, one commit), then add `no-restricted-syntax` banning the literal `Property` pattern outside `src/shared/result.ts` and `**/*.test.ts` (tests legitimately assert against literal expected shapes), and prove the rule fires with a deliberate probe per the sweeps-plan precedent.
+
 ### `DEFAULT_DRAW_UNITS_PER_MG` still means three different things
 
 **Symptom:** One constant is used as a default rate, a placeholder display value, and (with `DEFAULT_DRAW_UNITS_PER_MG_REDUCED`) a scaling basis — easy to change the wrong meaning.
@@ -40,16 +50,6 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 **Where to look / hypotheses:**
 - `src/print/PrintCatalogFilter.ts`, `src/features/customDesign/useApplyDesignViewModel.ts`.
 - Remove when callers always set `vialCapacityMl`, or keep one documented compatibility read until storage migrations guarantee the new field.
-
-### Silent numeric coercion / error-convention convergence
-
-**Symptom:** `parseNumericField` and related `Number(…) || 0` (and similar) sites turn invalid input into `0`, so callers cannot tell empty from zero from garbage. Result vs throw conventions are also uneven across parse/export/storage boundaries.
-
-**Priority:** Medium.
-
-**Where to look / hypotheses:**
-- Inventory lives in the pre-complexity sweeps plan Deferred section and in `docs/reviews/2026-08-04-pre-complexity-sweeps-closeout.md`.
-- Own implementation in a dedicated **error-convention** plan — do not piecemeal-fix during unrelated work.
 
 ### Consider adding `eslint-plugin-jsx-a11y`
 
@@ -77,6 +77,10 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 ---
 
 ## Resolved
+
+### Silent numeric coercion / error-convention convergence
+
+**Resolved:** 2026-08-04. The error-convention convergence plan converted every hand-rolled `{ ok }` shape to the shared `Result<T, E>` (ADR 0005), gave three storage reads distinct absent/corrupt/unavailable outcomes, converged ten `undefined`-for-absence returns onto `null`, and — the last, riskiest step — changed `parseNumericField` to return `number | null` instead of a silent `0`, fixing the seven callers and a latent bug in `isPresetSelected` along the way. The golden snapshot never moved across any of it.
 
 ### `validateElement` failure side is empty because issues go to a caller array
 

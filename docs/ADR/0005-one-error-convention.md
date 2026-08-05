@@ -5,7 +5,7 @@
 
 ## Decision
 
-Use `Result<T, E>` (`src/shared/result.ts`) for expected, recoverable failures (parse/validation, storage quota, export failure surfaced to the user). Use `throw` only for programmer errors (broken invariants, impossible states). Validation of design documents returns `{ ok, document } | { ok: false, issues }` matching that shape.
+Use `Result<T, E>` (`src/shared/result.ts`) for expected, recoverable failures (parse/validation, storage quota, export failure surfaced to the user). Use `throw` only for programmer errors (broken invariants, impossible states). `null`/`undefined` mean absence — "no answer is determined by these inputs, and that is normal" — and stay outside this convention; only use `Result` for genuine failure, not absence.
 
 ## Rejected alternatives
 

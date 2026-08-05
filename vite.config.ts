@@ -54,6 +54,12 @@ export default defineConfig({
       // printSetupSectionViewModel.ts. Measured 90.6 / 89.68 / 90.34 / 92.18
       // (stmts/branch/funcs/lines) — rose because two well-tested pure modules
       // entered the denominator with high coverage. Ratchet just under.
+      // 2026-08-04 error-convention plan action 8: re-measured after the whole
+      // plan (Result convergence, storage self-heal, numeric-sentinel fix, test
+      // dedup). 90.84 / 89.92 / 90.82 / 92.47 — every figure improved over the
+      // 90.68 / 89.68 / 90.74 / 92.27 this plan started from, but not enough to
+      // clear the next whole-number line with the margin this file's thresholds
+      // have always kept, so the numbers below are unchanged.
       thresholds: {
         lines: 92,
         statements: 90,
