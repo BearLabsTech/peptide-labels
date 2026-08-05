@@ -72,10 +72,11 @@ export function PrintSetupSection({
         </p>
       )}
       <div style={{ marginBottom: 16 }}>
-        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
+        <label htmlFor="print-setup-printer" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
           Printer (optional)
         </label>
         <select
+          id="print-setup-printer"
           value={vm.printerId ?? ''}
           onChange={(e) => vm.selectPrinter(e.target.value || undefined)}
           style={{ ...inputStyle, cursor: 'pointer' }}
@@ -88,9 +89,14 @@ export function PrintSetupSection({
       </div>
 
       <div style={{ marginBottom: 16 }}>
-        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
+        {/*
+          Heading only — VialCapacityControl already exposes aria-label on its
+          chip group and custom input, so a wrapping <label> would not associate
+          cleanly with a multi-control widget.
+        */}
+        <div style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
           Vial capacity
-        </label>
+        </div>
         <VialCapacityControl
           value={vm.vialCapacityMl}
           onChange={vm.selectVialCapacity}

@@ -19,10 +19,11 @@ export function PrintSetupCatalogStockPanel({
 }: PrintSetupCatalogStockPanelProps) {
   return (
     <div style={{ marginBottom: 16 }}>
-      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
+      <label htmlFor="print-setup-label-stock" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: 6 }}>
         Label stock
       </label>
       <select
+        id="print-setup-label-stock"
         value={stockId ?? DEFAULT_STOCK_ID}
         onChange={(e) => onSelectStock(e.target.value)}
         style={{ ...inputStyle, cursor: 'pointer' }}

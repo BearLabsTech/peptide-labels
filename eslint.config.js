@@ -2,6 +2,7 @@ import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
+import jsxA11y from 'eslint-plugin-jsx-a11y'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
@@ -19,6 +20,12 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+  },
+  // Accessibility — components are humble and not unit-tested, so lint is the
+  // main a11y gate. Scoped to JSX only (approved 2026-08-04, clean-slate action 6).
+  {
+    files: ['src/**/*.tsx'],
+    ...jsxA11y.flatConfigs.recommended,
   },
   // Layer: React views go through hooks/use cases — not platform adapters directly.
   {

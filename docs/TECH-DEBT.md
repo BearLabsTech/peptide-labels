@@ -10,19 +10,13 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
-### Consider adding `eslint-plugin-jsx-a11y`
-
-**Symptom:** accessibility rules are not enforced by lint. The concrete missing `aria-describedby` on the image upload was fixed by hand in 2026-08-04 (pre-complexity action 6); a plugin would catch the next one. Per plan D5 this is a new dependency and needs an explicit go-ahead.
-
-**Priority:** Low.
-
-**Where to look / hypotheses:**
-- Ask before adding `eslint-plugin-jsx-a11y` (or the flat-config equivalent) to `eslint.config.js`.
-- Wire recommended rules for `src/**/*.tsx` only; components are already humble and not unit-tested, so lint is the main a11y gate.
-
 ---
 
 ## Resolved
+
+### Consider adding `eslint-plugin-jsx-a11y`
+
+**Resolved:** 2026-08-04. Added `eslint-plugin-jsx-a11y` recommended rules for `src/**/*.tsx`. Two files had violations (`PrintSetupCatalogStockPanel`, `PrintSetupSection`) — associated printer/stock labels via `htmlFor`/`id`; vial-capacity heading became a non-label because the control already self-labels. Probe confirmed `alt-text` fires.
 
 ### No lint rule enforces `Result` construction through `ok()` / `err()`
 
