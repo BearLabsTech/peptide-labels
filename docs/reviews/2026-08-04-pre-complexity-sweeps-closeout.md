@@ -43,3 +43,13 @@ Coverage excludes are honest (Humble Object UI + thin adapters only). Pure view-
 ## Handoff
 
 Next plan: **error-convention convergence** (parse boundary, Result vs throw, no silent `0` coercion). Do not start until the developer opens that plan.
+
+## Follow-up (2026-08-04)
+
+Rows above that were still Open / Deferred / Partially resolved at closeout have since closed:
+
+- `parseNumericField` / Result unification — closed by the error-convention convergence plan (2026-08-04); see TECH-DEBT Resolved.
+- `DEFAULT_DRAW_UNITS_PER_MG` tri-purpose — closed by clean-slate action 2 (2026-08-04).
+- `aria-describedby` / a11y — `eslint-plugin-jsx-a11y` landed in clean-slate action 6 (2026-08-04).
+- `vialMl` fallbacks — closed by clean-slate action 1 (2026-08-04); migration boundary kept.
+

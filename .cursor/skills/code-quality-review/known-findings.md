@@ -16,6 +16,8 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Recurrence (2026-08-03 Phase 8):** `DEFAULT_DRAW_UNITS_PER_MG` serves as rate, placeholder, and floor/scaling basis — three meanings, not two. Still Open in `docs/TECH-DEBT.md` after sweeps.
 
+**Resolved (2026-08-04, clean-slate action 2):** the three meanings became three named constants at the same value (10) — rate/scaling keeps `DEFAULT_DRAW_UNITS_PER_MG` / `_PER_IU`; display placeholder is `PLACEHOLDER_DRAW_UNITS`; IU floor is `DRAW_UNITS_IU_FLOOR`.
+
 ### A constant mirrored between TypeScript and CSS
 
 **Pattern:** a numeric layout value (ratio, spacing, border width) expressed once in a `.ts` file for fit-prediction purposes and again, independently, in a `.css`/`.tsx` file for rendering — nothing keeps the two in sync.
