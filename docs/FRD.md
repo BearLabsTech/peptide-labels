@@ -1,6 +1,6 @@
 # Peptide Labels — Functional Requirements
 
-This document describes what Peptide Labels does today and what is planned next. It is written for anyone who needs to understand the product—without implementation detail, step-by-step instructions, or copy-compliance rules (those live in [COPY-GUIDELINES.md](./COPY-GUIDELINES.md)).
+This document describes what Peptide Labels does today and what is planned next. It is written for anyone who needs to understand the product—without implementation detail, step-by-step instructions, or copy-compliance rules (those live in [COPY-GUIDELINES.md](./COPY-GUIDELINES.md)). Product naming and marketing brainstorms live in [BRANDING.md](./BRANDING.md), not here.
 
 ---
 
