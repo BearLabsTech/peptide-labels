@@ -55,8 +55,16 @@ export function resolveCalculatorMode(
 }
 
 export const DEFAULT_TARGET_CONCENTRATION = 10;
+/** Rate / scaling basis: 10 draw units per mg of protocol amount. */
 export const DEFAULT_DRAW_UNITS_PER_MG = 10;
+/** Rate / scaling basis: 10 draw units per IU of protocol amount. */
 export const DEFAULT_DRAW_UNITS_PER_IU = 10;
+/**
+ * Flat draw-units value shown as a placeholder while compound amount is still
+ * unknown. Same numeric value as the rate constants, but a different role —
+ * changing the rate must not silently change this display fallback.
+ */
+export const PLACEHOLDER_DRAW_UNITS = 10;
 export const MIN_RECOMMENDED_WATER_ML = 1;
 
 /** Display-only precision. Never round intermediate math to this — format at the UI/label boundary. */
@@ -188,7 +196,7 @@ export function resolveDefaultDrawUnitsLabel(
 ): string {
     if (!protocolAmount?.trim() || parseFloat(protocolAmount) <= 0) return '';
     if (!hasPositiveCompoundAmount(compoundAmount)) {
-        return formatDrawUnitsLabel(DEFAULT_DRAW_UNITS_PER_MG);
+        return formatDrawUnitsLabel(PLACEHOLDER_DRAW_UNITS);
     }
     return formatDefaultDrawUnitsLabel(
         protocolAmount, measureUnit, vialUnit, compoundAmount, vialCapacityMl,
@@ -335,6 +343,13 @@ function asValidConcentrationSolveInput(i: PeptideConcentrationSolveInput): Vali
 export const DRAW_UNITS_HIGH_THRESHOLD = 50;
 export const DEFAULT_DRAW_UNITS_PER_MG_REDUCED = 5;
 export const DEFAULT_DRAW_UNITS_PER_IU_REDUCED = 5;
+/**
+ * Floor returned by the IU branch of {@link calculateDefaultDrawUnits} when
+ * scaling produces a non-positive result. Same numeric value as the IU rate
+ * constant, but a different role — changing the rate must not silently change
+ * this floor.
+ */
+export const DRAW_UNITS_IU_FLOOR = 10;
 
 /** Default draw units when Set Draw Volume uses 10 units per mg (or per IU). */
 export function calculateDefaultDrawUnits(
@@ -345,7 +360,7 @@ export function calculateDefaultDrawUnits(
     // unrepresentable: UnitWorld pairs vialUnit with measureUnit — no mismatch to guard here.
     if (unitWorld.vialUnit === 'IU') {
         const units = scaleDrawUnitsForAmount(protocolAmount, DEFAULT_DRAW_UNITS_PER_IU, DEFAULT_DRAW_UNITS_PER_IU_REDUCED);
-        return units > 0 ? units : DEFAULT_DRAW_UNITS_PER_IU;
+        return units > 0 ? units : DRAW_UNITS_IU_FLOOR;
     }
     const amountMg = unitWorld.measureUnit === 'mg' ? protocolAmount : protocolAmount / MCG_PER_MG;
     const units = scaleDrawUnitsForAmount(amountMg, DEFAULT_DRAW_UNITS_PER_MG, DEFAULT_DRAW_UNITS_PER_MG_REDUCED);

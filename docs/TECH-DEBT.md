@@ -31,16 +31,6 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 - Found during error-convention plan action 8 (2026-08-04), which deliberately did not add the rule per its own "prove it fires without over-firing" instruction.
 - If picked up: migrate the 28 sites to `ok()`/`err()` first (mechanical, low-risk, one commit), then add `no-restricted-syntax` banning the literal `Property` pattern outside `src/shared/result.ts` and `**/*.test.ts` (tests legitimately assert against literal expected shapes), and prove the rule fires with a deliberate probe per the sweeps-plan precedent.
 
-### `DEFAULT_DRAW_UNITS_PER_MG` still means three different things
-
-**Symptom:** One constant is used as a default rate, a placeholder display value, and (with `DEFAULT_DRAW_UNITS_PER_MG_REDUCED`) a scaling basis — easy to change the wrong meaning.
-
-**Priority:** Low.
-
-**Where to look / hypotheses:**
-- `src/features/label/peptideMath.ts` — display path ~190, scale path ~350.
-- Split into named constants per role when next touching draw-unit defaults. Do not change golden-facing math without characterization.
-
 ### Consider adding `eslint-plugin-jsx-a11y`
 
 **Symptom:** accessibility rules are not enforced by lint. The concrete missing `aria-describedby` on the image upload was fixed by hand in 2026-08-04 (pre-complexity action 6); a plugin would catch the next one. Per plan D5 this is a new dependency and needs an explicit go-ahead.
@@ -67,6 +57,10 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 ---
 
 ## Resolved
+
+### `DEFAULT_DRAW_UNITS_PER_MG` still means three different things
+
+**Resolved:** 2026-08-04. Split into three named constants at the same value (10): rate/scaling keeps `DEFAULT_DRAW_UNITS_PER_MG` / `_PER_IU`; display placeholder is `PLACEHOLDER_DRAW_UNITS`; IU floor is `DRAW_UNITS_IU_FLOOR`. No arithmetic change.
 
 ### Residual `vialMl` fallbacks beside `vialCapacityMl`
 
