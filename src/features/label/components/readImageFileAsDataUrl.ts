@@ -1,4 +1,4 @@
-import type { Result } from '../../../shared/result'
+import { err, ok, type Result } from '../../../shared/result'
 
 export const IMAGE_UPLOAD_ERROR_MESSAGE = 'Couldn’t read that image file.'
 
@@ -14,15 +14,15 @@ export function readImageFileAsDataUrl(
     const reader = createReader()
     reader.onloadend = () => {
       if (typeof reader.result === 'string' && reader.result.length > 0) {
-        resolve({ ok: true, value: reader.result })
+        resolve(ok(reader.result))
         return
       }
       console.error('Image FileReader finished without a data URL', reader.error)
-      resolve({ ok: false, error: IMAGE_UPLOAD_ERROR_MESSAGE })
+      resolve(err(IMAGE_UPLOAD_ERROR_MESSAGE))
     }
     reader.onerror = () => {
       console.error('Image FileReader failed', reader.error)
-      resolve({ ok: false, error: IMAGE_UPLOAD_ERROR_MESSAGE })
+      resolve(err(IMAGE_UPLOAD_ERROR_MESSAGE))
     }
     reader.readAsDataURL(file)
   })

@@ -2,8 +2,7 @@ import { DEFAULT_DPI, SKIP_DEFAULT_TARGET } from '../../print/defaults'
 import { getPrinterById, getStockById } from '../../print/printCatalog'
 import type { PrintTarget } from '../../print/types'
 import { DEFAULT_VIAL_CAPACITY_ML, normalizeVialCapacityMl } from '../../print/vialCapacity'
-import type { Result } from '../../shared/result'
-import { unwrapOr } from '../../shared/result'
+import { err, ok, unwrapOr, type Result } from '../../shared/result'
 import type { DesignDocument, DesignStock } from './designDocument'
 
 export type ResolveDesignPrintTargetOptions = {
@@ -30,38 +29,32 @@ function stockToPrintTarget(
   if (stock.kind === 'catalog') {
     const catalog = getStockById(stock.stockId)
     if (!catalog) {
-      return { ok: false, error: { kind: 'unknown_catalog_stock', stockId: stock.stockId } }
+      return err({ kind: 'unknown_catalog_stock', stockId: stock.stockId })
     }
-    return {
-      ok: true,
-      value: {
-        labelWidthMm: catalog.widthMm,
-        labelHeightMm: catalog.heightMm,
-        effectiveDpi,
-        paddingMm: catalog.paddingMm,
-        shape: catalog.shape,
-        cornerRadiusMm: catalog.cornerRadiusMm,
-        stockId: catalog.id,
-        dimensionId: catalog.dimensionId,
-        printerId,
-        vialCapacityMl,
-      },
-    }
-  }
-
-  return {
-    ok: true,
-    value: {
-      labelWidthMm: stock.widthMm,
-      labelHeightMm: stock.heightMm,
+    return ok({
+      labelWidthMm: catalog.widthMm,
+      labelHeightMm: catalog.heightMm,
       effectiveDpi,
-      paddingMm: stock.paddingMm,
-      shape: stock.shape,
-      cornerRadiusMm: stock.cornerRadiusMm,
+      paddingMm: catalog.paddingMm,
+      shape: catalog.shape,
+      cornerRadiusMm: catalog.cornerRadiusMm,
+      stockId: catalog.id,
+      dimensionId: catalog.dimensionId,
       printerId,
       vialCapacityMl,
-    },
+    })
   }
+
+  return ok({
+    labelWidthMm: stock.widthMm,
+    labelHeightMm: stock.heightMm,
+    effectiveDpi,
+    paddingMm: stock.paddingMm,
+    shape: stock.shape,
+    cornerRadiusMm: stock.cornerRadiusMm,
+    printerId,
+    vialCapacityMl,
+  })
 }
 
 /** Map a design’s locked stock to a PrintTarget for preview/export. */

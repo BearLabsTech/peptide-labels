@@ -1,6 +1,6 @@
 import type { DesignDocument } from './designDocument'
 import { validateDesignDocument, type DesignDocumentValidationIssue } from './validateDesignDocument'
-import type { Result } from '../../shared/result'
+import { err, ok, type Result } from '../../shared/result'
 
 /** Discriminated parse failure — invalid document vs unreadable JSON. */
 export type DesignParseFailure =
@@ -29,18 +29,15 @@ export function parseDesignDocument(json: string): ParseDesignDocumentResult {
   } catch (error) {
     const message = error instanceof Error ? error.message : 'invalid JSON'
     console.error('Design document JSON parse failed', error)
-    return {
-      ok: false,
-      error: {
-        kind: 'unreadable',
-        parseError: message,
-        issues: [{ path: '', message: 'JSON parse failed' }],
-      },
-    }
+    return err({
+      kind: 'unreadable',
+      parseError: message,
+      issues: [{ path: '', message: 'JSON parse failed' }],
+    })
   }
   const result = validateDesignDocument(parsed)
   if (!result.ok) {
-    return { ok: false, error: { kind: 'invalid', issues: result.error } }
+    return err({ kind: 'invalid', issues: result.error })
   }
-  return { ok: true, value: result.value }
+  return ok(result.value)
 }

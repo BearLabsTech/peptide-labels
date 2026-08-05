@@ -10,16 +10,6 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
-### No lint rule enforces `Result` construction through `ok()` / `err()`
-
-**Symptom:** ADR 0005 says "prefer `ok` / `err` constructors," but nothing enforces it. A probe for the natural enforcement rule — ban `{ ok: true, ... }` / `{ ok: false, ... }` object literals outside `src/shared/result.ts` — found **28 production call sites** already constructing `Result` by literal instead of by constructor (`validateDesignDocument.ts`, the four element validators, `designDocumentCodec.ts`, `designPackage.ts`, `LocalStorageKeyValueStore.ts`, `resolveDesignPrintTarget.ts`, `readImageFileAsDataUrl.ts`), all of them already correctly `Result`-shaped. Adding the rule as an `error` today would require either a disable-comment on every site or migrating all 28 to `ok()`/`err()` in the same change — out of scope for a "close the loop" action.
-
-**Priority:** Low. This is enforcement debt, not a correctness bug — every site found is already the compliant shape, just not the compliant constructor call.
-
-**Where to look / hypotheses:**
-- Found during error-convention plan action 8 (2026-08-04), which deliberately did not add the rule per its own "prove it fires without over-firing" instruction.
-- If picked up: migrate the 28 sites to `ok()`/`err()` first (mechanical, low-risk, one commit), then add `no-restricted-syntax` banning the literal `Property` pattern outside `src/shared/result.ts` and `**/*.test.ts` (tests legitimately assert against literal expected shapes), and prove the rule fires with a deliberate probe per the sweeps-plan precedent.
-
 ### Consider adding `eslint-plugin-jsx-a11y`
 
 **Symptom:** accessibility rules are not enforced by lint. The concrete missing `aria-describedby` on the image upload was fixed by hand in 2026-08-04 (pre-complexity action 6); a plugin would catch the next one. Per plan D5 this is a new dependency and needs an explicit go-ahead.
@@ -33,6 +23,10 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 ---
 
 ## Resolved
+
+### No lint rule enforces `Result` construction through `ok()` / `err()`
+
+**Resolved:** 2026-08-04. Migrated all 28 production literal constructions to `ok()`/`err()` (renamed local `ok` booleans in three validators to `valid` to avoid shadowing). Added `no-restricted-syntax` banning `ObjectExpression > Property[key.name="ok"]` outside `result.ts` and tests; probe confirmed it fires.
 
 ### The `**/*.tsx` import ban cannot fire, so JSX purity is unenforced
 

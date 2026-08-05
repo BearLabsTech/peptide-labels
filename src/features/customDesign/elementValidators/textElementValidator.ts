@@ -7,6 +7,7 @@ import {
   type TextFill,
   type TextInk,
 } from '../designDocument'
+import { err, ok } from '../../../shared/result'
 import {
   type DesignDocumentValidationIssue,
   isFiniteNumber,
@@ -31,15 +32,15 @@ export const textElementValidator: ElementValidator<DesignTextElement> = {
     const issues: DesignDocumentValidationIssue[] = []
     if (!isRecord(input)) {
       push(issues, context.path, 'must be an object')
-      return { ok: false, error: issues }
+      return err(issues)
     }
 
     const base = validateElementBase(input, context.path, issues)
     if (!base) {
-      return { ok: false, error: issues }
+      return err(issues)
     }
 
-    let ok = validateTextOrQrContent(
+    let valid = validateTextOrQrContent(
       input.content,
       `${context.path}.content`,
       issues,
@@ -49,59 +50,56 @@ export const textElementValidator: ElementValidator<DesignTextElement> = {
 
     if (!isNonEmptyString(input.fontId)) {
       push(issues, `${context.path}.fontId`, 'must be a non-empty string')
-      ok = false
+      valid = false
     } else if (!(CURATED_DESIGN_FONT_IDS as readonly string[]).includes(input.fontId)) {
       push(issues, `${context.path}.fontId`, `unknown curated font id "${input.fontId}"`)
-      ok = false
+      valid = false
     }
     if (!isFiniteNumber(input.fontSizePt) || input.fontSizePt <= 0) {
       push(issues, `${context.path}.fontSizePt`, 'must be a finite number greater than 0')
-      ok = false
+      valid = false
     }
     if (typeof input.bold !== 'boolean') {
       push(issues, `${context.path}.bold`, 'must be a boolean')
-      ok = false
+      valid = false
     }
     if (!ALIGN_H.includes(input.alignH as TextAlignH)) {
       push(issues, `${context.path}.alignH`, 'must be left, center, or right')
-      ok = false
+      valid = false
     }
     if (!ALIGN_V.includes(input.alignV as TextAlignV)) {
       push(issues, `${context.path}.alignV`, 'must be top, middle, or bottom')
-      ok = false
+      valid = false
     }
     if (typeof input.wrap !== 'boolean') {
       push(issues, `${context.path}.wrap`, 'must be a boolean')
-      ok = false
+      valid = false
     }
     if (!FILLS.includes(input.fill as TextFill)) {
       push(issues, `${context.path}.fill`, 'must be none or solid')
-      ok = false
+      valid = false
     }
     if (!INKS.includes(input.ink as TextInk)) {
       push(issues, `${context.path}.ink`, 'must be black or reverse')
-      ok = false
+      valid = false
     }
 
-    if (!ok) {
-      return { ok: false, error: issues }
+    if (!valid) {
+      return err(issues)
     }
 
-    return {
-      ok: true,
-      value: {
-        ...base,
-        type: 'text',
-        content,
-        fontId: input.fontId as string,
-        fontSizePt: input.fontSizePt as number,
-        bold: input.bold as boolean,
-        alignH: input.alignH as TextAlignH,
-        alignV: input.alignV as TextAlignV,
-        wrap: input.wrap as boolean,
-        fill: input.fill as TextFill,
-        ink: input.ink as TextInk,
-      },
-    }
+    return ok({
+      ...base,
+      type: 'text',
+      content,
+      fontId: input.fontId as string,
+      fontSizePt: input.fontSizePt as number,
+      bold: input.bold as boolean,
+      alignH: input.alignH as TextAlignH,
+      alignV: input.alignV as TextAlignV,
+      wrap: input.wrap as boolean,
+      fill: input.fill as TextFill,
+      ink: input.ink as TextInk,
+    })
   },
 }

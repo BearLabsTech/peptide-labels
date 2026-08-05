@@ -1,3 +1,4 @@
+import { err, ok } from '../../../shared/result'
 import type { DesignShapeElement, ShapeKind } from '../designDocument'
 import { type DesignDocumentValidationIssue, isRecord, push } from '../validationPrimitives'
 import {
@@ -13,41 +14,38 @@ export const shapeElementValidator: ElementValidator<DesignShapeElement> = {
     const issues: DesignDocumentValidationIssue[] = []
     if (!isRecord(input)) {
       push(issues, context.path, 'must be an object')
-      return { ok: false, error: issues }
+      return err(issues)
     }
 
     const base = validateElementBase(input, context.path, issues)
     if (!base) {
-      return { ok: false, error: issues }
+      return err(issues)
     }
 
-    let ok = true
+    let valid = true
     if (!SHAPES.includes(input.shape as ShapeKind)) {
       push(issues, `${context.path}.shape`, 'must be rect or line')
-      ok = false
+      valid = false
     }
     if (typeof input.stroke !== 'boolean') {
       push(issues, `${context.path}.stroke`, 'must be a boolean')
-      ok = false
+      valid = false
     }
     if (typeof input.fill !== 'boolean') {
       push(issues, `${context.path}.fill`, 'must be a boolean')
-      ok = false
+      valid = false
     }
 
-    if (!ok) {
-      return { ok: false, error: issues }
+    if (!valid) {
+      return err(issues)
     }
 
-    return {
-      ok: true,
-      value: {
-        ...base,
-        type: 'shape',
-        shape: input.shape as ShapeKind,
-        stroke: input.stroke as boolean,
-        fill: input.fill as boolean,
-      },
-    }
+    return ok({
+      ...base,
+      type: 'shape',
+      shape: input.shape as ShapeKind,
+      stroke: input.stroke as boolean,
+      fill: input.fill as boolean,
+    })
   },
 }

@@ -240,4 +240,21 @@ export default defineConfig([
       ],
     },
   },
+  // ADR 0005: Result values must be built with ok()/err(), not object literals.
+  // Tests may assert against literal expected shapes; result.ts defines the type
+  // and constructors. Proven with a probe on 2026-08-04 (clean-slate action 5).
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/shared/result.ts', '**/*.test.ts'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ObjectExpression > Property[key.name="ok"]',
+          message:
+            'Construct Result values with ok()/err() from src/shared/result.ts, not object literals.',
+        },
+      ],
+    },
+  },
 ])

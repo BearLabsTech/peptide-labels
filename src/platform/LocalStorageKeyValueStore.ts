@@ -1,5 +1,5 @@
 import type { KeyValueRead, KeyValueStore } from '../shared/ports'
-import type { Result } from '../shared/result'
+import { err, ok, type Result } from '../shared/result'
 
 const STORAGE_UNAVAILABLE = 'Browser storage is unavailable.'
 
@@ -19,14 +19,14 @@ export class LocalStorageKeyValueStore implements KeyValueStore {
 
   set(key: string, value: string): Result<void, string> {
     if (typeof localStorage === 'undefined') {
-      return { ok: false, error: STORAGE_UNAVAILABLE }
+      return err(STORAGE_UNAVAILABLE)
     }
     try {
       localStorage.setItem(key, value)
-      return { ok: true, value: undefined }
+      return ok()
     } catch (error) {
       console.error('localStorage set failed', error)
-      return { ok: false, error: STORAGE_UNAVAILABLE }
+      return err(STORAGE_UNAVAILABLE)
     }
   }
 

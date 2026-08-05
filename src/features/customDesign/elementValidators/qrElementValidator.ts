@@ -1,3 +1,4 @@
+import { err, ok } from '../../../shared/result'
 import type { DesignQrContent, DesignQrElement } from '../designDocument'
 import { type DesignDocumentValidationIssue, isRecord, push } from '../validationPrimitives'
 import {
@@ -12,21 +13,18 @@ export const qrElementValidator: ElementValidator<DesignQrElement> = {
     const issues: DesignDocumentValidationIssue[] = []
     if (!isRecord(input)) {
       push(issues, context.path, 'must be an object')
-      return { ok: false, error: issues }
+      return err(issues)
     }
 
     const base = validateElementBase(input, context.path, issues)
     if (!base) {
-      return { ok: false, error: issues }
+      return err(issues)
     }
 
     if (!validateTextOrQrContent(input.content, `${context.path}.content`, issues, context.slotKeys)) {
-      return { ok: false, error: issues }
+      return err(issues)
     }
 
-    return {
-      ok: true,
-      value: { ...base, type: 'qr', content: input.content as DesignQrContent },
-    }
+    return ok({ ...base, type: 'qr', content: input.content as DesignQrContent })
   },
 }

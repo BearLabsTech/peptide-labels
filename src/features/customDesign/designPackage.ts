@@ -3,7 +3,7 @@ import { BrowserFileDownloader } from '../../platform/BrowserFileDownloader'
 import type { DesignDocument } from './designDocument'
 import type { DesignParseFailure, ParseDesignDocumentResult } from './designDocumentCodec'
 import { validateDesignDocument } from './validateDesignDocument'
-import type { Result } from '../../shared/result'
+import { err, ok, type Result } from '../../shared/result'
 
 const defaultDownloader: FileDownloader = new BrowserFileDownloader()
 
@@ -47,65 +47,53 @@ export function parseDesignPackage(json: string): ParseDesignPackageResult {
   } catch (error) {
     const message = error instanceof Error ? error.message : 'invalid JSON'
     console.error('Design package JSON parse failed', error)
-    return {
-      ok: false,
-      error: {
-        kind: 'unreadable',
-        parseError: message,
-        issues: [{ path: '', message: 'JSON parse failed' }],
-      },
-    }
+    return err({
+      kind: 'unreadable',
+      parseError: message,
+      issues: [{ path: '', message: 'JSON parse failed' }],
+    })
   }
 
   if (!isRecord(parsed)) {
-    return {
-      ok: false,
-      error: {
-        kind: 'invalid',
-        issues: [{ path: '', message: 'package must be an object' }],
-      },
-    }
+    return err({
+      kind: 'invalid',
+      issues: [{ path: '', message: 'package must be an object' }],
+    })
   }
 
   if (parsed.format === PEPTIDE_DESIGN_FORMAT) {
     if (parsed.formatVersion !== PEPTIDE_DESIGN_FORMAT_VERSION) {
-      return {
-        ok: false,
-        error: {
-          kind: 'invalid',
-          issues: [
-            {
-              path: 'formatVersion',
-              message: `must be ${PEPTIDE_DESIGN_FORMAT_VERSION}`,
-            },
-          ],
-        },
-      }
+      return err({
+        kind: 'invalid',
+        issues: [
+          {
+            path: 'formatVersion',
+            message: `must be ${PEPTIDE_DESIGN_FORMAT_VERSION}`,
+          },
+        ],
+      })
     }
     const docResult = validateDesignDocument(parsed.document)
-    if (!docResult.ok) return { ok: false, error: { kind: 'invalid', issues: docResult.error } }
-    return { ok: true, value: docResult.value }
+    if (!docResult.ok) return err({ kind: 'invalid', issues: docResult.error })
+    return ok(docResult.value)
   }
 
   // Bare document (schemaVersion present) for flexibility.
   if ('schemaVersion' in parsed) {
     const docResult = validateDesignDocument(parsed)
-    if (!docResult.ok) return { ok: false, error: { kind: 'invalid', issues: docResult.error } }
-    return { ok: true, value: docResult.value }
+    if (!docResult.ok) return err({ kind: 'invalid', issues: docResult.error })
+    return ok(docResult.value)
   }
 
-  return {
-    ok: false,
-    error: {
-      kind: 'invalid',
-      issues: [
-        {
-          path: 'format',
-          message: `expected "${PEPTIDE_DESIGN_FORMAT}" package or a design document`,
-        },
-      ],
-    },
-  }
+  return err({
+    kind: 'invalid',
+    issues: [
+      {
+        path: 'format',
+        message: `expected "${PEPTIDE_DESIGN_FORMAT}" package or a design document`,
+      },
+    ],
+  })
 }
 
 /** Safe download filename from a design name. */

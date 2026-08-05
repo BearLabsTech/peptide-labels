@@ -17,7 +17,7 @@ import {
   isRecord,
   push,
 } from './validationPrimitives'
-import type { Result } from '../../shared/result'
+import { err, ok, type Result } from '../../shared/result'
 
 export type { DesignDocumentValidationIssue } from './validationPrimitives'
 
@@ -165,7 +165,7 @@ export function validateDesignDocument(input: unknown): DesignDocumentValidation
   const issues: DesignDocumentValidationIssue[] = []
 
   if (!isRecord(input)) {
-    return { ok: false, error: [{ path: '', message: 'document must be an object' }] }
+    return err([{ path: '', message: 'document must be an object' }])
   }
 
   if (input.schemaVersion !== DESIGN_DOCUMENT_SCHEMA_VERSION) {
@@ -259,7 +259,7 @@ export function validateDesignDocument(input: unknown): DesignDocumentValidation
   }
 
   if (issues.length > 0 || stock === null) {
-    return { ok: false, error: issues }
+    return err(issues)
   }
 
   const document: DesignDocument = {
@@ -275,5 +275,5 @@ export function validateDesignDocument(input: unknown): DesignDocumentValidation
     assets,
   }
 
-  return { ok: true, value: document }
+  return ok(document)
 }
