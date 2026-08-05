@@ -110,8 +110,8 @@ export default defineConfig([
               message: 'Label math and composition modules must not import platform adapters.',
             },
             {
-              group: ['**/*.tsx'],
-              message: 'Label math and composition modules must not import JSX modules.',
+              group: ['**/components/**'],
+              message: 'Label math and composition modules must not import UI components.',
             },
           ],
         },
@@ -232,8 +232,8 @@ export default defineConfig([
               message: 'Domain modules must not import platform adapters.',
             },
             {
-              group: ['**/*.tsx'],
-              message: 'Domain modules must not import JSX modules.',
+              group: ['**/components/**'],
+              message: 'Domain modules must not import UI components.',
             },
           ],
         },
