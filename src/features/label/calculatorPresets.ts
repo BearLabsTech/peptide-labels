@@ -30,6 +30,7 @@ export function drawUnitsPresets(syringeCapacityMl: SyringeCapacityMl): string[]
     return DRAW_UNITS_PRESETS.filter((units) => Number(units) <= max)
 }
 
+/** `null === number` is always false, so unparseable junk never matches a preset. */
 export function isPresetSelected(current: string | undefined, preset: string): boolean {
     return parseNumericField(current) === parseFloat(preset)
 }

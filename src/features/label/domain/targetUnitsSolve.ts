@@ -14,7 +14,7 @@ import { makeUnitWorld } from './units'
 
 function deriveMath(draft: LabelModelInput): ResolvedLabelMath {
     const parsed = parseLabelMathInput(draft)
-    if (hasCompoundAndProtocol(parsed) && parsed.drawUnits > 0) return calcReverse(parsed)
+    if (hasCompoundAndProtocol(parsed) && parsed.drawUnits != null && parsed.drawUnits > 0) return calcReverse(parsed)
     return deriveGenericMath(parsed)
 }
 
@@ -154,7 +154,7 @@ function requiredWaterMl(input: LabelModelInput): number | null {
     return calculateReverseWater({
         compoundAmount,
         unitWorld,
-        drawUnits: parseNumericField(input.protocolUnits || input.recommendedProtocolUnits),
+        drawUnits: parseNumericField(input.protocolUnits || input.recommendedProtocolUnits) ?? undefined,
         protocolAmount: parseFloat(input.protocolAmount || ''),
     })
 }

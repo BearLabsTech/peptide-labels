@@ -157,7 +157,7 @@ function requiredWaterMl(input: LabelModelInput): number | null {
     if (!(compoundAmount > 0)) return null
     return calculateWaterFromTargetConcentration(
         compoundAmount,
-        parseNumericField(input.targetConcentration || input.recommendedTargetConcentration),
+        parseNumericField(input.targetConcentration || input.recommendedTargetConcentration) ?? 0,
     )
 }
 

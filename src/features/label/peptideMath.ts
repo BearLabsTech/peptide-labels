@@ -98,8 +98,8 @@ export function resolveDefaultTargetConcentration(input: {
     const fromLabel = parseConcentrationValue(input.concentration);
     if (fromLabel != null) return formatDisplayNumber(fromLabel);
 
-    const v = parseFloat(input.compoundAmount || '0');
-    const w = parseFloat(input.reconstitutionAmount || '0');
+    const v = parseFloat(input.compoundAmount || '');
+    const w = parseFloat(input.reconstitutionAmount || '');
     if (v > 0 && w > 0) {
         return formatDisplayNumber(v / w);
     }
@@ -119,14 +119,15 @@ export function resolveDefaultTargetConcentration(input: {
     return formatDisplayNumber(recommendedTarget);
 }
 
-export function parseNumericField(value?: string): number {
+/** Null means "not a number" — distinct from a user-entered zero. */
+export function parseNumericField(value?: string): number | null {
     const source = value || '';
     const match = source.match(/^\s*[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?/i);
-    if (!match) return 0;
+    if (!match) return null;
     const remainder = source.slice(match[0].length).trim();
-    if (/^[.\deE+-]/.test(remainder)) return 0;
+    if (/^[.\deE+-]/.test(remainder)) return null;
     const parsed = Number(match[0]);
-    return Number.isFinite(parsed) ? parsed : 0;
+    return Number.isFinite(parsed) ? parsed : null;
 }
 
 export function resolveMeasureUnit(
@@ -160,20 +161,20 @@ export function formatDefaultDrawUnitsLabel(
     const unitWorld = makeUnitWorld(resolvedVialUnit, resolveMeasureUnit(resolvedVialUnit, measureUnit));
     if (!unitWorld) return ''; // unrepresentable: UnitWorld pairs vialUnit with measureUnit
     const units = calculateRecommendedDrawUnits(
-        parseFloat(protocolAmount || '0'),
+        parseFloat(protocolAmount || ''),
         unitWorld,
-        parseFloat(compoundAmount || '0'),
+        parseFloat(compoundAmount || ''),
         vialCapacityMl,
     );
     return units != null ? formatDrawUnitsLabel(units) : '';
 }
 
 export function hasPositiveDrawUnits(protocolUnits?: string): boolean {
-    return parseNumericField(protocolUnits) > 0;
+    return (parseNumericField(protocolUnits) ?? 0) > 0;
 }
 
 export function hasPositiveCompoundAmount(compoundAmount?: string): boolean {
-    const amount = parseFloat(compoundAmount || '0');
+    const amount = parseFloat(compoundAmount || '');
     return Number.isFinite(amount) && amount > 0;
 }
 

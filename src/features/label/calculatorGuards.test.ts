@@ -93,4 +93,28 @@ describe('calculatorGuards', () => {
         expect(isWaterAboveVialCapacity(manual, 3)).toBe(true)
         expect(isWaterAboveVialCapacity(manual, 4)).toBe(false)
     })
+
+    it('should treat unparseable junk the same as "not entered" for every mode\'s required water', () => {
+        const common: LabelModelInput = {
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            protocolAmount: '1',
+            measureUnit: 'mg',
+        }
+        expect(calculateRequiredWaterMl({
+            ...common,
+            calculatorSolveMode: 'standard',
+            reconstitutionAmount: 'not a number',
+        })).toBeNull()
+        expect(calculateRequiredWaterMl({
+            ...common,
+            calculatorSolveMode: 'target_units',
+            protocolUnits: 'not a number',
+        })).toBeNull()
+        expect(calculateRequiredWaterMl({
+            ...common,
+            calculatorSolveMode: 'round_concentration',
+            targetConcentration: 'not a number',
+        })).toBeNull()
+    })
 })

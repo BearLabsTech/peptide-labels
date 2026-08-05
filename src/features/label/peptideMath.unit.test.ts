@@ -16,6 +16,7 @@ import {
     formatWaterAmountLabel,
     formatDrawUnitsLabel,
     formatConcentrationLabel,
+    hasPositiveDrawUnits,
     parseConcentrationValue,
     parseNumericField,
     resolveDefaultTargetConcentration,
@@ -42,12 +43,20 @@ describe('parseNumericField', () => {
         expect(parseNumericField('2.5e-2 units')).toBe(0.025)
     })
 
-    it('should reject leading junk and malformed numeric syntax', () => {
-        expect(parseNumericField('abc10')).toBe(0)
-        expect(parseNumericField('1..2')).toBe(0)
-        expect(parseNumericField('1e')).toBe(0)
-        expect(parseNumericField('Infinity')).toBe(0)
-        expect(parseNumericField('')).toBe(0)
+    it('should return null (not zero) for leading junk and malformed numeric syntax', () => {
+        expect(parseNumericField('abc10')).toBeNull()
+        expect(parseNumericField('1..2')).toBeNull()
+        expect(parseNumericField('1e')).toBeNull()
+        expect(parseNumericField('Infinity')).toBeNull()
+        expect(parseNumericField('')).toBeNull()
+    })
+})
+
+describe('hasPositiveDrawUnits', () => {
+    it('should treat unparseable junk the same as a missing value', () => {
+        expect(hasPositiveDrawUnits('not a number')).toBe(false)
+        expect(hasPositiveDrawUnits(undefined)).toBe(false)
+        expect(hasPositiveDrawUnits('10 units')).toBe(true)
     })
 })
 

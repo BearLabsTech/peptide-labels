@@ -16,6 +16,13 @@ describe('TargetUnitsSolve.deriveMath', () => {
         const draft: LabelModelInput = { compoundAmount: '20', vialUnit: 'mg', reconstitutionAmount: '2' }
         expect(TargetUnitsSolve.deriveMath(draft).autoConcentration).toBe('10mg per ml')
     })
+
+    it('should fall back to the shared generic math when draw units are unparseable junk', () => {
+        const draft: LabelModelInput = {
+            compoundAmount: '20', vialUnit: 'mg', reconstitutionAmount: '2', protocolUnits: 'not a number',
+        }
+        expect(TargetUnitsSolve.deriveMath(draft).autoConcentration).toBe('10mg per ml')
+    })
 })
 
 describe('TargetUnitsSolve.onFieldChanged', () => {

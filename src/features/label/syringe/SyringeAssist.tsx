@@ -20,7 +20,7 @@ export function SyringeAssist({
     drawUnitsLabel,
 }: SyringeAssistProps) {
     const drawUnits = parseNumericField(drawUnitsLabel)
-    const hasDraw = drawUnits > 0
+    const hasDraw = drawUnits != null && drawUnits > 0
     const over = hasDraw && isDrawOverSyringeCapacity(drawUnits, syringeCapacityMl)
 
     return (

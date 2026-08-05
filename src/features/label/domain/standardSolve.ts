@@ -68,7 +68,7 @@ function recommendDefaults(): LabelModelPatch {
 /** Manual Entry's water is the authored field — no compound-amount precondition. */
 function requiredWaterMl(input: LabelModelInput): number | null {
     const waterMl = parseNumericField(input.reconstitutionAmount)
-    return waterMl > 0 ? waterMl : null
+    return waterMl != null && waterMl > 0 ? waterMl : null
 }
 
 export const StandardSolve: SolveStrategy = {

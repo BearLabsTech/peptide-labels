@@ -66,4 +66,9 @@ describe('amount presets', () => {
         expect(isPresetSelected('', '10')).toBe(false)
         expect(isPresetSelected('5', '10')).toBe(false)
     })
+
+    it('should never select a preset for unparseable junk, even one that used to coerce to zero', () => {
+        expect(isPresetSelected('not a number', '10')).toBe(false)
+        expect(isPresetSelected('not a number', '5')).toBe(false)
+    })
 })
