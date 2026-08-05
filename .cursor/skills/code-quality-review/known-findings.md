@@ -70,7 +70,7 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Evidence (2026):** Math identifiers formerly used the older compound-quantity names (and related presets/helpers) while the public model already said `compoundAmount`. **Resolved 2026-08-02 (Phase 2 action 2.7):** renamed onto COPY-GUIDELINES vocabulary (`compoundAmount`, `hasPositiveCompoundAmount`, `COMPOUND_AMOUNT_PRESETS_*`, `protocolAmount`, `protocolUnits` field kind, `syringeCapacityMl`).
 
-**Analogue (2026-08-03 Phase 8):** `vialMl` still appears beside `vialCapacityMl` in the print layer (`??` fallbacks). Residual sites Open in `docs/TECH-DEBT.md`.
+**Analogue (2026-08-03 Phase 8):** `vialMl` still appears beside `vialCapacityMl` in the print layer (`??` fallbacks). **Resolved 2026-08-04 (clean-slate action 1):** both residual `?? selection.vialMl` reads deleted; `normalizePrintSetup` is now the only place that reads the legacy field, so the alias is confined to the migration path.
 
 ### Tests asserting a merged internal model instead of observable output
 
@@ -112,7 +112,7 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Pattern:** value objects, a `Result` type, or a builder introduced as the prescribed remedy for a named smell, with the smell left in place and the abstraction reachable only from its own tests. Costs twice: the original problem plus dead weight that reads as load-bearing.
 
-**Evidence (2026-08-03 Phase 8):** same family as *A type/value-object layer introduced ahead of adoption* (`domain/units.ts`). **Resolved 2026-08-03 (Phase 8.4)** by deletion. `Result` adoption across parse/export/storage remains **deferred** to the error-convention plan.
+**Evidence (2026-08-03 Phase 8):** same family as *A type/value-object layer introduced ahead of adoption* (`domain/units.ts`). **Resolved 2026-08-03 (Phase 8.4)** by deleting the six unadopted branded-type constructors (`makeMass`, `makeVolumeMl`, and siblings) — note that `domain/units.ts` itself survives, trimmed to the parts with real callers, so "deleted the module" would be the wrong summary to carry forward. `Result` adoption across parse/export/storage was **completed 2026-08-04** by the error-convention plan, closing the deferral this line used to carry.
 
 ### A single interface signalling failure three ways
 
@@ -126,7 +126,7 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Pattern:** lint globs matching `**/domain/**` while the modules the table calls "domain" live elsewhere. The rule passes, the boundary is unenforced, and a review that trusts the lint reports it clean.
 
-**Evidence (2026-08-03 Phase 8):** purity block matched `src/**/domain/**` while math/composition lived in `src/features/label` root; missing blocks for `app` / `print` / `platform`. **Resolved 2026-08-04 (sweep action 5)** by enumerating real paths (D3). Related residual: dead `**/*.tsx` specifier ban still Open in TECH-DEBT.
+**Evidence (2026-08-03 Phase 8):** purity block matched `src/**/domain/**` while math/composition lived in `src/features/label` root; missing blocks for `app` / `print` / `platform`. **Resolved 2026-08-04 (sweep action 5)** by enumerating real paths (D3). The related residual — a `**/*.tsx` specifier ban that could never fire, because `no-restricted-imports` matches import *specifiers* and no module imports a path ending in `.tsx` — was **resolved 2026-08-04 (clean-slate action 4)** by replacing it with `**/components/**` and proving both directions with throwaway probe modules. Worth noting as its own trap: a glob that is syntactically valid but semantically unmatchable reports clean forever.
 
 ### A coverage exclusion contradicted by a sibling test file
 
@@ -150,7 +150,7 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Pattern:** a deprecated identifier kept beside its canonical replacement as an optional field, so both are readable indefinitely and every consumer adds a `?? legacy` fallback. Looks like a safe migration; is actually a permanent second vocabulary plus a representable illegal state. Fix: split the legacy shape into a persistence-only type consumed solely by the migration function.
 
-**Evidence (2026-08-03 Phase 8):** `vialMl` / `labelId` aliases in `PrintSetupSelection`; residual `?? vialMl` in two call sites — Open in `docs/TECH-DEBT.md`. Proposed for `docs/CODE-QUALITY.md` section G table when that doc is next edited for smells.
+**Evidence (2026-08-03 Phase 8):** `vialMl` / `labelId` aliases in `PrintSetupSelection`; residual `?? vialMl` in two call sites. **Resolved 2026-08-04 (clean-slate action 1)** for the `vialMl` reads, and added to the `docs/CODE-QUALITY.md` section G smell table the same day, so the pattern is now a standing review item rather than a note in this file only. The legacy field itself stays on the persisted shape — it has to, to migrate stored setups — but only `normalizePrintSetup` reads it.
 
 ### Coverage tool treating a naming convention as a structural signal
 
@@ -162,7 +162,7 @@ When you find a recurrence or an analogue during a review, append a dated note u
 
 **Pattern:** an ADR is recorded as "Accepted," reviewers cite it as settled, and the decision reads as done — but nothing enforces it, so real code drifts away from it immediately and the drift is invisible until someone diffs the ADR's own claim against the tree.
 
-**Evidence (2026-08-04, error-convention plan):** ADR 0005 ("One error convention") was Accepted 2026-08-02. By the time the error-convention plan started two days later, eleven hand-rolled `{ ok }` unions used field names the ADR's own text technically allowed ("matching that shape") but that were not the literal `Result<T, E>` type; storage reads returned a bare `null` for three distinct failure kinds; `parseNumericField` returned a sentinel `0`. None of this tripped a lint rule or a type error — the ADR had no enforcement mechanism, only a citation in commit messages. **Resolved** for this specific ADR by the error-convention plan (actions 1–6) plus an amendment (2026-08-04) that closed the "matching that shape" loophole by naming the literal type and its field names. The general pattern is not resolved by fixing one instance: action 8 considered, and left open pending a decision, a lint rule banning `ok: true` object literals outside `src/shared/result.ts` — see `docs/TECH-DEBT.md`. Until an ADR's rule has a mechanical check, treat "Accepted" as a claim to verify against the code, not a fact about it.
+**Evidence (2026-08-04, error-convention plan):** ADR 0005 ("One error convention") was Accepted 2026-08-02. By the time the error-convention plan started two days later, eleven hand-rolled `{ ok }` unions used field names the ADR's own text technically allowed ("matching that shape") but that were not the literal `Result<T, E>` type; storage reads returned a bare `null` for three distinct failure kinds; `parseNumericField` returned a sentinel `0`. None of this tripped a lint rule or a type error — the ADR had no enforcement mechanism, only a citation in commit messages. **Resolved** for this specific ADR by the error-convention plan (actions 1–6) plus an amendment (2026-08-04) that closed the "matching that shape" loophole by naming the literal type and its field names. The general pattern needed the mechanical check the ADR never had: **added 2026-08-04 (clean-slate action 5)** as a `no-restricted-syntax` rule banning `{ ok: true }` / `{ ok: false }` object literals outside `src/shared/result.ts`, after migrating the 28 remaining literal constructions onto `ok()` / `err()`. Until an ADR's rule has a check like that, treat "Accepted" as a claim to verify against the code, not a fact about it.
 
 ### Refactor scaffolding that outlives the refactor
 

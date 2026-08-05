@@ -218,3 +218,22 @@ Recorded so the next pass does not redo them.
 ## One residual risk worth recording
 
 3.5 landed, but `LabelPreview.css` retains a fallback literal in every custom property it consumes (`var(--label-section-label-em, 0.55)` at `:333`, `var(--label-content-em, 0.82)` at `:343`, and five more). `labelTypography.test.ts` pins the module→variable mapping but nothing pins the CSS fallbacks, so a future edit to `LABEL_TYPOGRAPHY` leaves seven stale numbers in the stylesheet that would take effect the moment the custom properties fail to reach the element. The values agree today. Either drop the fallbacks or add a test that parses `LabelPreview.css` and compares them.
+
+**Closed (verified 2026-08-04):** the first option was taken. All seven typography custom properties are now consumed bare — `var(--label-box-gap-cqw)`, `calc(var(--label-section-label-em) * 1em)`, and so on — with no mirrored literal left to go stale, so no CSS-parsing test is needed. The only remaining fallback in the file is `var(--label-pad, 1.25cqw)` (seven occurrences), which is a different case: `--label-pad` is computed per stock by `labelContentStyle`, so its fallback is a defensive default for a value that legitimately varies, not a copy of a constant that could drift.
+
+---
+
+## Closure record (verified 2026-08-04)
+
+Each finding above re-checked against the tree rather than against a checklist, per this file's own advice. All six are closed; nothing here is still outstanding.
+
+| Finding | Status | Verified how |
+|---|---|---|
+| F1 — mode branching outside the registry | Closed | `calculatorSolveMode ===` has zero production matches under `src/features/label`; the cross-mode read in `roundConcentrationSolve.ts` is gone |
+| F2 — provenance/visibility as helpers, not constraints | Closed | Authored and derived values sit in separate slots (`protocolUnits` vs `recommendedProtocolUnits`), origin flags deleted, reducer invariants added — `TECH-DEBT.md` entry moved to Resolved 2026-08-03 |
+| F3 — orphaned `src/print/index.ts` barrel | Closed | File no longer tracked by git |
+| F4 — React types on the layout engine's import graph | Closed | The suggested split shipped: `labelTypography.ts` is React-free and `labelTypographyCssVars.ts` holds the `CSSProperties` presenter. The two remaining type-only `CSSProperties` imports (`shared/cssVars.ts`, `components/formStyles.ts`) are presenters, not on the engine's graph |
+| F5 — value objects with no production callers | Closed | The six unadopted branded constructors are deleted; `domain/units.ts` survives trimmed to `UnitWorld` and the unit parsers, all of which have real callers. `makeUnitWorld` still returns `null` for an inconsistent pairing — intentional and commented, and consistent with ADR 0005's "absence is not failure" carve-out for lookup-shaped calls |
+| F6 — two TECH-DEBT items never moved to Resolved | Closed | Both are in the Resolved section; the print-catalog relation is single-sourced (`printerIds` / `labelIds` no longer appear in `printCatalog.ts`) |
+
+Two things this pass corrected in the review record itself, rather than in code: `known-findings.md` described `domain/units.ts` as resolved "by deletion" when the module still exists in trimmed form, and four of its entries still pointed at `docs/TECH-DEBT.md` for items that had since been closed.

@@ -121,7 +121,7 @@ Canonical vocabulary lives in [COPY-GUIDELINES.md](./COPY-GUIDELINES.md) — do 
 
 State: pick one way to signal "this operation can fail as part of normal operation" and use it everywhere; reserve `throw` for programmer error (a contract violation that should never happen if the code calling it is correct).
 
-The convention is `Result<T, E>` from `src/shared/result.ts` (see [ADR 0005](./ADR/0005-one-error-convention.md)): use it for expected recoverable failures (parsing user input, validating an imported design, resolving a print target from stale persisted state, storage writes that can be rejected). Prefer the `ok` / `err` constructors. The success payload field is always `value`; `E` may be a string or a structured discriminant. `throw` is reserved for genuine programmer errors — a precondition the caller was supposed to guarantee and did not.
+The convention is `Result<T, E>` from `src/shared/result.ts` (see [ADR 0005](./ADR/0005-one-error-convention.md)): use it for expected recoverable failures (parsing user input, validating an imported design, resolving a print target from stale persisted state, storage writes that can be rejected). Use the `ok` / `err` constructors — a `no-restricted-syntax` lint rule rejects `{ ok: true }` / `{ ok: false }` object literals anywhere outside `src/shared/result.ts`. The success payload field is always `value`; `E` may be a string or a structured discriminant. `throw` is reserved for genuine programmer errors — a precondition the caller was supposed to guarantee and did not.
 
 **Absence is not failure.** Returning `null` (or, for a few `Array.find`-shaped lookups, `undefined`) means "no answer is determined by these inputs, and that is normal" — for example calculator math when the user has not typed enough yet. Do not wrap absence in `Result`. A parser handed a string it cannot use is failure, not absence — that belongs in `Result`, not a sentinel like `0` that collides with a legitimate value.
 
@@ -152,7 +152,7 @@ State: the dependency rules in section A are only real if something other than h
 
 ### Accessibility as a standing requirement
 
-State: accessibility is a property of the UI layer that is checked continuously, not a pass done once. Keyboard reachability, labelled form controls, and sufficient contrast apply to every new UI surface as it is built, and existing gaps get fixed as part of Phase 5 rather than deferred indefinitely.
+State: accessibility is a property of the UI layer that is checked continuously, not a pass done once. Keyboard reachability, labelled form controls, and sufficient contrast apply to every new UI surface as it is built, and existing gaps get fixed as part of Phase 5 rather than deferred indefinitely. `eslint-plugin-jsx-a11y`'s recommended rules run over `src/**/*.tsx`, so the mechanical part of this (label association, alt text, roles) fails lint rather than waiting for a review to notice. Contrast and keyboard flow still need a human pass — the plugin cannot see them.
 
 ### ADRs for decisions worth a paragraph in six months
 
@@ -176,6 +176,8 @@ Named smells this codebase is actually prone to, each with its fix. Treat the ca
 | Shotgun surgery | One conceptual change (e.g. adding a calculator mode) requires edits across four or more files | The registry/strategy pattern in section A — a new variant should be one new file plus one registration |
 | Speculative generality | Abstraction, a parameter, or a builder method built for a use case that does not exist yet | Delete it until a second real caller justifies it; a test written only to exercise unused generality is the same smell in test form |
 | Stale comment | A comment describing behavior, a value, or an edit that is no longer true | Delete or rewrite when touching the line it describes; comments are not exempt from the same review as code |
+| Alias-instead-of-rename | A deprecated identifier kept beside its canonical replacement as an optional field, so both stay readable and every consumer adds a `?? legacy` fallback | Confine the legacy name to the migration function that reads persisted data; no other caller may fall back to it |
+| Tri-purpose constant | One named constant used as a rate, a display placeholder, and a floor, because all three happen to want the same number today | One constant per meaning, even at the same value — they diverge independently |
 
 ---
 

@@ -36,8 +36,3 @@ export function labelContentStyle(target: PrintTarget): Record<string, string> {
     height: '100%',
   }
 }
-
-/** @deprecated Use labelStickerStyle + labelContentStyle */
-export function labelSurfaceStyle(target: PrintTarget): Record<string, string> {
-  return { ...labelStickerStyle(target), ...labelContentStyle(target) }
-}
