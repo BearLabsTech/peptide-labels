@@ -3,7 +3,7 @@ import { resolveLabelMath, type ResolvedLabelMath } from './LabelMathResolver'
 import { displayConcentration, displayDrawUnits, displayWaterAmount } from './calculatorDisplay'
 import type { LabelModelInput } from './labelModel'
 import { DEFAULT_CALCULATOR_SOLVE_MODE } from './peptideMath'
-import { roundConcentrationRoundingTrapScenario, roundTripDriftTrapScenario, forwardMathScenario } from './testing/labelInputBuilder'
+import { roundConcentrationRoundingTrapScenario, roundTripDriftTrapScenario, forwardMathScenario, authoritativeDrawUnitsScenario } from './testing/labelInputBuilder'
 
 /**
  * What the calculator would actually show for water/units/concentration given
@@ -222,15 +222,12 @@ describe('assist mode authoritative inputs', () => {
     })
 
     describe('set draw volume mode', () => {
+        // The pure-math analogue of this scenario (same vial/protocol/draw numbers)
+        // lives in peptideMath.unit.test.ts under "authoritative assist inputs".
+        // The second test below additionally seeds stale water and concentration
+        // to prove they get replaced, not merely computed from a blank slate.
         it('should treat user draw units as authoritative over forward-recalculated units from rounded water', () => {
-            const input: LabelModelInput = {
-                compoundAmount: '22',
-                vialUnit: 'mg',
-                protocolAmount: '4',
-                measureUnit: 'mg',
-                protocolUnits: '27 units',
-                calculatorSolveMode: 'target_units',
-            }
+            const input = authoritativeDrawUnitsScenario()
             const result = resolveLabelMath(input)
             // Exact reverse water 1.485 ml; concentration from exact water, not display-rounded water
             expect(result.autoWater).toBe('1.485')
@@ -240,12 +237,7 @@ describe('assist mode authoritative inputs', () => {
 
         it('should replace stale draw units and water when user sets a new draw volume', () => {
             const input: LabelModelInput = {
-                compoundAmount: '22',
-                vialUnit: 'mg',
-                protocolAmount: '4',
-                measureUnit: 'mg',
-                protocolUnits: '27 units',
-                calculatorSolveMode: 'target_units',
+                ...authoritativeDrawUnitsScenario(),
                 reconstitutionAmount: '4.4',
                 concentration: '5mg per ml',
             }

@@ -155,6 +155,21 @@ export function roundTripDriftTrapScenario(): LabelModelInput {
         .build()
 }
 
+/**
+ * 22 mg vial / 4 mg protocol / 27 units draw -> exact reverse water 1.485 ml.
+ * Guards that authored draw units stay authoritative over forward-recalculated
+ * units from display-rounded water. Pure-math analogue lives in
+ * `peptideMath.unit.test.ts` under `authoritative assist inputs`.
+ */
+export function authoritativeDrawUnitsScenario(): LabelModelInput {
+    return aLabelInput()
+        .withCompound('Test Compound', '22', 'mg')
+        .withProtocol('4', 'mg')
+        .withDrawUnits('27 units')
+        .inMode('target_units')
+        .build()
+}
+
 /** 100 mg vial / 1 mg protocol — regression fixture for vial-capacity warning behavior. */
 export function highCapacityRegressionScenario(): LabelModelInput {
     return aLabelInput()

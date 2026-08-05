@@ -10,17 +10,6 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
-### "Authoritative draw-units scenario" duplicate group is not mechanically findable
-
-**Symptom:** the sweeps plan named a fourth duplicate-scenario group (alongside `roundConcentrationRoundingTrapScenario`, `forwardMathScenario`, and `roundTripDriftTrapScenario`) with no builder function, so it cannot be located by searching for a symbol. A text search for "authoritative" turns up four unrelated hits — `LabelMathResolver.test.ts`'s `describe('assist mode authoritative inputs', ...)`, `peptideMath.unit.test.ts`'s `describe('authoritative assist inputs', ...)`, one `calculatorReducer.test.ts` case, and one `peptideMath.edge.test.ts` case — and none is unambiguously "the" fourth group.
-
-**Priority:** Low.
-
-**Where to look / hypotheses:**
-- Error-convention plan action 7 (2026-08-04) looked and stopped here per its own instruction not to guess.
-- `peptideMath.unit.test.ts`'s `describe('authoritative assist inputs', ...)` block already has a comment noting one case is "covered above... same input, same assertions" — that in-file note may be a better lead than the cross-file grep.
-- If this is actually the same fourth group the sweeps plan meant, it needs a named builder in `labelInputBuilder.ts` before it becomes searchable at all.
-
 ### No lint rule enforces `Result` construction through `ok()` / `err()`
 
 **Symptom:** ADR 0005 says "prefer `ok` / `err` constructors," but nothing enforces it. A probe for the natural enforcement rule — ban `{ ok: true, ... }` / `{ ok: false, ... }` object literals outside `src/shared/result.ts` — found **28 production call sites** already constructing `Result` by literal instead of by constructor (`validateDesignDocument.ts`, the four element validators, `designDocumentCodec.ts`, `designPackage.ts`, `LocalStorageKeyValueStore.ts`, `resolveDesignPrintTarget.ts`, `readImageFileAsDataUrl.ts`), all of them already correctly `Result`-shaped. Adding the rule as an `error` today would require either a disable-comment on every site or migrating all 28 to `ok()`/`err()` in the same change — out of scope for a "close the loop" action.
@@ -57,6 +46,10 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 ---
 
 ## Resolved
+
+### "Authoritative draw-units scenario" duplicate group is not mechanically findable
+
+**Resolved:** 2026-08-04. Identified as vial 22 mg / protocol 4 mg / 27 units. Added `authoritativeDrawUnitsScenario` builder; the three call sites (pure math, resolver fresh, resolver with stale seeds) are different units and all stay. Not duplication.
 
 ### `DEFAULT_DRAW_UNITS_PER_MG` still means three different things
 
