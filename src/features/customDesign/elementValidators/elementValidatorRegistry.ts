@@ -5,6 +5,7 @@ import { imageElementValidator } from './imageElementValidator'
 import { qrElementValidator } from './qrElementValidator'
 import { shapeElementValidator } from './shapeElementValidator'
 import { textElementValidator } from './textElementValidator'
+import { err, ok, type Result } from '../../../shared/result'
 
 export type ElementKind = DesignElement['type']
 
@@ -29,29 +30,25 @@ function isElementKind(value: unknown): value is ElementKind {
  * records an issue if the shape or kind is wrong. A future composite/group
  * element kind's validator could call this function again for its own
  * children — dispatch here does not assume the element list is flat.
- *
- * Failure side is empty on purpose: issues are pushed into the caller-supplied
- * array (validator architecture debt — see docs/TECH-DEBT.md).
  */
 export function validateElement(
   input: unknown,
   context: ElementValidationContext,
-  issues: DesignDocumentValidationIssue[],
-): { ok: true; value: DesignElement } | { ok: false } {
+): Result<DesignElement, DesignDocumentValidationIssue[]> {
+  const issues: DesignDocumentValidationIssue[] = []
   if (!isRecord(input)) {
     push(issues, context.path, 'must be an object')
-    return { ok: false }
+    return err(issues)
   }
   if (!isElementKind(input.type)) {
     push(issues, `${context.path}.type`, 'must be text, image, qr, or shape')
-    return { ok: false }
+    return err(issues)
   }
 
   const validator = ELEMENT_VALIDATORS[input.type]
   const result = validator.validate(input, context)
   if (!result.ok) {
-    issues.push(...result.error)
-    return { ok: false }
+    return err(result.error)
   }
-  return { ok: true, value: result.value as DesignElement }
+  return ok(result.value as DesignElement)
 }

@@ -240,12 +240,15 @@ export function validateDesignDocument(input: unknown): DesignDocumentValidation
   const elementIds = new Set<string>()
   if (Array.isArray(input.elements)) {
     input.elements.forEach((element, index) => {
-      const result = validateElement(
-        element,
-        { path: `elements[${index}]`, slotKeys, assetIds },
-        issues,
-      )
-      if (!result.ok) return
+      const result = validateElement(element, {
+        path: `elements[${index}]`,
+        slotKeys,
+        assetIds,
+      })
+      if (!result.ok) {
+        issues.push(...result.error)
+        return
+      }
       if (elementIds.has(result.value.id)) {
         push(issues, `elements[${index}].id`, `duplicate element id "${result.value.id}"`)
         return

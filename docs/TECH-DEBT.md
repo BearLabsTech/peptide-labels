@@ -10,17 +10,6 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
-### `validateElement` failure side is empty because issues go to a caller array
-
-**Symptom:** `elementValidatorRegistry.validateElement` returns `{ ok: true; value } | { ok: false }` with no error payload. Failures are recorded only by pushing into a caller-supplied `issues` array, so the return type cannot be a real `Result`.
-
-**Priority:** Low.
-
-**Where to look / hypotheses:**
-- Deferred from error-convention plan action 2 — fixing it means changing how element validators report, not just renaming fields.
-- `src/features/customDesign/elementValidators/elementValidatorRegistry.ts` and `elementValidator.ts`.
-- Prefer returning `Result` with issues on the failure side and dropping the mutable array parameter once all callers can consume that shape.
-
 ### `DEFAULT_DRAW_UNITS_PER_MG` still means three different things
 
 **Symptom:** One constant is used as a default rate, a placeholder display value, and (with `DEFAULT_DRAW_UNITS_PER_MG_REDUCED`) a scaling basis — easy to change the wrong meaning.
@@ -77,6 +66,10 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 ---
 
 ## Resolved
+
+### `validateElement` failure side is empty because issues go to a caller array
+
+**Resolved:** 2026-08-04. `validateElement` now returns `Result<DesignElement, DesignDocumentValidationIssue[]>` and builds its own issues array; the caller-supplied parameter is gone. Document-level issue accumulation in `validateDesignDocument` is unchanged.
 
 ### Compound name casing — do not default to all caps
 

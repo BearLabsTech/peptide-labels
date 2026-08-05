@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import type { DesignDocumentValidationIssue } from '../validationPrimitives'
 import { ELEMENT_VALIDATORS, validateElement } from './elementValidatorRegistry'
 
 function context() {
@@ -14,14 +13,14 @@ describe('ELEMENT_VALIDATORS registry', () => {
 
 describe('validateElement dispatch', () => {
   it('should reject non-object input', () => {
-    const issues: DesignDocumentValidationIssue[] = []
-    const result = validateElement('not-an-object', context(), issues)
+    const result = validateElement('not-an-object', context())
     expect(result.ok).toBe(false)
-    expect(issues.some((issue) => issue.message === 'must be an object')).toBe(true)
+    if (!result.ok) {
+      expect(result.error.some((issue) => issue.message === 'must be an object')).toBe(true)
+    }
   })
 
   it('should reject an unknown element kind', () => {
-    const issues: DesignDocumentValidationIssue[] = []
     const result = validateElement(
       {
         id: 'el-x',
@@ -31,16 +30,16 @@ describe('validateElement dispatch', () => {
         type: 'video',
       },
       context(),
-      issues,
     )
     expect(result.ok).toBe(false)
-    expect(issues.some((issue) => issue.message.includes('must be text, image, qr, or shape'))).toBe(
-      true,
-    )
+    if (!result.ok) {
+      expect(
+        result.error.some((issue) => issue.message.includes('must be text, image, qr, or shape')),
+      ).toBe(true)
+    }
   })
 
   it('should dispatch a known kind to its registered validator', () => {
-    const issues: DesignDocumentValidationIssue[] = []
     const result = validateElement(
       {
         id: 'el-shape',
@@ -53,7 +52,6 @@ describe('validateElement dispatch', () => {
         fill: false,
       },
       context(),
-      issues,
     )
     expect(result.ok).toBe(true)
     if (result.ok) {
