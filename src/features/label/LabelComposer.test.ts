@@ -96,6 +96,68 @@ describe('LabelComposer', () => {
 
         expect(dangerResult.bodyFontSizePx).toBeLessThan(standardResult.bodyFontSizePx)
         expect(dangerResult.demotedTitle).toBe('Reta\n20mg')
+        // No body sections → sparse composition (not an empty center column).
+        expect(dangerResult.isSparse).toBe(true)
+        expect(standardResult.isSparse).toBe(true)
+    })
+
+    it('should keep danger mode dense when reconstitution or protocol print', () => {
+        const composer = new LabelComposer()
+        const result = composer.compose({
+            compoundName: 'Reta',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            isUntested: true,
+            reconstitutionAmount: '2',
+            concentration: '10mg per ml',
+        })
+        expect(result.isSparse).toBe(false)
+        expect(result.isDangerMode).toBe(true)
+        expect(result.demotedTitle).toBe('Reta\n20mg')
+    })
+
+    it('should leave residual slack so a dense long title does not fill the full inner height', () => {
+        const target = resolvePrintTarget({ stockId: '40x20-rounded' })
+        const composer = new LabelComposer(target)
+        const engine = new LabelLayoutEngine(target.effectiveDpi)
+        const result = composer.compose({
+            compoundName: 'Human Chorionic Gonadotropin',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            reconstitutionAmount: '2',
+            reconstitutionType: 'BAC Water',
+            concentration: '10mg per ml',
+            protocolAmount: '5',
+            measureUnit: 'mg',
+            protocolUnits: '50',
+            protocolFrequency: 'Weekly',
+            showTestIndicators: true,
+            testPurity: 'pass',
+            testEndotoxin: 'pass',
+            testHeavyMetals: 'pass',
+            calculatorSolveMode: 'standard',
+        })
+        const innerPx = mmToPx(target.labelHeightMm - target.paddingMm * 2, target.effectiveDpi)
+        const titlePx = engine.estimateTitleHeightPx(result.titleLines.length, result.titleFontSizePx)
+        const bodyPx = engine.estimateBoxedBodyHeightPx(
+            {
+                boxes: [
+                    { lines: [...result.reconstitutionLines] },
+                    { lines: [...result.protocolLines] },
+                ],
+                widthMm: result.columnLayout.centerWidthMm * 0.92,
+                labelWidthPx: mmToPx(target.labelWidthMm, target.effectiveDpi),
+                heightMm: 10,
+            },
+            result.bodyFontSizePx,
+        )
+        const gapPx = mmToPx(target.paddingMm, target.effectiveDpi)
+        // Ink-overflow reserve in estimateTitleHeightPx must leave the visual stack
+        // under the inner budget so rounded-sticker overflow:hidden does not clip caps.
+        expect(titlePx + gapPx + bodyPx).toBeLessThanOrEqual(innerPx)
+        // Leftover must not all be poured back into body pads — some clearance stays
+        // for title ascenders once the column is vertically centered.
+        expect(result.bodyBoxVerticalPadPx).toBeLessThan(4)
     })
 
     it('should allocate full height to title when no body exists', () => {
@@ -313,11 +375,16 @@ describe('LabelComposer', () => {
             vialUnit: 'mg',
             customImage: 'data:image/png;base64,test',
             vendorCoa: 'https://example.com/coa',
+            reconstitutionAmount: '2',
+            concentration: '10mg per ml',
         })
 
         const budgetPx = innerRowTitleWidthPx(target)
+        const structuralCeilingPx = mmToPx(target.labelHeightMm, target.effectiveDpi)
+        expect(result.isSparse).toBe(false)
         expect(longestTitleLinePx(result.titleLines, result.titleFontSizePx)).toBeLessThanOrEqual(budgetPx)
-        expect(result.titleFontSizePx).toBeLessThanOrEqual(26)
+        expect(result.titleFontSizePx).toBeGreaterThan(0)
+        expect(result.titleFontSizePx).toBeLessThanOrEqual(structuralCeilingPx)
     })
 
     it('should wrap longest word when title only with mascot and qr', () => {
@@ -329,9 +396,12 @@ describe('LabelComposer', () => {
             vendorCoa: 'https://example.com/coa',
         })
 
+        const structuralCeilingPx = mmToPx(target.labelHeightMm, target.effectiveDpi)
+        expect(result.isSparse).toBe(true)
         expect(result.titleLines.some((line) => line.includes('Compound'))).toBe(true)
         expect(result.titleLines.length).toBeGreaterThan(1)
-        expect(result.titleFontSizePx).toBeLessThanOrEqual(26)
+        expect(result.titleFontSizePx).toBeGreaterThan(0)
+        expect(result.titleFontSizePx).toBeLessThanOrEqual(structuralCeilingPx)
     })
 
     it('should fit full center stack when mascot qr and all sections filled', () => {
@@ -409,9 +479,12 @@ describe('LabelComposer', () => {
             compoundAmount: '20',
             vialUnit: 'mg' as const,
             customImage: 'data:image/png;base64,test',
+            reconstitutionAmount: '2',
+            concentration: '10mg per ml',
         }
         const narrowResult = narrowLogo.compose({ ...base, logoColumnWidthPercent: 20 })
         const wideResult = wideLogo.compose({ ...base, logoColumnWidthPercent: 40 })
+        expect(wideResult.isSparse).toBe(false)
         expect(wideResult.titleFontSizePx).toBeLessThanOrEqual(narrowResult.titleFontSizePx)
         expect(wideResult.logoColumnWidthPercent).toBe(40)
     })
@@ -424,10 +497,13 @@ describe('LabelComposer', () => {
             compoundName: 'Test Compound',
             compoundAmount: '20',
             vialUnit: 'mg' as const,
+            reconstitutionAmount: '2',
+            concentration: '10mg per ml',
             vendorCoa: 'https://example.com/coa',
         }
         const narrowResult = narrowQr.compose({ ...base, qrColumnWidthPercent: 30 })
         const wideResult = wideQr.compose({ ...base, qrColumnWidthPercent: 48 })
+        expect(wideResult.isSparse).toBe(false)
         expect(wideResult.titleFontSizePx).toBeLessThanOrEqual(narrowResult.titleFontSizePx)
         expect(wideResult.qrColumnWidthPercent).toBe(48)
     })
@@ -512,8 +588,12 @@ describe('LabelComposer', () => {
         const composer = new LabelComposer(target)
         const result = composer.compose({
             compoundName: 'Test',
+            compoundAmount: '20',
+            vialUnit: 'mg',
             customImage: 'data:image/png;base64,test',
             vendorCoa: 'https://example.com/coa',
+            reconstitutionAmount: '2',
+            concentration: '10mg per ml',
             logoColumnWidthPercent: 25,
             qrColumnWidthPercent: 40,
         })
@@ -525,6 +605,7 @@ describe('LabelComposer', () => {
             logoColumnWidthPercent: 25,
             qrColumnWidthPercent: 40,
         })
+        expect(result.isSparse).toBe(false)
         expect(result.columnLayout).toEqual(expected)
         expect(result.logoColumnWidthPercent).toBe(expected.logoWidthPercent)
         expect(result.qrColumnWidthPercent).toBe(expected.qrWidthPercent)
@@ -550,7 +631,27 @@ describe('LabelComposer', () => {
         expect(result.testIndicators).toHaveLength(2)
         expect(result.testIndicators[0]).toMatchObject({ type: 'Mass', status: 'pass' })
         expect(result.testIndicators[1]).toMatchObject({ type: 'Purity', status: 'fail' })
-        expect(result.qrColumnWidthPercent).toBeGreaterThan(0)
+        expect(result.isSparse).toBe(true)
+        expect(result.qrColumnWidthPercent).toBe(0)
+        expect(result.testIndicatorLayout).toBeDefined()
+        expect(result.testIndicatorLayout!.markSizePx).toBeGreaterThan(result.testIndicatorLayout!.labelFontSizePx)
+    })
+
+    it('should use sparse composition without a right column when there is no body', () => {
+        const composer = new LabelComposer()
+        const result = composer.compose({
+            compoundName: 'Tirzepatide',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            showTestIndicators: true,
+            testPurity: 'pass',
+            testEndotoxin: 'pass',
+        })
+
+        expect(result.isSparse).toBe(true)
+        expect(result.qrCodes).toEqual([])
+        expect(result.testIndicators).toHaveLength(2)
+        expect(result.qrColumnWidthPercent).toBe(0)
         expect(result.testIndicatorLayout).toBeDefined()
         expect(result.testIndicatorLayout!.markSizePx).toBeGreaterThan(result.testIndicatorLayout!.labelFontSizePx)
     })
@@ -566,7 +667,7 @@ describe('LabelComposer', () => {
         expect(result.testIndicatorLayout).toBeUndefined()
     })
 
-    it('should reserve testing column for indicators even without coa links', () => {
+    it('should size sparse testing without a dense right column', () => {
         const composer = new LabelComposer()
         const withoutIndicators = composer.compose({ compoundName: 'Test' })
         const withIndicators = composer.compose({
@@ -581,9 +682,11 @@ describe('LabelComposer', () => {
 
         expect(withoutIndicators.testIndicators).toEqual([])
         expect(withoutIndicators.qrColumnWidthPercent).toBe(0)
+        expect(withoutIndicators.isSparse).toBe(true)
         expect(withIndicators.testIndicators).toHaveLength(1)
         expect(withIndicators.testIndicatorLayout).toBeDefined()
-        expect(withIndicators.qrColumnWidthPercent).toBeGreaterThan(0)
+        expect(withIndicators.isSparse).toBe(true)
+        expect(withIndicators.qrColumnWidthPercent).toBe(0)
         expect(toggleOnButNothingSelected.testIndicators).toEqual([])
         expect(toggleOnButNothingSelected.qrColumnWidthPercent).toBe(0)
     })

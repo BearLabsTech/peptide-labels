@@ -18,6 +18,7 @@ export type ResolvedContent = {
 
 export type ColumnFeatures = {
   readonly hasBody: boolean
+  readonly isSparse: boolean
   readonly isDanger: boolean
   readonly hasLogo: boolean
   readonly hasRightColumn: boolean
@@ -29,23 +30,31 @@ export type ColumnPlan = {
   readonly columns: ColumnLayout
   readonly layoutMode: LabelLayoutMode
   readonly hasBody: boolean
+  readonly isSparse: boolean
   readonly isDanger: boolean
   readonly visibleQrCodes: readonly QrCodeEntry[]
   readonly baseWidthMm: number
   readonly titleWidthMm: number
-  readonly titleWidthSafety: number
   readonly innerHeightMm: number
   readonly labelWidthPx: number
   readonly titleBodyGapMm: number
   readonly boxes: BoxedSection[]
+  /** Explicit logo box height for sparse composition (export px). */
+  readonly sparseLogoHeightPx: number
 }
 
 export type FittedLayouts =
-  | { readonly kind: 'title-only'; readonly titleLayout: LabelLayoutResult }
+  | {
+      readonly kind: 'title-only'
+      readonly titleLayout: LabelLayoutResult
+      /** Set when danger mode demotes the compound into the sparse stack. */
+      readonly demotedFontSizePx?: number
+    }
   | {
       readonly kind: 'title-body'
       readonly titleLayout: LabelLayoutResult
       readonly bodyLayout: LabelLayoutResult
+      readonly bodyBoxVerticalPadPx: number
     }
 
 /** Shared inputs for the final render-model assembly step. */

@@ -1,5 +1,4 @@
-import { useMemo } from 'react'
-import { LabelComposer } from './LabelComposer'
+import { useLabelComposer } from './useLabelComposer'
 import type { LabelFieldUpdater, LabelModelInput } from './labelModel'
 import { withReconstitutionMlSuffix } from './labelContent'
 import { getExampleInput } from './labelModelFixtures'
@@ -40,7 +39,7 @@ export function LabelDesignerView({
     printLoadNotice = null,
     onDismissPrintLoadNotice,
 }: LabelDesignerViewProps) {
-    const composer = useMemo(() => new LabelComposer(printTarget), [printTarget])
+    const composer = useLabelComposer(printTarget)
     const today = getTodayDateString()
 
     const labelInput = isExampleMode

@@ -7,6 +7,8 @@ import type { PrintTarget } from '../../print/types'
 import { resolvePrintTarget } from '../../print/PrintTargetResolver'
 import { createLabelTemplate } from './templates/LabelTemplate'
 import type { LabelRenderModel } from './labelRenderModel'
+import { HeuristicTextMeasurer } from './domain/HeuristicTextMeasurer'
+import type { TextMeasurer } from './domain/ports'
 
 export type { LabelRenderModel } from './labelRenderModel'
 
@@ -19,11 +21,16 @@ export class LabelComposer {
   private readonly layoutEngine: LabelLayoutEngine
   private readonly printTarget: PrintTarget
   private readonly maxFontSizePx: number
+  private readonly measurer: TextMeasurer
 
-  constructor(printTarget: PrintTarget = resolvePrintTarget({})) {
+  constructor(
+    printTarget: PrintTarget = resolvePrintTarget({}),
+    measurer: TextMeasurer = new HeuristicTextMeasurer(),
+  ) {
     this.printTarget = printTarget
-    this.maxFontSizePx = maxFontSizePxForLabelHeight(printTarget.labelHeightMm)
-    this.layoutEngine = new LabelLayoutEngine(printTarget.effectiveDpi, this.maxFontSizePx)
+    this.measurer = measurer
+    this.maxFontSizePx = maxFontSizePxForLabelHeight(printTarget.labelHeightMm, printTarget.effectiveDpi)
+    this.layoutEngine = new LabelLayoutEngine(printTarget.effectiveDpi, this.maxFontSizePx, measurer)
   }
 
   public compose(rawInput: LabelModelInput): LabelRenderModel {
@@ -32,6 +39,7 @@ export class LabelComposer {
       printTarget: this.printTarget,
       layoutEngine: this.layoutEngine,
       maxFontSizePx: this.maxFontSizePx,
+      measurer: this.measurer,
     })
     return template.render(input, resolved)
   }

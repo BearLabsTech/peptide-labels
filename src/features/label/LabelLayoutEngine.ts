@@ -1,14 +1,16 @@
 import { mmToPx } from '../../print/dimensions'
 import { MIN_FONT_SIZE_PX, REF_MAX_FONT_SIZE_PX } from './labelLayoutConstants'
 import { LABEL_TYPOGRAPHY } from './labelTypography'
+import { HeuristicTextMeasurer } from './domain/HeuristicTextMeasurer'
+import type { TextMeasurer } from './domain/ports'
 
 export interface LabelLayoutInput {
     readonly lines: readonly string[]
     readonly widthMm: number
     readonly heightMm: number
-    /** Average glyph width as a fraction of font size (body default 0.6; bold uppercase title ~0.95). */
-    readonly charWidthEm?: number
-    /** Fraction of widthMm to treat as usable (title uses ~0.92 for thermal rounding). */
+    /** CSS font-weight used when measuring (title 900, body 600, etc.). */
+    readonly fontWeight: number
+    /** Fraction of widthMm to treat as usable (residual buffer for subpixel variance). */
     readonly widthSafety?: number
 }
 
@@ -35,26 +37,37 @@ export interface WrapState {
     readonly didChopWord: boolean
 }
 
+/** Residual width buffer after measured glyphs (not a worst-case letter estimate). */
+const WIDTH_SAFETY_DEFAULT = 0.98
 const SECTION_LABEL_MARGIN_PX = 2
 /** Longest section header on label (matches preview DOM). */
 const LONGEST_SECTION_LABEL = 'RECONSTITUTION'
-const SECTION_LABEL_CHAR_WIDTH_EM = 0.68
 const BOX_INNER_WIDTH_FRAC = 0.85
 /** Layout estimate vs DOM — borders, letter-spacing, subpixel rounding. */
 const BODY_HEIGHT_SAFETY = 1.12
 const SECTION_LABEL_LINE_HEIGHT = 1.15
+/** Font weight of `.label-preview-box-content` (see LabelPreview.css). */
+export const BODY_CONTENT_FONT_WEIGHT = 600
+/** Font weight of `.label-section-label` (see LabelPreview.css). */
+export const SECTION_LABEL_FONT_WEIGHT = 800
 
 export class LabelLayoutEngine {
-    private readonly maxFontSizePx: number;
-    private readonly dpi: number;
+    private readonly maxFontSizePx: number
+    private readonly dpi: number
+    private readonly measurer: TextMeasurer
 
-    constructor(dpi: number, maxFontSizePx = REF_MAX_FONT_SIZE_PX) {
-        this.dpi = dpi;
-        this.maxFontSizePx = maxFontSizePx;
+    constructor(
+        dpi: number,
+        maxFontSizePx = REF_MAX_FONT_SIZE_PX,
+        measurer: TextMeasurer = new HeuristicTextMeasurer(),
+    ) {
+        this.dpi = dpi
+        this.maxFontSizePx = maxFontSizePx
+        this.measurer = measurer
     }
 
     public getMaxFontSizePx(): number {
-        return this.maxFontSizePx;
+        return this.maxFontSizePx
     }
 
     public layout(input: LabelLayoutInput): LabelLayoutResult {
@@ -88,22 +101,32 @@ export class LabelLayoutEngine {
     public sectionLabelsFitBoxWidth(widthMm: number, bodyFontPx: number): boolean {
         const innerPx = mmToPx(widthMm, this.dpi) * BOX_INNER_WIDTH_FRAC
         const labelFontPx = bodyFontPx * LABEL_TYPOGRAPHY.sectionLabelEm
-        const labelWidthPx = LONGEST_SECTION_LABEL.length * labelFontPx * SECTION_LABEL_CHAR_WIDTH_EM
+        const labelWidthPx = this.measurer.measureWidthPx(
+            LONGEST_SECTION_LABEL,
+            labelFontPx,
+            SECTION_LABEL_FONT_WEIGHT,
+        )
         return labelWidthPx <= innerPx
     }
 
     public estimateTitleHeightPx(lineCount: number, fontSizePx: number): number {
-        return lineCount * fontSizePx * LABEL_TYPOGRAPHY.titleLineHeightEm
+        const lineBoxes = lineCount * fontSizePx * LABEL_TYPOGRAPHY.titleLineHeightEm
+        return lineBoxes + fontSizePx * LABEL_TYPOGRAPHY.titleInkOverflowEm
     }
 
     private flattenBoxLines(input: BoxedBodyLayoutInput, bodyFontPx: number): string[] {
         const contentFontPx = bodyFontPx * LABEL_TYPOGRAPHY.contentEm
-        const maxChars = this.estimateMaxCharsPerLine(input.widthMm, contentFontPx)
+        const fitsWidth = this.makeFitsWidth(
+            input.widthMm,
+            contentFontPx,
+            BODY_CONTENT_FONT_WEIGHT,
+            WIDTH_SAFETY_DEFAULT,
+        )
         const lines: string[] = []
         if (input.demotedLine) lines.push(input.demotedLine)
         for (const box of input.boxes) {
             for (const line of box.lines) {
-                lines.push(...this.wrapSingleLine(line, maxChars).lines)
+                lines.push(...this.wrapSingleLine(line, fitsWidth).lines)
             }
         }
         return lines
@@ -123,7 +146,12 @@ export class LabelLayoutEngine {
         const contentFontPx = bodyFontPx * LABEL_TYPOGRAPHY.contentEm
         const contentLinePx = contentFontPx * LABEL_TYPOGRAPHY.contentLineHeightEm
         const sectionLabelPx = bodyFontPx * LABEL_TYPOGRAPHY.sectionLabelEm * SECTION_LABEL_LINE_HEIGHT + SECTION_LABEL_MARGIN_PX
-        const maxChars = this.estimateMaxCharsPerLine(input.widthMm, contentFontPx)
+        const fitsWidth = this.makeFitsWidth(
+            input.widthMm,
+            contentFontPx,
+            BODY_CONTENT_FONT_WEIGHT,
+            WIDTH_SAFETY_DEFAULT,
+        )
 
         let totalPx = 0
 
@@ -134,7 +162,7 @@ export class LabelLayoutEngine {
         for (const box of input.boxes) {
             let contentLines = 0
             for (const line of box.lines) {
-                contentLines += this.wrapSingleLine(line, maxChars).lines.length
+                contentLines += this.wrapSingleLine(line, fitsWidth).lines.length
             }
             totalPx += boxBorderPx + boxPadPx + sectionLabelPx + contentLines * contentLinePx + boxGapPx
         }
@@ -159,16 +187,15 @@ export class LabelLayoutEngine {
     }
 
     private tryLayoutAtSize(input: LabelLayoutInput, fontSizePx: number) {
-        const charWidthEm = input.charWidthEm ?? 0.6
-        const widthSafety = input.widthSafety ?? 1
-        const maxChars = this.estimateMaxCharsPerLine(input.widthMm, fontSizePx, charWidthEm, widthSafety)
-        const wrapResult = this.wrapLines(input.lines, maxChars)
+        const widthSafety = input.widthSafety ?? WIDTH_SAFETY_DEFAULT
+        const fitsWidth = this.makeFitsWidth(input.widthMm, fontSizePx, input.fontWeight, widthSafety)
+        const wrapResult = this.wrapLines(input.lines, fitsWidth)
 
         if (wrapResult.didChopWord && fontSizePx > MIN_FONT_SIZE_PX) {
             return { fits: false, lines: [] }
         }
 
-        if (!this.longestLineFitsWidth(wrapResult.lines, input.widthMm, fontSizePx, charWidthEm, widthSafety)) {
+        if (!this.longestLineFitsWidth(wrapResult.lines, fitsWidth)) {
             return { fits: false, lines: [] }
         }
 
@@ -177,41 +204,47 @@ export class LabelLayoutEngine {
     }
 
     private fallbackToMinSize(input: LabelLayoutInput): LabelLayoutResult {
-        const charWidthEm = input.charWidthEm ?? 0.6
-        const widthSafety = input.widthSafety ?? 1
-        const maxChars = this.estimateMaxCharsPerLine(input.widthMm, MIN_FONT_SIZE_PX, charWidthEm, widthSafety)
-        const wrapResult = this.wrapLines(input.lines, maxChars)
+        const widthSafety = input.widthSafety ?? WIDTH_SAFETY_DEFAULT
+        const fitsWidth = this.makeFitsWidth(
+            input.widthMm,
+            MIN_FONT_SIZE_PX,
+            input.fontWeight,
+            widthSafety,
+        )
+        const wrapResult = this.wrapLines(input.lines, fitsWidth)
         return { wrappedLines: wrapResult.lines, fontSizePx: MIN_FONT_SIZE_PX }
     }
 
-    private estimateMaxCharsPerLine(widthMm: number, fontSizePx: number, charWidthEm = 0.6, widthSafety = 1): number {
+    private makeFitsWidth(
+        widthMm: number,
+        fontSizePx: number,
+        fontWeight: number,
+        widthSafety: number,
+    ): (text: string) => boolean {
         const widthPx = mmToPx(widthMm, this.dpi) * widthSafety
-        const approxCharWidthPx = fontSizePx * charWidthEm
-        return Math.max(4, Math.floor(widthPx / approxCharWidthPx))
+        return (text: string) => this.measurer.measureWidthPx(text, fontSizePx, fontWeight) <= widthPx
     }
 
     private longestLineFitsWidth(
         lines: readonly string[],
-        widthMm: number,
-        fontSizePx: number,
-        charWidthEm: number,
-        widthSafety = 1,
+        fitsWidth: (text: string) => boolean,
     ): boolean {
         if (lines.length === 0) return true
-        const widthPx = mmToPx(widthMm, this.dpi) * widthSafety
         return lines.every((line) => {
-            const linePx = line.length * fontSizePx * charWidthEm
-            if (linePx > widthPx) return false
-            return line.split(' ').every((word) => word.length * fontSizePx * charWidthEm <= widthPx)
+            if (!fitsWidth(line)) return false
+            return line.split(' ').every((word) => fitsWidth(word))
         })
     }
 
-    private wrapLines(lines: readonly string[], maxChars: number): { lines: string[], didChopWord: boolean } {
+    private wrapLines(
+        lines: readonly string[],
+        fitsWidth: (text: string) => boolean,
+    ): { lines: string[], didChopWord: boolean } {
         const result: string[] = []
         let didChopWord = false
 
         for (const line of lines) {
-            const lineResult = this.wrapSingleLine(line, maxChars)
+            const lineResult = this.wrapSingleLine(line, fitsWidth)
             result.push(...lineResult.lines)
             if (lineResult.didChopWord) didChopWord = true
         }
@@ -219,18 +252,24 @@ export class LabelLayoutEngine {
         return { lines: result, didChopWord }
     }
 
-    private wrapSingleLine(line: string, maxChars: number): { lines: string[], didChopWord: boolean } {
-        if (line.length <= maxChars) {
+    private wrapSingleLine(
+        line: string,
+        fitsWidth: (text: string) => boolean,
+    ): { lines: string[], didChopWord: boolean } {
+        if (fitsWidth(line)) {
             return { lines: [line], didChopWord: false }
         }
-        return this.wrapByWords(line, maxChars)
+        return this.wrapByWords(line, fitsWidth)
     }
 
-    private wrapByWords(line: string, maxChars: number): { lines: string[], didChopWord: boolean } {
+    private wrapByWords(
+        line: string,
+        fitsWidth: (text: string) => boolean,
+    ): { lines: string[], didChopWord: boolean } {
         let state: WrapState = { lines: [], current: '', didChopWord: false }
 
         for (const word of line.split(' ')) {
-            state = processWord(word, maxChars, state)
+            state = processWord(word, fitsWidth, state)
         }
 
         if (state.current) {
@@ -241,18 +280,24 @@ export class LabelLayoutEngine {
     }
 
     private doesFitHeight(lineCount: number, heightMm: number, fontSizePx: number): boolean {
+        // Slightly more conservative than estimateTitleHeightPx so a title's own
+        // height band is not the first thing to loosen when ink-overflow is added
+        // to the stack estimate (stack constraint is what prevents sticker clip).
         const heightPx = mmToPx(heightMm, this.dpi)
         const lineHeightPx = fontSizePx * 1.2
-        const requiredPx = lineCount * lineHeightPx
-        return requiredPx <= heightPx
+        return lineCount * lineHeightPx <= heightPx
     }
 }
 
 /** Pure word-wrap step — returns a new WrapState; never mutates the input state. */
-export function processWord(word: string, maxChars: number, state: WrapState): WrapState {
+export function processWord(
+    word: string,
+    fitsWidth: (text: string) => boolean,
+    state: WrapState,
+): WrapState {
     const next = combineWords(state.current, word)
 
-    if (next.length <= maxChars) {
+    if (fitsWidth(next)) {
         return { lines: state.lines, current: next, didChopWord: state.didChopWord }
     }
 
@@ -265,7 +310,7 @@ export function processWord(word: string, maxChars: number, state: WrapState): W
     }
 
     return {
-        lines: [...state.lines, ...wrapLongToken(word, maxChars)],
+        lines: [...state.lines, ...wrapLongToken(word, fitsWidth)],
         current: '',
         didChopWord: true,
     }
@@ -276,10 +321,25 @@ function combineWords(current: string, word: string): string {
     return `${current} ${word}`
 }
 
-function wrapLongToken(token: string, maxChars: number): string[] {
+/** Chop an oversized token into the longest prefixes that still fit. */
+function wrapLongToken(token: string, fitsWidth: (text: string) => boolean): string[] {
     const parts: string[] = []
-    for (let i = 0; i < token.length; i += maxChars) {
-        parts.push(token.substring(i, i + maxChars))
+    let remaining = token
+    while (remaining.length > 0) {
+        if (fitsWidth(remaining)) {
+            parts.push(remaining)
+            break
+        }
+        let lo = 1
+        let hi = remaining.length
+        while (lo < hi) {
+            const mid = Math.ceil((lo + hi) / 2)
+            if (fitsWidth(remaining.slice(0, mid))) lo = mid
+            else hi = mid - 1
+        }
+        const take = Math.max(1, lo)
+        parts.push(remaining.slice(0, take))
+        remaining = remaining.slice(take)
     }
     return parts
 }

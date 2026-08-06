@@ -74,3 +74,12 @@ export interface DesignLibrary<TDocument extends { readonly id: string }> {
 export interface Scroller {
   scrollTo(id: string): void
 }
+
+/**
+ * Measures rendered text width in export pixels for a given font size and weight.
+ * Production uses canvas `measureText`; tests use a deterministic heuristic so
+ * layout math stays free of browser APIs (Humble Object — see testing-vitest.mdc).
+ */
+export interface TextMeasurer {
+  measureWidthPx(text: string, fontPx: number, fontWeight: number): number
+}

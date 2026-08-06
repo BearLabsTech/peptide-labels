@@ -11,7 +11,8 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyFontSizePx": 9,
+  "bodyBoxVerticalPadPx": 2.6768000000000005,
+  "bodyFontSizePx": 8,
   "columnLayout": {
     "centerWidthMm": 22.560000000000002,
     "gapCount": 1,
@@ -30,6 +31,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
     "breakoutWidthPct": 168.43971631205673,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -53,10 +55,11 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
     "Group: Group Buy Co",
     "Lot: BL-2026 20260621",
   ],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
-    "labelFontSizePx": 11,
+    "labelFontSizePx": 10,
     "labelMarkGapPx": 1,
-    "markSizePx": 8,
+    "markSizePx": 6,
     "rowGapPx": 2,
   },
   "testIndicators": [
@@ -78,7 +81,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
   ],
   "title": "Tirzepatide
 20mg",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 33,
   "titleLines": [
     "Tirzepatide",
     "20mg",
@@ -100,27 +103,29 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
-  "bodyFontSizePx": 26,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 44,
   "columnLayout": {
-    "centerWidthMm": 13.959999999999999,
-    "gapCount": 2,
+    "centerWidthMm": 27.880000000000003,
+    "gapCount": 1,
     "gapMm": 1,
     "innerRowMm": 38,
-    "logoWidthMm": 7.6000000000000005,
-    "logoWidthPercent": 20,
-    "qrWidthMm": 14.44,
-    "qrWidthPercent": 38,
+    "logoWidthMm": 9.12,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
   },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
-    "axisFraction": 0.41000000000000003,
-    "breakoutMarginLeftPct": -61.60458452722064,
-    "breakoutWidthPct": 272.2063037249284,
+    "axisFraction": 0.6331578947368421,
+    "breakoutMarginLeftPct": -36.29842180774748,
+    "breakoutWidthPct": 136.29842180774747,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
-  "logoColumnWidthPercent": 20,
+  "logoColumnWidthPercent": 24,
   "protocolLines": [],
   "qrCodes": [
     {
@@ -128,14 +133,15 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
       "url": "https://example.com/coa",
     },
   ],
-  "qrColumnWidthPercent": 38,
+  "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 213,
   "testIndicatorLayout": {
-    "labelFontSizePx": 11,
+    "labelFontSizePx": 15,
     "labelMarkGapPx": 1,
-    "markSizePx": 8,
-    "rowGapPx": 2,
+    "markSizePx": 27,
+    "rowGapPx": 11,
   },
   "testIndicators": [
     {
@@ -156,7 +162,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
   ],
   "title": "Semaglutide
 10mg",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 44,
   "titleLines": [
     "Semaglutide",
     "10mg",
@@ -170,7 +176,8 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
-  "bodyFontSizePx": 15,
+  "bodyBoxVerticalPadPx": 2.8628000000000005,
+  "bodyFontSizePx": 16,
   "columnLayout": {
     "centerWidthMm": 38,
     "gapCount": 0,
@@ -189,6 +196,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -201,21 +209,22 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Very Long Experimental Compound Name That Forces Title Wrapping
 20mg",
-  "titleFontSizePx": 21,
+  "titleFontSizePx": 24,
   "titleLines": [
     "Very Long Experimental",
-    "Compound Name That",
-    "Forces Title Wrapping",
+    "Compound Name That Forces",
+    "Title Wrapping",
     "20mg",
   ],
   "wrappedLines": [
     "Very Long Experimental",
-    "Compound Name That",
-    "Forces Title Wrapping",
+    "Compound Name That Forces",
+    "Title Wrapping",
     "20mg",
     "1 ml",
     "20mg per ml",
@@ -226,7 +235,8 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "minimal name only" 1`] = `
 {
-  "bodyFontSizePx": 26,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 65,
   "columnLayout": {
     "centerWidthMm": 38,
     "gapCount": 0,
@@ -245,6 +255,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [],
@@ -252,10 +263,11 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
   "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Tirzepatide",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 65,
   "titleLines": [
     "Tirzepatide",
   ],
@@ -265,9 +277,183 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 }
 `;
 
+exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "sparse logo only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 47,
+  "columnLayout": {
+    "centerWidthMm": 27.880000000000003,
+    "gapCount": 1,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 9.12,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6331578947368421,
+    "breakoutMarginLeftPct": -36.29842180774748,
+    "breakoutWidthPct": 136.29842180774747,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 213,
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 47,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "sparse logo plus testing" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 47,
+  "columnLayout": {
+    "centerWidthMm": 27.880000000000003,
+    "gapCount": 1,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 9.12,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6331578947368421,
+    "breakoutMarginLeftPct": -36.29842180774748,
+    "breakoutWidthPct": 136.29842180774747,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 213,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 17,
+    "labelMarkGapPx": 1,
+    "markSizePx": 29,
+    "rowGapPx": 11,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 47,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "sparse testing only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 65,
+  "columnLayout": {
+    "centerWidthMm": 38,
+    "gapCount": 0,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 0,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 21,
+    "labelMarkGapPx": 1,
+    "markSizePx": 37,
+    "rowGapPx": 15,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 65,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "untested danger mode" 1`] = `
 {
-  "bodyFontSizePx": 15.200000000000001,
+  "bodyBoxVerticalPadPx": 3.5672,
+  "bodyFontSizePx": 12,
   "columnLayout": {
     "centerWidthMm": 38,
     "gapCount": 0,
@@ -287,6 +473,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -299,11 +486,12 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "DANGER
 UNTESTED",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 37,
   "titleLines": [
     "DANGER",
     "UNTESTED",
@@ -331,7 +519,8 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyFontSizePx": 11,
+  "bodyBoxVerticalPadPx": 2.4501333333333317,
+  "bodyFontSizePx": 8,
   "columnLayout": {
     "centerWidthMm": 23.68,
     "gapCount": 1,
@@ -350,6 +539,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
     "breakoutWidthPct": 164.69594594594594,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -373,10 +563,11 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
     "Group: Group Buy Co",
     "Lot: BL-2026 20260621",
   ],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
-    "labelFontSizePx": 11,
+    "labelFontSizePx": 10,
     "labelMarkGapPx": 1,
-    "markSizePx": 11,
+    "markSizePx": 6,
     "rowGapPx": 2,
   },
   "testIndicators": [
@@ -398,7 +589,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
   ],
   "title": "Tirzepatide
 20mg",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 42,
   "titleLines": [
     "Tirzepatide",
     "20mg",
@@ -420,27 +611,29 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
-  "bodyFontSizePx": 26,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 46,
   "columnLayout": {
-    "centerWidthMm": 15.379999999999999,
-    "gapCount": 2,
+    "centerWidthMm": 29.14,
+    "gapCount": 1,
     "gapMm": 0.5,
     "innerRowMm": 39,
-    "logoWidthMm": 7.800000000000001,
-    "logoWidthPercent": 20,
-    "qrWidthMm": 14.82,
-    "qrWidthPercent": 38,
+    "logoWidthMm": 9.36,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
   },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
-    "axisFraction": 0.41000000000000003,
-    "breakoutMarginLeftPct": -53.966189856957094,
-    "breakoutWidthPct": 253.57607282184657,
+    "axisFraction": 0.6264102564102564,
+    "breakoutMarginLeftPct": -33.83665065202471,
+    "breakoutWidthPct": 133.8366506520247,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
-  "logoColumnWidthPercent": 20,
+  "logoColumnWidthPercent": 24,
   "protocolLines": [],
   "qrCodes": [
     {
@@ -448,14 +641,15 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
       "url": "https://example.com/coa",
     },
   ],
-  "qrColumnWidthPercent": 38,
+  "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 224,
   "testIndicatorLayout": {
-    "labelFontSizePx": 11,
+    "labelFontSizePx": 16,
     "labelMarkGapPx": 1,
-    "markSizePx": 11,
-    "rowGapPx": 2,
+    "markSizePx": 28,
+    "rowGapPx": 12,
   },
   "testIndicators": [
     {
@@ -476,7 +670,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
   ],
   "title": "Semaglutide
 10mg",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 46,
   "titleLines": [
     "Semaglutide",
     "10mg",
@@ -490,7 +684,8 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
-  "bodyFontSizePx": 16,
+  "bodyBoxVerticalPadPx": 3.6974000000000022,
+  "bodyFontSizePx": 18,
   "columnLayout": {
     "centerWidthMm": 39,
     "gapCount": 0,
@@ -509,6 +704,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -521,21 +717,22 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Very Long Experimental Compound Name That Forces Title Wrapping
 20mg",
-  "titleFontSizePx": 22,
+  "titleFontSizePx": 25,
   "titleLines": [
     "Very Long Experimental",
-    "Compound Name That",
-    "Forces Title Wrapping",
+    "Compound Name That Forces",
+    "Title Wrapping",
     "20mg",
   ],
   "wrappedLines": [
     "Very Long Experimental",
-    "Compound Name That",
-    "Forces Title Wrapping",
+    "Compound Name That Forces",
+    "Title Wrapping",
     "20mg",
     "1 ml",
     "20mg per ml",
@@ -546,7 +743,8 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "minimal name only" 1`] = `
 {
-  "bodyFontSizePx": 26,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 67,
   "columnLayout": {
     "centerWidthMm": 39,
     "gapCount": 0,
@@ -565,6 +763,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [],
@@ -572,10 +771,11 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
   "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Tirzepatide",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 67,
   "titleLines": [
     "Tirzepatide",
   ],
@@ -585,9 +785,183 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 }
 `;
 
+exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "sparse logo only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 49,
+  "columnLayout": {
+    "centerWidthMm": 29.14,
+    "gapCount": 1,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 9.36,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6264102564102564,
+    "breakoutMarginLeftPct": -33.83665065202471,
+    "breakoutWidthPct": 133.8366506520247,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 224,
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 49,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "sparse logo plus testing" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 49,
+  "columnLayout": {
+    "centerWidthMm": 29.14,
+    "gapCount": 1,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 9.36,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6264102564102564,
+    "breakoutMarginLeftPct": -33.83665065202471,
+    "breakoutWidthPct": 133.8366506520247,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 224,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 18,
+    "labelMarkGapPx": 1,
+    "markSizePx": 30,
+    "rowGapPx": 12,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 49,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "sparse testing only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 67,
+  "columnLayout": {
+    "centerWidthMm": 39,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 0,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 25,
+    "labelMarkGapPx": 1,
+    "markSizePx": 41,
+    "rowGapPx": 16,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 67,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "untested danger mode" 1`] = `
 {
-  "bodyFontSizePx": 15.200000000000001,
+  "bodyBoxVerticalPadPx": 3.7507999999999986,
+  "bodyFontSizePx": 13.600000000000001,
   "columnLayout": {
     "centerWidthMm": 39,
     "gapCount": 0,
@@ -607,6 +981,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -619,11 +994,12 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "DANGER
 UNTESTED",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 39,
   "titleLines": [
     "DANGER",
     "UNTESTED",
@@ -651,7 +1027,8 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyFontSizePx": 18,
+  "bodyBoxVerticalPadPx": 3.924000000000002,
+  "bodyFontSizePx": 12,
   "columnLayout": {
     "centerWidthMm": 22.560000000000002,
     "gapCount": 1,
@@ -670,6 +1047,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
     "breakoutWidthPct": 168.43971631205673,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -693,10 +1071,11 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
     "Group: Group Buy Co",
     "Lot: BL-2026 20260621",
   ],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
-    "labelFontSizePx": 12,
+    "labelFontSizePx": 11,
     "labelMarkGapPx": 1,
-    "markSizePx": 21,
+    "markSizePx": 13,
     "rowGapPx": 2,
   },
   "testIndicators": [
@@ -718,7 +1097,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
   ],
   "title": "Tirzepatide
 20mg",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 65,
   "titleLines": [
     "Tirzepatide",
     "20mg",
@@ -740,27 +1119,29 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
-  "bodyFontSizePx": 39,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 44,
   "columnLayout": {
-    "centerWidthMm": 13.959999999999999,
-    "gapCount": 2,
+    "centerWidthMm": 27.880000000000003,
+    "gapCount": 1,
     "gapMm": 1,
     "innerRowMm": 38,
-    "logoWidthMm": 7.6000000000000005,
-    "logoWidthPercent": 20,
-    "qrWidthMm": 14.44,
-    "qrWidthPercent": 38,
+    "logoWidthMm": 9.12,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
   },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
-    "axisFraction": 0.41000000000000003,
-    "breakoutMarginLeftPct": -61.60458452722064,
-    "breakoutWidthPct": 272.2063037249284,
+    "axisFraction": 0.6331578947368421,
+    "breakoutMarginLeftPct": -36.29842180774748,
+    "breakoutWidthPct": 136.29842180774747,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
-  "logoColumnWidthPercent": 20,
+  "logoColumnWidthPercent": 24,
   "protocolLines": [],
   "qrCodes": [
     {
@@ -768,14 +1149,15 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
       "url": "https://example.com/coa",
     },
   ],
-  "qrColumnWidthPercent": 38,
+  "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 331,
   "testIndicatorLayout": {
-    "labelFontSizePx": 12,
+    "labelFontSizePx": 15,
     "labelMarkGapPx": 1,
-    "markSizePx": 21,
-    "rowGapPx": 2,
+    "markSizePx": 27,
+    "rowGapPx": 11,
   },
   "testIndicators": [
     {
@@ -796,7 +1178,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
   ],
   "title": "Semaglutide
 10mg",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 44,
   "titleLines": [
     "Semaglutide",
     "10mg",
@@ -810,7 +1192,8 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
-  "bodyFontSizePx": 18,
+  "bodyBoxVerticalPadPx": 18.176599999999993,
+  "bodyFontSizePx": 22,
   "columnLayout": {
     "centerWidthMm": 38,
     "gapCount": 0,
@@ -829,6 +1212,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -841,25 +1225,22 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Very Long Experimental Compound Name That Forces Title Wrapping
 20mg",
-  "titleFontSizePx": 25,
+  "titleFontSizePx": 31,
   "titleLines": [
-    "Very Long",
-    "Experimental",
+    "Very Long Experimental",
     "Compound Name That",
-    "Forces Title",
-    "Wrapping",
+    "Forces Title Wrapping",
     "20mg",
   ],
   "wrappedLines": [
-    "Very Long",
-    "Experimental",
+    "Very Long Experimental",
     "Compound Name That",
-    "Forces Title",
-    "Wrapping",
+    "Forces Title Wrapping",
     "20mg",
     "1 ml",
     "20mg per ml",
@@ -870,7 +1251,8 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "minimal name only" 1`] = `
 {
-  "bodyFontSizePx": 39,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 65,
   "columnLayout": {
     "centerWidthMm": 38,
     "gapCount": 0,
@@ -889,6 +1271,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [],
@@ -896,10 +1279,11 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
   "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Tirzepatide",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 65,
   "titleLines": [
     "Tirzepatide",
   ],
@@ -909,9 +1293,183 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 }
 `;
 
+exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "sparse logo only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 47,
+  "columnLayout": {
+    "centerWidthMm": 27.880000000000003,
+    "gapCount": 1,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 9.12,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6331578947368421,
+    "breakoutMarginLeftPct": -36.29842180774748,
+    "breakoutWidthPct": 136.29842180774747,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 331,
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 47,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "sparse logo plus testing" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 47,
+  "columnLayout": {
+    "centerWidthMm": 27.880000000000003,
+    "gapCount": 1,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 9.12,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6331578947368421,
+    "breakoutMarginLeftPct": -36.29842180774748,
+    "breakoutWidthPct": 136.29842180774747,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 331,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 17,
+    "labelMarkGapPx": 1,
+    "markSizePx": 29,
+    "rowGapPx": 11,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 47,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "sparse testing only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 65,
+  "columnLayout": {
+    "centerWidthMm": 38,
+    "gapCount": 0,
+    "gapMm": 1,
+    "innerRowMm": 38,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 0,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 24,
+    "labelMarkGapPx": 1,
+    "markSizePx": 40,
+    "rowGapPx": 15,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 65,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "untested danger mode" 1`] = `
 {
-  "bodyFontSizePx": 22.400000000000002,
+  "bodyBoxVerticalPadPx": 3.0792000000000006,
+  "bodyFontSizePx": 24,
   "columnLayout": {
     "centerWidthMm": 38,
     "gapCount": 0,
@@ -931,6 +1489,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -943,11 +1502,12 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "DANGER
 UNTESTED",
-  "titleFontSizePx": 38,
+  "titleFontSizePx": 51,
   "titleLines": [
     "DANGER",
     "UNTESTED",
@@ -975,7 +1535,8 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyFontSizePx": 19,
+  "bodyBoxVerticalPadPx": 2.4742666666666704,
+  "bodyFontSizePx": 14,
   "columnLayout": {
     "centerWidthMm": 23.68,
     "gapCount": 1,
@@ -994,6 +1555,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
     "breakoutWidthPct": 164.69594594594594,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -1017,10 +1579,11 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
     "Group: Group Buy Co",
     "Lot: BL-2026 20260621",
   ],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
-    "labelFontSizePx": 13,
+    "labelFontSizePx": 11,
     "labelMarkGapPx": 1,
-    "markSizePx": 23,
+    "markSizePx": 15,
     "rowGapPx": 2,
   },
   "testIndicators": [
@@ -1042,7 +1605,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
   ],
   "title": "Tirzepatide
 20mg",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 67,
   "titleLines": [
     "Tirzepatide",
     "20mg",
@@ -1064,27 +1627,29 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
-  "bodyFontSizePx": 39,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 46,
   "columnLayout": {
-    "centerWidthMm": 15.379999999999999,
-    "gapCount": 2,
+    "centerWidthMm": 29.14,
+    "gapCount": 1,
     "gapMm": 0.5,
     "innerRowMm": 39,
-    "logoWidthMm": 7.800000000000001,
-    "logoWidthPercent": 20,
-    "qrWidthMm": 14.82,
-    "qrWidthPercent": 38,
+    "logoWidthMm": 9.36,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
   },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
-    "axisFraction": 0.41000000000000003,
-    "breakoutMarginLeftPct": -53.966189856957094,
-    "breakoutWidthPct": 253.57607282184657,
+    "axisFraction": 0.6264102564102564,
+    "breakoutMarginLeftPct": -33.83665065202471,
+    "breakoutWidthPct": 133.8366506520247,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
-  "logoColumnWidthPercent": 20,
+  "logoColumnWidthPercent": 24,
   "protocolLines": [],
   "qrCodes": [
     {
@@ -1092,14 +1657,15 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
       "url": "https://example.com/coa",
     },
   ],
-  "qrColumnWidthPercent": 38,
+  "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 343,
   "testIndicatorLayout": {
-    "labelFontSizePx": 13,
+    "labelFontSizePx": 16,
     "labelMarkGapPx": 1,
-    "markSizePx": 23,
-    "rowGapPx": 2,
+    "markSizePx": 28,
+    "rowGapPx": 12,
   },
   "testIndicators": [
     {
@@ -1120,7 +1686,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
   ],
   "title": "Semaglutide
 10mg",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 46,
   "titleLines": [
     "Semaglutide",
     "10mg",
@@ -1134,7 +1700,8 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
-  "bodyFontSizePx": 19,
+  "bodyBoxVerticalPadPx": 20.476399999999998,
+  "bodyFontSizePx": 23,
   "columnLayout": {
     "centerWidthMm": 39,
     "gapCount": 0,
@@ -1153,6 +1720,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -1165,25 +1733,22 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Very Long Experimental Compound Name That Forces Title Wrapping
 20mg",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 32,
   "titleLines": [
-    "Very Long",
-    "Experimental",
+    "Very Long Experimental",
     "Compound Name That",
-    "Forces Title",
-    "Wrapping",
+    "Forces Title Wrapping",
     "20mg",
   ],
   "wrappedLines": [
-    "Very Long",
-    "Experimental",
+    "Very Long Experimental",
     "Compound Name That",
-    "Forces Title",
-    "Wrapping",
+    "Forces Title Wrapping",
     "20mg",
     "1 ml",
     "20mg per ml",
@@ -1194,7 +1759,8 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "minimal name only" 1`] = `
 {
-  "bodyFontSizePx": 39,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 67,
   "columnLayout": {
     "centerWidthMm": 39,
     "gapCount": 0,
@@ -1213,6 +1779,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [],
@@ -1220,10 +1787,11 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
   "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Tirzepatide",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 67,
   "titleLines": [
     "Tirzepatide",
   ],
@@ -1233,9 +1801,183 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 }
 `;
 
+exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "sparse logo only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 49,
+  "columnLayout": {
+    "centerWidthMm": 29.14,
+    "gapCount": 1,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 9.36,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6264102564102564,
+    "breakoutMarginLeftPct": -33.83665065202471,
+    "breakoutWidthPct": 133.8366506520247,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 343,
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 49,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "sparse logo plus testing" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 49,
+  "columnLayout": {
+    "centerWidthMm": 29.14,
+    "gapCount": 1,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 9.36,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6264102564102564,
+    "breakoutMarginLeftPct": -33.83665065202471,
+    "breakoutWidthPct": 133.8366506520247,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 343,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 18,
+    "labelMarkGapPx": 1,
+    "markSizePx": 30,
+    "rowGapPx": 12,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 49,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "sparse testing only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 67,
+  "columnLayout": {
+    "centerWidthMm": 39,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 0,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 25,
+    "labelMarkGapPx": 1,
+    "markSizePx": 41,
+    "rowGapPx": 16,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 67,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "untested danger mode" 1`] = `
 {
-  "bodyFontSizePx": 22.400000000000002,
+  "bodyBoxVerticalPadPx": 2.4996000000000156,
+  "bodyFontSizePx": 26.400000000000002,
   "columnLayout": {
     "centerWidthMm": 39,
     "gapCount": 0,
@@ -1255,6 +1997,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -1267,11 +2010,12 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "DANGER
 UNTESTED",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 52,
   "titleLines": [
     "DANGER",
     "UNTESTED",
@@ -1299,7 +2043,8 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyFontSizePx": 17,
+  "bodyBoxVerticalPadPx": 4.000200000000004,
+  "bodyFontSizePx": 10,
   "columnLayout": {
     "centerWidthMm": 28.759999999999998,
     "gapCount": 1,
@@ -1318,6 +2063,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
     "breakoutWidthPct": 166.89847009735746,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -1341,10 +2087,11 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
     "Group: Group Buy Co",
     "Lot: BL-2026 20260621",
   ],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
-    "labelFontSizePx": 12,
+    "labelFontSizePx": 11,
     "labelMarkGapPx": 1,
-    "markSizePx": 21,
+    "markSizePx": 10,
     "rowGapPx": 2,
   },
   "testIndicators": [
@@ -1366,7 +2113,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
   ],
   "title": "Tirzepatide
 20mg",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 75,
   "titleLines": [
     "Tirzepatide",
     "20mg",
@@ -1388,27 +2135,29 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
-  "bodyFontSizePx": 39,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 57,
   "columnLayout": {
-    "centerWidthMm": 18.159999999999997,
-    "gapCount": 2,
+    "centerWidthMm": 35.480000000000004,
+    "gapCount": 1,
     "gapMm": 1,
     "innerRowMm": 48,
-    "logoWidthMm": 9.600000000000001,
-    "logoWidthPercent": 20,
-    "qrWidthMm": 18.240000000000002,
-    "qrWidthPercent": 38,
+    "logoWidthMm": 11.52,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
   },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
-    "axisFraction": 0.41,
-    "breakoutMarginLeftPct": -58.370044052863456,
-    "breakoutWidthPct": 264.31718061674013,
+    "axisFraction": 0.6304166666666667,
+    "breakoutMarginLeftPct": -35.287485907553545,
+    "breakoutWidthPct": 135.28748590755353,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
-  "logoColumnWidthPercent": 20,
+  "logoColumnWidthPercent": 24,
   "protocolLines": [],
   "qrCodes": [
     {
@@ -1416,14 +2165,15 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
       "url": "https://example.com/coa",
     },
   ],
-  "qrColumnWidthPercent": 38,
+  "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 331,
   "testIndicatorLayout": {
-    "labelFontSizePx": 12,
+    "labelFontSizePx": 20,
     "labelMarkGapPx": 1,
-    "markSizePx": 21,
-    "rowGapPx": 2,
+    "markSizePx": 35,
+    "rowGapPx": 14,
   },
   "testIndicators": [
     {
@@ -1444,7 +2194,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
   ],
   "title": "Semaglutide
 10mg",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 57,
   "titleLines": [
     "Semaglutide",
     "10mg",
@@ -1458,7 +2208,8 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
-  "bodyFontSizePx": 20,
+  "bodyBoxVerticalPadPx": 5.952600000000006,
+  "bodyFontSizePx": 27,
   "columnLayout": {
     "centerWidthMm": 48,
     "gapCount": 0,
@@ -1477,6 +2228,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -1489,23 +2241,22 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Very Long Experimental Compound Name That Forces Title Wrapping
 20mg",
-  "titleFontSizePx": 28,
+  "titleFontSizePx": 37,
   "titleLines": [
-    "Very Long",
-    "Experimental Compound",
-    "Name That Forces",
-    "Title Wrapping",
+    "Very Long Experimental",
+    "Compound Name That",
+    "Forces Title Wrapping",
     "20mg",
   ],
   "wrappedLines": [
-    "Very Long",
-    "Experimental Compound",
-    "Name That Forces",
-    "Title Wrapping",
+    "Very Long Experimental",
+    "Compound Name That",
+    "Forces Title Wrapping",
     "20mg",
     "1 ml",
     "20mg per ml",
@@ -1516,7 +2267,8 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "minimal name only" 1`] = `
 {
-  "bodyFontSizePx": 39,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 82,
   "columnLayout": {
     "centerWidthMm": 48,
     "gapCount": 0,
@@ -1535,6 +2287,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [],
@@ -1542,10 +2295,11 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
   "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Tirzepatide",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 82,
   "titleLines": [
     "Tirzepatide",
   ],
@@ -1555,9 +2309,183 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 }
 `;
 
+exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "sparse logo only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 59,
+  "columnLayout": {
+    "centerWidthMm": 35.480000000000004,
+    "gapCount": 1,
+    "gapMm": 1,
+    "innerRowMm": 48,
+    "logoWidthMm": 11.52,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6304166666666667,
+    "breakoutMarginLeftPct": -35.287485907553545,
+    "breakoutWidthPct": 135.28748590755353,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 331,
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 59,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "sparse logo plus testing" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 59,
+  "columnLayout": {
+    "centerWidthMm": 35.480000000000004,
+    "gapCount": 1,
+    "gapMm": 1,
+    "innerRowMm": 48,
+    "logoWidthMm": 11.52,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6304166666666667,
+    "breakoutMarginLeftPct": -35.287485907553545,
+    "breakoutWidthPct": 135.28748590755353,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 331,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 22,
+    "labelMarkGapPx": 1,
+    "markSizePx": 36,
+    "rowGapPx": 14,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 59,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "sparse testing only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 82,
+  "columnLayout": {
+    "centerWidthMm": 48,
+    "gapCount": 0,
+    "gapMm": 1,
+    "innerRowMm": 48,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 0,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 31,
+    "labelMarkGapPx": 1,
+    "markSizePx": 50,
+    "rowGapPx": 19,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 82,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "untested danger mode" 1`] = `
 {
-  "bodyFontSizePx": 22.400000000000002,
+  "bodyBoxVerticalPadPx": 4.184199999999992,
+  "bodyFontSizePx": 21.6,
   "columnLayout": {
     "centerWidthMm": 48,
     "gapCount": 0,
@@ -1577,6 +2505,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -1589,11 +2518,12 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "DANGER
 UNTESTED",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 57,
   "titleLines": [
     "DANGER",
     "UNTESTED",
@@ -1621,7 +2551,8 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyFontSizePx": 19,
+  "bodyBoxVerticalPadPx": 4.095333333333341,
+  "bodyFontSizePx": 11,
   "columnLayout": {
     "centerWidthMm": 29.88,
     "gapCount": 1,
@@ -1640,6 +2571,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
     "breakoutWidthPct": 163.98929049531458,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -1663,10 +2595,11 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
     "Group: Group Buy Co",
     "Lot: BL-2026 20260621",
   ],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
-    "labelFontSizePx": 13,
+    "labelFontSizePx": 11,
     "labelMarkGapPx": 1,
-    "markSizePx": 23,
+    "markSizePx": 11,
     "rowGapPx": 2,
   },
   "testIndicators": [
@@ -1688,7 +2621,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
   ],
   "title": "Tirzepatide
 20mg",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 78,
   "titleLines": [
     "Tirzepatide",
     "20mg",
@@ -1710,27 +2643,29 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
-  "bodyFontSizePx": 39,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 59,
   "columnLayout": {
-    "centerWidthMm": 19.580000000000002,
-    "gapCount": 2,
+    "centerWidthMm": 36.74,
+    "gapCount": 1,
     "gapMm": 0.5,
     "innerRowMm": 49,
-    "logoWidthMm": 9.8,
-    "logoWidthPercent": 20,
-    "qrWidthMm": 18.62,
-    "qrWidthPercent": 38,
+    "logoWidthMm": 11.76,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
   },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
-    "axisFraction": 0.4100000000000001,
-    "breakoutMarginLeftPct": -52.6046986721144,
-    "breakoutWidthPct": 250.25536261491314,
+    "axisFraction": 0.6251020408163266,
+    "breakoutMarginLeftPct": -33.36962438758846,
+    "breakoutWidthPct": 133.36962438758846,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
-  "logoColumnWidthPercent": 20,
+  "logoColumnWidthPercent": 24,
   "protocolLines": [],
   "qrCodes": [
     {
@@ -1738,14 +2673,15 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
       "url": "https://example.com/coa",
     },
   ],
-  "qrColumnWidthPercent": 38,
+  "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 343,
   "testIndicatorLayout": {
-    "labelFontSizePx": 13,
+    "labelFontSizePx": 20,
     "labelMarkGapPx": 1,
-    "markSizePx": 23,
-    "rowGapPx": 2,
+    "markSizePx": 36,
+    "rowGapPx": 15,
   },
   "testIndicators": [
     {
@@ -1766,7 +2702,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
   ],
   "title": "Semaglutide
 10mg",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 59,
   "titleLines": [
     "Semaglutide",
     "10mg",
@@ -1780,7 +2716,8 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
-  "bodyFontSizePx": 21,
+  "bodyBoxVerticalPadPx": 7.267399999999997,
+  "bodyFontSizePx": 28,
   "columnLayout": {
     "centerWidthMm": 49,
     "gapCount": 0,
@@ -1799,6 +2736,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -1811,23 +2749,22 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Very Long Experimental Compound Name That Forces Title Wrapping
 20mg",
-  "titleFontSizePx": 29,
+  "titleFontSizePx": 39,
   "titleLines": [
-    "Very Long",
-    "Experimental Compound",
-    "Name That Forces",
-    "Title Wrapping",
+    "Very Long Experimental",
+    "Compound Name That",
+    "Forces Title Wrapping",
     "20mg",
   ],
   "wrappedLines": [
-    "Very Long",
-    "Experimental Compound",
-    "Name That Forces",
-    "Title Wrapping",
+    "Very Long Experimental",
+    "Compound Name That",
+    "Forces Title Wrapping",
     "20mg",
     "1 ml",
     "20mg per ml",
@@ -1838,7 +2775,8 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "minimal name only" 1`] = `
 {
-  "bodyFontSizePx": 39,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 84,
   "columnLayout": {
     "centerWidthMm": 49,
     "gapCount": 0,
@@ -1857,6 +2795,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [],
@@ -1864,10 +2803,11 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
   "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Tirzepatide",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 84,
   "titleLines": [
     "Tirzepatide",
   ],
@@ -1877,9 +2817,183 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 }
 `;
 
+exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "sparse logo only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 61,
+  "columnLayout": {
+    "centerWidthMm": 36.74,
+    "gapCount": 1,
+    "gapMm": 0.5,
+    "innerRowMm": 49,
+    "logoWidthMm": 11.76,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6251020408163266,
+    "breakoutMarginLeftPct": -33.36962438758846,
+    "breakoutWidthPct": 133.36962438758846,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 343,
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 61,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "sparse logo plus testing" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 61,
+  "columnLayout": {
+    "centerWidthMm": 36.74,
+    "gapCount": 1,
+    "gapMm": 0.5,
+    "innerRowMm": 49,
+    "logoWidthMm": 11.76,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6251020408163266,
+    "breakoutMarginLeftPct": -33.36962438758846,
+    "breakoutWidthPct": 133.36962438758846,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 343,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 23,
+    "labelMarkGapPx": 1,
+    "markSizePx": 37,
+    "rowGapPx": 15,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 61,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "sparse testing only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 84,
+  "columnLayout": {
+    "centerWidthMm": 49,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 49,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 0,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 31,
+    "labelMarkGapPx": 1,
+    "markSizePx": 52,
+    "rowGapPx": 20,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 84,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "untested danger mode" 1`] = `
 {
-  "bodyFontSizePx": 22.400000000000002,
+  "bodyBoxVerticalPadPx": 4.107799999999999,
+  "bodyFontSizePx": 23.200000000000003,
   "columnLayout": {
     "centerWidthMm": 49,
     "gapCount": 0,
@@ -1899,6 +3013,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -1911,11 +3026,12 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "DANGER
 UNTESTED",
-  "titleFontSizePx": 39,
+  "titleFontSizePx": 60,
   "titleLines": [
     "DANGER",
     "UNTESTED",
@@ -1943,7 +3059,8 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyFontSizePx": 11,
+  "bodyBoxVerticalPadPx": 2.4501333333333317,
+  "bodyFontSizePx": 8,
   "columnLayout": {
     "centerWidthMm": 23.68,
     "gapCount": 1,
@@ -1962,6 +3079,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
     "breakoutWidthPct": 164.69594594594594,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -1985,10 +3103,11 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
     "Group: Group Buy Co",
     "Lot: BL-2026 20260621",
   ],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
-    "labelFontSizePx": 11,
+    "labelFontSizePx": 10,
     "labelMarkGapPx": 1,
-    "markSizePx": 11,
+    "markSizePx": 6,
     "rowGapPx": 2,
   },
   "testIndicators": [
@@ -2010,7 +3129,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
   ],
   "title": "Tirzepatide
 20mg",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 42,
   "titleLines": [
     "Tirzepatide",
     "20mg",
@@ -2032,27 +3151,29 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
-  "bodyFontSizePx": 26,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 46,
   "columnLayout": {
-    "centerWidthMm": 15.379999999999999,
-    "gapCount": 2,
+    "centerWidthMm": 29.14,
+    "gapCount": 1,
     "gapMm": 0.5,
     "innerRowMm": 39,
-    "logoWidthMm": 7.800000000000001,
-    "logoWidthPercent": 20,
-    "qrWidthMm": 14.82,
-    "qrWidthPercent": 38,
+    "logoWidthMm": 9.36,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
   },
   "customImage": "data:image/png;base64,test",
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
-    "axisFraction": 0.41000000000000003,
-    "breakoutMarginLeftPct": -53.966189856957094,
-    "breakoutWidthPct": 253.57607282184657,
+    "axisFraction": 0.6264102564102564,
+    "breakoutMarginLeftPct": -33.83665065202471,
+    "breakoutWidthPct": 133.8366506520247,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
-  "logoColumnWidthPercent": 20,
+  "logoColumnWidthPercent": 24,
   "protocolLines": [],
   "qrCodes": [
     {
@@ -2060,14 +3181,15 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
       "url": "https://example.com/coa",
     },
   ],
-  "qrColumnWidthPercent": 38,
+  "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 224,
   "testIndicatorLayout": {
-    "labelFontSizePx": 11,
+    "labelFontSizePx": 16,
     "labelMarkGapPx": 1,
-    "markSizePx": 11,
-    "rowGapPx": 2,
+    "markSizePx": 28,
+    "rowGapPx": 12,
   },
   "testIndicators": [
     {
@@ -2088,7 +3210,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
   ],
   "title": "Semaglutide
 10mg",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 46,
   "titleLines": [
     "Semaglutide",
     "10mg",
@@ -2102,7 +3224,8 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
-  "bodyFontSizePx": 16,
+  "bodyBoxVerticalPadPx": 3.6974000000000022,
+  "bodyFontSizePx": 18,
   "columnLayout": {
     "centerWidthMm": 39,
     "gapCount": 0,
@@ -2121,6 +3244,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -2133,21 +3257,22 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Very Long Experimental Compound Name That Forces Title Wrapping
 20mg",
-  "titleFontSizePx": 22,
+  "titleFontSizePx": 25,
   "titleLines": [
     "Very Long Experimental",
-    "Compound Name That",
-    "Forces Title Wrapping",
+    "Compound Name That Forces",
+    "Title Wrapping",
     "20mg",
   ],
   "wrappedLines": [
     "Very Long Experimental",
-    "Compound Name That",
-    "Forces Title Wrapping",
+    "Compound Name That Forces",
+    "Title Wrapping",
     "20mg",
     "1 ml",
     "20mg per ml",
@@ -2158,7 +3283,8 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "minimal name only" 1`] = `
 {
-  "bodyFontSizePx": 26,
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 67,
   "columnLayout": {
     "centerWidthMm": 39,
     "gapCount": 0,
@@ -2177,6 +3303,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
+  "isSparse": true,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [],
@@ -2184,10 +3311,11 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
   "qrColumnWidthPercent": 0,
   "reconstitutionLines": [],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "Tirzepatide",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 67,
   "titleLines": [
     "Tirzepatide",
   ],
@@ -2197,9 +3325,183 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 }
 `;
 
+exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "sparse logo only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 49,
+  "columnLayout": {
+    "centerWidthMm": 29.14,
+    "gapCount": 1,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 9.36,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6264102564102564,
+    "breakoutMarginLeftPct": -33.83665065202471,
+    "breakoutWidthPct": 133.8366506520247,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 224,
+  "testIndicatorLayout": undefined,
+  "testIndicators": [],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 49,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "sparse logo plus testing" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 49,
+  "columnLayout": {
+    "centerWidthMm": 29.14,
+    "gapCount": 1,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 9.36,
+    "logoWidthPercent": 24,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": "data:image/png;base64,test",
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.6264102564102564,
+    "breakoutMarginLeftPct": -33.83665065202471,
+    "breakoutWidthPct": 133.8366506520247,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 24,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 224,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 18,
+    "labelMarkGapPx": 1,
+    "markSizePx": 30,
+    "rowGapPx": 12,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 49,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
+exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "sparse testing only" 1`] = `
+{
+  "bodyBoxVerticalPadPx": 0,
+  "bodyFontSizePx": 67,
+  "columnLayout": {
+    "centerWidthMm": 39,
+    "gapCount": 0,
+    "gapMm": 0.5,
+    "innerRowMm": 39,
+    "logoWidthMm": 0,
+    "logoWidthPercent": 0,
+    "qrWidthMm": 0,
+    "qrWidthPercent": 0,
+  },
+  "customImage": undefined,
+  "demotedTitle": undefined,
+  "identityHeaderTitleBreakout": {
+    "axisFraction": 0.5,
+    "breakoutMarginLeftPct": -0,
+    "breakoutWidthPct": 100,
+  },
+  "isDangerMode": false,
+  "isSparse": true,
+  "labelLayoutMode": "identityHeader",
+  "logoColumnWidthPercent": 0,
+  "protocolLines": [],
+  "qrCodes": [],
+  "qrColumnWidthPercent": 0,
+  "reconstitutionLines": [],
+  "sourceLines": [],
+  "sparseLogoHeightPx": 0,
+  "testIndicatorLayout": {
+    "labelFontSizePx": 25,
+    "labelMarkGapPx": 1,
+    "markSizePx": 41,
+    "rowGapPx": 16,
+  },
+  "testIndicators": [
+    {
+      "label": "Purity",
+      "status": "pass",
+      "type": "Purity",
+    },
+    {
+      "label": "Endotoxin",
+      "status": "pass",
+      "type": "Endotoxin",
+    },
+  ],
+  "title": "Tirzepatide
+20mg",
+  "titleFontSizePx": 67,
+  "titleLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+  "wrappedLines": [
+    "Tirzepatide",
+    "20mg",
+  ],
+}
+`;
+
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "untested danger mode" 1`] = `
 {
-  "bodyFontSizePx": 15.200000000000001,
+  "bodyBoxVerticalPadPx": 3.7507999999999986,
+  "bodyFontSizePx": 13.600000000000001,
   "columnLayout": {
     "centerWidthMm": 39,
     "gapCount": 0,
@@ -2219,6 +3521,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
+  "isSparse": false,
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
@@ -2231,11 +3534,12 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
     "20mg per ml",
   ],
   "sourceLines": [],
+  "sparseLogoHeightPx": 0,
   "testIndicatorLayout": undefined,
   "testIndicators": [],
   "title": "DANGER
 UNTESTED",
-  "titleFontSizePx": 26,
+  "titleFontSizePx": 39,
   "titleLines": [
     "DANGER",
     "UNTESTED",

@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { LabelLayoutEngine, processWord, type WrapState } from './LabelLayoutEngine'
 import { mmToPx } from '../../print/dimensions'
+import { HeuristicTextMeasurer } from './domain/HeuristicTextMeasurer'
+
+const TITLE_WEIGHT = 900
+const BODY_WEIGHT = 600
 
 describe('LabelLayoutEngine', () => {
     it('should return same lines when they already fit', () => {
@@ -9,7 +13,8 @@ describe('LabelLayoutEngine', () => {
         const result = engine.layout({
             lines: ['Line 1', 'Line 2'],
             widthMm: 40,
-            heightMm: 20
+            heightMm: 20,
+            fontWeight: BODY_WEIGHT,
         })
 
         expect(result.wrappedLines).toEqual(['Line 1', 'Line 2'])
@@ -22,7 +27,8 @@ describe('LabelLayoutEngine', () => {
         const result = engine.layout({
             lines: ['This is a very long line that must wrap'],
             widthMm: 40,
-            heightMm: 20
+            heightMm: 20,
+            fontWeight: BODY_WEIGHT,
         })
 
         expect(result.wrappedLines.length).toBeGreaterThan(1)
@@ -34,7 +40,8 @@ describe('LabelLayoutEngine', () => {
         const result = engine.layout({
             lines: ['123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890'],
             widthMm: 40,
-            heightMm: 20
+            heightMm: 20,
+            fontWeight: BODY_WEIGHT,
         })
 
         expect(result.wrappedLines.length).toBeGreaterThan(1)
@@ -53,7 +60,8 @@ describe('LabelLayoutEngine', () => {
                 'This is a fairly long line that will wrap'
             ],
             widthMm: 40,
-            heightMm: 20
+            heightMm: 20,
+            fontWeight: BODY_WEIGHT,
         })
 
         expect(result.fontSizePx).toBeLessThan(26)
@@ -65,13 +73,15 @@ describe('LabelLayoutEngine', () => {
         const wide = engine.layout({
             lines: ['This is a line that should wrap differently depending on width'],
             widthMm: 40,
-            heightMm: 20
+            heightMm: 20,
+            fontWeight: BODY_WEIGHT,
         })
 
         const narrow = engine.layout({
             lines: ['This is a line that should wrap differently depending on width'],
             widthMm: 20,
-            heightMm: 20
+            heightMm: 20,
+            fontWeight: BODY_WEIGHT,
         })
 
         expect(narrow.wrappedLines.length).toBeGreaterThan(wide.wrappedLines.length)
@@ -96,21 +106,26 @@ describe('LabelLayoutEngine', () => {
     })
 
     it('should shrink bold title to fit center column width', () => {
-        const engine = new LabelLayoutEngine(203)
+        const dpi = 203
+        const measurer = new HeuristicTextMeasurer()
+        const engine = new LabelLayoutEngine(dpi, 26, measurer)
         const innerMm = 38
         const centerWidthMm = Math.max(1, innerMm * (1 - 0.2 - 0.38) - 2) * 0.92
+        const widthSafety = 0.92
 
         const result = engine.layout({
             lines: ['TEST COMPOUND 20MG'],
             widthMm: centerWidthMm,
             heightMm: 18,
-            charWidthEm: 0.95,
-            widthSafety: 0.92,
+            fontWeight: TITLE_WEIGHT,
+            widthSafety,
         })
 
-        const widthPx = mmToPx(centerWidthMm, 203) * 0.92
+        const widthPx = mmToPx(centerWidthMm, dpi) * widthSafety
         const tokens = result.wrappedLines.flatMap((line) => line.split(' '))
-        const longestPx = Math.max(...tokens.map((word) => word.length * result.fontSizePx * 0.95))
+        const longestPx = Math.max(
+            ...tokens.map((word) => measurer.measureWidthPx(word, result.fontSizePx, TITLE_WEIGHT)),
+        )
         expect(longestPx).toBeLessThanOrEqual(widthPx)
         expect(result.fontSizePx).toBeLessThan(26)
     })
@@ -118,10 +133,12 @@ describe('LabelLayoutEngine', () => {
 
 describe('processWord', () => {
     const empty: WrapState = { lines: [], current: '', didChopWord: false }
+    /** Char-count predicate so wrap-state-machine tests stay independent of glyph metrics. */
+    const fitsMaxChars = (maxChars: number) => (text: string) => text.length <= maxChars
 
     it('should append a word that fits onto the current line without mutating the input state', () => {
         const before: WrapState = { lines: ['kept'], current: 'hello', didChopWord: false }
-        const next = processWord('world', 20, before)
+        const next = processWord('world', fitsMaxChars(20), before)
 
         expect(next).toEqual({ lines: ['kept'], current: 'hello world', didChopWord: false })
         expect(before).toEqual({ lines: ['kept'], current: 'hello', didChopWord: false })
@@ -129,12 +146,12 @@ describe('processWord', () => {
     })
 
     it('should flush the current line when the next word does not fit', () => {
-        const next = processWord('world', 8, { lines: [], current: 'hello', didChopWord: false })
+        const next = processWord('world', fitsMaxChars(8), { lines: [], current: 'hello', didChopWord: false })
         expect(next).toEqual({ lines: ['hello'], current: 'world', didChopWord: false })
     })
 
     it('should chop an oversized token when the current line is empty', () => {
-        const next = processWord('abcdefghij', 4, empty)
+        const next = processWord('abcdefghij', fitsMaxChars(4), empty)
         expect(next.didChopWord).toBe(true)
         expect(next.current).toBe('')
         expect(next.lines).toEqual(['abcd', 'efgh', 'ij'])

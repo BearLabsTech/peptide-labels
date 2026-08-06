@@ -1,7 +1,7 @@
 /**
  * Single source for the typography metrics `LabelLayoutEngine.ts` uses to
  * predict fit and `LabelPreview.css` uses to render. Before this module,
- * these seven numbers were hand-copied into both places — a purely visual
+ * these metrics were hand-copied into both places — a purely visual
  * CSS edit could silently disagree with what the engine predicted would fit.
  * Now the engine imports these values directly and the preview emits them
  * as CSS custom properties (see `labelTypographyCssVars.ts`), so there is
@@ -12,6 +12,12 @@
  * treats that engine as core math with no UI-framework dependency. The
  * `CSSProperties`-typed presenter lives in `labelTypographyCssVars.ts` instead.
  */
+/**
+ * Font stack shared by preview CSS (`.label-preview-container`) and
+ * CanvasTextMeasurer. Keep these in sync — measurement must match render.
+ */
+export const LABEL_FONT_FAMILY = 'Arial, Helvetica, sans-serif'
+
 export const LABEL_TYPOGRAPHY = {
   /** Section label ("RECONSTITUTION" etc.) font size, as a fraction of the boxed-section body font size. */
   sectionLabelEm: 0.55,
@@ -32,6 +38,12 @@ export const LABEL_TYPOGRAPHY = {
   boxGapCqw: 0.5,
   /** Bold uppercase title line-height, as a fraction of font size. Distinct from the ~0.95em glyph-width estimate used for title wrapping. */
   titleLineHeightEm: 0.95,
+  /**
+   * Extra top padding on the title (fraction of font size) so bold caps that
+   * ink outside the 0.95em line box clear the rounded sticker's overflow:hidden.
+   * Mirrored in `estimateTitleHeightPx` and `.label-preview-title` / `.danger-title-wrapper`.
+   */
+  titleInkOverflowEm: 0.14,
 } as const
 
 export type LabelTypographyKey = keyof typeof LABEL_TYPOGRAPHY
@@ -45,6 +57,7 @@ export const CSS_VAR_NAME: Record<LabelTypographyKey, `--${string}`> = {
   boxPadVerticalCqw: '--label-box-pad-vertical-cqw',
   boxGapCqw: '--label-box-gap-cqw',
   titleLineHeightEm: '--label-title-line-height',
+  titleInkOverflowEm: '--label-title-ink-overflow',
 }
 
 /**
@@ -61,6 +74,7 @@ export const CSS_VAR_UNIT: Record<LabelTypographyKey, string> = {
   boxPadVerticalCqw: 'cqw',
   boxGapCqw: 'cqw',
   titleLineHeightEm: '',
+  titleInkOverflowEm: '',
 }
 
 /** CSS custom property name for a given metric — exported for the drift-detection test. */

@@ -24,7 +24,7 @@ function baseInput(overrides: Partial<TitleBodyFitInput> = {}): TitleBodyFitInpu
       lines: ['OK'],
       widthMm: 30,
       heightMm: 9,
-      charWidthEm: 0.95,
+      fontWeight: 900,
       widthSafety: 1,
     },
     boxes: [{ lines: ['2 ml', '10mg per ml'] }],
@@ -133,7 +133,7 @@ describe('TitleBodyFitter.findBestFit', () => {
     // font by width alone (well below title/RATIO), so phase 1 already satisfies the
     // ratio and boost's early-return branch should fire without altering the candidate.
     const input = baseInput({
-      titleInput: { lines: ['OK'], widthMm: 30, heightMm: 20, charWidthEm: 0.95, widthSafety: 1 },
+      titleInput: { lines: ['OK'], widthMm: 30, heightMm: 20, fontWeight: 900, widthSafety: 1 },
       baseWidthMm: 14,
       boxes: [{ lines: ['ok'] }],
       innerHeightMm: 40,
@@ -149,14 +149,16 @@ describe('TitleBodyFitter.findBestFit', () => {
   it('should shrink the title (phase 2) when the body cannot fit the height budget at the title\'s own best-fit size', () => {
     const { fitter, engine } = makeFitter()
     const input = baseInput({
-      titleInput: { lines: ['OK'], widthMm: 30, heightMm: 9, charWidthEm: 0.95, widthSafety: 1 },
+      titleInput: { lines: ['OK'], widthMm: 30, heightMm: 9, fontWeight: 900, widthSafety: 1 },
       boxes: [
         { lines: ['Reconstitution line one'] },
         { lines: ['Protocol line one'] },
         { lines: ['Source line one'] },
       ],
       baseWidthMm: 30,
-      innerHeightMm: 13,
+      // Tall enough that phase 2 finds a fit above MIN after ink-overflow reserve,
+      // but short enough that phase 1 alone cannot keep the title at its own best size.
+      innerHeightMm: 14.5,
     })
     const directTitleLayout = engine.layout(input.titleInput)
     const candidate = fitter.findBestFit(input)
@@ -169,7 +171,7 @@ describe('TitleBodyFitter.findBestFit', () => {
   it('should bottom out at MIN_FONT_SIZE_PX for both title and body when nothing fits the available height', () => {
     const { fitter } = makeFitter()
     const input = baseInput({
-      titleInput: { lines: ['A VERY LONG TITLE THAT WILL NOT FIT'], widthMm: 10, heightMm: 2, charWidthEm: 0.95, widthSafety: 1 },
+      titleInput: { lines: ['A VERY LONG TITLE THAT WILL NOT FIT'], widthMm: 10, heightMm: 2, fontWeight: 900, widthSafety: 1 },
       boxes: [
         { lines: ['Reconstitution line one', 'Reconstitution line two', 'Reconstitution line three'] },
         { lines: ['Protocol line one', 'Protocol line two', 'Protocol line three'] },
@@ -190,7 +192,7 @@ describe('TitleBodyFitter.findBestFit', () => {
     // land near the engine max font independently, undershooting the ratio and
     // forcing boost to trade body font for title font.
     const input = baseInput({
-      titleInput: { lines: ['OK'], widthMm: 30, heightMm: 20, charWidthEm: 0.95, widthSafety: 1 },
+      titleInput: { lines: ['OK'], widthMm: 30, heightMm: 20, fontWeight: 900, widthSafety: 1 },
       baseWidthMm: 30,
       boxes: [{ lines: ['x'] }],
       innerHeightMm: 20,
@@ -207,7 +209,7 @@ describe('TitleBodyFitter.findBestFit', () => {
   it('should use up to the engine max font size when content is sparse and height is generous', () => {
     const { fitter, engine } = makeFitter()
     const input = baseInput({
-      titleInput: { lines: ['OK'], widthMm: 30, heightMm: 20, charWidthEm: 0.95, widthSafety: 1 },
+      titleInput: { lines: ['OK'], widthMm: 30, heightMm: 20, fontWeight: 900, widthSafety: 1 },
       boxes: [{ lines: ['ok'] }],
       innerHeightMm: 40,
     })

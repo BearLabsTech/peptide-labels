@@ -7,4 +7,5 @@ export type {
   PngBytes,
   Rasterizer,
   Scroller,
+  TextMeasurer,
 } from '../../../shared/ports'

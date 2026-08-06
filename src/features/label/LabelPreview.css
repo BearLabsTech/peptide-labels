@@ -18,13 +18,18 @@
   box-sizing: border-box;
   gap: var(--label-pad, 1.25cqw);
   /* Side column % widths come from computeColumnLayout (labelColumnLayout.ts). */
-  /* Force a blocky, standard sans-serif stack */
+  /* Font stack — keep in sync with LABEL_FONT_FAMILY in labelTypography.ts */
   font-family: Arial, Helvetica, sans-serif;
 }
 
 .label-preview-container--identity-header {
   flex-direction: column;
+  justify-content: center;
   gap: calc(var(--label-pad, 1.25cqw) * 0.75);
+}
+
+.label-preview-container--sparse {
+  align-items: center;
 }
 
 .label-title-band {
@@ -72,6 +77,43 @@
   gap: var(--label-pad, 1.25cqw);
 }
 
+/* --- Sparse (no-body) composition --- */
+.label-sparse-row {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+  gap: var(--label-pad, 1.25cqw);
+}
+
+.label-sparse-logo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.label-sparse-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  /* Matches SPARSE_TITLE_TESTING_GAP_FRAC (1.5 × pad) in labelLayoutConstants.ts */
+  gap: calc(var(--label-pad, 1.25cqw) * 1.5);
+}
+
+.label-sparse-stack--full {
+  flex: 0 1 auto;
+  width: 100%;
+}
+
 .label-left-column {
   flex-shrink: 0;
   display: flex;
@@ -90,7 +132,7 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  justify-content: stretch;
+  justify-content: center;
   align-items: center;
   height: 100%;
   min-height: 0;
@@ -151,6 +193,13 @@
   /* Extra tight to prevent bleeding into the gap. Matches LABEL_TYPOGRAPHY.titleLineHeightEm. */
   line-height: var(--label-title-line-height);
   color: #000000;
+  /*
+   * Bold caps ink above the 0.95em line box. Matches LABEL_TYPOGRAPHY.titleInkOverflowEm
+   * / estimateTitleHeightPx — without this, rounded stickers clip ascenders
+   * (overflow:hidden on the sticker shell).
+   */
+  padding-top: calc(1em * var(--label-title-ink-overflow));
+  box-sizing: content-box;
 }
 
 .danger-title-wrapper {
@@ -160,6 +209,9 @@
   justify-content: center;
   gap: 1.5cqw;
   color: #000000;
+  /* Same ascender clearance as .label-preview-title (titleInkOverflowEm). */
+  padding-top: calc(1em * var(--label-title-ink-overflow));
+  box-sizing: content-box;
 }
 
 .danger-text {
@@ -282,8 +334,22 @@
 .label-test-indicators--solo {
   flex: 0 0 auto;
   height: auto;
-  justify-content: flex-start;
-  padding-top: 0.2cqw;
+}
+
+.label-test-indicators--horizontal {
+  flex: 0 0 auto;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  height: auto;
+}
+
+.label-test-indicators--horizontal .label-test-row {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .label-test-row {

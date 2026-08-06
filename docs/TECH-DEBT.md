@@ -12,11 +12,28 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
-**None.**
+### Revisit width safety fractions after TextMeasurer
+
+**Priority:** Low  
+**Status:** Open — measurement is exact; residual fractions may still over-constrain.
+
+**Symptom:** `TITLE_WIDTH_FRAC` (0.92), `SPARSE_TITLE_WIDTH_FRAC` (0.98), `SPARSE_TESTING_WIDTH_FRAC` (0.85), and danger-mode width fractions were tuned when glyph width was a flat em estimate. With `TextMeasurer` (ADR 0009), they may leave more unused horizontal room than necessary.
+
+**Hypothesis:** tightening these slightly (after browser checks on HGH / Tirzepatide / Human Chorionic Gonadotropin) could reclaim a little more type size without overflow. Do not change them blindly — goldens and preview must stay in sync.
+
+**Files:** `IdentityHeaderTemplate.ts`, `labelColumnLayout.ts` (`DANGER_TITLE_WIDTH_FRAC`).
 
 ---
 
 ## Resolved
+
+### Long compound name + dense body + 3 tests clips the title top
+
+**Resolved:** 2026-08-05. Added `titleInkOverflowEm` to `LABEL_TYPOGRAPHY` — mirrored in `estimateTitleHeightPx` and as top padding on `.label-preview-title` / `.danger-title-wrapper` — so bold ascenders clear the rounded sticker's `overflow: hidden`.
+
+### Danger/untested label with no body wastes the whole center column
+
+**Resolved:** 2026-08-05. `hasBody` / `isSparse` ignore demotedTitle alone; danger without recon/protocol/source uses sparse composition with the DANGER banner, demoted compound, and badges stacked and centered.
 
 ### Consider adding `eslint-plugin-jsx-a11y`
 

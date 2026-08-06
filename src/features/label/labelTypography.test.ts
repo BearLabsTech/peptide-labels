@@ -21,6 +21,7 @@ const EXPECTED_UNIT: Record<LabelTypographyKey, string> = {
   boxPadVerticalCqw: 'cqw',
   boxGapCqw: 'cqw',
   titleLineHeightEm: '',
+  titleInkOverflowEm: '',
 }
 
 describe('labelTypographyCssVars', () => {

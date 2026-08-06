@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import {
   computeTestIndicatorLayout,
+  computeSoloTestIndicatorLayout,
   estimateTestLabelWidthMm,
   labelFontSizePxToMm,
   testIndicatorsStackHeightPx,
+  testIndicatorsSoloRowHeightPx,
 } from './testIndicatorLayout'
 import { mmToPx } from '../../print/dimensions'
 
@@ -45,7 +47,7 @@ describe('computeTestIndicatorLayout', () => {
 
     const columnInnerMm = Math.max(0, (qrColumnWidthMm - 0.5 * 0.65) * 0.97)
     const labelMm = labelFontSizePxToMm(layout!.labelFontSizePx, 300)
-    expect(estimateTestLabelWidthMm('Heavy Metals', labelMm)).toBeLessThanOrEqual(columnInnerMm)
+    expect(estimateTestLabelWidthMm('Heavy Metals', labelMm, 300)).toBeLessThanOrEqual(columnInnerMm)
   })
 
   it('should shrink label text to fit the longest word in a narrow column', () => {
@@ -102,5 +104,65 @@ describe('computeTestIndicatorLayout', () => {
     })
     const budgetPx = mmToPx(indicatorsHeightMm, 300)
     expect(testIndicatorsStackHeightPx(layout!, 2)).toBeLessThanOrEqual(budgetPx)
+  })
+})
+
+describe('computeSoloTestIndicatorLayout', () => {
+  const base = {
+    effectiveDpi: 300,
+    availableWidthMm: 36,
+    indicatorsHeightMm: 8,
+    labels: ['Purity', 'Endotoxin'],
+    titleFontSizePx: 48,
+  }
+
+  it('should return null when there is nothing to print', () => {
+    expect(computeSoloTestIndicatorLayout({ ...base, rowCount: 0 })).toBeNull()
+  })
+
+  it('should shrink badge label text when more badges share the width', () => {
+    const one = computeSoloTestIndicatorLayout({
+      effectiveDpi: 300,
+      availableWidthMm: 20,
+      indicatorsHeightMm: 12,
+      rowCount: 1,
+      labels: ['Heavy Metals'],
+      titleFontSizePx: 200,
+    })
+    const three = computeSoloTestIndicatorLayout({
+      effectiveDpi: 300,
+      availableWidthMm: 20,
+      indicatorsHeightMm: 12,
+      rowCount: 3,
+      labels: ['Heavy Metals', 'Endotoxin', 'Sterility'],
+      titleFontSizePx: 200,
+    })
+    expect(one!.labelFontSizePx).toBeGreaterThan(three!.labelFontSizePx)
+  })
+
+  it('should fit one badge row within the height budget', () => {
+    const layout = computeSoloTestIndicatorLayout({
+      ...base,
+      rowCount: 2,
+      indicatorsHeightMm: 7,
+    })
+    expect(testIndicatorsSoloRowHeightPx(layout!)).toBeLessThanOrEqual(mmToPx(7, 300))
+  })
+
+  it('should keep marks larger than label text', () => {
+    const layout = computeSoloTestIndicatorLayout({ ...base, rowCount: 2 })
+    expect(layout!.markSizePx).toBeGreaterThan(layout!.labelFontSizePx * 1.5)
+  })
+
+  it('should keep marks subordinate to the compound title', () => {
+    const layout = computeSoloTestIndicatorLayout({
+      ...base,
+      rowCount: 1,
+      labels: ['Purity'],
+      indicatorsHeightMm: 20,
+      titleFontSizePx: 40,
+    })
+    expect(layout!.markSizePx).toBeLessThanOrEqual(Math.floor(40 * 0.62))
+    expect(layout!.labelFontSizePx).toBeLessThanOrEqual(Math.floor(40 * 0.38))
   })
 })

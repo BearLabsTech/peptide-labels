@@ -3,6 +3,7 @@ import type { ResolvedLabelMath } from '../domain/labelMathCore'
 import type { LabelRenderModel } from '../labelRenderModel'
 import type { LabelLayoutEngine } from '../LabelLayoutEngine'
 import type { PrintTarget } from '../../../print/types'
+import type { TextMeasurer } from '../domain/ports'
 import { IdentityHeaderTemplate } from './IdentityHeaderTemplate'
 
 /**
@@ -23,6 +24,7 @@ export interface LabelTemplateDeps {
   readonly printTarget: PrintTarget
   readonly layoutEngine: LabelLayoutEngine
   readonly maxFontSizePx: number
+  readonly measurer: TextMeasurer
 }
 
 /** Factory keyed by layout mode. Today only identity-header ships. */

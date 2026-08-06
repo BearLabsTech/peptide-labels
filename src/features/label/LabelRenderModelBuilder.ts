@@ -28,6 +28,9 @@ export class LabelRenderModelBuilder {
   private titleFontSizePx = 0
   private wrappedLines: readonly string[] = []
   private bodyFontSizePx = 0
+  private bodyBoxVerticalPadPx = 0
+  private isSparse = false
+  private sparseLogoHeightPx = 0
 
   withTitle(title: string, demotedTitle?: string): this {
     this.title = title
@@ -100,6 +103,17 @@ export class LabelRenderModelBuilder {
     return this
   }
 
+  withBodyBoxVerticalPadPx(bodyBoxVerticalPadPx: number): this {
+    this.bodyBoxVerticalPadPx = bodyBoxVerticalPadPx
+    return this
+  }
+
+  withSparseComposition(isSparse: boolean, sparseLogoHeightPx = 0): this {
+    this.isSparse = isSparse
+    this.sparseLogoHeightPx = sparseLogoHeightPx
+    return this
+  }
+
   build(): LabelRenderModel {
     if (!this.columnLayout || !this.identityHeaderTitleBreakout) {
       throw new Error('LabelRenderModelBuilder: column layout and title breakout are required')
@@ -109,6 +123,7 @@ export class LabelRenderModelBuilder {
       titleLines: this.titleLines,
       titleFontSizePx: this.titleFontSizePx,
       bodyFontSizePx: this.bodyFontSizePx,
+      bodyBoxVerticalPadPx: this.bodyBoxVerticalPadPx,
       title: this.title,
       demotedTitle: this.demotedTitle,
       sourceLines: this.sourceLines,
@@ -122,6 +137,8 @@ export class LabelRenderModelBuilder {
       logoColumnWidthPercent: this.columnLayout.logoWidthPercent,
       qrColumnWidthPercent: this.columnLayout.qrWidthPercent,
       labelLayoutMode: this.labelLayoutMode,
+      isSparse: this.isSparse,
+      sparseLogoHeightPx: this.sparseLogoHeightPx,
       columnLayout: this.columnLayout,
       identityHeaderTitleBreakout: this.identityHeaderTitleBreakout,
     }

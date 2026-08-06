@@ -52,7 +52,9 @@ Authoring new layouts in a freeform editor and a public gallery are still ahead.
 
 The label answers the first question on every vial: **what is this?** You name the compound and its **compound amount** (milligrams or international units). The **compound name and compound amount print on separate lines** in a **title band above** the logo, section boxes, and testing column—centered on the center column but using the **full label width** for wrapping so long names stay readable. The **compound name prints exactly as you typed it** (mixed case included); section labels such as RECONSTITUTION and PROTOCOL stay uppercase. That identity anchors everything else—the calculator, the protocol line, and the filename when you export.
 
-When you need a clear warning that material has **not been tested**, you can mark the vial as untested. The label shifts to an unmistakable caution treatment so anyone handling the vial sees the risk before they rely on the numbers below it.
+Typography **fills the space you have**: when the label is sparse (name only, or name plus a short section), the compound name grows to use the available width and height instead of staying tiny in empty white space — sizing uses the same font metrics the preview renders, so short names (e.g. HGH) can grow larger than long ones without guessing. When you add reconstitution, protocol, source, logo, or testing marks, type shrinks so everything still fits, and dense titles keep a little clearance from the sticker edge so bold caps are not clipped. Leftover vertical room after the title and sections are sized becomes extra padding inside each section box, so a single short block does not float in a mostly empty sticker. When there are **no section boxes**, the sticker drops the three-column split and uses a **centered sparse composition**: name alone stays centered; name plus testing marks puts a horizontal badge row under the title with clear space between name and marks; name plus logo sits side-by-side; name plus logo plus testing keeps the logo on the left with title and badges stacked on the right. Once you add reconstitution, protocol, or source, the familiar three-column layout returns.
+
+When you need a clear warning that material has **not been tested**, you can mark the vial as untested. The label shifts to an unmistakable caution treatment so anyone handling the vial sees the risk before they rely on the numbers below it. If that vial also has **no reconstitution, protocol, or source** sections, the caution banner and compound name stay in the same centered sparse layout (not an empty three-column middle).
 
 ---
 
@@ -108,7 +110,7 @@ Dates on the label can follow **how you already think about dates**—compact nu
 
 An optional **logo** sits beside the text so shared group buys or your own stash are instantly recognizable on the shelf. When a logo is present, you can **widen or narrow its column** so the text area compresses or expands to match. When test indicators or COA QR codes are active, the **testing column** adjusts the same way. If both side columns would crowd the text, the app scales them back to keep a readable center. You can remove the logo anytime; the label works fine without branding.
 
-Typography **scales with label height**—taller stock like 40 × 30 mm uses larger type when the content allows, so bigger labels do not look under-filled.
+Typography **scales with label height**—taller stock like 40 × 30 mm uses larger type when the content allows, so bigger labels do not look under-filled. Within a given stock size, type and section padding also **adapt to how much you print**: sparse labels grow the compound name and breathe in the section boxes; dense labels stay compact so everything remains legible on thermal stock.
 
 ---
 
@@ -190,13 +192,11 @@ Community members already share label art as printer-app templates. Those files 
 
 ### Compound name as the primary read
 
-On labels with reconstitution, protocol, and source filled in, the **compound name can disappear into the same visual weight as the section blocks**—readable, but not clearly the first thing you see on the vial. That undermines the main job of the sticker: **instant identity** at a glance.
-
-**Today** addresses this with a two-line title (name, then amount), a larger title budget than the body, and an **identity header** band above the three-column row. Further **label templates** may offer other hierarchy treatments.
+On labels with reconstitution, protocol, and source filled in, the **compound name can still compete with section blocks** for visual weight—readable, but not always unmistakably first. **Today** already grows the title and redistributes leftover space when the sticker is sparse, switches to a dedicated centered composition when there are no section boxes (including logo and testing-only layouts), and keeps a two-line title (name, then amount) in an identity header above the three-column row when sections are present. Further **label templates** may offer other hierarchy treatments (for example a distinct nameplate layout) when a different arrangement is a better fit than scaling the current one.
 
 Any approach must still fit **40 × 20 mm** stock with logo and QR when those are on, and stay aligned with preview = export.
 
-*Partially addressed in **Today** (identity header, two-line title, larger title budget, compound name printed as typed). Related: section styling options, additional label templates.*
+*Partially addressed in **Today** (adaptive title/body fill, section-box padding redistribution, sparse no-body composition, identity header, two-line title, compound name printed as typed). Related: section styling options, additional label templates.*
 
 ---
 

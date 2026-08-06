@@ -108,6 +108,38 @@ const SCENARIOS: { name: string; input: LabelModelInput }[] = [
       protocolUnits: '25 units',
     },
   },
+  {
+    name: 'sparse testing only',
+    input: {
+      compoundName: 'Tirzepatide',
+      compoundAmount: '20',
+      vialUnit: 'mg',
+      showTestIndicators: true,
+      testPurity: 'pass',
+      testEndotoxin: 'pass',
+    },
+  },
+  {
+    name: 'sparse logo only',
+    input: {
+      compoundName: 'Tirzepatide',
+      compoundAmount: '20',
+      vialUnit: 'mg',
+      customImage: 'data:image/png;base64,test',
+    },
+  },
+  {
+    name: 'sparse logo plus testing',
+    input: {
+      compoundName: 'Tirzepatide',
+      compoundAmount: '20',
+      vialUnit: 'mg',
+      customImage: 'data:image/png;base64,test',
+      showTestIndicators: true,
+      testPurity: 'pass',
+      testEndotoxin: 'pass',
+    },
+  },
 ]
 
 describe('LabelComposer golden output', () => {

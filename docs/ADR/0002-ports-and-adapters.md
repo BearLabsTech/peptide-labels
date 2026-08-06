@@ -5,7 +5,7 @@
 
 ## Decision
 
-Define port interfaces (`Rasterizer`, `ImageProcessor`, `FileDownloader`, `KeyValueStore`, `DesignLibrary`, `Scroller`) in `src/shared/ports.ts`. Implement them only in `src/platform`. App-layer use cases (e.g. `ExportLabelUseCase`) depend on ports, never on concrete browser APIs. Unit tests use in-memory fakes (`src/test/`).
+Define port interfaces (`Rasterizer`, `ImageProcessor`, `FileDownloader`, `KeyValueStore`, `DesignLibrary`, `Scroller`, `TextMeasurer`) in `src/shared/ports.ts`. Implement them only in `src/platform`. App-layer use cases (e.g. `ExportLabelUseCase`) depend on ports, never on concrete browser APIs. Unit tests use in-memory fakes (`src/test/`) or domain-local deterministic defaults (e.g. `HeuristicTextMeasurer`).
 
 ## Rejected alternatives
 

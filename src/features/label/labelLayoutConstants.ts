@@ -1,11 +1,28 @@
-/** Reference 40 × 20 mm stock — cap body/title search at 26 px export pixels. */
-export const REF_LABEL_HEIGHT_MM = 20
+import { mmToPx } from '../../print/dimensions'
+
+/**
+ * LabelLayoutEngine constructor fallback when callers do not pass an explicit
+ * ceiling (ad-hoc construction, some tests). Production always computes a
+ * real ceiling via {@link maxFontSizePxForLabelHeight}.
+ */
 export const REF_MAX_FONT_SIZE_PX = 26
 
 /** Fraction of inner label height reserved for compound title in danger mode. */
 export const TITLE_HEIGHT_WEIGHT_DANGER = 0.42
 /** Title height share when body sections are present (non-danger). */
 export const TITLE_HEIGHT_WEIGHT_WITH_BODY = 0.55
+
+/**
+ * Sparse danger (UNTESTED, no recon/protocol/source): DANGER banner share of
+ * inner height. Leaves the rest for the demoted compound name and badges.
+ */
+export const SPARSE_DANGER_TITLE_HEIGHT_FRAC = 0.36
+/**
+ * Sparse danger: demoted compound share of inner height when tests/QR also
+ * print below. When nothing is below, demoted uses the remainder after the
+ * banner (see IdentityHeaderTemplate).
+ */
+export const SPARSE_DANGER_DEMOTED_HEIGHT_FRAC = 0.44
 
 /** Danger-mode body font is scaled down relative to the fitted body size. */
 export const DANGER_BODY_FONT_SCALE = 0.8
@@ -18,6 +35,14 @@ export const MIN_FONT_SIZE_PX = 8
 
 /** Gap between title band and main row in identity-header layout (`.label-preview-container--identity-header`). */
 export const IDENTITY_HEADER_TITLE_BAND_GAP_FRAC = 0.75
+
+/**
+ * Gap between compound title and the horizontal badge row in sparse composition.
+ * Shared by CSS (`.label-sparse-stack`) and the mm-side height reservation in
+ * `indicatorsHeightBelowTitle`, so the two agree. Slightly above one pad unit
+ * so bold title descenders (e.g. the "g" in "20mg") clear badge labels.
+ */
+export const SPARSE_TITLE_TESTING_GAP_FRAC = 1.5
 
 export interface ColumnWidthBounds {
   readonly defaultPercent: number
@@ -32,6 +57,16 @@ export const LOGO_COLUMN_WIDTH = {
   maxPercent: 45,
 } as const satisfies ColumnWidthBounds
 
+/**
+ * Logo share when the sticker has no body sections (sparse composition).
+ * Wider than the dense default so the logo can grow when nothing else competes.
+ */
+export const SPARSE_LOGO_COLUMN_WIDTH = {
+  defaultPercent: 24,
+  minPercent: 18,
+  maxPercent: 38,
+} as const satisfies ColumnWidthBounds
+
 /** Testing column (COA QR + test indicators) — right flex child (`LabelPreview.css`). */
 export const QR_COLUMN_WIDTH = {
   defaultPercent: 38,
@@ -42,8 +77,17 @@ export const QR_COLUMN_WIDTH = {
 /** Minimum center column share of the flex row (text must stay readable). */
 export const MIN_CENTER_COLUMN_PERCENT = 15
 
-export function maxFontSizePxForLabelHeight(heightMm: number): number {
-  return Math.round(REF_MAX_FONT_SIZE_PX * (heightMm / REF_LABEL_HEIGHT_MM))
+/**
+ * Structural ceiling for the font-size search: large enough that it is never
+ * the real limit. No single line of text can usefully need to be taller than
+ * the whole label, so the label's own height in export pixels is a safe,
+ * always-generous starting point. The *real* limits are the width/height fit
+ * checks already inside LabelLayoutEngine (doesFitHeight, longestLineFitsWidth,
+ * sectionLabelsFitBoxWidth) — they already shrink correctly for dense content;
+ * this ceiling just stops being the thing that (incorrectly) binds first.
+ */
+export function maxFontSizePxForLabelHeight(heightMm: number, dpi: number): number {
+  return mmToPx(heightMm, dpi)
 }
 
 export function clampColumnWidthPercent(

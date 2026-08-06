@@ -72,6 +72,24 @@ This is deliberately separate from [TECH-DEBT.md](./TECH-DEBT.md). Items here ar
 
 ---
 
+### TextMeasurer title fit — physical print of long compound names
+
+**Priority:** Medium  
+**Blocked on:** a physical thermal print after the canvas `TextMeasurer` port shipped (ADR 0009).  
+**Status:** Open — browser preview uses live `measureText`; confirm no clip on real stock.
+
+**Symptom / risk:** Layout now sizes titles from the browser's measured glyph widths. That matches the on-screen preview for that browser, but export + thermal rendering can still differ slightly (hinting, monochrome threshold). Long multi-word names are the highest risk of edge clip.
+
+**Procedure when the hardware is available:**
+
+1. In the app, set compound name to **Human Chorionic Gonadotropin** (and separately **Tirzepatide**, **HGH**) on the default 40×20 rounded stock.
+2. Export sparse (name only) and sparse with logo + one test mark; also one dense label with reconstitution filled.
+3. Print each PNG on the usual Niimbot stock/printer combo.
+4. Check that no title characters are clipped at the left/right inner edge, and that the name remains the primary read next to the logo.
+5. Record pass/fail and photos on this item. Only then consider tightening `TITLE_WIDTH_FRAC` / related fractions (see TECH-DEBT).
+
+---
+
 ## Done
 
 _Nothing yet._
