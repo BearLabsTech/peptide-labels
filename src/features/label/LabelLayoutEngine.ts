@@ -114,20 +114,36 @@ export class LabelLayoutEngine {
         return lineBoxes + fontSizePx * LABEL_TYPOGRAPHY.titleInkOverflowEm
     }
 
-    private flattenBoxLines(input: BoxedBodyLayoutInput, bodyFontPx: number): string[] {
+    /**
+     * Wrap authored section lines the same way height estimation does, so the
+     * preview can render explicit breaks (e.g. `Group:` then `Bear's Den`)
+     * instead of leaving CSS to greedy-wrap a single string.
+     */
+    public wrapBodySectionLines(
+        lines: readonly string[],
+        widthMm: number,
+        bodyFontPx: number,
+    ): string[] {
         const contentFontPx = bodyFontPx * LABEL_TYPOGRAPHY.contentEm
+        // Match section-label usable width (box padding + border), not the full cell.
         const fitsWidth = this.makeFitsWidth(
-            input.widthMm,
+            widthMm * BOX_INNER_WIDTH_FRAC,
             contentFontPx,
             BODY_CONTENT_FONT_WEIGHT,
             WIDTH_SAFETY_DEFAULT,
         )
+        const result: string[] = []
+        for (const line of lines) {
+            result.push(...this.wrapSingleLine(line, fitsWidth).lines)
+        }
+        return result
+    }
+
+    private flattenBoxLines(input: BoxedBodyLayoutInput, bodyFontPx: number): string[] {
         const lines: string[] = []
         if (input.demotedLine) lines.push(input.demotedLine)
         for (const box of input.boxes) {
-            for (const line of box.lines) {
-                lines.push(...this.wrapSingleLine(line, fitsWidth).lines)
-            }
+            lines.push(...this.wrapBodySectionLines(box.lines, input.widthMm, bodyFontPx))
         }
         return lines
     }
@@ -146,12 +162,6 @@ export class LabelLayoutEngine {
         const contentFontPx = bodyFontPx * LABEL_TYPOGRAPHY.contentEm
         const contentLinePx = contentFontPx * LABEL_TYPOGRAPHY.contentLineHeightEm
         const sectionLabelPx = bodyFontPx * LABEL_TYPOGRAPHY.sectionLabelEm * SECTION_LABEL_LINE_HEIGHT + SECTION_LABEL_MARGIN_PX
-        const fitsWidth = this.makeFitsWidth(
-            input.widthMm,
-            contentFontPx,
-            BODY_CONTENT_FONT_WEIGHT,
-            WIDTH_SAFETY_DEFAULT,
-        )
 
         let totalPx = 0
 
@@ -160,10 +170,7 @@ export class LabelLayoutEngine {
         }
 
         for (const box of input.boxes) {
-            let contentLines = 0
-            for (const line of box.lines) {
-                contentLines += this.wrapSingleLine(line, fitsWidth).lines.length
-            }
+            const contentLines = this.wrapBodySectionLines(box.lines, input.widthMm, bodyFontPx).length
             totalPx += boxBorderPx + boxPadPx + sectionLabelPx + contentLines * contentLinePx + boxGapPx
         }
 
@@ -259,6 +266,9 @@ export class LabelLayoutEngine {
         if (fitsWidth(line)) {
             return { lines: [line], didChopWord: false }
         }
+        // Prefer "Group:" / "Bear's Den" over "Group: Bear's" / "Den" for Label: value lines.
+        const labeled = tryWrapLabeledLine(line, fitsWidth, (value) => this.wrapByWords(value, fitsWidth))
+        if (labeled) return labeled
         return this.wrapByWords(line, fitsWidth)
     }
 
@@ -286,6 +296,34 @@ export class LabelLayoutEngine {
         const heightPx = mmToPx(heightMm, this.dpi)
         const lineHeightPx = fontSizePx * 1.2
         return lineCount * lineHeightPx <= heightPx
+    }
+}
+
+/**
+ * Lines shaped like `Vendor: Name` / `Group: Bear's Den`. When the whole line
+ * does not fit, break after the label so the value stays together on following
+ * lines (avoids orphaning the last word of a multi-word value).
+ */
+const LABELED_LINE = /^([^\s:]+:)\s+(.+)$/
+
+export function parseLabeledLine(line: string): { label: string; value: string } | null {
+    const match = LABELED_LINE.exec(line)
+    if (!match) return null
+    return { label: match[1], value: match[2] }
+}
+
+export function tryWrapLabeledLine(
+    line: string,
+    fitsWidth: (text: string) => boolean,
+    wrapValue: (value: string) => { lines: string[]; didChopWord: boolean },
+): { lines: string[]; didChopWord: boolean } | null {
+    const labeled = parseLabeledLine(line)
+    if (!labeled) return null
+    if (!fitsWidth(labeled.label)) return null
+    const valueResult = wrapValue(labeled.value)
+    return {
+        lines: [labeled.label, ...valueResult.lines],
+        didChopWord: valueResult.didChopWord,
     }
 }
 

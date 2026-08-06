@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { LabelLayoutEngine, processWord, type WrapState } from './LabelLayoutEngine'
+import {
+    LabelLayoutEngine,
+    parseLabeledLine,
+    processWord,
+    tryWrapLabeledLine,
+    type WrapState,
+} from './LabelLayoutEngine'
 import { mmToPx } from '../../print/dimensions'
 import { HeuristicTextMeasurer } from './domain/HeuristicTextMeasurer'
 
@@ -128,6 +134,52 @@ describe('LabelLayoutEngine', () => {
         )
         expect(longestPx).toBeLessThanOrEqual(widthPx)
         expect(result.fontSizePx).toBeLessThan(26)
+    })
+})
+
+describe('labeled line wrap', () => {
+    /** Char-count predicate so wrap tests stay independent of glyph metrics. */
+    const fitsMaxChars = (maxChars: number) => (text: string) => text.length <= maxChars
+
+    it('parseLabeledLine extracts Label: value pairs', () => {
+        expect(parseLabeledLine("Group: Bear's Den")).toEqual({
+            label: 'Group:',
+            value: "Bear's Den",
+        })
+        expect(parseLabeledLine('plain title')).toBeNull()
+    })
+
+    it('tryWrapLabeledLine keeps a multi-word value on one line under the label', () => {
+        // Full line is too wide; value alone still fits — prefer Americana-style stack.
+        const fits = fitsMaxChars(12)
+        const wrapValue = (value: string) =>
+            fits(value)
+                ? { lines: [value], didChopWord: false }
+                : { lines: value.split(' '), didChopWord: false }
+
+        expect(tryWrapLabeledLine("Group: Bear's Den", fits, wrapValue)).toEqual({
+            lines: ['Group:', "Bear's Den"],
+            didChopWord: false,
+        })
+        expect(tryWrapLabeledLine('Group: Americana', fits, wrapValue)).toEqual({
+            lines: ['Group:', 'Americana'],
+            didChopWord: false,
+        })
+    })
+
+    it('should not leave Group: glued to the first word of a multi-word value', () => {
+        const dpi = 203
+        const engine = new LabelLayoutEngine(dpi, 26, new HeuristicTextMeasurer())
+        const result = engine.layout({
+            lines: ["Group: Bear's Den"],
+            widthMm: 14,
+            heightMm: 14,
+            fontWeight: BODY_WEIGHT,
+            widthSafety: 1,
+        })
+
+        expect(result.wrappedLines[0]).toBe('Group:')
+        expect(result.wrappedLines.some((line) => line.startsWith('Group:') && line !== 'Group:')).toBe(false)
     })
 })
 

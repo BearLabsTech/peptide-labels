@@ -23,11 +23,19 @@ export function buildQrCodes(input: LabelModelInput): QrCodeEntry[] {
 function validCoaUrl(value?: string): string | null {
   const trimmed = value?.trim()
   if (!trimmed) return null
-  try {
-    const parsed = new URL(trimmed)
-    return parsed.protocol === 'https:' || parsed.protocol === 'http:' ? trimmed : null
-  } catch {
-    // Expected validation path for non-URL strings — not an I/O failure.
-    return null
+
+  // Accept bare domains (www.example.com) by assuming https — matches how people
+  // paste links, while still rejecting non-http(s) schemes.
+  const candidates =
+    /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed) ? [trimmed] : [`https://${trimmed}`, trimmed]
+
+  for (const candidate of candidates) {
+    try {
+      const parsed = new URL(candidate)
+      if (parsed.protocol === 'https:' || parsed.protocol === 'http:') return candidate
+    } catch {
+      // Expected validation path for non-URL strings — not an I/O failure.
+    }
   }
+  return null
 }

@@ -110,6 +110,22 @@ export interface IdentityHeaderTitleBreakout {
   readonly breakoutMarginLeftPct: number
 }
 
+/**
+ * Dense layout gives the logo a full-height column beside title+body. Title band
+ * geometry is then the remaining primary stack (no left logo gutter/overhang).
+ */
+export function columnsForDenseFullHeightLogo(columns: ColumnLayout): ColumnLayout {
+  if (columns.logoWidthMm <= 0) return columns
+  const gapAfterLogo = columns.gapMm
+  return {
+    ...columns,
+    innerRowMm: Math.max(0, columns.innerRowMm - columns.logoWidthMm - gapAfterLogo),
+    logoWidthMm: 0,
+    logoWidthPercent: 0,
+    gapCount: columns.qrWidthMm > 0 ? 1 : 0,
+  }
+}
+
 export function computeIdentityHeaderTitleBreakout(
   columns: ColumnLayout,
   hasLogo: boolean,
@@ -123,17 +139,26 @@ export function computeIdentityHeaderTitleBreakout(
   return {
     axisFraction: band.axisFraction,
     breakoutWidthPct: ((leftOverhangMm + centerMm + rightOverhangMm) / centerMm) * 100,
-    breakoutMarginLeftPct: -(leftOverhangMm / centerMm) * 100,
+    breakoutMarginLeftPct: leftOverhangMm === 0 ? 0 : -(leftOverhangMm / centerMm) * 100,
   }
 }
 
 /** Danger-mode title uses a fraction of the full inner row (distinct from pad multipliers). */
 export const DANGER_TITLE_WIDTH_FRAC = 0.65
 
+/**
+ * @param reserveLogoColumn - Dense full-height logo: title wraps in the primary
+ *   stack only (does not borrow the logo column's width).
+ */
 export function computeIdentityHeaderTitleWidthMm(
   columns: ColumnLayout,
   isDanger: boolean,
   dangerWidthFrac = DANGER_TITLE_WIDTH_FRAC,
+  reserveLogoColumn = false,
 ): number {
-  return isDanger ? columns.innerRowMm * dangerWidthFrac : columns.innerRowMm
+  if (isDanger) return columns.innerRowMm * dangerWidthFrac
+  if (reserveLogoColumn && columns.logoWidthMm > 0) {
+    return Math.max(0, columns.innerRowMm - columns.logoWidthMm - columns.gapMm)
+  }
+  return columns.innerRowMm
 }

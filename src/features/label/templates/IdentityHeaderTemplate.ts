@@ -24,6 +24,7 @@ import {
   computeColumnLayout,
   computeIdentityHeaderTitleBreakout,
   computeIdentityHeaderTitleWidthMm,
+  columnsForDenseFullHeightLogo,
   type ColumnLayout,
 } from '../labelColumnLayout'
 import {
@@ -179,10 +180,16 @@ export class IdentityHeaderTemplate implements LabelTemplate {
       ? mmToPx(this.usableHeightMm(), this.printTarget.effectiveDpi)
       : 0
     // Sparse with logo: title fits in the remaining center width beside the logo.
-    // Sparse without logo / dense: full identity-header title width as before.
+    // Dense with logo: title wraps in the primary stack only — logo owns its full-height column.
+    // Sparse without logo / dense without logo: full identity-header title width as before.
     const titleWidthMm = features.isSparse && features.hasLogo
       ? columns.centerWidthMm * SPARSE_TITLE_WIDTH_FRAC
-      : computeIdentityHeaderTitleWidthMm(columns, features.isDanger)
+      : computeIdentityHeaderTitleWidthMm(
+          columns,
+          features.isDanger,
+          undefined,
+          !features.isSparse && features.hasLogo,
+        )
     return {
       columns,
       layoutMode: features.layoutMode,
@@ -315,21 +322,27 @@ export class IdentityHeaderTemplate implements LabelTemplate {
       demotedFontSizePx,
     })
     // Sparse never uses a right-column gutter; breakout treats testing as absent.
+    // Dense+logo: logo is a full-height sibling column, so title breakout excludes it.
     const hasQrBreakout = !plan.isSparse && columns.qrWidthMm > 0
+    const denseLogoOwnsColumn = !plan.isSparse && columns.logoWidthMm > 0
+    const titleBreakoutColumns = denseLogoOwnsColumn
+      ? columnsForDenseFullHeightLogo(columns)
+      : columns
+    const bodyLines = this.displayBodyLines(content, plan, fitted)
     return new LabelRenderModelBuilder()
       .withTitle(content.title, content.demotedTitle)
-      .withBodyLines({
-        sourceLines: content.sourceLines,
-        protocolLines: content.protocolLines,
-        reconstitutionLines: content.reconstitutionLines,
-      })
+      .withBodyLines(bodyLines)
       .withQrCodes(visibleQrCodes)
       .withTestIndicators(content.testIndicators, testIndicatorLayout ?? undefined)
       .withCustomImage(input.customImage)
       .withDangerMode(plan.isDanger)
       .withColumnLayout(
         columns,
-        computeIdentityHeaderTitleBreakout(columns, columns.logoWidthMm > 0, hasQrBreakout),
+        computeIdentityHeaderTitleBreakout(
+          titleBreakoutColumns,
+          !denseLogoOwnsColumn && columns.logoWidthMm > 0,
+          hasQrBreakout,
+        ),
       )
       .withLabelLayoutMode(plan.layoutMode)
       .withTitleTypography([...fitted.titleLayout.wrappedLines], fitted.titleLayout.fontSizePx)
@@ -337,6 +350,35 @@ export class IdentityHeaderTemplate implements LabelTemplate {
         fitted.kind === 'title-body' ? fitted.bodyBoxVerticalPadPx : 0,
       )
       .withSparseComposition(plan.isSparse, plan.sparseLogoHeightPx)
+  }
+
+  /**
+   * Body section text must use the same wraps as {@link LabelLayoutEngine.layoutBoxedBody}
+   * so the preview does not CSS-greedy-wrap authored lines (e.g. orphaning "Den").
+   */
+  private displayBodyLines(
+    content: ResolvedContent,
+    plan: ColumnPlan,
+    fitted: FittedLayouts,
+  ): {
+    readonly sourceLines: readonly string[]
+    readonly protocolLines: readonly string[]
+    readonly reconstitutionLines: readonly string[]
+  } {
+    if (fitted.kind !== 'title-body') {
+      return {
+        sourceLines: content.sourceLines,
+        protocolLines: content.protocolLines,
+        reconstitutionLines: content.reconstitutionLines,
+      }
+    }
+    const wrap = (lines: readonly string[]) =>
+      this.layoutEngine.wrapBodySectionLines(lines, plan.baseWidthMm, fitted.bodyLayout.fontSizePx)
+    return {
+      sourceLines: wrap(content.sourceLines),
+      protocolLines: wrap(content.protocolLines),
+      reconstitutionLines: wrap(content.reconstitutionLines),
+    }
   }
 
   private finishRenderModel(

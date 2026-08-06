@@ -27,7 +27,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.2968421052631579,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 168.43971631205673,
   },
   "isDangerMode": false,
@@ -192,7 +192,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -251,7 +251,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -405,7 +405,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -469,7 +469,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 20mg",
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
@@ -535,7 +535,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.3035897435897436,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 164.69594594594594,
   },
   "isDangerMode": false,
@@ -700,7 +700,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -759,7 +759,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -913,7 +913,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -977,7 +977,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 20mg",
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
@@ -1043,7 +1043,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.2968421052631579,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 168.43971631205673,
   },
   "isDangerMode": false,
@@ -1208,7 +1208,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -1267,7 +1267,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -1421,7 +1421,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -1485,7 +1485,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 20mg",
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
@@ -1551,7 +1551,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.3035897435897436,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 164.69594594594594,
   },
   "isDangerMode": false,
@@ -1716,7 +1716,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -1775,7 +1775,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -1929,7 +1929,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -1993,7 +1993,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 20mg",
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
@@ -2059,7 +2059,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.2995833333333333,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 166.89847009735746,
   },
   "isDangerMode": false,
@@ -2224,7 +2224,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -2283,7 +2283,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -2437,7 +2437,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -2501,7 +2501,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 20mg",
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
@@ -2567,7 +2567,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.30489795918367346,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 163.98929049531458,
   },
   "isDangerMode": false,
@@ -2732,7 +2732,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -2791,7 +2791,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -2945,7 +2945,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -3009,7 +3009,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 20mg",
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,
@@ -3075,7 +3075,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.3035897435897436,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 164.69594594594594,
   },
   "isDangerMode": false,
@@ -3240,7 +3240,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -3299,7 +3299,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -3453,7 +3453,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
   "demotedTitle": undefined,
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": false,
@@ -3517,7 +3517,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 20mg",
   "identityHeaderTitleBreakout": {
     "axisFraction": 0.5,
-    "breakoutMarginLeftPct": -0,
+    "breakoutMarginLeftPct": 0,
     "breakoutWidthPct": 100,
   },
   "isDangerMode": true,

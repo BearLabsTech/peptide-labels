@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { LabelComposer } from './LabelComposer'
 import { resolvePrintTarget } from '../../print/PrintTargetResolver'
 import { mmToPx } from '../../print/dimensions'
-import { computeColumnLayout, computeIdentityHeaderTitleBreakout } from './labelColumnLayout'
+import { computeColumnLayout, computeIdentityHeaderTitleBreakout, columnsForDenseFullHeightLogo } from './labelColumnLayout'
 import { LabelLayoutEngine } from './LabelLayoutEngine'
 
 const TITLE_CHAR_WIDTH_EM = 0.95
@@ -610,7 +610,7 @@ describe('LabelComposer', () => {
         expect(result.logoColumnWidthPercent).toBe(expected.logoWidthPercent)
         expect(result.qrColumnWidthPercent).toBe(expected.qrWidthPercent)
         expect(result.identityHeaderTitleBreakout).toEqual(
-            computeIdentityHeaderTitleBreakout(expected, true, true),
+            computeIdentityHeaderTitleBreakout(columnsForDenseFullHeightLogo(expected), false, true),
         )
     })
 
@@ -690,4 +690,50 @@ describe('LabelComposer', () => {
         expect(toggleOnButNothingSelected.testIndicators).toEqual([])
         expect(toggleOnButNothingSelected.qrColumnWidthPercent).toBe(0)
     })
+
+    it('should emit labeled source wraps so multi-word group names stay together under Group:', () => {
+        const composer = new LabelComposer()
+        const result = composer.compose({
+            compoundName: 'HGH',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            customImage: 'data:image/png;base64,test',
+            groupBuyName: "Bear's Den",
+            showGroup: true,
+            showVendor: false,
+            showBatch: false,
+            showReconstitution: false,
+            showProtocol: false,
+            showTestIndicators: true,
+            testPurity: 'pass',
+        })
+
+        expect(result.sourceLines[0]).toBe('Group:')
+        expect(result.sourceLines).toContain("Bear's Den")
+        expect(result.sourceLines.some((line) => line.startsWith('Group:') && line !== 'Group:')).toBe(false)
+    })
+
+    it('should give dense logo a full-height column with no left title overhang', () => {
+        const composer = new LabelComposer()
+        const result = composer.compose({
+            compoundName: 'HGH',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            customImage: 'data:image/png;base64,test',
+            groupBuyName: "Bear's Den",
+            showGroup: true,
+            showVendor: false,
+            showBatch: false,
+            showReconstitution: false,
+            showProtocol: false,
+            showTestIndicators: true,
+            testPurity: 'pass',
+        })
+
+        expect(result.isSparse).toBe(false)
+        expect(result.customImage).toBeTruthy()
+        expect(result.identityHeaderTitleBreakout.breakoutMarginLeftPct).toBeCloseTo(0, 10)
+        expect(result.sparseLogoHeightPx).toBe(0)
+    })
 })
+

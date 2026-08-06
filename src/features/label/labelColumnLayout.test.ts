@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { computeColumnLayout, computeIdentityHeaderTitleBand, computeIdentityHeaderTitleBreakout, computeIdentityHeaderTitleWidthMm } from './labelColumnLayout'
+import { computeColumnLayout, computeIdentityHeaderTitleBand, computeIdentityHeaderTitleBreakout, computeIdentityHeaderTitleWidthMm, columnsForDenseFullHeightLogo } from './labelColumnLayout'
 import { MIN_CENTER_COLUMN_PERCENT } from './labelLayoutConstants'
 
 describe('computeColumnLayout', () => {
@@ -111,5 +111,29 @@ describe('computeIdentityHeaderTitleBand', () => {
     expect(breakout.breakoutWidthPct).toBeCloseTo((columns.innerRowMm / columns.centerWidthMm) * 100, 5)
     expect(breakout.breakoutMarginLeftPct).toBeLessThan(0)
     expect(computeIdentityHeaderTitleWidthMm(columns, false)).toBe(columns.innerRowMm)
+  })
+
+  it('should exclude the logo column from dense full-height title geometry', () => {
+    const columns = computeColumnLayout({
+      labelWidthMm: 40,
+      paddingMm: 0.5,
+      hasLogo: true,
+      hasQr: true,
+      logoColumnWidthPercent: 20,
+      qrColumnWidthPercent: 38,
+    })
+    const primary = columnsForDenseFullHeightLogo(columns)
+    const breakout = computeIdentityHeaderTitleBreakout(primary, false, true)
+
+    expect(primary.logoWidthMm).toBe(0)
+    expect(primary.innerRowMm).toBeCloseTo(
+      columns.innerRowMm - columns.logoWidthMm - columns.gapMm,
+      5,
+    )
+    expect(breakout.breakoutMarginLeftPct).toBeCloseTo(0, 10)
+    expect(computeIdentityHeaderTitleWidthMm(columns, false, undefined, true)).toBeCloseTo(
+      columns.innerRowMm - columns.logoWidthMm - columns.gapMm,
+      5,
+    )
   })
 })

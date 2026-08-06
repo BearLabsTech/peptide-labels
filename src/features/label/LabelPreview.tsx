@@ -246,9 +246,9 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
       }
     }
 
-    const denseTitleBand = (
+    const denseTitleBand = (includeLogoGutter: boolean) => (
       <div className="label-title-band label-title-band-row">
-        {hasLogo && titleBandGutter(model.logoColumnWidthPercent)}
+        {includeLogoGutter && hasLogo && titleBandGutter(model.logoColumnWidthPercent)}
         <div className="label-title-band-center">
           <div className="label-title-breakout" style={identityTitleBandStyle}>
             {titleArea}
@@ -257,6 +257,23 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
         {hasTestingColumn && titleBandGutter(model.qrColumnWidthPercent)}
       </div>
     )
+
+    /** Dense + logo: title sits in the primary stack and centers over that whole area
+     *  (center + testing), not over the logo column. Column % widths still drive layout. */
+    const densePrimaryTitleBand = (
+      <div className="label-title-band label-title-band--primary-center">
+        {titleArea}
+      </div>
+    )
+
+    const denseMainRow = (includeLogo: boolean) =>
+      (hasBody || (includeLogo && logoColumn) || testingColumn) && (
+        <div className="label-main-row">
+          {includeLogo ? logoColumn : null}
+          <div className="label-center-column">{bodyArea}</div>
+          {testingColumn}
+        </div>
+      )
 
     return (
       <div
@@ -272,18 +289,18 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
         >
           {isSparse ? (
             sparseBody ?? <div className="label-sparse-stack label-sparse-stack--full">{titleArea}</div>
+          ) : hasLogo ? (
+            <div className="label-dense-logo-row">
+              {logoColumn}
+              <div className="label-dense-primary">
+                {densePrimaryTitleBand}
+                {denseMainRow(false)}
+              </div>
+            </div>
           ) : (
             <>
-              {denseTitleBand}
-              {(hasBody || logoColumn || testingColumn) && (
-                <div className="label-main-row">
-                  {logoColumn}
-                  <div className="label-center-column">
-                    {bodyArea}
-                  </div>
-                  {testingColumn}
-                </div>
-              )}
+              {denseTitleBand(true)}
+              {denseMainRow(true)}
             </>
           )}
         </div>

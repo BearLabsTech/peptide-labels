@@ -26,4 +26,14 @@ describe('coaLinks', () => {
       { type: 'Custom 1', url: 'http://lab.test/report' },
     ])
   })
+
+  it('should treat bare domains as https COA links', () => {
+    expect(buildQrCodes({
+      groupBuyCoa: 'www.google.com',
+      vendorCoa: 'example.com/coa',
+    })).toEqual([
+      { type: 'Vendor COA', url: 'https://example.com/coa' },
+      { type: 'GB COA', url: 'https://www.google.com' },
+    ])
+  })
 })
