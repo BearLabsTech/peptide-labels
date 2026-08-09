@@ -43,9 +43,21 @@ function satisfiesFitConstraints(
   input: TitleBodyFitInput,
   candidate: FitCandidate,
 ): boolean {
-  const bodyInputBase = { boxes: input.boxes, demotedLine: input.demotedTitle, widthMm: input.baseWidthMm, labelWidthPx: input.labelWidthPx }
+  const bodyInputBase = {
+    boxes: input.boxes,
+    demotedLine: input.demotedTitle,
+    widthMm: input.baseWidthMm,
+    labelWidthPx: input.labelWidthPx,
+    arrangement: candidate.arrangement,
+  }
   const innerHeightPx = mmToPx(input.innerHeightMm, DPI)
-  const widthConstraint = createSectionLabelWidthConstraint(engine, input.baseWidthMm, input.boxes.length, input.labelWidthPx)
+  const widthConstraint = createSectionLabelWidthConstraint(
+    engine,
+    input.baseWidthMm,
+    input.boxes.length,
+    input.labelWidthPx,
+    candidate.arrangement,
+  )
   const heightConstraint = createStackHeightConstraint(engine, input.titleBodyGapMm, bodyInputBase, innerHeightPx)
   return widthConstraint.isSatisfiedBy(candidate) && heightConstraint.isSatisfiedBy(candidate)
 }
@@ -55,55 +67,64 @@ describe('createSectionLabelWidthConstraint', () => {
 
   it('should be satisfied when the boxed body width comfortably fits the longest section label at the candidate font', () => {
     const engine = new LabelLayoutEngine(DPI)
-    const constraint = createSectionLabelWidthConstraint(engine, 40, 1, labelWidthPx)
+    const constraint = createSectionLabelWidthConstraint(engine, 40, 1, labelWidthPx, 'stacked')
     const candidate: FitCandidate = {
       titleLayout: { wrappedLines: ['TITLE'], fontSizePx: 20 },
       bodyLayout: { wrappedLines: ['line'], fontSizePx: 10 },
       bodyHeightMm: 8,
+      arrangement: 'stacked',
     }
     expect(constraint.isSatisfiedBy(candidate)).toBe(true)
   })
 
   it('should fail when the box is too narrow for "RECONSTITUTION" at the candidate body font', () => {
     const engine = new LabelLayoutEngine(DPI)
-    const constraint = createSectionLabelWidthConstraint(engine, 6, 1, labelWidthPx)
+    const constraint = createSectionLabelWidthConstraint(engine, 6, 1, labelWidthPx, 'stacked')
     const candidate: FitCandidate = {
       titleLayout: { wrappedLines: ['TITLE'], fontSizePx: 20 },
       bodyLayout: { wrappedLines: ['line'], fontSizePx: 24 },
       bodyHeightMm: 8,
+      arrangement: 'stacked',
     }
     expect(constraint.isSatisfiedBy(candidate)).toBe(false)
   })
 
   it('should depend only on the candidate body font, not the title font', () => {
     const engine = new LabelLayoutEngine(DPI)
-    const constraint = createSectionLabelWidthConstraint(engine, 6, 1, labelWidthPx)
+    const constraint = createSectionLabelWidthConstraint(engine, 6, 1, labelWidthPx, 'stacked')
     const smallTitle: FitCandidate = {
       titleLayout: { wrappedLines: ['TITLE'], fontSizePx: 8 },
       bodyLayout: { wrappedLines: ['line'], fontSizePx: 24 },
       bodyHeightMm: 8,
+      arrangement: 'stacked',
     }
     const bigTitle: FitCandidate = { ...smallTitle, titleLayout: { wrappedLines: ['TITLE'], fontSizePx: 26 } }
     expect(constraint.isSatisfiedBy(smallTitle)).toBe(constraint.isSatisfiedBy(bigTitle))
   })
 
-  it('should fail sooner when boxCount is 2 (half-width section label budget)', () => {
+  it('should fail sooner for a row of two than for a single stacked box at the same total width', () => {
     const engine = new LabelLayoutEngine(DPI)
     const widthMm = 14
     const candidate: FitCandidate = {
       titleLayout: { wrappedLines: ['TITLE'], fontSizePx: 20 },
       bodyLayout: { wrappedLines: ['line'], fontSizePx: 20 },
       bodyHeightMm: 8,
+      arrangement: 'stacked',
     }
-    const full = createSectionLabelWidthConstraint(engine, widthMm, 1, labelWidthPx)
-    const half = createSectionLabelWidthConstraint(engine, widthMm, 2, labelWidthPx)
+    const full = createSectionLabelWidthConstraint(engine, widthMm, 1, labelWidthPx, 'stacked')
+    const half = createSectionLabelWidthConstraint(engine, widthMm, 2, labelWidthPx, 'row')
     expect(full.isSatisfiedBy(candidate)).toBe(true)
-    expect(half.isSatisfiedBy(candidate)).toBe(false)
+    expect(half.isSatisfiedBy({ ...candidate, arrangement: 'row' })).toBe(false)
   })
 })
 
 describe('createStackHeightConstraint', () => {
-  const bodyInputBase = { boxes: [{ lines: ['line'] }], widthMm: 14, labelWidthPx: mmToPx(40, DPI) }
+  const bodyInputBase = {
+    boxes: [{ lines: ['line'] }],
+    widthMm: 14,
+    labelWidthPx: mmToPx(40, DPI),
+    arrangement: 'stacked' as const,
+  }
 
   it('should be satisfied when the combined title and body stack fits the inner height budget', () => {
     const engine = new LabelLayoutEngine(DPI)
@@ -112,6 +133,7 @@ describe('createStackHeightConstraint', () => {
       titleLayout: { wrappedLines: ['TITLE'], fontSizePx: 20 },
       bodyLayout: { wrappedLines: ['line'], fontSizePx: 10 },
       bodyHeightMm: 20,
+      arrangement: 'stacked',
     }
     expect(constraint.isSatisfiedBy(candidate)).toBe(true)
   })
@@ -123,6 +145,7 @@ describe('createStackHeightConstraint', () => {
       titleLayout: { wrappedLines: ['TITLE'], fontSizePx: 20 },
       bodyLayout: { wrappedLines: ['line'], fontSizePx: 20 },
       bodyHeightMm: 20,
+      arrangement: 'stacked',
     }
     expect(constraint.isSatisfiedBy(candidate)).toBe(false)
   })
@@ -164,17 +187,25 @@ describe('TitleBodyFitter.findBestFit', () => {
 
   it('should shrink the title (phase 2) when the body cannot fit the height budget at the title\'s own best-fit size', () => {
     const { fitter, engine } = makeFitter()
+    // One dense box — only stacked is possible — so arrangement search cannot
+    // dodge the height bind by switching to a row.
     const input = baseInput({
       titleInput: { lines: ['OK'], widthMm: 30, heightMm: 9, fontWeight: 900, widthSafety: 1 },
       boxes: [
-        { lines: ['Reconstitution line one'] },
-        { lines: ['Protocol line one'] },
-        { lines: ['Source line one'] },
+        {
+          lines: [
+            'Reconstitution line one',
+            'Reconstitution line two',
+            'Protocol detail line',
+            'Source detail line',
+            'Extra detail line',
+          ],
+        },
       ],
       baseWidthMm: 30,
       // Tall enough that phase 2 finds a fit above MIN after ink-overflow reserve,
       // but short enough that phase 1 alone cannot keep the title at its own best size.
-      innerHeightMm: 14.5,
+      innerHeightMm: 12,
     })
     const directTitleLayout = engine.layout(input.titleInput)
     const candidate = fitter.findBestFit(input)
@@ -234,5 +265,42 @@ describe('TitleBodyFitter.findBestFit', () => {
     expect(candidate.bodyLayout.fontSizePx).toBeLessThanOrEqual(MAX_FONT_SIZE_PX)
     expect(Math.max(candidate.titleLayout.fontSizePx, candidate.bodyLayout.fontSizePx)).toBe(MAX_FONT_SIZE_PX)
     expect(engine.getMaxFontSizePx()).toBe(MAX_FONT_SIZE_PX)
+  })
+
+  it('should pick a row arrangement when it yields a larger body font than stacked for two short boxes', () => {
+    const { fitter } = makeFitter(300, 60)
+    // Short label height: stacked pays chrome twice and loses; row shares one row.
+    const input = baseInput({
+      titleInput: { lines: ['Tirzepatide', '20mg'], widthMm: 36, heightMm: 12, fontWeight: 900, widthSafety: 0.98 },
+      boxes: [
+        { lines: ['10mg per ml'] },
+        { lines: ['20 units (2mg)'] },
+      ],
+      baseWidthMm: 36,
+      labelWidthPx: mmToPx(40, 300),
+      innerHeightMm: 18,
+      titleBodyGapMm: 0.5,
+    })
+    const candidate = fitter.findBestFit(input)
+    expect(candidate.arrangement).toBe('row')
+    expect(candidate.bodyLayout.fontSizePx).toBeGreaterThan(MIN_FONT_SIZE_PX)
+  })
+
+  it('should pick stacked when a short-wide row cannot beat stacked height for two short boxes on tall stock', () => {
+    const { fitter } = makeFitter(300, 80)
+    // Tall remaining body budget + narrow half-width: stacked can grow past row's width ceiling.
+    const input = baseInput({
+      titleInput: { lines: ['Tirzepatide', '20mg'], widthMm: 36, heightMm: 14, fontWeight: 900, widthSafety: 0.98 },
+      boxes: [
+        { lines: ['10mg per ml'] },
+        { lines: ['20 units (2mg)'] },
+      ],
+      baseWidthMm: 36,
+      labelWidthPx: mmToPx(40, 300),
+      innerHeightMm: 28,
+      titleBodyGapMm: 0.5,
+    })
+    const candidate = fitter.findBestFit(input)
+    expect(candidate.arrangement).toBe('stacked')
   })
 })

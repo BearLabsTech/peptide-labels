@@ -107,12 +107,13 @@ describe('LabelLayoutEngine', () => {
             widthMm: 14,
             heightMm: 8,
             labelWidthPx,
+            arrangement: 'stacked',
         })
 
         expect(result.fontSizePx).toBeLessThan(26)
     })
 
-    it('should estimate a shorter body height for two side-by-side boxes than for the same boxes stacked', () => {
+    it('should estimate a shorter body height for a row of two boxes than for the same boxes stacked', () => {
         const engine = new LabelLayoutEngine(300)
         const labelWidthPx = mmToPx(40, 300)
         const boxes = [
@@ -121,24 +122,34 @@ describe('LabelLayoutEngine', () => {
         ]
         const shared = { widthMm: 30, heightMm: 10, labelWidthPx }
         const bodyFontPx = 14
-        const sideBySidePx = engine.estimateBoxedBodyHeightPx({ ...shared, boxes }, bodyFontPx)
+        const rowPx = engine.estimateBoxedBodyHeightPx(
+            { ...shared, boxes, arrangement: 'row' },
+            bodyFontPx,
+        )
         // Stacked equivalent: each box alone at full width, plus one inter-box gap.
-        const boxA = engine.estimateBoxedBodyHeightPx({ ...shared, boxes: [boxes[0]] }, bodyFontPx)
-        const boxB = engine.estimateBoxedBodyHeightPx({ ...shared, boxes: [boxes[1]] }, bodyFontPx)
+        const boxA = engine.estimateBoxedBodyHeightPx(
+            { ...shared, boxes: [boxes[0]], arrangement: 'stacked' },
+            bodyFontPx,
+        )
+        const boxB = engine.estimateBoxedBodyHeightPx(
+            { ...shared, boxes: [boxes[1]], arrangement: 'stacked' },
+            bodyFontPx,
+        )
         const gapPx = labelWidthPx * (LABEL_TYPOGRAPHY.boxGapCqw / 100)
         // estimateBoxedBodyHeightPx multiplies by BODY_HEIGHT_SAFETY (1.12); undo so we
         // can recombine the two single-box estimates into a stacked total.
         const SAFETY = 1.12
         const stackedPx = (boxA / SAFETY + boxB / SAFETY + gapPx) * SAFETY
-        expect(sideBySidePx).toBeLessThan(stackedPx)
+        expect(rowPx).toBeLessThan(stackedPx)
     })
 
-    it('should fit a larger body font when two short sections sit side-by-side vs three stacked', () => {
+    it('should fit a larger body font when two short sections sit in a row vs three stacked', () => {
         const engine = new LabelLayoutEngine(300)
         const labelWidthPx = mmToPx(40, 300)
         const shared = { widthMm: 30, heightMm: 8, labelWidthPx }
         const two = engine.layoutBoxedBody({
             ...shared,
+            arrangement: 'row',
             boxes: [
                 { lines: ['2 ml', '10mg per ml'] },
                 { lines: ['20 units (2mg)'] },
@@ -146,6 +157,7 @@ describe('LabelLayoutEngine', () => {
         })
         const three = engine.layoutBoxedBody({
             ...shared,
+            arrangement: 'stacked',
             boxes: [
                 { lines: ['2 ml', '10mg per ml'] },
                 { lines: ['20 units (2mg)'] },
@@ -155,23 +167,23 @@ describe('LabelLayoutEngine', () => {
         expect(two.fontSizePx).toBeGreaterThan(three.fontSizePx)
     })
 
-    it('should wrap body section lines against half width when boxCount is 2', () => {
+    it('should wrap body section lines against half width when arranged in a row of two', () => {
         const engine = new LabelLayoutEngine(300)
         const lines = ['Group: Bear\'s Den']
         const labelWidthPx = mmToPx(40, 300)
-        const full = engine.wrapBodySectionLines(lines, 20, 16, 1, labelWidthPx)
-        const half = engine.wrapBodySectionLines(lines, 20, 16, 2, labelWidthPx)
+        const full = engine.wrapBodySectionLines(lines, 20, 16, 1, labelWidthPx, 'stacked')
+        const half = engine.wrapBodySectionLines(lines, 20, 16, 2, labelWidthPx, 'row')
         expect(half.length).toBeGreaterThanOrEqual(full.length)
     })
 
-    it('should require half-width section labels when boxCount is 2', () => {
+    it('should require half-width section labels when arranged in a row of two', () => {
         const engine = new LabelLayoutEngine(300)
         // Wide enough for RECONSTITUTION at full width, too narrow at half.
         const widthMm = 14
         const bodyFontPx = 20
         const labelWidthPx = mmToPx(40, 300)
-        expect(engine.sectionLabelsFitBoxWidth(widthMm, bodyFontPx, 1, labelWidthPx)).toBe(true)
-        expect(engine.sectionLabelsFitBoxWidth(widthMm, bodyFontPx, 2, labelWidthPx)).toBe(false)
+        expect(engine.sectionLabelsFitBoxWidth(widthMm, bodyFontPx, 1, labelWidthPx, 'stacked')).toBe(true)
+        expect(engine.sectionLabelsFitBoxWidth(widthMm, bodyFontPx, 2, labelWidthPx, 'row')).toBe(false)
     })
 
     it('should shrink bold title to fit center column width', () => {

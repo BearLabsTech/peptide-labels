@@ -11,8 +11,9 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "full label with all sections" 1`] = `
 {
+  "bodyBoxArrangement": "row",
   "bodyBoxVerticalPadPx": 2.36,
-  "bodyFontSizePx": 8,
+  "bodyFontSizePx": 10,
   "columnLayout": {
     "centerWidthMm": 22.560000000000002,
     "gapCount": 1,
@@ -48,18 +49,23 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
   "reconstitutionLines": [
     "1 ml BAC Water",
     "20mg per ml",
-    "Mixed 20260621",
+    "Mixed",
+    "20260621",
   ],
   "sourceLines": [
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
   "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
     "labelFontSizePx": 10,
     "labelMarkGapPx": 1,
-    "markSizePx": 5,
+    "markSizePx": 0,
     "rowGapPx": 2,
   },
   "testIndicators": [
@@ -81,7 +87,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
   ],
   "title": "Tirzepatide
 20mg",
-  "titleFontSizePx": 33,
+  "titleFontSizePx": 48,
   "titleLines": [
     "Tirzepatide",
     "20mg",
@@ -91,18 +97,24 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
     "20mg",
     "1 ml BAC Water",
     "20mg per ml",
-    "Mixed 20260621",
+    "Mixed",
+    "20260621",
     "25 units (5mg)",
     "Weekly",
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 44,
   "columnLayout": {
@@ -176,6 +188,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
+  "bodyBoxArrangement": "row",
   "bodyBoxVerticalPadPx": 7.08,
   "bodyFontSizePx": 17,
   "columnLayout": {
@@ -236,6 +249,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "minimal name only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 65,
   "columnLayout": {
@@ -280,6 +294,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "sparse logo only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 47,
   "columnLayout": {
@@ -327,6 +342,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "sparse logo plus testing" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 47,
   "columnLayout": {
@@ -390,6 +406,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "sparse testing only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 65,
   "columnLayout": {
@@ -453,6 +470,7 @@ exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x20-rect > should produce a stable render model for "untested danger mode" 1`] = `
 {
+  "bodyBoxArrangement": "row",
   "bodyBoxVerticalPadPx": 2.36,
   "bodyFontSizePx": 20.8,
   "columnLayout": {
@@ -520,8 +538,9 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyBoxVerticalPadPx": 2.36,
-  "bodyFontSizePx": 8,
+  "bodyBoxArrangement": "row",
+  "bodyBoxVerticalPadPx": 3.7426000000000106,
+  "bodyFontSizePx": 11,
   "columnLayout": {
     "centerWidthMm": 23.68,
     "gapCount": 1,
@@ -557,18 +576,23 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
   "reconstitutionLines": [
     "1 ml BAC Water",
     "20mg per ml",
-    "Mixed 20260621",
+    "Mixed",
+    "20260621",
   ],
   "sourceLines": [
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
   "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
     "labelFontSizePx": 10,
     "labelMarkGapPx": 1,
-    "markSizePx": 5,
+    "markSizePx": 2,
     "rowGapPx": 2,
   },
   "testIndicators": [
@@ -590,7 +614,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
   ],
   "title": "Tirzepatide
 20mg",
-  "titleFontSizePx": 42,
+  "titleFontSizePx": 51,
   "titleLines": [
     "Tirzepatide",
     "20mg",
@@ -600,18 +624,24 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
     "20mg",
     "1 ml BAC Water",
     "20mg per ml",
-    "Mixed 20260621",
+    "Mixed",
+    "20260621",
     "25 units (5mg)",
     "Weekly",
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 46,
   "columnLayout": {
@@ -685,7 +715,8 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
-  "bodyBoxVerticalPadPx": 7.08,
+  "bodyBoxArrangement": "stacked",
+  "bodyBoxVerticalPadPx": 2.9474000000000022,
   "bodyFontSizePx": 18,
   "columnLayout": {
     "centerWidthMm": 39,
@@ -737,14 +768,14 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
     "20mg",
     "1 ml",
     "20mg per ml",
-    "25 units",
-    "(5mg)",
+    "25 units (5mg)",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "minimal name only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 67,
   "columnLayout": {
@@ -789,6 +820,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "sparse logo only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 49,
   "columnLayout": {
@@ -836,6 +868,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "sparse logo plus testing" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 49,
   "columnLayout": {
@@ -899,6 +932,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "sparse testing only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 67,
   "columnLayout": {
@@ -962,6 +996,7 @@ exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x20-rounded > should produce a stable render model for "untested danger mode" 1`] = `
 {
+  "bodyBoxArrangement": "row",
   "bodyBoxVerticalPadPx": 3.4455999999999993,
   "bodyFontSizePx": 22.400000000000002,
   "columnLayout": {
@@ -1029,8 +1064,9 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyBoxVerticalPadPx": 2.924000000000002,
-  "bodyFontSizePx": 12,
+  "bodyBoxArrangement": "row",
+  "bodyBoxVerticalPadPx": 7.08,
+  "bodyFontSizePx": 14,
   "columnLayout": {
     "centerWidthMm": 22.560000000000002,
     "gapCount": 1,
@@ -1053,7 +1089,8 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
-    "25 units (5mg)",
+    "25 units",
+    "(5mg)",
     "Weekly",
   ],
   "qrCodes": [
@@ -1064,14 +1101,22 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
   ],
   "qrColumnWidthPercent": 38,
   "reconstitutionLines": [
-    "1 ml BAC Water",
-    "20mg per ml",
-    "Mixed 20260621",
+    "1 ml BAC",
+    "Water",
+    "20mg per",
+    "ml",
+    "Mixed",
+    "20260621",
   ],
   "sourceLines": [
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy",
+    "Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
   "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
@@ -1107,20 +1152,30 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
   "wrappedLines": [
     "Tirzepatide",
     "20mg",
-    "1 ml BAC Water",
-    "20mg per ml",
-    "Mixed 20260621",
-    "25 units (5mg)",
+    "1 ml BAC",
+    "Water",
+    "20mg per",
+    "ml",
+    "Mixed",
+    "20260621",
+    "25 units",
+    "(5mg)",
     "Weekly",
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy",
+    "Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 44,
   "columnLayout": {
@@ -1194,6 +1249,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 7.08,
   "bodyFontSizePx": 22,
   "columnLayout": {
@@ -1245,16 +1301,15 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
     "Forces Title Wrapping",
     "20mg",
     "1 ml",
-    "20mg per",
-    "ml",
-    "25 units",
-    "(5mg)",
+    "20mg per ml",
+    "25 units (5mg)",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "minimal name only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 65,
   "columnLayout": {
@@ -1299,6 +1354,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "sparse logo only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 47,
   "columnLayout": {
@@ -1346,6 +1402,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "sparse logo plus testing" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 47,
   "columnLayout": {
@@ -1409,6 +1466,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "sparse testing only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 65,
   "columnLayout": {
@@ -1472,6 +1530,7 @@ exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 40x30-rect > should produce a stable render model for "untested danger mode" 1`] = `
 {
+  "bodyBoxArrangement": "row",
   "bodyBoxVerticalPadPx": 2.36,
   "bodyFontSizePx": 29.6,
   "columnLayout": {
@@ -1543,8 +1602,9 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyBoxVerticalPadPx": 2.36,
-  "bodyFontSizePx": 14,
+  "bodyBoxArrangement": "row",
+  "bodyBoxVerticalPadPx": 7.08,
+  "bodyFontSizePx": 15,
   "columnLayout": {
     "centerWidthMm": 23.68,
     "gapCount": 1,
@@ -1567,7 +1627,8 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
-    "25 units (5mg)",
+    "25 units",
+    "(5mg)",
     "Weekly",
   ],
   "qrCodes": [
@@ -1578,14 +1639,22 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
   ],
   "qrColumnWidthPercent": 38,
   "reconstitutionLines": [
-    "1 ml BAC Water",
-    "20mg per ml",
-    "Mixed 20260621",
+    "1 ml BAC",
+    "Water",
+    "20mg per",
+    "ml",
+    "Mixed",
+    "20260621",
   ],
   "sourceLines": [
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy",
+    "Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
   "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
@@ -1621,20 +1690,30 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
   "wrappedLines": [
     "Tirzepatide",
     "20mg",
-    "1 ml BAC Water",
-    "20mg per ml",
-    "Mixed 20260621",
-    "25 units (5mg)",
+    "1 ml BAC",
+    "Water",
+    "20mg per",
+    "ml",
+    "Mixed",
+    "20260621",
+    "25 units",
+    "(5mg)",
     "Weekly",
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy",
+    "Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 46,
   "columnLayout": {
@@ -1708,6 +1787,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 7.08,
   "bodyFontSizePx": 23,
   "columnLayout": {
@@ -1759,16 +1839,15 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
     "Forces Title Wrapping",
     "20mg",
     "1 ml",
-    "20mg per",
-    "ml",
-    "25 units",
-    "(5mg)",
+    "20mg per ml",
+    "25 units (5mg)",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "minimal name only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 67,
   "columnLayout": {
@@ -1813,6 +1892,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "sparse logo only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 49,
   "columnLayout": {
@@ -1860,6 +1940,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "sparse logo plus testing" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 49,
   "columnLayout": {
@@ -1923,6 +2004,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "sparse testing only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 67,
   "columnLayout": {
@@ -1986,6 +2068,7 @@ exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 40x30-rounded > should produce a stable render model for "untested danger mode" 1`] = `
 {
+  "bodyBoxArrangement": "row",
   "bodyBoxVerticalPadPx": 6.691600000000008,
   "bodyFontSizePx": 30.400000000000002,
   "columnLayout": {
@@ -2057,8 +2140,9 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyBoxVerticalPadPx": 3.0002000000000035,
-  "bodyFontSizePx": 10,
+  "bodyBoxArrangement": "row",
+  "bodyBoxVerticalPadPx": 8.865,
+  "bodyFontSizePx": 15,
   "columnLayout": {
     "centerWidthMm": 28.759999999999998,
     "gapCount": 1,
@@ -2081,7 +2165,8 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
-    "25 units (5mg)",
+    "25 units",
+    "(5mg)",
     "Weekly",
   ],
   "qrCodes": [
@@ -2092,14 +2177,20 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
   ],
   "qrColumnWidthPercent": 38,
   "reconstitutionLines": [
-    "1 ml BAC Water",
+    "1 ml BAC",
+    "Water",
     "20mg per ml",
-    "Mixed 20260621",
+    "Mixed",
+    "20260621",
   ],
   "sourceLines": [
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
   "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
@@ -2135,20 +2226,28 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
   "wrappedLines": [
     "Tirzepatide",
     "20mg",
-    "1 ml BAC Water",
+    "1 ml BAC",
+    "Water",
     "20mg per ml",
-    "Mixed 20260621",
-    "25 units (5mg)",
+    "Mixed",
+    "20260621",
+    "25 units",
+    "(5mg)",
     "Weekly",
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 57,
   "columnLayout": {
@@ -2222,7 +2321,8 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
-  "bodyBoxVerticalPadPx": 8.865,
+  "bodyBoxArrangement": "stacked",
+  "bodyBoxVerticalPadPx": 4.4525999999999915,
   "bodyFontSizePx": 27,
   "columnLayout": {
     "centerWidthMm": 48,
@@ -2274,14 +2374,14 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
     "20mg",
     "1 ml",
     "20mg per ml",
-    "25 units",
-    "(5mg)",
+    "25 units (5mg)",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "minimal name only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 82,
   "columnLayout": {
@@ -2326,6 +2426,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "sparse logo only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 59,
   "columnLayout": {
@@ -2373,6 +2474,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "sparse logo plus testing" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 59,
   "columnLayout": {
@@ -2436,6 +2538,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "sparse testing only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 82,
   "columnLayout": {
@@ -2499,6 +2602,7 @@ exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stab
 
 exports[`LabelComposer golden output > stock: 50x30-rect > should produce a stable render model for "untested danger mode" 1`] = `
 {
+  "bodyBoxArrangement": "row",
   "bodyBoxVerticalPadPx": 4.026199999999976,
   "bodyFontSizePx": 33.6,
   "columnLayout": {
@@ -2568,8 +2672,9 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyBoxVerticalPadPx": 3.595333333333331,
-  "bodyFontSizePx": 11,
+  "bodyBoxArrangement": "row",
+  "bodyBoxVerticalPadPx": 8.865,
+  "bodyFontSizePx": 16,
   "columnLayout": {
     "centerWidthMm": 29.88,
     "gapCount": 1,
@@ -2592,7 +2697,8 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
   "labelLayoutMode": "identityHeader",
   "logoColumnWidthPercent": 0,
   "protocolLines": [
-    "25 units (5mg)",
+    "25 units",
+    "(5mg)",
     "Weekly",
   ],
   "qrCodes": [
@@ -2603,14 +2709,20 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
   ],
   "qrColumnWidthPercent": 38,
   "reconstitutionLines": [
-    "1 ml BAC Water",
+    "1 ml BAC",
+    "Water",
     "20mg per ml",
-    "Mixed 20260621",
+    "Mixed",
+    "20260621",
   ],
   "sourceLines": [
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
   "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
@@ -2646,20 +2758,28 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
   "wrappedLines": [
     "Tirzepatide",
     "20mg",
-    "1 ml BAC Water",
+    "1 ml BAC",
+    "Water",
     "20mg per ml",
-    "Mixed 20260621",
-    "25 units (5mg)",
+    "Mixed",
+    "20260621",
+    "25 units",
+    "(5mg)",
     "Weekly",
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 59,
   "columnLayout": {
@@ -2733,7 +2853,8 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
-  "bodyBoxVerticalPadPx": 8.865,
+  "bodyBoxArrangement": "stacked",
+  "bodyBoxVerticalPadPx": 6.517399999999997,
   "bodyFontSizePx": 28,
   "columnLayout": {
     "centerWidthMm": 49,
@@ -2785,14 +2906,14 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
     "20mg",
     "1 ml",
     "20mg per ml",
-    "25 units",
-    "(5mg)",
+    "25 units (5mg)",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "minimal name only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 84,
   "columnLayout": {
@@ -2837,6 +2958,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "sparse logo only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 61,
   "columnLayout": {
@@ -2884,6 +3006,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "sparse logo plus testing" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 61,
   "columnLayout": {
@@ -2947,6 +3070,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "sparse testing only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 84,
   "columnLayout": {
@@ -3010,6 +3134,7 @@ exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a s
 
 exports[`LabelComposer golden output > stock: 50x30-rounded > should produce a stable render model for "untested danger mode" 1`] = `
 {
+  "bodyBoxArrangement": "row",
   "bodyBoxVerticalPadPx": 7.229799999999971,
   "bodyFontSizePx": 35.2,
   "columnLayout": {
@@ -3079,8 +3204,9 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "full label with all sections" 1`] = `
 {
-  "bodyBoxVerticalPadPx": 2.36,
-  "bodyFontSizePx": 8,
+  "bodyBoxArrangement": "row",
+  "bodyBoxVerticalPadPx": 3.7426000000000106,
+  "bodyFontSizePx": 11,
   "columnLayout": {
     "centerWidthMm": 23.68,
     "gapCount": 1,
@@ -3116,18 +3242,23 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
   "reconstitutionLines": [
     "1 ml BAC Water",
     "20mg per ml",
-    "Mixed 20260621",
+    "Mixed",
+    "20260621",
   ],
   "sourceLines": [
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
   "sparseLogoHeightPx": 0,
   "testIndicatorLayout": {
     "labelFontSizePx": 10,
     "labelMarkGapPx": 1,
-    "markSizePx": 5,
+    "markSizePx": 2,
     "rowGapPx": 2,
   },
   "testIndicators": [
@@ -3149,7 +3280,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
   ],
   "title": "Tirzepatide
 20mg",
-  "titleFontSizePx": 42,
+  "titleFontSizePx": 51,
   "titleLines": [
     "Tirzepatide",
     "20mg",
@@ -3159,18 +3290,24 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
     "20mg",
     "1 ml BAC Water",
     "20mg per ml",
-    "Mixed 20260621",
+    "Mixed",
+    "20260621",
     "25 units (5mg)",
     "Weekly",
-    "Vendor: Bear Labs",
-    "Group: Group Buy Co",
-    "Lot: BL-2026 20260621",
+    "Vendor:",
+    "Bear Labs",
+    "Group:",
+    "Group Buy Co",
+    "Lot:",
+    "BL-2026",
+    "20260621",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "logo plus QR plus indicators" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 46,
   "columnLayout": {
@@ -3244,7 +3381,8 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "long compound name forcing wrap" 1`] = `
 {
-  "bodyBoxVerticalPadPx": 7.08,
+  "bodyBoxArrangement": "stacked",
+  "bodyBoxVerticalPadPx": 2.9474000000000022,
   "bodyFontSizePx": 18,
   "columnLayout": {
     "centerWidthMm": 39,
@@ -3296,14 +3434,14 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
     "20mg",
     "1 ml",
     "20mg per ml",
-    "25 units",
-    "(5mg)",
+    "25 units (5mg)",
   ],
 }
 `;
 
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "minimal name only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 67,
   "columnLayout": {
@@ -3348,6 +3486,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "sparse logo only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 49,
   "columnLayout": {
@@ -3395,6 +3534,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "sparse logo plus testing" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 49,
   "columnLayout": {
@@ -3458,6 +3598,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "sparse testing only" 1`] = `
 {
+  "bodyBoxArrangement": "stacked",
   "bodyBoxVerticalPadPx": 0,
   "bodyFontSizePx": 67,
   "columnLayout": {
@@ -3521,6 +3662,7 @@ exports[`LabelComposer golden output > stock: skip-default > should produce a st
 
 exports[`LabelComposer golden output > stock: skip-default > should produce a stable render model for "untested danger mode" 1`] = `
 {
+  "bodyBoxArrangement": "row",
   "bodyBoxVerticalPadPx": 3.4455999999999993,
   "bodyFontSizePx": 22.400000000000002,
   "columnLayout": {

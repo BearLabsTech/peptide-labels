@@ -3,6 +3,7 @@ import type { QrCodeEntry } from './coaLinks'
 import type { TestIndicatorEntry } from './testIndicators'
 import type { TestIndicatorLayout } from './testIndicatorLayout'
 import type { ColumnLayout, IdentityHeaderTitleBreakout } from './labelColumnLayout'
+import type { BodyBoxArrangement } from './labelLayoutConstants'
 
 export interface LabelRenderModel {
   readonly wrappedLines: readonly string[]
@@ -11,6 +12,11 @@ export interface LabelRenderModel {
   readonly bodyFontSizePx: number
   /** Per-side vertical padding (export px) for each `.label-preview-box`. */
   readonly bodyBoxVerticalPadPx: number
+  /**
+   * How section boxes are arranged under the title (`stacked` or `row`).
+   * Chosen at fit time for the larger body font; preview must not re-derive.
+   */
+  readonly bodyBoxArrangement: BodyBoxArrangement
   readonly title: string
   readonly demotedTitle?: string
   readonly protocolLines: readonly string[]

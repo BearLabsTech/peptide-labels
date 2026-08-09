@@ -1,12 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { mmToPx } from '../../print/dimensions'
 import {
+  bodyBoxArrangementCandidates,
   bodyBoxRowCount,
   clampColumnWidthPercent,
-  isSideBySideBodyBoxes,
   LOGO_COLUMN_WIDTH,
   maxFontSizePxForLabelHeight,
   QR_COLUMN_WIDTH,
+  sectionWidthMm,
 } from './labelLayoutConstants'
 
 describe('labelLayoutConstants', () => {
@@ -25,13 +26,25 @@ describe('labelLayoutConstants', () => {
     expect(clampColumnWidthPercent(55, QR_COLUMN_WIDTH)).toBe(50)
   })
 
-  it('should treat exactly two boxes as one visual row for side-by-side layout', () => {
-    expect(isSideBySideBodyBoxes(2)).toBe(true)
-    expect(isSideBySideBodyBoxes(1)).toBe(false)
-    expect(isSideBySideBodyBoxes(3)).toBe(false)
-    expect(bodyBoxRowCount(0)).toBe(0)
-    expect(bodyBoxRowCount(1)).toBe(1)
-    expect(bodyBoxRowCount(2)).toBe(1)
-    expect(bodyBoxRowCount(3)).toBe(3)
+  it('should offer only stacked for one box and both arrangements for two or three', () => {
+    expect(bodyBoxArrangementCandidates(0)).toEqual(['stacked'])
+    expect(bodyBoxArrangementCandidates(1)).toEqual(['stacked'])
+    expect(bodyBoxArrangementCandidates(2)).toEqual(['stacked', 'row'])
+    expect(bodyBoxArrangementCandidates(3)).toEqual(['stacked', 'row'])
+  })
+
+  it('should divide width by box count in a row and keep full width when stacked', () => {
+    expect(sectionWidthMm(30, 2, 'stacked')).toBe(30)
+    expect(sectionWidthMm(30, 2, 'row')).toBe(15)
+    expect(sectionWidthMm(30, 3, 'row')).toBe(10)
+  })
+
+  it('should count one visual row for a row arrangement and one per box when stacked', () => {
+    expect(bodyBoxRowCount(0, 'stacked')).toBe(0)
+    expect(bodyBoxRowCount(1, 'stacked')).toBe(1)
+    expect(bodyBoxRowCount(2, 'row')).toBe(1)
+    expect(bodyBoxRowCount(3, 'row')).toBe(1)
+    expect(bodyBoxRowCount(2, 'stacked')).toBe(2)
+    expect(bodyBoxRowCount(3, 'stacked')).toBe(3)
   })
 })

@@ -5,7 +5,12 @@ import {
   type LabelLayoutInput,
   type LabelLayoutResult,
 } from '../LabelLayoutEngine'
-import { MIN_FONT_SIZE_PX, MIN_TITLE_TO_BODY_FONT_RATIO } from '../labelLayoutConstants'
+import {
+  bodyBoxArrangementCandidates,
+  MIN_FONT_SIZE_PX,
+  MIN_TITLE_TO_BODY_FONT_RATIO,
+  type BodyBoxArrangement,
+} from '../labelLayoutConstants'
 import { mmToPx, pxToMm } from '../../../print/dimensions'
 
 /** One attempt at laying out the title and boxed body together. */
@@ -13,6 +18,7 @@ export interface FitCandidate {
   readonly titleLayout: LabelLayoutResult
   readonly bodyLayout: LabelLayoutResult
   readonly bodyHeightMm: number
+  readonly arrangement: BodyBoxArrangement
 }
 
 /** A pass/fail rule a {@link FitCandidate} must satisfy to be an acceptable label layout. */
@@ -39,6 +45,7 @@ type FitSearchContext = {
   readonly innerHeightMm: number
   readonly titleBodyGapMm: number
   readonly constraints: readonly FitConstraint[]
+  readonly arrangement: BodyBoxArrangement
 }
 
 /** The longest section header ("RECONSTITUTION") must still fit the boxed body's width at the candidate's body font. */
@@ -47,6 +54,7 @@ export function createSectionLabelWidthConstraint(
   baseWidthMm: number,
   boxCount: number,
   labelWidthPx: number,
+  arrangement: BodyBoxArrangement,
 ): FitConstraint {
   return {
     isSatisfiedBy: (candidate) => layoutEngine.sectionLabelsFitBoxWidth(
@@ -54,6 +62,7 @@ export function createSectionLabelWidthConstraint(
       candidate.bodyLayout.fontSizePx,
       boxCount,
       labelWidthPx,
+      arrangement,
     ),
   }
 }
@@ -81,7 +90,10 @@ export function createStackHeightConstraint(
  * label's inner height, then boosts the title back toward the product's
  * minimum title-to-body ratio if the fit search left it too small.
  *
- * Three phases, run in order — each a direct extraction of one of the
+ * For two or three section boxes, runs the search once per arrangement
+ * (`stacked` then `row`) and keeps the larger body font (ties keep stacked).
+ *
+ * Three phases per arrangement — each a direct extraction of one of the
  * original nested loops in what used to be `LabelComposer.fitTitleAndBodyLayouts`
  * (moved to `IdentityHeaderTemplate` unchanged in action 3.1, then rebuilt here
  * around `FitCandidate`/`FitConstraint` in action 3.2, same iteration order):
@@ -102,7 +114,22 @@ export class TitleBodyFitter {
   }
 
   findBestFit(input: TitleBodyFitInput): FitCandidate {
-    const ctx = this.createSearchContext(input)
+    const candidates = bodyBoxArrangementCandidates(input.boxes.length)
+    let best: FitCandidate | null = null
+    for (const arrangement of candidates) {
+      const attempt = this.findBestFitForArrangement(input, arrangement)
+      if (!best || attempt.bodyLayout.fontSizePx > best.bodyLayout.fontSizePx) {
+        best = attempt
+      }
+    }
+    return best!
+  }
+
+  private findBestFitForArrangement(
+    input: TitleBodyFitInput,
+    arrangement: BodyBoxArrangement,
+  ): FitCandidate {
+    const ctx = this.createSearchContext(input, arrangement)
     const titleLayout = this.layoutEngine.layout(ctx.titleInput)
     const bodyHeightMm = this.remainingBodyHeightMm(ctx.innerHeightMm, titleLayout, ctx.titleBodyGapMm)
 
@@ -113,17 +140,33 @@ export class TitleBodyFitter {
     return this.boostTitleRelativeToBody(candidate, ctx)
   }
 
-  private createSearchContext(input: TitleBodyFitInput): FitSearchContext {
+  private createSearchContext(
+    input: TitleBodyFitInput,
+    arrangement: BodyBoxArrangement,
+  ): FitSearchContext {
     const { titleInput, boxes, demotedTitle, baseWidthMm, labelWidthPx, innerHeightMm, titleBodyGapMm } = input
-    const bodyInputBase: BodyInputBase = { boxes, demotedLine: demotedTitle, widthMm: baseWidthMm, labelWidthPx }
+    const bodyInputBase: BodyInputBase = {
+      boxes,
+      demotedLine: demotedTitle,
+      widthMm: baseWidthMm,
+      labelWidthPx,
+      arrangement,
+    }
     const innerHeightPx = mmToPx(innerHeightMm, this.effectiveDpi)
     return {
       titleInput,
       bodyInputBase,
       innerHeightMm,
       titleBodyGapMm,
+      arrangement,
       constraints: [
-        createSectionLabelWidthConstraint(this.layoutEngine, baseWidthMm, boxes.length, labelWidthPx),
+        createSectionLabelWidthConstraint(
+          this.layoutEngine,
+          baseWidthMm,
+          boxes.length,
+          labelWidthPx,
+          arrangement,
+        ),
         createStackHeightConstraint(this.layoutEngine, titleBodyGapMm, bodyInputBase, innerHeightPx),
       ],
     }
@@ -138,9 +181,9 @@ export class TitleBodyFitter {
     let bodyLayout = this.layoutEngine.layoutBoxedBody({ ...ctx.bodyInputBase, heightMm: bodyHeightMm })
     for (let bodyFont = bodyLayout.fontSizePx; bodyFont >= MIN_FONT_SIZE_PX; bodyFont--) {
       bodyLayout = this.layoutBodyAtFont(ctx.bodyInputBase, bodyHeightMm, bodyFont)
-      if (this.satisfiesAll({ titleLayout, bodyLayout, bodyHeightMm }, ctx.constraints)) break
+      if (this.satisfiesAll({ titleLayout, bodyLayout, bodyHeightMm, arrangement: ctx.arrangement }, ctx.constraints)) break
     }
-    return { titleLayout, bodyLayout, bodyHeightMm }
+    return { titleLayout, bodyLayout, bodyHeightMm, arrangement: ctx.arrangement }
   }
 
   /** Phase 2: if 1 could not make the pair fit, shrink the title too, refitting the body at each title size. */
@@ -154,11 +197,11 @@ export class TitleBodyFitter {
       for (let bodyFont = refitBody.fontSizePx; bodyFont >= MIN_FONT_SIZE_PX; bodyFont--) {
         titleLayout = titleAttempt
         bodyLayout = this.layoutBodyAtFont(ctx.bodyInputBase, bodyHeightMm, bodyFont)
-        if (this.satisfiesAll({ titleLayout, bodyLayout, bodyHeightMm }, ctx.constraints)) break
+        if (this.satisfiesAll({ titleLayout, bodyLayout, bodyHeightMm, arrangement: ctx.arrangement }, ctx.constraints)) break
       }
-      if (this.satisfiesAll({ titleLayout, bodyLayout, bodyHeightMm }, ctx.constraints)) break
+      if (this.satisfiesAll({ titleLayout, bodyLayout, bodyHeightMm, arrangement: ctx.arrangement }, ctx.constraints)) break
     }
-    return { titleLayout, bodyLayout, bodyHeightMm }
+    return { titleLayout, bodyLayout, bodyHeightMm, arrangement: ctx.arrangement }
   }
 
   /** Phase 3: once something fits, grow the title back toward `MIN_TITLE_TO_BODY_FONT_RATIO` if 1/2 left it too small relative to the body. */
@@ -194,6 +237,7 @@ export class TitleBodyFitter {
         titleLayout: titleAttempt,
         bodyLayout: this.layoutBodyAtFont(ctx.bodyInputBase, bodyHeightMm, bodyFont),
         bodyHeightMm,
+        arrangement: ctx.arrangement,
       }
       if (this.satisfiesAll(attempt, ctx.constraints)) return attempt
     }

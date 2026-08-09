@@ -34,22 +34,38 @@ export const MIN_TITLE_TO_BODY_FONT_RATIO = 1.35
 export const MIN_FONT_SIZE_PX = 8
 
 /**
- * Exactly two reconstitution/protocol/source boxes sit side-by-side under the
- * title (half width each, one row of height). Shared by layout math and preview CSS.
+ * How reconstitution/protocol/source boxes are arranged under the title.
+ * Chosen at fit time for the larger body font — see {@link TitleBodyFitter}.
  */
-export function isSideBySideBodyBoxes(boxCount: number): boolean {
-  return boxCount === 2
+export type BodyBoxArrangement = 'stacked' | 'row'
+
+/**
+ * Arrangement candidates for a given body-box count. One box can only stack;
+ * two or three try stacked then row (stacked first so equal-font ties keep it).
+ */
+export function bodyBoxArrangementCandidates(boxCount: number): readonly BodyBoxArrangement[] {
+  if (boxCount <= 1) return ['stacked']
+  return ['stacked', 'row']
+}
+
+/** Section cell width: full width when stacked; equal share when in a row. */
+export function sectionWidthMm(
+  widthMm: number,
+  boxCount: number,
+  arrangement: BodyBoxArrangement,
+): number {
+  if (arrangement === 'row' && boxCount > 0) return widthMm / boxCount
+  return widthMm
 }
 
 /**
  * How many vertical rows of section boxes the body occupies.
- * Side-by-side (exactly two boxes) is one row; otherwise each box is its own row.
- * Used by body-box slack padding so leftover height is divided by visual rows,
- * not by raw box count.
+ * A row arrangement is one visual row; stacked puts each box on its own row.
+ * Used by body-box slack padding so leftover height is divided by visual rows.
  */
-export function bodyBoxRowCount(boxCount: number): number {
+export function bodyBoxRowCount(boxCount: number, arrangement: BodyBoxArrangement): number {
   if (boxCount <= 0) return 0
-  return isSideBySideBodyBoxes(boxCount) ? 1 : boxCount
+  return arrangement === 'row' ? 1 : boxCount
 }
 
 export interface ColumnWidthBounds {

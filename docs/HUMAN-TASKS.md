@@ -19,6 +19,21 @@ This is deliberately separate from [TECH-DEBT.md](./TECH-DEBT.md). Items here ar
 
 ## Open
 
+### Row-of-3 section boxes — print legibility on narrow stock
+
+**Priority:** Medium  
+**Blocked on:** a physical print (or calibrated print preview judgement) of a three-section row layout on the narrowest shipped width.  
+**Status:** Fit math can choose a row of three on short stocks (e.g. 40×20) so body type grows; each box is only about a third of the center column (~12 mm ink width). Agent browser checks cannot prove thermal legibility at that width.
+
+**Procedure when a printer is available:**
+
+1. On **40 × 20 mm rounded** (and optionally 40 × 20 rect), compose Tirzepatide 20 mg with reconstitution, protocol, **and** source filled so the preview uses `bodyBoxArrangement: 'row'`.
+2. Export PNG at the printer’s DPI and print.
+3. Confirm RECONSTITUTION / PROTOCOL / SOURCE headers and body lines remain readable at arm’s length without looking like they kiss the box borders.
+4. If headers clip or look cramped, record photos and measurements here; turn the finding into a TECH-DEBT item (e.g. raise a minimum section width before allowing row-of-3) rather than a blind pad/font change.
+
+---
+
 ### Print padding — exported PNG on Niimbot B21 (40×20 rounded stock)
 
 **Priority:** High

@@ -1,8 +1,9 @@
 import { mmToPx, pxToMm } from '../../print/dimensions'
 import {
-    isSideBySideBodyBoxes,
     MIN_FONT_SIZE_PX,
     REF_MAX_FONT_SIZE_PX,
+    sectionWidthMm,
+    type BodyBoxArrangement,
 } from './labelLayoutConstants'
 import { LABEL_TYPOGRAPHY } from './labelTypography'
 import { HeuristicTextMeasurer } from './domain/HeuristicTextMeasurer'
@@ -33,6 +34,8 @@ export interface BoxedBodyLayoutInput {
     readonly widthMm: number
     readonly heightMm: number
     readonly labelWidthPx: number
+    /** Stacked (full width, sum height) or row (shared height, width / boxCount). */
+    readonly arrangement: BodyBoxArrangement
 }
 
 export interface WrapState {
@@ -90,7 +93,13 @@ export class LabelLayoutEngine {
             const budgetPx = mmToPx(input.heightMm, this.dpi)
             if (
                 heightPx <= budgetPx &&
-                this.sectionLabelsFitBoxWidth(input.widthMm, size, boxCount, input.labelWidthPx)
+                this.sectionLabelsFitBoxWidth(
+                    input.widthMm,
+                    size,
+                    boxCount,
+                    input.labelWidthPx,
+                    input.arrangement,
+                )
             ) {
                 return {
                     fontSizePx: size,
@@ -103,10 +112,6 @@ export class LabelLayoutEngine {
             fontSizePx: MIN_FONT_SIZE_PX,
             wrappedLines: this.flattenBoxLines(input, MIN_FONT_SIZE_PX),
         }
-    }
-
-    private sectionWidthMm(widthMm: number, boxCount: number): number {
-        return isSideBySideBodyBoxes(boxCount) ? widthMm / 2 : widthMm
     }
 
     /**
@@ -125,8 +130,9 @@ export class LabelLayoutEngine {
         bodyFontPx: number,
         boxCount: number,
         labelWidthPx: number,
+        arrangement: BodyBoxArrangement,
     ): boolean {
-        const sectionMm = this.sectionWidthMm(widthMm, boxCount)
+        const sectionMm = sectionWidthMm(widthMm, boxCount, arrangement)
         const innerPx = this.boxedSectionUsableWidthPx(sectionMm, labelWidthPx)
         const labelFontPx = bodyFontPx * LABEL_TYPOGRAPHY.sectionLabelEm
         const labelMeasurePx = this.measurer.measureWidthPx(
@@ -153,9 +159,10 @@ export class LabelLayoutEngine {
         bodyFontPx: number,
         boxCount: number,
         labelWidthPx: number,
+        arrangement: BodyBoxArrangement,
     ): string[] {
         const contentFontPx = bodyFontPx * LABEL_TYPOGRAPHY.contentEm
-        const sectionMm = this.sectionWidthMm(widthMm, boxCount)
+        const sectionMm = sectionWidthMm(widthMm, boxCount, arrangement)
         // Safety already applied in boxedSectionUsableWidthPx — do not double it.
         const usableMm = pxToMm(this.boxedSectionUsableWidthPx(sectionMm, labelWidthPx), this.dpi)
         const fitsWidth = this.makeFitsWidth(
@@ -183,6 +190,7 @@ export class LabelLayoutEngine {
                     bodyFontPx,
                     boxCount,
                     input.labelWidthPx,
+                    input.arrangement,
                 ),
             )
         }
@@ -219,12 +227,13 @@ export class LabelLayoutEngine {
                 bodyFontPx,
                 boxCount,
                 input.labelWidthPx,
+                input.arrangement,
             ).length
             return boxChromePx + contentLines * contentLinePx
         })
         if (boxHeightsPx.length > 0) {
-            // Side-by-side: one row = taller box. Stacked: sum + gaps between boxes.
-            totalPx += isSideBySideBodyBoxes(boxCount)
+            // Row: one shared height (taller box). Stacked: sum + gaps between boxes.
+            totalPx += input.arrangement === 'row'
                 ? Math.max(...boxHeightsPx)
                 : boxHeightsPx.reduce((sum, h) => sum + h, 0) + boxGapPx * (boxHeightsPx.length - 1)
         }

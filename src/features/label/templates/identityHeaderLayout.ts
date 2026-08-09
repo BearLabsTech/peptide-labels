@@ -5,6 +5,7 @@ import type { BoxedSection } from '../LabelLayoutEngine'
 import type { QrCodeEntry } from '../coaLinks'
 import type { TestIndicatorEntry } from '../testIndicators'
 import type { ColumnLayout } from '../labelColumnLayout'
+import type { BodyBoxArrangement } from '../labelLayoutConstants'
 
 export type ResolvedContent = {
   readonly title: string
@@ -55,6 +56,7 @@ export type FittedLayouts =
       readonly titleLayout: LabelLayoutResult
       readonly bodyLayout: LabelLayoutResult
       readonly bodyBoxVerticalPadPx: number
+      readonly bodyBoxArrangement: BodyBoxArrangement
     }
 
 /** Shared inputs for the final render-model assembly step. */

@@ -10,7 +10,6 @@ import { computeQrRenderSizePx, testQrGapPx } from './qrRenderSize'
 import { cssVars } from '../../shared/cssVars'
 import { labelTypographyCssVars } from './labelTypographyCssVars'
 import { labelSpacingCssVars } from './labelSpacingCssVars'
-import { isSideBySideBodyBoxes } from './labelLayoutConstants'
 import './LabelPreview.css'
 
 interface LabelPreviewProps {
@@ -107,7 +106,7 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
         lines: model.sourceLines,
       })
     }
-    const bodyBoxesSideBySide = isSideBySideBodyBoxes(bodySections.length)
+    const bodyBoxesInRow = model.bodyBoxArrangement === 'row'
 
     const bodyArea = hasBody ? (
       <div className="label-body-area">
@@ -119,7 +118,7 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
 
         {bodySections.length > 0 && (
           <div
-            className={`label-body-boxes${bodyBoxesSideBySide ? ' label-body-boxes--row' : ''}`}
+            className={`label-body-boxes${bodyBoxesInRow ? ' label-body-boxes--row' : ''}`}
           >
             {bodySections.map((section) => (
               <div key={section.key} className="label-preview-box" style={bodyBoxStyle}>

@@ -3,6 +3,7 @@ import type { QrCodeEntry } from './coaLinks'
 import type { TestIndicatorEntry } from './testIndicators'
 import type { TestIndicatorLayout } from './testIndicatorLayout'
 import type { ColumnLayout, IdentityHeaderTitleBreakout } from './labelColumnLayout'
+import type { BodyBoxArrangement } from './labelLayoutConstants'
 import type { LabelRenderModel } from './labelRenderModel'
 
 /**
@@ -29,6 +30,7 @@ export class LabelRenderModelBuilder {
   private wrappedLines: readonly string[] = []
   private bodyFontSizePx = 0
   private bodyBoxVerticalPadPx = 0
+  private bodyBoxArrangement: BodyBoxArrangement = 'stacked'
   private isSparse = false
   private sparseLogoHeightPx = 0
 
@@ -108,6 +110,11 @@ export class LabelRenderModelBuilder {
     return this
   }
 
+  withBodyBoxArrangement(bodyBoxArrangement: BodyBoxArrangement): this {
+    this.bodyBoxArrangement = bodyBoxArrangement
+    return this
+  }
+
   withSparseComposition(isSparse: boolean, sparseLogoHeightPx = 0): this {
     this.isSparse = isSparse
     this.sparseLogoHeightPx = sparseLogoHeightPx
@@ -124,6 +131,7 @@ export class LabelRenderModelBuilder {
       titleFontSizePx: this.titleFontSizePx,
       bodyFontSizePx: this.bodyFontSizePx,
       bodyBoxVerticalPadPx: this.bodyBoxVerticalPadPx,
+      bodyBoxArrangement: this.bodyBoxArrangement,
       title: this.title,
       demotedTitle: this.demotedTitle,
       sourceLines: this.sourceLines,

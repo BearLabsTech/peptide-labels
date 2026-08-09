@@ -265,7 +265,7 @@ export class IdentityHeaderTemplate implements LabelTemplate {
     const titleHeightWeight = plan.isDanger
       ? TITLE_HEIGHT_WEIGHT_DANGER
       : TITLE_HEIGHT_WEIGHT_WITH_BODY
-    const { titleLayout, bodyLayout, bodyHeightMm } = this.titleBodyFitter.findBestFit({
+    const { titleLayout, bodyLayout, bodyHeightMm, arrangement } = this.titleBodyFitter.findBestFit({
       titleInput: this.titleLayoutInput(content.title, plan, plan.innerHeightMm * titleHeightWeight),
       boxes: plan.boxes,
       demotedTitle: content.demotedTitle,
@@ -284,6 +284,7 @@ export class IdentityHeaderTemplate implements LabelTemplate {
         widthMm: plan.baseWidthMm,
         labelWidthPx: plan.labelWidthPx,
         heightMm: bodyHeightMm,
+        arrangement,
       },
       bodyLayout.fontSizePx,
     )
@@ -300,10 +301,16 @@ export class IdentityHeaderTemplate implements LabelTemplate {
       usedStackHeightPx: usedStackHeightPx + gapClearancePx,
       innerHeightMm: plan.innerHeightMm,
       effectiveDpi: this.printTarget.effectiveDpi,
-      rowCount: bodyBoxRowCount(plan.boxes.length),
+      rowCount: bodyBoxRowCount(plan.boxes.length, arrangement),
       labelWidthPx: plan.labelWidthPx,
     })
-    return { kind: 'title-body', titleLayout, bodyLayout, bodyBoxVerticalPadPx }
+    return {
+      kind: 'title-body',
+      titleLayout,
+      bodyLayout,
+      bodyBoxVerticalPadPx,
+      bodyBoxArrangement: arrangement,
+    }
   }
 
   private titleLayoutInput(title: string, plan: ColumnPlan, heightMm: number): LabelLayoutInput {
@@ -358,6 +365,9 @@ export class IdentityHeaderTemplate implements LabelTemplate {
       .withBodyBoxVerticalPadPx(
         fitted.kind === 'title-body' ? fitted.bodyBoxVerticalPadPx : 0,
       )
+      .withBodyBoxArrangement(
+        fitted.kind === 'title-body' ? fitted.bodyBoxArrangement : 'stacked',
+      )
       .withSparseComposition(plan.isSparse, plan.sparseLogoHeightPx)
   }
 
@@ -388,6 +398,7 @@ export class IdentityHeaderTemplate implements LabelTemplate {
         fitted.bodyLayout.fontSizePx,
         plan.boxes.length,
         plan.labelWidthPx,
+        fitted.bodyBoxArrangement,
       )
     return {
       sourceLines: wrap(content.sourceLines),

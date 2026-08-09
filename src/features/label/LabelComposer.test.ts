@@ -148,6 +148,7 @@ describe('LabelComposer', () => {
                 widthMm: result.columnLayout.centerWidthMm * 0.92,
                 labelWidthPx: mmToPx(target.labelWidthMm, target.effectiveDpi),
                 heightMm: 10,
+                arrangement: result.bodyBoxArrangement,
             },
             result.bodyFontSizePx,
         )
@@ -440,6 +441,7 @@ describe('LabelComposer', () => {
             widthMm: columns.centerWidthMm * 0.92,
             heightMm: innerMm,
             labelWidthPx: mmToPx(target.labelWidthMm, target.effectiveDpi),
+            arrangement: result.bodyBoxArrangement,
         }
 
         const stackPx = engine.estimateCenterStackHeightPx(
@@ -535,7 +537,7 @@ describe('LabelComposer', () => {
         expect(result.titleLines.length).toBeGreaterThanOrEqual(2)
     })
 
-    it('should size two section boxes larger than three stacked section boxes', () => {
+    it('should size two section boxes larger than three section boxes on short stock', () => {
         const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
         const shared = {
             compoundName: 'Tirzepatide',
@@ -560,7 +562,27 @@ describe('LabelComposer', () => {
         expect(two.protocolLines.length).toBeGreaterThan(0)
         expect(two.sourceLines.length).toBe(0)
         expect(three.sourceLines.length).toBeGreaterThan(0)
+        expect(two.bodyBoxArrangement).toBe('row')
+        expect(three.bodyBoxArrangement).toBe('row')
         expect(two.bodyFontSizePx).toBeGreaterThan(three.bodyFontSizePx)
+    })
+
+    it('should choose stacked over row for two short sections on tall narrow stock when that grows body type', () => {
+        const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x30-rounded' }))
+        const result = composer.compose({
+            compoundName: 'Tirzepatide',
+            compoundAmount: '20',
+            vialUnit: 'mg',
+            showWater: false,
+            concentration: '10mg per ml',
+            protocolAmount: '2',
+            measureUnit: 'mg',
+            protocolUnits: '20 units',
+            showSource: false,
+        })
+        expect(result.reconstitutionLines.length).toBeGreaterThan(0)
+        expect(result.protocolLines.length).toBeGreaterThan(0)
+        expect(result.bodyBoxArrangement).toBe('stacked')
     })
 
     it('should default to identity header layout', () => {
