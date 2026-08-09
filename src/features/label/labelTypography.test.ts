@@ -19,6 +19,7 @@ const EXPECTED_UNIT: Record<LabelTypographyKey, string> = {
   contentLineHeightEm: '',
   borderWidthPx: 'px',
   boxPadVerticalCqw: 'cqw',
+  boxPadHorizontalCqw: 'cqw',
   boxGapCqw: 'cqw',
   titleLineHeightEm: '',
   titleInkOverflowEm: '',

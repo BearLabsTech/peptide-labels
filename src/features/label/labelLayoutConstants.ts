@@ -33,16 +33,24 @@ export const MIN_TITLE_TO_BODY_FONT_RATIO = 1.35
 /** Minimum font size for title/body search loops (export pixels). */
 export const MIN_FONT_SIZE_PX = 8
 
-/** Gap between title band and main row in identity-header layout (`.label-preview-container--identity-header`). */
-export const IDENTITY_HEADER_TITLE_BAND_GAP_FRAC = 0.75
+/**
+ * Exactly two reconstitution/protocol/source boxes sit side-by-side under the
+ * title (half width each, one row of height). Shared by layout math and preview CSS.
+ */
+export function isSideBySideBodyBoxes(boxCount: number): boolean {
+  return boxCount === 2
+}
 
 /**
- * Gap between compound title and the horizontal badge row in sparse composition.
- * Shared by CSS (`.label-sparse-stack`) and the mm-side height reservation in
- * `indicatorsHeightBelowTitle`, so the two agree. Slightly above one pad unit
- * so bold title descenders (e.g. the "g" in "20mg") clear badge labels.
+ * How many vertical rows of section boxes the body occupies.
+ * Side-by-side (exactly two boxes) is one row; otherwise each box is its own row.
+ * Used by body-box slack padding so leftover height is divided by visual rows,
+ * not by raw box count.
  */
-export const SPARSE_TITLE_TESTING_GAP_FRAC = 1.5
+export function bodyBoxRowCount(boxCount: number): number {
+  if (boxCount <= 0) return 0
+  return isSideBySideBodyBoxes(boxCount) ? 1 : boxCount
+}
 
 export interface ColumnWidthBounds {
   readonly defaultPercent: number

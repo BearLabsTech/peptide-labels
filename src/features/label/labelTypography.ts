@@ -27,13 +27,13 @@ export const LABEL_TYPOGRAPHY = {
   contentLineHeightEm: 1.25,
   /** `.label-preview-box` border width. The engine's height estimate counts this twice (top + bottom). */
   borderWidthPx: 2,
-  /**
-   * `.label-preview-box` vertical padding, in cqw. The box also has 0.8cqw
-   * horizontal padding that only affects width, not the height the engine
-   * estimates — intentionally not modeled here, and left as a literal in
-   * `LabelPreview.css`.
-   */
+  /** `.label-preview-box` vertical padding, in cqw. */
   boxPadVerticalCqw: 0.5,
+  /**
+   * `.label-preview-box` horizontal padding, in cqw. Modeled in
+   * `LabelLayoutEngine` usable-width math (section labels + body wrap).
+   */
+  boxPadHorizontalCqw: 0.8,
   /** Gap between stacked boxed sections in `.label-body-area`, in cqw. */
   boxGapCqw: 0.5,
   /** Bold uppercase title line-height, as a fraction of font size. Distinct from the ~0.95em glyph-width estimate used for title wrapping. */
@@ -55,6 +55,7 @@ export const CSS_VAR_NAME: Record<LabelTypographyKey, `--${string}`> = {
   contentLineHeightEm: '--label-content-line-height',
   borderWidthPx: '--label-box-border-width-px',
   boxPadVerticalCqw: '--label-box-pad-vertical-cqw',
+  boxPadHorizontalCqw: '--label-box-pad-horizontal-cqw',
   boxGapCqw: '--label-box-gap-cqw',
   titleLineHeightEm: '--label-title-line-height',
   titleInkOverflowEm: '--label-title-ink-overflow',
@@ -63,7 +64,7 @@ export const CSS_VAR_NAME: Record<LabelTypographyKey, `--${string}`> = {
 /**
  * CSS unit suffix each metric is emitted with. Ratios and line-heights are
  * unitless numbers so CSS can multiply them (`calc(var(--x) * 1em)`);
- * `borderWidthPx`/`boxPadVerticalCqw`/`boxGapCqw` are used as literal CSS
+ * `borderWidthPx`/`boxPadVerticalCqw`/`boxPadHorizontalCqw`/`boxGapCqw` are used as literal CSS
  * lengths so they carry their unit.
  */
 export const CSS_VAR_UNIT: Record<LabelTypographyKey, string> = {
@@ -72,6 +73,7 @@ export const CSS_VAR_UNIT: Record<LabelTypographyKey, string> = {
   contentLineHeightEm: '',
   borderWidthPx: 'px',
   boxPadVerticalCqw: 'cqw',
+  boxPadHorizontalCqw: 'cqw',
   boxGapCqw: 'cqw',
   titleLineHeightEm: '',
   titleInkOverflowEm: '',

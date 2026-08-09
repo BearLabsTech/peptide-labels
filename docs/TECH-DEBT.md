@@ -12,12 +12,38 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ## Open
 
-### Revisit width safety fractions after TextMeasurer
+### Body font search re-wraps section lines redundantly
 
 **Priority:** Low  
-**Status:** Open — measurement is exact; residual fractions may still over-constrain.
+**Status:** Open — performance/duplication, not a correctness bug; the search space is small in practice.
 
-**Symptom:** `TITLE_WIDTH_FRAC` (0.92), `SPARSE_TITLE_WIDTH_FRAC` (0.98), `SPARSE_TESTING_WIDTH_FRAC` (0.85), and danger-mode width fractions were tuned when glyph width was a flat em estimate. With `TextMeasurer` (ADR 0009), they may leave more unused horizontal room than necessary.
+**Symptom:** `TitleBodyFitter.layoutBodyAtFont` calls the full `layoutBoxedBody` top-down font search just to get wraps at one already-known size, then discards the returned `fontSizePx` and forces `bodyFontPx` anyway. Separately, `createStackHeightConstraint` re-wraps every box again via `estimateBoxedBodyHeightPx` → `wrapBodySectionLines` purely to get a line count. Both redo work already available (or trivially obtainable) on the fit candidate. Half-width wraps for side-by-side two-section layouts make each redundant pass more expensive.
+
+**Design approach:** Add a way to wrap a boxed body at one explicit font size without re-running the search (expose what `flattenBoxLines` does, or restructure so a computed `FitCandidate` carries its own per-box line counts that constraints can read instead of re-wrapping). Keep `layoutBoxedBody`'s own top-down search for the one place that legitimately wants "best fit from scratch." Leave the exact caching/restructuring shape to the implementer — the constraint is behavior must stay byte-identical (goldens must not move).
+
+**Files:** `src/features/label/templates/TitleBodyFitter.ts`, `src/features/label/LabelLayoutEngine.ts`.
+
+---
+
+### Preview and layout engine each hand-derive which body sections are present
+
+**Priority:** Low  
+**Status:** Open — duplication, not a bug; a fourth section type or reordering would need two synchronized edits today.
+
+**Symptom:** `LabelPreview.tsx` builds a `bodySections` array with its own three `if (...Lines.length > 0) push(...)` blocks (reconstitution → protocol → source, plus a display label per key). `bodyBoxesFromContent` in `identityHeaderLayout.ts` does the identical filter/order over the same three fields for the layout engine, independently. Two hand-written copies of "which sections exist, in what order," with no shared source.
+
+**Design approach:** One shared function (natural home: `identityHeaderLayout.ts`, already the shared type module for both layers) that returns an ordered list of "present section" descriptors keyed by section identity (`reconstitution` / `protocol` / `source`). The layout engine's `BoxedSection` list and the preview's rendered boxes (which additionally need a display label) should both derive from that one ordered list rather than each re-filtering the three raw arrays.
+
+**Files:** `src/features/label/templates/identityHeaderLayout.ts`, `src/features/label/LabelPreview.tsx`.
+
+---
+
+### Revisit title/sparse width safety fractions after TextMeasurer
+
+**Priority:** Low  
+**Status:** Open — title and sparse-column fractions may still over-constrain; body-box inner width is fixed (see Resolved).
+
+**Symptom:** `TITLE_WIDTH_FRAC` (0.92), `SPARSE_TITLE_WIDTH_FRAC` (0.98), `SPARSE_TESTING_WIDTH_FRAC` (0.85), and danger-mode width fractions were tuned when glyph width was a flat em estimate. With `TextMeasurer` (ADR 0009), they may leave more unused horizontal room than necessary on title/sparse layouts.
 
 **Hypothesis:** tightening these slightly (after browser checks on HGH / Tirzepatide / Human Chorionic Gonadotropin) could reclaim a little more type size without overflow. Do not change them blindly — goldens and preview must stay in sync.
 
@@ -26,6 +52,18 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 ---
 
 ## Resolved
+
+### Body section boxes used a flat 15% width cut instead of real chrome
+
+**Resolved:** 2026-08-09. Replaced `BOX_INNER_WIDTH_FRAC` (0.85) with usable width = section width minus border and horizontal pad (`LABEL_TYPOGRAPHY.boxPadHorizontalCqw`), then residual `WIDTH_SAFETY_DEFAULT`. Side-by-side two-section layouts can grow body type without inventing empty margin beside section headers.
+
+### Body-box padding ignores visual row arrangement (side-by-side vs stacked)
+
+**Resolved:** 2026-08-09. `computeBodyBoxVerticalPadPx` now divides slack by visual `rowCount` (`bodyBoxRowCount` — side-by-side is 1 row). Leftover height fills the section boxes instead of floating empty around a centered stack.
+
+### Padding/spacing values have no single extensible model like LABEL_TYPOGRAPHY
+
+**Resolved:** 2026-08-09. Added `labelSpacing.ts` / `labelSpacingCssVars.ts` — named constants for pad-relative gaps and absolute cqw spacing (title-band gap, sparse title↔testing gap, testing-column pad/gap, QR slot top pad), emitted as CSS custom properties and consumed by `LabelPreview.css`. Moved former `IDENTITY_HEADER_TITLE_BAND_GAP_FRAC` / `SPARSE_TITLE_TESTING_GAP_FRAC` into `LABEL_SPACING`.
 
 ### Long compound name + dense body + 3 tests clips the title top
 
@@ -105,7 +143,7 @@ When an item is fixed, move it to **Resolved** with a one-line note (date + what
 
 ### Preview fitting metrics — duplicated between TypeScript and CSS
 
-**Resolved:** 2026-08-02 (Phase 3 action 3.5). All seven mirrored metrics (section-label/content font ratios, content line-height, box border width, box vertical padding, box gap, title line-height) now live in one `LABEL_TYPOGRAPHY` object in `labelTypography.ts`. `LabelLayoutEngine.ts` and `qrRenderSize.ts` compute from it directly; `LabelPreview.tsx` emits it onto the label container as CSS custom properties (`labelTypographyCssVars`, using the `cssVars` helper); `LabelPreview.css` consumes `var(--label-section-label-em)` and equivalents instead of hardcoded literals. `labelTypography.test.ts` asserts every emitted custom property's value and unit match the constant it mirrors. The box's 0.8cqw horizontal padding stays a plain CSS literal — the engine only ever modeled the vertical padding for its height estimate, so no matching constant was invented for it.
+**Resolved:** 2026-08-02 (Phase 3 action 3.5). Mirrored metrics (section-label/content font ratios, content line-height, box border width, box vertical/horizontal padding, box gap, title line-height) live in one `LABEL_TYPOGRAPHY` object in `labelTypography.ts`. `LabelLayoutEngine.ts` and `qrRenderSize.ts` compute from it directly; `LabelPreview.tsx` emits CSS custom properties (`labelTypographyCssVars`); `LabelPreview.css` consumes them. `labelTypography.test.ts` asserts every emitted custom property's value and unit match the constant it mirrors. Horizontal box pad was later modeled for usable-width math (2026-08-09) rather than left as a CSS-only literal.
 
 ### Label render model — incomplete layout plan
 

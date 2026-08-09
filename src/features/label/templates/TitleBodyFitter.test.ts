@@ -45,15 +45,17 @@ function satisfiesFitConstraints(
 ): boolean {
   const bodyInputBase = { boxes: input.boxes, demotedLine: input.demotedTitle, widthMm: input.baseWidthMm, labelWidthPx: input.labelWidthPx }
   const innerHeightPx = mmToPx(input.innerHeightMm, DPI)
-  const widthConstraint = createSectionLabelWidthConstraint(engine, input.baseWidthMm)
+  const widthConstraint = createSectionLabelWidthConstraint(engine, input.baseWidthMm, input.boxes.length, input.labelWidthPx)
   const heightConstraint = createStackHeightConstraint(engine, input.titleBodyGapMm, bodyInputBase, innerHeightPx)
   return widthConstraint.isSatisfiedBy(candidate) && heightConstraint.isSatisfiedBy(candidate)
 }
 
 describe('createSectionLabelWidthConstraint', () => {
+  const labelWidthPx = mmToPx(40, DPI)
+
   it('should be satisfied when the boxed body width comfortably fits the longest section label at the candidate font', () => {
     const engine = new LabelLayoutEngine(DPI)
-    const constraint = createSectionLabelWidthConstraint(engine, 40)
+    const constraint = createSectionLabelWidthConstraint(engine, 40, 1, labelWidthPx)
     const candidate: FitCandidate = {
       titleLayout: { wrappedLines: ['TITLE'], fontSizePx: 20 },
       bodyLayout: { wrappedLines: ['line'], fontSizePx: 10 },
@@ -64,7 +66,7 @@ describe('createSectionLabelWidthConstraint', () => {
 
   it('should fail when the box is too narrow for "RECONSTITUTION" at the candidate body font', () => {
     const engine = new LabelLayoutEngine(DPI)
-    const constraint = createSectionLabelWidthConstraint(engine, 6)
+    const constraint = createSectionLabelWidthConstraint(engine, 6, 1, labelWidthPx)
     const candidate: FitCandidate = {
       titleLayout: { wrappedLines: ['TITLE'], fontSizePx: 20 },
       bodyLayout: { wrappedLines: ['line'], fontSizePx: 24 },
@@ -75,7 +77,7 @@ describe('createSectionLabelWidthConstraint', () => {
 
   it('should depend only on the candidate body font, not the title font', () => {
     const engine = new LabelLayoutEngine(DPI)
-    const constraint = createSectionLabelWidthConstraint(engine, 6)
+    const constraint = createSectionLabelWidthConstraint(engine, 6, 1, labelWidthPx)
     const smallTitle: FitCandidate = {
       titleLayout: { wrappedLines: ['TITLE'], fontSizePx: 8 },
       bodyLayout: { wrappedLines: ['line'], fontSizePx: 24 },
@@ -83,6 +85,20 @@ describe('createSectionLabelWidthConstraint', () => {
     }
     const bigTitle: FitCandidate = { ...smallTitle, titleLayout: { wrappedLines: ['TITLE'], fontSizePx: 26 } }
     expect(constraint.isSatisfiedBy(smallTitle)).toBe(constraint.isSatisfiedBy(bigTitle))
+  })
+
+  it('should fail sooner when boxCount is 2 (half-width section label budget)', () => {
+    const engine = new LabelLayoutEngine(DPI)
+    const widthMm = 14
+    const candidate: FitCandidate = {
+      titleLayout: { wrappedLines: ['TITLE'], fontSizePx: 20 },
+      bodyLayout: { wrappedLines: ['line'], fontSizePx: 20 },
+      bodyHeightMm: 8,
+    }
+    const full = createSectionLabelWidthConstraint(engine, widthMm, 1, labelWidthPx)
+    const half = createSectionLabelWidthConstraint(engine, widthMm, 2, labelWidthPx)
+    expect(full.isSatisfiedBy(candidate)).toBe(true)
+    expect(half.isSatisfiedBy(candidate)).toBe(false)
   })
 })
 

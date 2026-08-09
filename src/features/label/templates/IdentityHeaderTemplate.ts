@@ -30,14 +30,14 @@ import {
 import {
   TITLE_HEIGHT_WEIGHT_DANGER,
   TITLE_HEIGHT_WEIGHT_WITH_BODY,
-  IDENTITY_HEADER_TITLE_BAND_GAP_FRAC,
-  SPARSE_TITLE_TESTING_GAP_FRAC,
   SPARSE_DANGER_TITLE_HEIGHT_FRAC,
   SPARSE_DANGER_DEMOTED_HEIGHT_FRAC,
   DANGER_BODY_FONT_SCALE,
   SPARSE_LOGO_COLUMN_WIDTH,
   clampColumnWidthPercent,
+  bodyBoxRowCount,
 } from '../labelLayoutConstants'
+import { LABEL_SPACING } from '../labelSpacing'
 import { mmToPx, pxToMm } from '../../../print/dimensions'
 import type { LabelTemplate, LabelTemplateDeps } from './LabelTemplate'
 import { TitleBodyFitter } from './TitleBodyFitter'
@@ -287,11 +287,20 @@ export class IdentityHeaderTemplate implements LabelTemplate {
       },
       bodyLayout.fontSizePx,
     )
+    // CSS title↔box gap (titleBandGapFrac) can exceed the fit gap; charge the
+    // difference against box-pad slack so clearance comes from details boxes,
+    // not from shrinking the title.
+    const visualTitleBodyGapMm =
+      this.printTarget.paddingMm * LABEL_SPACING.titleBandGapFrac
+    const gapClearancePx = Math.max(
+      0,
+      mmToPx(visualTitleBodyGapMm - plan.titleBodyGapMm, this.printTarget.effectiveDpi),
+    )
     const bodyBoxVerticalPadPx = computeBodyBoxVerticalPadPx({
-      usedStackHeightPx,
+      usedStackHeightPx: usedStackHeightPx + gapClearancePx,
       innerHeightMm: plan.innerHeightMm,
       effectiveDpi: this.printTarget.effectiveDpi,
-      boxCount: plan.boxes.length,
+      rowCount: bodyBoxRowCount(plan.boxes.length),
       labelWidthPx: plan.labelWidthPx,
     })
     return { kind: 'title-body', titleLayout, bodyLayout, bodyBoxVerticalPadPx }
@@ -373,7 +382,13 @@ export class IdentityHeaderTemplate implements LabelTemplate {
       }
     }
     const wrap = (lines: readonly string[]) =>
-      this.layoutEngine.wrapBodySectionLines(lines, plan.baseWidthMm, fitted.bodyLayout.fontSizePx)
+      this.layoutEngine.wrapBodySectionLines(
+        lines,
+        plan.baseWidthMm,
+        fitted.bodyLayout.fontSizePx,
+        plan.boxes.length,
+        plan.labelWidthPx,
+      )
     return {
       sourceLines: wrap(content.sourceLines),
       protocolLines: wrap(content.protocolLines),
@@ -455,7 +470,9 @@ export class IdentityHeaderTemplate implements LabelTemplate {
       ctx.titleLayout.wrappedLines.length,
       ctx.titleLayout.fontSizePx,
     )
-    const gapFrac = ctx.isSparse ? SPARSE_TITLE_TESTING_GAP_FRAC : IDENTITY_HEADER_TITLE_BAND_GAP_FRAC
+    const gapFrac = ctx.isSparse
+      ? LABEL_SPACING.sparseTitleTestingGapFrac
+      : LABEL_SPACING.titleBandGapFrac
     const padPx = mmToPx(this.printTarget.paddingMm, this.printTarget.effectiveDpi)
     const gapPx = padPx * gapFrac
     let demotedPx = 0

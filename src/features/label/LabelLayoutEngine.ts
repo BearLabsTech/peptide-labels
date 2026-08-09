@@ -1,5 +1,9 @@
-import { mmToPx } from '../../print/dimensions'
-import { MIN_FONT_SIZE_PX, REF_MAX_FONT_SIZE_PX } from './labelLayoutConstants'
+import { mmToPx, pxToMm } from '../../print/dimensions'
+import {
+    isSideBySideBodyBoxes,
+    MIN_FONT_SIZE_PX,
+    REF_MAX_FONT_SIZE_PX,
+} from './labelLayoutConstants'
 import { LABEL_TYPOGRAPHY } from './labelTypography'
 import { HeuristicTextMeasurer } from './domain/HeuristicTextMeasurer'
 import type { TextMeasurer } from './domain/ports'
@@ -42,7 +46,6 @@ const WIDTH_SAFETY_DEFAULT = 0.98
 const SECTION_LABEL_MARGIN_PX = 2
 /** Longest section header on label (matches preview DOM). */
 const LONGEST_SECTION_LABEL = 'RECONSTITUTION'
-const BOX_INNER_WIDTH_FRAC = 0.85
 /** Layout estimate vs DOM — borders, letter-spacing, subpixel rounding. */
 const BODY_HEIGHT_SAFETY = 1.12
 const SECTION_LABEL_LINE_HEIGHT = 1.15
@@ -81,10 +84,14 @@ export class LabelLayoutEngine {
 
     /** Layout body sections as bordered boxes (matches preview DOM, not flat text). */
     public layoutBoxedBody(input: BoxedBodyLayoutInput): LabelLayoutResult {
+        const boxCount = input.boxes.length
         for (let size = this.maxFontSizePx; size >= MIN_FONT_SIZE_PX; size -= 1) {
             const heightPx = this.estimateBoxedBodyHeightPx(input, size)
             const budgetPx = mmToPx(input.heightMm, this.dpi)
-            if (heightPx <= budgetPx && this.sectionLabelsFitBoxWidth(input.widthMm, size)) {
+            if (
+                heightPx <= budgetPx &&
+                this.sectionLabelsFitBoxWidth(input.widthMm, size, boxCount, input.labelWidthPx)
+            ) {
                 return {
                     fontSizePx: size,
                     wrappedLines: this.flattenBoxLines(input, size),
@@ -98,15 +105,36 @@ export class LabelLayoutEngine {
         }
     }
 
-    public sectionLabelsFitBoxWidth(widthMm: number, bodyFontPx: number): boolean {
-        const innerPx = mmToPx(widthMm, this.dpi) * BOX_INNER_WIDTH_FRAC
+    private sectionWidthMm(widthMm: number, boxCount: number): number {
+        return isSideBySideBodyBoxes(boxCount) ? widthMm / 2 : widthMm
+    }
+
+    /**
+     * Usable ink width inside a section box: full section minus border and
+     * horizontal pad (cqw of the sticker), then a residual measurement safety.
+     */
+    private boxedSectionUsableWidthPx(sectionMm: number, labelWidthPx: number): number {
+        const sectionPx = mmToPx(sectionMm, this.dpi)
+        const borderPx = LABEL_TYPOGRAPHY.borderWidthPx * 2
+        const padPx = labelWidthPx * (LABEL_TYPOGRAPHY.boxPadHorizontalCqw / 100) * 2
+        return (sectionPx - borderPx - padPx) * WIDTH_SAFETY_DEFAULT
+    }
+
+    public sectionLabelsFitBoxWidth(
+        widthMm: number,
+        bodyFontPx: number,
+        boxCount: number,
+        labelWidthPx: number,
+    ): boolean {
+        const sectionMm = this.sectionWidthMm(widthMm, boxCount)
+        const innerPx = this.boxedSectionUsableWidthPx(sectionMm, labelWidthPx)
         const labelFontPx = bodyFontPx * LABEL_TYPOGRAPHY.sectionLabelEm
-        const labelWidthPx = this.measurer.measureWidthPx(
+        const labelMeasurePx = this.measurer.measureWidthPx(
             LONGEST_SECTION_LABEL,
             labelFontPx,
             SECTION_LABEL_FONT_WEIGHT,
         )
-        return labelWidthPx <= innerPx
+        return labelMeasurePx <= innerPx
     }
 
     public estimateTitleHeightPx(lineCount: number, fontSizePx: number): number {
@@ -123,14 +151,18 @@ export class LabelLayoutEngine {
         lines: readonly string[],
         widthMm: number,
         bodyFontPx: number,
+        boxCount: number,
+        labelWidthPx: number,
     ): string[] {
         const contentFontPx = bodyFontPx * LABEL_TYPOGRAPHY.contentEm
-        // Match section-label usable width (box padding + border), not the full cell.
+        const sectionMm = this.sectionWidthMm(widthMm, boxCount)
+        // Safety already applied in boxedSectionUsableWidthPx — do not double it.
+        const usableMm = pxToMm(this.boxedSectionUsableWidthPx(sectionMm, labelWidthPx), this.dpi)
         const fitsWidth = this.makeFitsWidth(
-            widthMm * BOX_INNER_WIDTH_FRAC,
+            usableMm,
             contentFontPx,
             BODY_CONTENT_FONT_WEIGHT,
-            WIDTH_SAFETY_DEFAULT,
+            1,
         )
         const result: string[] = []
         for (const line of lines) {
@@ -141,9 +173,18 @@ export class LabelLayoutEngine {
 
     private flattenBoxLines(input: BoxedBodyLayoutInput, bodyFontPx: number): string[] {
         const lines: string[] = []
+        const boxCount = input.boxes.length
         if (input.demotedLine) lines.push(input.demotedLine)
         for (const box of input.boxes) {
-            lines.push(...this.wrapBodySectionLines(box.lines, input.widthMm, bodyFontPx))
+            lines.push(
+                ...this.wrapBodySectionLines(
+                    box.lines,
+                    input.widthMm,
+                    bodyFontPx,
+                    boxCount,
+                    input.labelWidthPx,
+                ),
+            )
         }
         return lines
     }
@@ -162,6 +203,7 @@ export class LabelLayoutEngine {
         const contentFontPx = bodyFontPx * LABEL_TYPOGRAPHY.contentEm
         const contentLinePx = contentFontPx * LABEL_TYPOGRAPHY.contentLineHeightEm
         const sectionLabelPx = bodyFontPx * LABEL_TYPOGRAPHY.sectionLabelEm * SECTION_LABEL_LINE_HEIGHT + SECTION_LABEL_MARGIN_PX
+        const boxCount = input.boxes.length
 
         let totalPx = 0
 
@@ -169,13 +211,22 @@ export class LabelLayoutEngine {
             totalPx += bodyFontPx * 1.1 + boxGapPx
         }
 
-        for (const box of input.boxes) {
-            const contentLines = this.wrapBodySectionLines(box.lines, input.widthMm, bodyFontPx).length
-            totalPx += boxBorderPx + boxPadPx + sectionLabelPx + contentLines * contentLinePx + boxGapPx
-        }
-
-        if (input.boxes.length > 0) {
-            totalPx -= boxGapPx
+        const boxChromePx = boxBorderPx + boxPadPx + sectionLabelPx
+        const boxHeightsPx = input.boxes.map((box) => {
+            const contentLines = this.wrapBodySectionLines(
+                box.lines,
+                input.widthMm,
+                bodyFontPx,
+                boxCount,
+                input.labelWidthPx,
+            ).length
+            return boxChromePx + contentLines * contentLinePx
+        })
+        if (boxHeightsPx.length > 0) {
+            // Side-by-side: one row = taller box. Stacked: sum + gaps between boxes.
+            totalPx += isSideBySideBodyBoxes(boxCount)
+                ? Math.max(...boxHeightsPx)
+                : boxHeightsPx.reduce((sum, h) => sum + h, 0) + boxGapPx * (boxHeightsPx.length - 1)
         }
 
         return totalPx * BODY_HEIGHT_SAFETY

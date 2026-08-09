@@ -1,4 +1,4 @@
-import { IDENTITY_HEADER_TITLE_BAND_GAP_FRAC } from './labelLayoutConstants'
+import { LABEL_SPACING } from './labelSpacing'
 import { LABEL_TYPOGRAPHY } from './labelTypography'
 import { testIndicatorsStackHeightPx, type TestIndicatorLayout } from './testIndicatorLayout'
 import { mmToPx } from '../../print/dimensions'
@@ -34,7 +34,7 @@ function rowInnerHeightPx(model: QrRenderSizeInput, printTarget: PrintTarget): n
 
   if (model.titleLines.length > 0) {
     const titlePx = model.titleLines.length * model.titleFontSizePx * LABEL_TYPOGRAPHY.titleLineHeightEm
-    const gapPx = mmToPx(printTarget.paddingMm, printTarget.effectiveDpi) * IDENTITY_HEADER_TITLE_BAND_GAP_FRAC
+    const gapPx = mmToPx(printTarget.paddingMm, printTarget.effectiveDpi) * LABEL_SPACING.titleBandGapFrac
     innerPx = Math.max(0, innerPx - titlePx - gapPx)
   }
 

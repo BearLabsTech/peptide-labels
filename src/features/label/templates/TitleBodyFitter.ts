@@ -45,9 +45,16 @@ type FitSearchContext = {
 export function createSectionLabelWidthConstraint(
   layoutEngine: LabelLayoutEngine,
   baseWidthMm: number,
+  boxCount: number,
+  labelWidthPx: number,
 ): FitConstraint {
   return {
-    isSatisfiedBy: (candidate) => layoutEngine.sectionLabelsFitBoxWidth(baseWidthMm, candidate.bodyLayout.fontSizePx),
+    isSatisfiedBy: (candidate) => layoutEngine.sectionLabelsFitBoxWidth(
+      baseWidthMm,
+      candidate.bodyLayout.fontSizePx,
+      boxCount,
+      labelWidthPx,
+    ),
   }
 }
 
@@ -116,7 +123,7 @@ export class TitleBodyFitter {
       innerHeightMm,
       titleBodyGapMm,
       constraints: [
-        createSectionLabelWidthConstraint(this.layoutEngine, baseWidthMm),
+        createSectionLabelWidthConstraint(this.layoutEngine, baseWidthMm, boxes.length, labelWidthPx),
         createStackHeightConstraint(this.layoutEngine, titleBodyGapMm, bodyInputBase, innerHeightPx),
       ],
     }

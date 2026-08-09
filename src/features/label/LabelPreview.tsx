@@ -9,6 +9,8 @@ import { pxToCqw } from './Scaling'
 import { computeQrRenderSizePx, testQrGapPx } from './qrRenderSize'
 import { cssVars } from '../../shared/cssVars'
 import { labelTypographyCssVars } from './labelTypographyCssVars'
+import { labelSpacingCssVars } from './labelSpacingCssVars'
+import { isSideBySideBodyBoxes } from './labelLayoutConstants'
 import './LabelPreview.css'
 
 interface LabelPreviewProps {
@@ -83,6 +85,30 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
       paddingBottom: pxToCqw(model.bodyBoxVerticalPadPx, baseWidthPx),
     }
 
+    const bodySections: { key: string; label: string; lines: readonly string[] }[] = []
+    if (model.reconstitutionLines.length > 0) {
+      bodySections.push({
+        key: 'reconstitution',
+        label: 'RECONSTITUTION',
+        lines: model.reconstitutionLines,
+      })
+    }
+    if (model.protocolLines.length > 0) {
+      bodySections.push({
+        key: 'protocol',
+        label: 'PROTOCOL',
+        lines: model.protocolLines,
+      })
+    }
+    if (model.sourceLines.length > 0) {
+      bodySections.push({
+        key: 'source',
+        label: 'SOURCE',
+        lines: model.sourceLines,
+      })
+    }
+    const bodyBoxesSideBySide = isSideBySideBodyBoxes(bodySections.length)
+
     const bodyArea = hasBody ? (
       <div className="label-body-area">
         {model.demotedTitle && (
@@ -91,35 +117,19 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
           </div>
         )}
 
-        {model.reconstitutionLines.length > 0 && (
-          <div className="label-preview-box" style={bodyBoxStyle}>
-            <div className="label-preview-section-label">
-              RECONSTITUTION
-            </div>
-            {model.reconstitutionLines.map((l, i) => (
-              <div key={i} className="label-preview-section-text">{l}</div>
-            ))}
-          </div>
-        )}
-
-        {model.protocolLines.length > 0 && (
-          <div className="label-preview-box" style={bodyBoxStyle}>
-            <div className="label-preview-section-label">
-              PROTOCOL
-            </div>
-            {model.protocolLines.map((l, i) => (
-              <div key={i} className="label-preview-section-text">{l}</div>
-            ))}
-          </div>
-        )}
-
-        {model.sourceLines.length > 0 && (
-          <div className="label-preview-box" style={bodyBoxStyle}>
-            <div className="label-preview-section-label">
-              SOURCE
-            </div>
-            {model.sourceLines.map((l, i) => (
-              <div key={i} className="label-preview-section-text">{l}</div>
+        {bodySections.length > 0 && (
+          <div
+            className={`label-body-boxes${bodyBoxesSideBySide ? ' label-body-boxes--row' : ''}`}
+          >
+            {bodySections.map((section) => (
+              <div key={section.key} className="label-preview-box" style={bodyBoxStyle}>
+                <div className="label-preview-section-label">
+                  {section.label}
+                </div>
+                {section.lines.map((l, i) => (
+                  <div key={i} className="label-preview-section-text">{l}</div>
+                ))}
+              </div>
             ))}
           </div>
         )}
@@ -285,7 +295,11 @@ export const LabelPreview = forwardRef<HTMLDivElement, LabelPreviewProps>(
           className={`label-preview-container label-preview-container--identity-header${
             isSparse ? ' label-preview-container--sparse' : ''
           }`}
-          style={{ ...labelContentStyle(printTarget), ...labelTypographyCssVars() }}
+          style={{
+            ...labelContentStyle(printTarget),
+            ...labelTypographyCssVars(),
+            ...labelSpacingCssVars(),
+          }}
         >
           {isSparse ? (
             sparseBody ?? <div className="label-sparse-stack label-sparse-stack--full">{titleArea}</div>

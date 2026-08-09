@@ -155,9 +155,9 @@ describe('LabelComposer', () => {
         // Ink-overflow reserve in estimateTitleHeightPx must leave the visual stack
         // under the inner budget so rounded-sticker overflow:hidden does not clip caps.
         expect(titlePx + gapPx + bodyPx).toBeLessThanOrEqual(innerPx)
-        // Leftover must not all be poured back into body pads — some clearance stays
-        // for title ascenders once the column is vertically centered.
-        expect(result.bodyBoxVerticalPadPx).toBeLessThan(4)
+        // Slack poured into section boxes is capped; title↔box gap and title size
+        // take priority over empty box guts.
+        expect(result.bodyBoxVerticalPadPx).toBeLessThan(12)
     })
 
     it('should allocate full height to title when no body exists', () => {
@@ -255,7 +255,7 @@ describe('LabelComposer', () => {
             measureUnit: 'mg',
             protocolUnits: '10',
         })
-        expect(result.protocolLines[0]).toBe('10 units (3mg)')
+        expect(result.protocolLines.join(' ')).toBe('10 units (3mg)')
     })
 
     it('should print derived water volume in set draw volume mode even when stale water remains in input', () => {
@@ -289,7 +289,7 @@ describe('LabelComposer', () => {
         })
         expect(result.reconstitutionLines[0]).toBe('1.467 ml')
         expect(result.reconstitutionLines[1]).toBe('15mg per ml')
-        expect(result.protocolLines[0]).toBe('26.667 units (4mg)')
+        expect(result.protocolLines.join(' ')).toBe('26.667 units (4mg)')
     })
 
     it('should print user draw units on label in set draw volume mode even when rounded water would forward-recalculate different units', () => {
@@ -306,7 +306,7 @@ describe('LabelComposer', () => {
             concentration: '5mg per ml',
         })
         expect(result.reconstitutionLines[0]).toBe('1.485 ml')
-        expect(result.protocolLines[0]).toBe('27 units (4mg)')
+        expect(result.protocolLines.join(' ')).toBe('27 units (4mg)')
     })
 
     it('should print Manual Entry concentration from vial ÷ water even when stale assist concentration remains', () => {
@@ -324,7 +324,7 @@ describe('LabelComposer', () => {
         })
         expect(result.reconstitutionLines[0]).toBe('2 ml')
         expect(result.reconstitutionLines[1]).toBe('10mg per ml')
-        expect(result.protocolLines[0]).toBe('25 units (2.5mg)')
+        expect(result.protocolLines.join(' ')).toBe('25 units (2.5mg)')
     })
 
     it('should print water volume with ml unit when only water amount is shown', () => {
@@ -533,6 +533,34 @@ describe('LabelComposer', () => {
         expect(result.titleFontSizePx).toBeGreaterThan(result.bodyFontSizePx)
         expect(result.titleFontSizePx / result.bodyFontSizePx).toBeGreaterThanOrEqual(1.35)
         expect(result.titleLines.length).toBeGreaterThanOrEqual(2)
+    })
+
+    it('should size two section boxes larger than three stacked section boxes', () => {
+        const composer = new LabelComposer(resolvePrintTarget({ stockId: '40x20-rounded' }))
+        const shared = {
+            compoundName: 'Tirzepatide',
+            compoundAmount: '20',
+            vialUnit: 'mg' as const,
+            reconstitutionAmount: '2',
+            reconstitutionType: 'BAC Water',
+            concentration: '10mg per ml',
+            protocolAmount: '5',
+            measureUnit: 'mg' as const,
+            protocolUnits: '20 units',
+            showSource: false,
+        }
+        const two = composer.compose(shared)
+        const three = composer.compose({
+            ...shared,
+            showSource: true,
+            vendorName: 'Bear Labs',
+            batchNumber: 'BL-2026',
+        })
+        expect(two.reconstitutionLines.length).toBeGreaterThan(0)
+        expect(two.protocolLines.length).toBeGreaterThan(0)
+        expect(two.sourceLines.length).toBe(0)
+        expect(three.sourceLines.length).toBeGreaterThan(0)
+        expect(two.bodyFontSizePx).toBeGreaterThan(three.bodyFontSizePx)
     })
 
     it('should default to identity header layout', () => {

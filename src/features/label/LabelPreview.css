@@ -25,7 +25,7 @@
 .label-preview-container--identity-header {
   flex-direction: column;
   justify-content: center;
-  gap: calc(var(--label-pad, 1.25cqw) * 0.75);
+  gap: calc(var(--label-pad, 1.25cqw) * var(--label-title-band-gap-frac));
 }
 
 .label-preview-container--sparse {
@@ -106,8 +106,8 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  /* Match --identity-header container gap between title band and main row. */
-  gap: calc(var(--label-pad, 1.25cqw) * 0.75);
+  /* Match identity-header container gap between title band and main row. */
+  gap: calc(var(--label-pad, 1.25cqw) * var(--label-title-band-gap-frac));
 }
 
 .label-left-column {
@@ -136,8 +136,8 @@
   min-width: 0;
   overflow: hidden;
   box-sizing: border-box;
-  padding-left: calc(var(--label-pad, 1.25cqw) * 0.65);
-  gap: 1.5cqw;
+  padding-left: calc(var(--label-pad, 1.25cqw) * var(--label-testing-column-pad-left-frac));
+  gap: var(--label-testing-column-gap-cqw);
 }
 
 /* --- Sparse (no-body) composition --- */
@@ -168,8 +168,7 @@
   justify-content: center;
   min-width: 0;
   min-height: 0;
-  /* Matches SPARSE_TITLE_TESTING_GAP_FRAC (1.5 × pad) in labelLayoutConstants.ts */
-  gap: calc(var(--label-pad, 1.25cqw) * 1.5);
+  gap: calc(var(--label-pad, 1.25cqw) * var(--label-sparse-title-testing-gap-frac));
 }
 
 .label-sparse-stack--full {
@@ -218,6 +217,26 @@
   width: 100%;
   min-height: 0;
   flex: 0 1 auto;
+}
+
+.label-body-boxes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--label-box-gap-cqw);
+  width: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.label-body-boxes--row {
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.label-body-boxes--row .label-preview-box {
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
 }
 
 .label-preview-title {
@@ -276,12 +295,8 @@
   /* Border width matches LABEL_TYPOGRAPHY.borderWidthPx in labelTypography.ts. */
   border: var(--label-box-border-width-px) solid #000000;
   border-radius: 1.2cqw;
-  /*
-   * Vertical padding matches LABEL_TYPOGRAPHY.boxPadVerticalCqw. The 0.8cqw
-   * horizontal padding is intentionally a plain literal — it only affects
-   * width, which LabelLayoutEngine's height estimate does not model.
-   */
-  padding: var(--label-box-pad-vertical-cqw) 0.8cqw;
+  /* Padding matches LABEL_TYPOGRAPHY.boxPadVerticalCqw / boxPadHorizontalCqw. */
+  padding: var(--label-box-pad-vertical-cqw) var(--label-box-pad-horizontal-cqw);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -306,7 +321,7 @@
   justify-content: flex-start;
   min-height: 0;
   width: 100%;
-  padding-top: 0.6cqw;
+  padding-top: var(--label-qr-slot-pad-top-cqw);
   box-sizing: border-box;
 }
 
